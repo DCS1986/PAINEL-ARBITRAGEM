@@ -4,7 +4,7 @@ import streamlit as st
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
 
-# --- CSS PARA LEITURA OTIMIZADA (MANTENDO A IMAGEM) ---
+# --- CSS PARA LEITURA OTIMIZADA ---
 link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
 
 page_bg_img = f"""
@@ -18,7 +18,7 @@ page_bg_img = f"""
     background-attachment: fixed;
 }}
 
-/* Camada de escurecimento (Ajustada para 0.4 para deixar a imagem mais clara) */
+/* Camada de escurecimento (Ajustada para 0.4 para a imagem aparecer) */
 [data-testid="stAppViewContainer"]::before {{
     content: "";
     position: absolute;
@@ -27,7 +27,7 @@ page_bg_img = f"""
     z-index: 0;
 }}
 
-/* Fundo dos Expanders (Onde as empresas ficam) */
+/* Fundo dos Expanders */
 [data-testid="stExpander"] {{
     background-color: rgba(0, 0, 0, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -107,34 +107,4 @@ busca_ticker = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
 setores_disponiveis = sorted(df['SETOR'].unique().tolist())
 filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
 
-max_pl = st.sidebar.slider("P/L abaixo de:", 0.0, 50.0, 20.0)
-min_dy = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0, 6.0)
-max_div = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
-min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)", 0.0, 50.0, 10.0)
-
-# --- LÓGICA ---
-df_f = df.copy()
-
-if ativar_filtros:
-    df_f = df_f[
-        (df_f['pl_num'] <= max_pl) & 
-        (df_f['dy_num'] >= min_dy) &
-        (df_f['div_num'] <= max_div) &
-        (df_f['cagr_num'] >= min_cagr)
-    ]
-
-if busca_ticker:
-    df_f = df_f[df_f['CÓDIGO'].str.contains(busca_ticker)]
-if filtro_setor:
-    df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
-
-# --- CORPO DA PÁGINA ---
-st.markdown("<br><br>", unsafe_html=True)
-st.title("🎯 Painel de Arbitragem Profissional")
-
-c1, c2, c3 = st.columns(3)
-c1.metric("Total de Ativos", len(df))
-c2.metric("Ativos Filtrados", len(df_f))
-c3.metric("Média DY Filtrado", f"{df_f['dy_num'].mean():.2f}%" if not df_f.empty else "0%")
-
-st.markdown
+max_pl = st.sidebar.slider("P/L abaixo de:",
