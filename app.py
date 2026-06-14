@@ -4,8 +4,8 @@ import streamlit as st
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
 
-# --- CSS PERSONALIZADO ---
-# Aqui incluímos o estilo para a página e para o cabeçalho do Expander
+# --- CSS FORÇADO PARA ESTILIZAÇÃO ---
+# Estamos mirando nos elementos internos do Streamlit (data-testid)
 css_estilo = """
 <style>
 /* Fundo da página */
@@ -23,17 +23,22 @@ css_estilo = """
     background: rgba(0, 0, 0, 0.7); 
 }
 
-/* Estilo do cabeçalho do Expander (Onde fica o Ticker) */
-.stExpanderHeader {
-    background-color: #1a2a3a !important; /* Cor de fundo da barra */
-    border: 1px solid #4a90e2 !important; /* Borda azulada */
-    border-radius: 8px !important;       /* Bordas arredondadas */
-    padding: 10px !important;            /* Espaçamento interno */
-}
-/* Cor do texto do Expander */
-.stExpanderHeader p {
+/* Estilização do cabeçalho do Expander */
+[data-testid="stExpander"] div[role="button"] {
+    background-color: #0e1621 !important; /* Azul muito escuro */
+    border: 1px solid #3498db !important; /* Borda azul neon */
+    border-radius: 10px !important;
+    padding: 15px !important;
+    font-size: 18px !important; /* Fonte maior */
+    font-weight: bold !important;
     color: #ffffff !important;
-    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* Efeito ao passar o mouse */
+[data-testid="stExpander"] div[role="button"]:hover {
+    background-color: #1a2a3a !important;
+    border: 1px solid #ffffff !important;
 }
 </style>
 """
@@ -131,8 +136,8 @@ else:
         dy = formatar_yield(row['Dividend Yield bruto estimado'])
         setor = row['SETOR']
         
-        # O destaque do Ticker aqui é feito com o símbolo 🚀 e letras maiúsculas em negrito
-        titulo = f"🚀 {row['CÓDIGO']} | {cot} | P/L: {pl} | DY: {dy} | Setor: {setor}"
+        # Título formatado
+        titulo = f"🚀 {row['CÓDIGO']}    |    {cot}    |    P/L: {pl}    |    DY: {dy}    |    Setor: {setor}"
         
         with st.expander(titulo):
             c1_exp, c2_exp, c3_exp = st.columns(3)
@@ -159,6 +164,4 @@ else:
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
-                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
+                st.markdown(f"**Dívida
