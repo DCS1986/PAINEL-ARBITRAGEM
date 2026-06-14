@@ -6,7 +6,7 @@ st.set_page_config(page_title="Screener Estratégico", layout="wide")
 
 # --- CONFIGURAÇÃO DO FUNDO PERSONALIZADO ---
 # Usamos 'contain' para a imagem aparecer inteira e não ficar "torta" ou cortada
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.jpg"
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
 
 page_bg_img = f"""
 <style>
