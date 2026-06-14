@@ -18,12 +18,12 @@ page_bg_img = f"""
     background-attachment: fixed;
 }}
 
-/* Camada de escurecimento (Contraste) */
+/* Camada de escurecimento (Ajustada para 0.4 para deixar a imagem mais clara) */
 [data-testid="stAppViewContainer"]::before {{
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
     z-index: 0;
 }}
 
@@ -129,7 +129,7 @@ if filtro_setor:
     df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
 
 # --- CORPO DA PÁGINA ---
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_html=True)
 st.title("🎯 Painel de Arbitragem Profissional")
 
 c1, c2, c3 = st.columns(3)
@@ -137,33 +137,4 @@ c1.metric("Total de Ativos", len(df))
 c2.metric("Ativos Filtrados", len(df_f))
 c3.metric("Média DY Filtrado", f"{df_f['dy_num'].mean():.2f}%" if not df_f.empty else "0%")
 
-st.markdown("---")
-
-# --- EXIBIÇÃO ---
-if df_f.empty:
-    st.warning("Nenhum ativo encontrado.")
-else:
-    for _, row in df_f.iterrows():
-        cot = formatar_cotacao(row['Cotação atual'])
-        pl = formatar_pl(row['P/L PROJETADO'])
-        dy = formatar_yield(row['Dividend Yield bruto estimado'])
-        
-        titulo = f"🏦 {row['CÓDIGO']} | {cot} | P/L: {pl} | DY: {dy}"
-        
-        with st.expander(titulo):
-            c1_e, c2_e, c3_e = st.columns(3)
-            c1_e.metric("Cotação", cot)
-            c2_e.metric("P/L Proj.", pl)
-            c3_e.metric("Dividend Yield", dy)
-            
-            st.markdown("---")
-            c1_i, c2_i, c3_i = st.columns(3)
-            with c1_i:
-                st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
-                st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-            with c2_i:
-                st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-            with c3_i:
-                st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
+st.markdown
