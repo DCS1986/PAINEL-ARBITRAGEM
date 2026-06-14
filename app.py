@@ -5,7 +5,6 @@ import streamlit as st
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
 
 # --- CONFIGURAÇÃO DO FUNDO PERSONALIZADO ---
-# Usamos 'contain' para a imagem aparecer inteira e não ficar "torta" ou cortada
 link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
 
 page_bg_img = f"""
@@ -97,10 +96,11 @@ if filtro_setor:
 
 # --- DASHBOARD ---
 st.title("🎯 Radar de ações")
-c1, c2, c3 = st.columns(3)
+
+# Ajustado para 2 colunas para remover a métrica de média DY
+c1, c2 = st.columns(2)
 c1.metric("Total de Ativos", len(df))
 c2.metric("Ativos Filtrados", len(df_f))
-c3.metric("Média DY Filtrado", f"{df_f['dy_num'].mean():.2f}%" if not df_f.empty else "0%")
 
 st.markdown("---")
 
