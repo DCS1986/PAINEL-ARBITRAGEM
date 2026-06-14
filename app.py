@@ -96,7 +96,7 @@ if filtro_setor:
     df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
 
 # --- DASHBOARD ---
-st.title("🎯 Painel de Arbitragem Profissional")
+st.title("🎯 Radar de ações")
 c1, c2, c3 = st.columns(3)
 c1.metric("Total de Ativos", len(df))
 c2.metric("Ativos Filtrados", len(df_f))
