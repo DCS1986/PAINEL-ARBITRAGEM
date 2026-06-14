@@ -4,27 +4,40 @@ import streamlit as st
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
 
-# --- CONFIGURAÇÃO DO FUNDO ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
-
-page_bg_img = f"""
+# --- CSS PERSONALIZADO ---
+# Aqui incluímos o estilo para a página e para o cabeçalho do Expander
+css_estilo = """
 <style>
-[data-testid="stAppViewContainer"] {{
-    background-image: url("{link_da_imagem}");
+/* Fundo da página */
+[data-testid="stAppViewContainer"] {
+    background-image: url("https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png");
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-}}
-[data-testid="stAppViewContainer"]::before {{
+}
+[data-testid="stAppViewContainer"]::before {
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.7); 
-}}
+}
+
+/* Estilo do cabeçalho do Expander (Onde fica o Ticker) */
+.stExpanderHeader {
+    background-color: #1a2a3a !important; /* Cor de fundo da barra */
+    border: 1px solid #4a90e2 !important; /* Borda azulada */
+    border-radius: 8px !important;       /* Bordas arredondadas */
+    padding: 10px !important;            /* Espaçamento interno */
+}
+/* Cor do texto do Expander */
+.stExpanderHeader p {
+    color: #ffffff !important;
+    font-weight: bold;
+}
 </style>
 """
-st.markdown(page_bg_img, unsafe_allow_html=True)
+st.markdown(css_estilo, unsafe_allow_html=True)
 
 # --- FUNÇÕES ---
 def limpar_valor(valor):
@@ -113,17 +126,15 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
-        # Captura os dados básicos
         cot = formatar_cotacao(row['Cotação atual'])
         pl = formatar_pl(row['P/L PROJETADO'])
         dy = formatar_yield(row['Dividend Yield bruto estimado'])
         setor = row['SETOR']
         
-        # Título do Expander agora com o Setor incluído
-        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy} | Setor: {setor}"
+        # O destaque do Ticker aqui é feito com o símbolo 🚀 e letras maiúsculas em negrito
+        titulo = f"🚀 {row['CÓDIGO']} | {cot} | P/L: {pl} | DY: {dy} | Setor: {setor}"
         
         with st.expander(titulo):
-            # Métricas rápidas
             c1_exp, c2_exp, c3_exp = st.columns(3)
             c1_exp.metric("Cotação", cot)
             c2_exp.metric("P/L Proj.", pl)
@@ -131,7 +142,6 @@ else:
             
             st.markdown("---")
             
-            # Detalhes completos
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown("#### 📊 Valuation")
