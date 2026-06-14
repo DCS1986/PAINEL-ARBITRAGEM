@@ -60,23 +60,34 @@ df = carregar_dados()
 
 # --- SIDEBAR (FILTROS) ---
 st.sidebar.header("🎯 Filtros Quantitativos")
+
+# Chave para ativar ou desativar os filtros numéricos
+ativar_filtros = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
+
 busca_ticker = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
 setores_disponiveis = sorted(df['SETOR'].unique().tolist())
 filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
 
+# Os sliders ficam aqui, mas só serão usados se o checkbox estiver marcado
 max_pl = st.sidebar.slider("P/L abaixo de:", 0.0, 50.0, 20.0)
 min_dy = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0, 6.0)
 max_div = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
 min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)", 0.0, 50.0, 10.0)
 
 # --- LÓGICA DE FILTRAGEM ---
-df_f = df[
-    (df['pl_num'] <= max_pl) & 
-    (df['dy_num'] >= min_dy) &
-    (df['div_num'] <= max_div) &
-    (df['cagr_num'] >= min_cagr)
-]
+# Começamos com a lista completa
+df_f = df.copy()
 
+# Aplica filtros numéricos SOMENTE se o checkbox estiver marcado
+if ativar_filtros:
+    df_f = df_f[
+        (df_f['pl_num'] <= max_pl) & 
+        (df_f['dy_num'] >= min_dy) &
+        (df_f['div_num'] <= max_div) &
+        (df_f['cagr_num'] >= min_cagr)
+    ]
+
+# Aplica filtros de texto e setor (estes funcionam sempre)
 if busca_ticker:
     df_f = df_f[df_f['CÓDIGO'].str.contains(busca_ticker)]
 if filtro_setor:
@@ -91,41 +102,42 @@ c3.metric("Média DY Filtrado", f"{df_f['dy_num'].mean():.2f}%" if not df_f.empt
 
 st.markdown("---")
 
-# --- LISTAGEM (LAYOUT CLEAN & FONTE MAIOR) ---
-for _, row in df_f.iterrows():
-    cot = formatar_cotacao(row['Cotação atual'])
-    pl = formatar_pl(row['P/L PROJETADO'])
-    dy = formatar_yield(row['Dividend Yield bruto estimado'])
-    
-    titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy}"
-    
-    with st.expander(titulo):
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Cotação", cot)
-        c2.metric("P/L Proj.", pl)
-        c3.metric("Dividend Yield", dy)
+# --- LISTAGEM ---
+if df_f.empty:
+    st.warning("Nenhum ativo encontrado com os critérios atuais.")
+else:
+    for _, row in df_f.iterrows():
+        cot = formatar_cotacao(row['Cotação atual'])
+        pl = formatar_pl(row['P/L PROJETADO'])
+        dy = formatar_yield(row['Dividend Yield bruto estimado'])
         
-        st.markdown("---")
+        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy}"
         
-        # Detalhes com Fontes maiores (Markdown Header)
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.markdown("#### 📊 Valuation")
-            st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
-            st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
-            st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-            st.markdown(f"**⭐ RESULTADO 2026 (1/4):** {row.get('RESULTADO 2026 (1/4)', '-')}")
+        with st.expander(titulo):
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Cotação", cot)
+            c2.metric("P/L Proj.", pl)
+            c3.metric("Dividend Yield", dy)
+            
+            st.markdown("---")
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown("#### 📊 Valuation")
+                st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
+                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
+                st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
+                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** {row.get('RESULTADO 2026 (1/4)', '-')}")
 
-        with col2:
-            st.markdown("#### 💰 Dividendos")
-            st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-            st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-            st.markdown(f"**Div. Bruto Proj.:** {row.get('Dividendo por ação bruto projetado', '-')}")
+            with col2:
+                st.markdown("#### 💰 Dividendos")
+                st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
+                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
+                st.markdown(f"**Div. Bruto Proj.:** {row.get('Dividendo por ação bruto projetado', '-')}")
 
-        with col3:
-            st.markdown("#### ⚙️ Operacional")
-            st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-            st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
-            st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-            st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
+            with col3:
+                st.markdown("#### ⚙️ Operacional")
+                st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
+                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
+                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
+                st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
