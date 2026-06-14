@@ -1,148 +1,337 @@
 import pandas as pd
+
 import streamlit as st
 
-# Configuração da página
+
+
+# --- CONFIGURAÇÃO DA PÁGINA ---
+
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
 
-# --- CONFIGURAÇÃO DO ESTILO E IMAGEM ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.jpg"
+
+
+# --- CSS PARA LEITURA OTIMIZADA (MANTENDO A IMAGEM) ---
+
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
+
+
 
 page_bg_img = f"""
+
 <style>
+
+/* Fundo Fixo */
+
 [data-testid="stAppViewContainer"] {{
+
     background-image: url("{link_da_imagem}");
+
     background-size: contain;
+
     background-position: top center;
+
     background-repeat: no-repeat;
+
     background-attachment: fixed;
+
 }}
-/* Escurecimento forte para destacar o texto */
+
+
+
+/* Camada de escurecimento (Contraste) */
+
 [data-testid="stAppViewContainer"]::before {{
+
     content: "";
+
     position: absolute;
+
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: -1;
+
+    background: rgba(0, 0, 0, 0.85) !important;
+
+    z-index: 0;
+
 }}
-/* Fundo para os expanders ficarem legíveis */
+
+
+
+/* Fundo dos Expanders (Onde as empresas ficam) */
+
 [data-testid="stExpander"] {{
-    background-color: rgba(255, 255, 255, 0.1) !important;
+
+    background-color: rgba(0, 0, 0, 0.6) !important;
+
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
+
     border-radius: 10px !important;
+
 }}
-h1, h2, h3, div, p {{
-    color: white !important;
+
+
+
+/* Garantir que todos os textos sejam brancos */
+
+h1, h2, h3, div, p, span, label, .stMetricValue {{
+
+    color: #ffffff !important;
+
 }}
+
+
+
+/* Ajuste nos filtros da sidebar */
+
+.stSidebar {{
+
+    background-color: rgba(20, 20, 20, 0.9) !important;
+
+}}
+
 </style>
+
 """
+
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# --- FUNÇÕES ---
+
+
+# --- FUNÇÕES DE PROCESSAMENTO ---
+
 def limpar_valor(valor):
+
     try:
+
         s = str(valor).replace('%', '').replace(',', '.').replace('R$', '').strip()
+
         return float(s)
+
     except:
+
         return 0.0
 
+
+
 def formatar_cotacao(valor):
+
     try:
+
         s = str(valor).replace('R$', '').replace(',', '.').strip()
+
         return f"R$ {s}"
+
     except:
+
         return "R$ 0,00"
 
+
+
 def formatar_pl(valor):
+
     s = str(valor).replace('x', '').replace(',', '.').strip()
+
     return f"{s}x"
 
+
+
 def formatar_yield(valor):
+
     s = str(valor).replace('%', '').replace(',', '.').strip()
+
     return f"{s}%"
 
+
+
 @st.cache_data(ttl=600)
+
 def carregar_dados():
+
     try:
+
         spreadsheet_id = "1QM3xaaiZHleTJb8MEChy95LJSX3j3hLs8-ecQydMHYM"
+
         gid_id = "596101825"
+
         url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv&gid={gid_id}"
+
         df = pd.read_csv(url, header=None)
+
+        
+
         idx = 0
+
         for i, row in df.iterrows():
+
             if "CÓDIGO" in [str(x).upper().strip() for x in row.values]:
+
                 idx = i
+
                 break
+
+        
+
         df.columns = [str(c).strip() for c in df.iloc[idx]]
+
         df = df.iloc[idx + 1:].reset_index(drop=True)
+
         df = df.dropna(how='all')
+
+        
+
         df['pl_num'] = df['P/L PROJETADO'].apply(limpar_valor)
+
         df['dy_num'] = df['Dividend Yield bruto estimado'].apply(limpar_valor)
+
         df['div_num'] = df['Dívida líquida/EBITDA'].apply(limpar_valor)
+
         df['cagr_num'] = df['CAGR lucros (últ. 5 anos)'].apply(limpar_valor)
+
+        
+
         return df
-    except:
+
+    except Exception as e:
+
+        st.error(f"Erro: {e}")
+
         return pd.DataFrame()
+
+
 
 df = carregar_dados()
 
-# --- SIDEBAR ---
+
+
+# --- SIDEBAR E FILTROS ---
+
 st.sidebar.header("🎯 Filtros Quantitativos")
-ativar_filtros = st.sidebar.checkbox("✅ Ativar Filtros", value=False)
-busca_ticker = st.sidebar.text_input("🔍 Buscar Ticker:").strip().upper()
-setores = sorted(df['SETOR'].unique().tolist())
-filtro_setor = st.sidebar.multiselect("🏢 Setor:", setores)
+
+ativar_filtros = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
+
+busca_ticker = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
+
+setores_disponiveis = sorted(df['SETOR'].unique().tolist())
+
+filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
+
+
+
 max_pl = st.sidebar.slider("P/L abaixo de:", 0.0, 50.0, 20.0)
-min_dy = st.sidebar.slider("DY acima de (%)", 0.0, 20.0, 6.0)
-max_div = st.sidebar.slider("Dívida Líq/EBITDA abaixo de:", 0.0, 10.0, 3.0)
+
+min_dy = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0, 6.0)
+
+max_div = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
+
 min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)", 0.0, 50.0, 10.0)
 
+
+
 # --- LÓGICA ---
+
 df_f = df.copy()
+
+
+
 if ativar_filtros:
-    df_f = df_f[(df_f['pl_num'] <= max_pl) & (df_f['dy_num'] >= min_dy) & (df_f['div_num'] <= max_div) & (df_f['cagr_num'] >= min_cagr)]
+
+    df_f = df_f[
+
+        (df_f['pl_num'] <= max_pl) & 
+
+        (df_f['dy_num'] >= min_dy) &
+
+        (df_f['div_num'] <= max_div) &
+
+        (df_f['cagr_num'] >= min_cagr)
+
+    ]
+
+
+
 if busca_ticker:
+
     df_f = df_f[df_f['CÓDIGO'].str.contains(busca_ticker)]
+
 if filtro_setor:
+
     df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
 
-# --- DASHBOARD ---
+
+
+# --- CORPO DA PÁGINA ---
+
 st.markdown("<br><br>", unsafe_allow_html=True)
+
 st.title("🎯 Painel de Arbitragem Profissional")
 
-# Usando nomes únicos para evitar conflitos de variáveis
-c1_dash, c2_dash, c3_dash = st.columns(3)
-c1_dash.metric("Total de Ativos", len(df))
-c2_dash.metric("Ativos Filtrados", len(df_f))
-c3_dash.metric("Média DY", f"{df_f['dy_num'].mean():.2f}%" if not df_f.empty else "0%")
+
+
+c1, c2, c3 = st.columns(3)
+
+c1.metric("Total de Ativos", len(df))
+
+c2.metric("Ativos Filtrados", len(df_f))
+
+c3.metric("Média DY Filtrado", f"{df_f['dy_num'].mean():.2f}%" if not df_f.empty else "0%")
+
+
 
 st.markdown("---")
 
-if df_f.empty:
-    st.warning("Nenhum ativo encontrado.")
-else:
-    for _, row in df_f.iterrows():
-        cot = formatar_cotacao(row['Cotação atual'])
-        pl = formatar_pl(row['P/L PROJETADO'])
-        dy = formatar_yield(row['Dividend Yield bruto estimado'])
-        titulo = f"🏦 {row['CÓDIGO']} | {cot} | P/L: {pl} | DY: {dy}"
-        
-        with st.expander(titulo):
-            c1_exp, c2_exp, c3_exp = st.columns(3)
-            c1_exp.metric("Cotação", cot)
-            c2_exp.metric("P/L Proj.", pl)
-            c3_exp.metric("Dividend Yield", dy)
-            st.markdown("---")
-            c1_i, c2_i, c3_i = st.columns(3)
-            with c1_i:
-                st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
-                st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-            with c2_i:
-                st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-            with c3_i:
-                st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-setores_disponiveis = sorted(df['SETOR'].unique().tolist())
-filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
 
-max_pl = st.sidebar.slider("P/L abaixo de:",
+
+# --- EXIBIÇÃO ---
+
+if df_f.empty:
+
+    st.warning("Nenhum ativo encontrado.")
+
+else:
+
+    for _, row in df_f.iterrows():
+
+        cot = formatar_cotacao(row['Cotação atual'])
+
+        pl = formatar_pl(row['P/L PROJETADO'])
+
+        dy = formatar_yield(row['Dividend Yield bruto estimado'])
+
+        
+
+        titulo = f"🏦 {row['CÓDIGO']} | {cot} | P/L: {pl} | DY: {dy}"
+
+        
+
+        with st.expander(titulo):
+
+            c1_e, c2_e, c3_e = st.columns(3)
+
+            c1_e.metric("Cotação", cot)
+
+            c2_e.metric("P/L Proj.", pl)
+
+            c3_e.metric("Dividend Yield", dy)
+
+            
+
+            st.markdown("---")
+
+            c1_i, c2_i, c3_i = st.columns(3)
+
+            with c1_i:
+
+                st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
+
+                st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
+
+            with c2_i:
+
+                st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
+
+                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
+
+            with c3_i:
+
+                st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
+
+                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
