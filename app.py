@@ -1,10 +1,10 @@
 import pandas as pd
 import streamlit as st
 
-# Configuração da página
+# --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
 
-# --- CONFIGURAÇÃO DO FUNDO PERSONALIZADO ---
+# --- CSS ---
 link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
 
 page_bg_img = f"""
@@ -78,8 +78,9 @@ df = carregar_dados()
 st.sidebar.header("🎯 Filtros Quantitativos")
 ativar_filtros = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
 busca_ticker = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
-setores_disponiveis = sorted(df['SETOR'].unique().tolist())
+setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
 filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
+
 max_pl = st.sidebar.slider("P/L abaixo de:", 0.0, 50.0, 20.0)
 min_dy = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0, 6.0)
 max_div = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
@@ -97,7 +98,6 @@ if filtro_setor:
 # --- DASHBOARD ---
 st.title("🎯 Radar de ações")
 
-# Ajustado para 2 colunas para remover a métrica de média DY
 c1, c2 = st.columns(2)
 c1.metric("Total de Ativos", len(df))
 c2.metric("Ativos Filtrados", len(df_f))
@@ -111,28 +111,4 @@ else:
         cot = formatar_cotacao(row['Cotação atual'])
         pl = formatar_pl(row['P/L PROJETADO'])
         dy = formatar_yield(row['Dividend Yield bruto estimado'])
-        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy}"
-        with st.expander(titulo):
-            c1_exp, c2_exp, c3_exp = st.columns(3)
-            c1_exp.metric("Cotação", cot)
-            c2_exp.metric("P/L Proj.", pl)
-            c3_exp.metric("Dividend Yield", dy)
-            st.markdown("---")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown("#### 📊 Valuation")
-                st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
-                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
-                st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** {row.get('RESULTADO 2026 (1/4)', '-')}")
-            with col2:
-                st.markdown("#### 💰 Dividendos")
-                st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-                st.markdown(f"**Div. Bruto Proj.:** {row.get('Dividendo por ação bruto projetado', '-')}")
-            with col3:
-                st.markdown("#### ⚙️ Operacional")
-                st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
-                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
+        setor = row['
