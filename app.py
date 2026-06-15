@@ -1,6 +1,51 @@
 import pandas as pd
 import streamlit as st
 import yfinance as yf
+import requests
+
+# ---- Chave brapi.dev (fonte: CVM — dados confiáveis) ----
+BRAPI_TOKEN = "qX942ePxQaNWzSEs9gphZi"
+
+@st.cache_data(ttl=86400)
+def get_brapi_financials(ticker):
+    """Busca Lucro Líquido anual via brapi.dev (fonte CVM)."""
+    try:
+        url = f"https://brapi.dev/api/v2/stocks/income-statement?symbols={ticker}&period=annual&token={BRAPI_TOKEN}"
+        resp = requests.get(url, timeout=10)
+        data = resp.json()
+        result = data['results'][0]
+        historico_lucro = {}
+        historico_pl    = {}
+        preco_atual     = None
+
+        # Pegar preço atual via brapi também
+        url_quote = f"https://brapi.dev/api/quote/{ticker}?token={BRAPI_TOKEN}"
+        resp_q = requests.get(url_quote, timeout=10)
+        data_q = resp_q.json()
+        if data_q.get('results'):
+            preco_atual  = data_q['results'][0].get('regularMarketPrice', 0)
+            shares       = data_q['results'][0].get('sharesOutstanding', 0)
+
+        ano_atual = pd.Timestamp.now().year
+        for item in result.get('data', []):
+            end_date = item.get('endDate', '')
+            ano = int(end_date[:4]) if end_date else None
+            if not ano or ano >= ano_atual:  # ignora ano corrente (parcial)
+                continue
+            if ano < ano_atual - 5:
+                continue
+            lucro = item.get('netIncome')
+            if lucro and lucro != 0:
+                historico_lucro[ano] = float(lucro)
+                # P/L histórico: preço atual / LPA histórico
+                if preco_atual and shares and shares > 0:
+                    lpa = float(lucro) / shares
+                    if lpa > 0:
+                        historico_pl[ano] = round(preco_atual / lpa, 1)
+
+        return historico_lucro, historico_pl
+    except:
+        return {}, {}
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -705,17 +750,7 @@ else:
                         unsafe_allow_html=True
                     )
 
-                    # Mini gráfico de linha — P/L histórico (azul)
-                    if historico_pl:
-                        st.markdown(
-                            "<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>"
-                            "📈 P/L Histórico (5 anos)</span>",
-                            unsafe_allow_html=True
-                        )
-                        st.markdown(
-                            mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"),
-                            unsafe_allow_html=True
-                        )
+
 
                 # ── COLUNA 2: DIVIDENDOS ─────────────────────────────────
                 with col2:
@@ -765,7 +800,7 @@ else:
                     st.markdown(f"**Margem Líq.:** {margem}")
                     st.markdown(f"**Beta (vs IBOV):** {beta}")
 
-                    # Mini gráfico de linha — Lucro Líquido histórico (verde neon)
+                    # Mini gráfico de linha — Lucro Líquido histórico via brapi (fonte: CVM)
                     if historico_lucro:
                         st.markdown(
                             "<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>"
