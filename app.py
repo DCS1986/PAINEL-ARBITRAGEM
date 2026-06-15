@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-import yfinance as yf
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
@@ -50,19 +49,6 @@ def formatar_yield(valor):
     s = str(valor).replace('%', '').replace(',', '.').strip()
     return f"{s}%"
 
-@st.cache_data(ttl=86400)
-def get_dividendos(ticker):
-    try:
-        stock = yf.Ticker(f"{ticker}.SA")
-        hist = stock.dividends
-        if not hist.empty:
-            ultimo_valor = hist.iloc[-1]
-            data_pag = hist.index[-1].strftime('%d/%m/%Y')
-            return f"R$ {ultimo_valor:.2f}", data_pag
-        return "-", "-"
-    except:
-        return "-", "-"
-
 @st.cache_data(ttl=60)
 def carregar_dados():
     try:
@@ -81,7 +67,6 @@ def carregar_dados():
         df = df.iloc[idx + 1:].reset_index(drop=True)
         df = df.dropna(how='all')
         
-        # Tratamento de números para filtros
         df['pl_num'] = df['P/L PROJETADO'].apply(limpar_valor)
         df['dy_num'] = df['Dividend Yield bruto estimado'].apply(limpar_valor)
         df['div_num'] = df['Dívida líquida/EBITDA'].apply(limpar_valor)
@@ -105,9 +90,100 @@ min_dy = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0, 6.0)
 max_div = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
 min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)", 0.0, 50.0, 10.0)
 
-# --- LÓGICA DE FILTRAGEM ---
+# --- LÓGICA ---
 df_f = df.copy()
 if ativar_filtros:
     df_f = df_f[(df_f['pl_num'] <= max_pl) & (df_f['dy_num'] >= min_dy) & (df_f['div_num'] <= max_div) & (df_f['cagr_num'] >= min_cagr)]
 if busca_ticker:
-    df_f =
+    df_f = df_f[df_f['CÓDIGO'].str.contains(busca_ticker)]
+if filtro_setor:
+    df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
+
+# --- DASHBOARD ---
+st.title("🎯 Radar de ações")
+
+c1, c2 = st.columns(2)
+c1.metric("Total de Ativos", len(df))
+c2.metric("Ativos Filtrados", len(df_f))
+
+# LÓGICA DE DESTAQUES
+if not df_f.empty:
+    idx_max_dy = df_f['dy_num'].idxmax()
+    ticker_max_dy = df_f.loc[idx_max_dy, 'CÓDIGO']
+    val_max_dy = df_f.loc[idx_max_dy, 'Dividend Yield bruto estimado']
+    
+    df_pl_valido = df_f[df_f['pl_num'] > 0]
+    if not df_pl_valido.empty:
+        idx_min_pl = df_pl_valido['pl_num'].idxmin()
+        ticker_min_pl = df_pl_valido.loc[idx_min_pl, 'CÓDIGO']
+        val_min_pl = formatar_pl(df_pl_valido.loc[idx_min_pl, 'P/L PROJETADO'])
+    else:
+        ticker_min_pl, val_min_pl = "-", "-"
+
+    c3, c4 = st.columns(2)
+    c3.metric("🏆 Maior DY", ticker_max_dy, val_max_dy)
+    c4.metric("📉 Menor P/L", ticker_min_pl, val_min_pl)
+
+st.markdown("---")
+
+# --- LISTAGEM DE ATIVOS ---
+if df_f.empty:
+    st.warning("Nenhum ativo encontrado.")
+else:
+    for _, row in df_f.iterrows():
+        # Captura os dados básicos
+        cot = formatar_cotacao(row['Cotação atual'])
+        pl = formatar_pl(row['P/L PROJETADO'])
+        dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
+        setor = row['SETOR']
+        
+        # --- Lógica de Destaque no Título ---
+        # Se for > 8, colorimos em verde usando sintaxe do Streamlit
+        dy_display = f":green[{dy_str}]" if row['dy_num'] > 8 else dy_str
+        
+        # Título do Expander
+        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_display} | Setor: {setor}"
+        
+        with st.expander(titulo):
+            # Métricas rápidas
+            c1_exp, c2_exp, c3_exp = st.columns(3)
+            c1_exp.metric("Cotação", cot)
+            c2_exp.metric("P/L Projetado", pl)
+            c3_exp.metric("Dividend Yield", dy_str)
+            
+            st.markdown("---")
+            
+            # Detalhes completos
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.markdown("#### 📊 Valuation")
+                
+                pl_medio = row.get('P/L médio (últ. 10 anos)', '-')
+                pl_medio_formatado = f"{pl_medio}x" if pl_medio != '-' else "-"
+                st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
+                
+                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
+                st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
+                valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
+                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold; background-color: rgba(57, 255, 20, 0.1); padding: 2px 4px; border-radius: 4px;'>{valor_resultado}</span>", unsafe_allow_html=True)
+                
+            with col2:
+                st.markdown("#### 💰 Dividendos")
+                
+                # --- Destacando DY > 8% dentro dos detalhes também ---
+                dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
+                dy_num = row.get('dy_num', 0)
+                style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
+                st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_valor_display}</span>", unsafe_allow_html=True)
+                
+                st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
+                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
+                st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
+                
+            with col3:
+                st.markdown("#### ⚙️ Operacional")
+                st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
+                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
+                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
+                st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
+
