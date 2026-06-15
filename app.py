@@ -1,65 +1,6 @@
 import pandas as pd
 import streamlit as st
 import yfinance as yf
-import requests
-
-# ---- Chave brapi.dev (fonte: CVM — dados confiáveis) ----
-BRAPI_TOKEN = "qX942ePxQaNWzSEs9gphZi"
-
-@st.cache_data(ttl=86400)
-def get_brapi_financials(ticker):
-    """Busca Lucro Líquido anual via brapi.dev (fonte CVM)."""
-    historico_lucro = {}
-    historico_pl    = {}
-    try:
-        # Busca fundamentals via endpoint principal da brapi
-        url = (
-            f"https://brapi.dev/api/quote/{ticker}"
-            f"?modules=incomeStatementHistory&token={BRAPI_TOKEN}"
-        )
-        resp = requests.get(url, timeout=15)
-        data = resp.json()
-
-        if not data.get('results'):
-            return {}, {}
-
-        result     = data['results'][0]
-        preco_atual = result.get('regularMarketPrice', 0)
-        shares      = result.get('sharesOutstanding', 0)
-
-        # Tenta incomeStatementHistory
-        income = result.get('incomeStatementHistory', {})
-        statements = income.get('incomeStatementHistory', [])
-
-        ano_atual = pd.Timestamp.now().year
-        for item in statements:
-            end_date = item.get('endDate', {})
-            # endDate pode vir como dict {'raw': timestamp, 'fmt': '2024-12-31'}
-            if isinstance(end_date, dict):
-                fmt = end_date.get('fmt', '')
-                ano = int(fmt[:4]) if fmt else None
-            else:
-                ano = int(str(end_date)[:4]) if end_date else None
-
-            if not ano or ano >= ano_atual:
-                continue
-            if ano < ano_atual - 5:
-                continue
-
-            net = item.get('netIncome', {})
-            lucro = net.get('raw') if isinstance(net, dict) else net
-
-            if lucro and float(lucro) != 0:
-                historico_lucro[ano] = float(lucro)
-                if preco_atual and shares and shares > 0:
-                    lpa = float(lucro) / shares
-                    if lpa > 0:
-                        historico_pl[ano] = round(preco_atual / lpa, 1)
-
-    except Exception as e:
-        pass
-
-    return historico_lucro, historico_pl
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -435,7 +376,35 @@ def get_dados_yahoo(ticker):
         except:
             historico_dy = {}
 
+        # Histórico de P/L e Lucro Líquido dos últimos 5 anos
+        historico_pl    = {}
+        historico_lucro = {}
+        try:
+            financials  = stock.financials
+            preco_atual = info.get('currentPrice') or info.get('regularMarketPrice', 0)
+            shares      = info.get('sharesOutstanding', 0)
 
+            if financials is not None and not financials.empty:
+                ano_atual = pd.Timestamp.now().year
+                for col in financials.columns:
+                    ano = col.year
+                    if ano < ano_atual - 4:
+                        continue
+                    # Lucro Líquido
+                    for chave in ['Net Income', 'Net Income Common Stockholders']:
+                        if chave in financials.index:
+                            lucro = financials.loc[chave, col]
+                            if pd.notna(lucro) and lucro != 0:
+                                historico_lucro[ano] = float(lucro)
+                            break
+                    # P/L histórico estimado (preço atual / LPA histórico)
+                    if shares > 0 and ano in historico_lucro and historico_lucro[ano] > 0:
+                        lpa = historico_lucro[ano] / shares
+                        if lpa > 0 and preco_atual:
+                            historico_pl[ano] = round(preco_atual / lpa, 1)
+        except:
+            historico_pl    = {}
+            historico_lucro = {}
 
         # Próximo provento em aberto
         # Lógica: Yahoo dá a Data Ex. A Data COM no Brasil é 1 dia útil antes da Data Ex.
@@ -463,12 +432,12 @@ def get_dados_yahoo(ticker):
         return (
             data_ex, valor_div, roe_str, margem_str, low_str, high_str,
             beta_str, pvp_str, roe_num, margem_num,
-            historico_dy,
+            historico_dy, historico_pl, historico_lucro,
             proximo_provento_data, proximo_provento_valor,
             variacao_dia, iv_str
         )
     except:
-        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, "-", "-", 0.0, "-"
+        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-"
 
 
 # ---- Carrega planilha ----
@@ -599,7 +568,7 @@ else:
         # Inicialização segura
         dt = val = roe = margem = low = high = beta = pvp_str = "-"
         roe_num_raw = margem_num_raw = 0
-        historico_dy = {}
+        historico_dy = historico_pl = historico_lucro = {}
         proximo_provento_data = proximo_provento_valor = "-"
         variacao_dia = 0.0
         iv_str = "-"
@@ -608,14 +577,11 @@ else:
         try:
             (dt, val, roe, margem, low, high,
              beta, pvp_str, roe_num_raw, margem_num_raw,
-             historico_dy,
+             historico_dy, historico_pl, historico_lucro,
              proximo_provento_data, proximo_provento_valor,
              variacao_dia, iv_str) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
-
-        # Lucro e P/L via brapi.dev (fonte: CVM — anos fechados)
-        historico_lucro, historico_pl = get_brapi_financials(row['CÓDIGO'])
 
         val_entregue  = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
@@ -739,9 +705,7 @@ else:
                         unsafe_allow_html=True
                     )
 
-
-
-                    # Mini gráfico de linha — P/L histórico (azul) via brapi
+                    # Mini gráfico de linha — P/L histórico (azul)
                     if historico_pl:
                         st.markdown(
                             "<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>"
@@ -801,7 +765,7 @@ else:
                     st.markdown(f"**Margem Líq.:** {margem}")
                     st.markdown(f"**Beta (vs IBOV):** {beta}")
 
-                    # Mini gráfico de linha — Lucro Líquido histórico via brapi (fonte: CVM)
+                    # Mini gráfico de linha — Lucro Líquido histórico (verde neon)
                     if historico_lucro:
                         st.markdown(
                             "<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>"
@@ -812,3 +776,5 @@ else:
                             mini_grafico_linha(historico_lucro, "#39FF14"),
                             unsafe_allow_html=True
                         )
+
+
