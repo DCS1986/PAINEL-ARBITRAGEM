@@ -156,7 +156,7 @@ def mini_grafico_dy(historico_dy):
     return f'<div class="dy-bar-container">{barras}</div>'
 
 # ---- Mini gráfico de linha SVG — P/L e Lucro ----
-def mini_grafico_linha(dados, cor, label_suffix="", altura=120, largura=420):
+def mini_grafico_linha(dados, cor, label_suffix="", altura=95, largura=420):
     if not dados or len(dados) < 2:
         return "<span style='color:#888; font-size:0.9em;'>Dados insuficientes</span>"
 
@@ -200,7 +200,7 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=120, largura=420):
         anchor = "start" if i == 0 else ("end" if i == len(pts) - 1 else "middle")
         val_labels += (
             f'<text x="{x:.1f}" y="{y - 9:.1f}" text-anchor="{anchor}" '
-            f'font-size="12" fill="{cor}" font-weight="bold">{fmt(vals[i])}</text>'
+            f'font-size="10" fill="{cor}" font-weight="bold">{fmt(vals[i])}</text>'
         )
 
     # Ano em todos os pontos no eixo X
@@ -208,12 +208,12 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=120, largura=420):
     for i, (x, _) in enumerate(pts):
         labels_x += (
             f'<text x="{x:.1f}" y="{altura - 2}" text-anchor="middle" '
-            f'font-size="11" fill="#aaa" font-weight="bold">{anos[i]}</text>'
+            f'font-size="9" fill="#aaa" font-weight="bold">{anos[i]}</text>'
         )
 
     # Círculos maiores
     circles = "".join(
-        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" fill="{cor}" '
+        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="{cor}" '
         f'stroke="#111" stroke-width="1.5"/>'
         for x, y in pts
     )
@@ -541,12 +541,9 @@ else:
                     )
                     st.markdown(
                         f"<span style='color:{cor}; font-weight:bold;'>"
-                        f"Status: {porcentagem}% da meta projetada</span>",
+                        f"Status: {porcentagem}% do resultado projetado</span>",
                         unsafe_allow_html=True
                     )
-
-                    # Badge de score
-                    st.markdown(badge_score(score), unsafe_allow_html=True)
 
                     # Mini gráfico de linha — P/L histórico (azul)
                     if historico_pl:
