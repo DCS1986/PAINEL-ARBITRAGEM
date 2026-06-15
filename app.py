@@ -232,7 +232,7 @@ else:
                 st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**⭐ RESULTADO ENTREGUE (1/4):** <span style='color:#39FF14; font-weight:bold;'>{row.get('RESULTADO 2026 (1/4)', '-')}</span>", unsafe_allow_html=True)
                 st.progress(progresso)
-                st.caption(f"Status: {porcentagem}% do resultado projetado")
+                st.markdown(f"<span style='color:#1E90FF; font-weight:bold;'>Status: {porcentagem}% da meta projetada</span>", unsafe_allow_html=True)
             
             # --- COLUNA 2: DIVIDENDOS ---
             with col2:
