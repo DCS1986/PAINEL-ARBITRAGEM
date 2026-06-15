@@ -181,55 +181,60 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
-        # 1. Cálculos preparatórios (Resolve o NameError)
-        cot = formatar_cotacao(row['Cotação atual'])
-        pl = formatar_pl(row['P/L PROJETADO'])
-        dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
+        # --- 1. PREPARAÇÃO DOS DADOS ---
+        # Limpeza para cálculo numérico
+        val_entregue = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
+        val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         
-        # Cálculo da barra de progresso (Obrigatório antes de st.progress)
-        val_num = row.get('res_val_num', 0)
-        meta = 7_800_000_000
-        progresso = min(val_num / meta, 1.0)
+        # Cálculo dinâmico da porcentagem
+        if val_projetado > 0:
+            progresso = min(val_entregue / val_projetado, 1.0)
+        else:
+            progresso = 0
         porcentagem = int(progresso * 100)
-        
-        dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
 
-        # 2. Exibição
+        # Formatação Visual
+        cot = formatar_cotacao(row['Cotação atual'])
+        pl = f"{row.get('P/L PROJETADO', '0')}x" # Adicionado o 'x' aqui
+        dy_val = row.get('Dividend Yield bruto estimado', 0)
+        dy_str = f"{dy_val}%"
+        
+        # Lógica de cor do DY (> 8%)
+        style_dy = "color: #39FF14; font-weight: bold;" if (isinstance(dy_val, (int, float)) and dy_val > 8) else ""
+
+        # --- 2. EXIBIÇÃO ---
         titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_str} | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
             col1, col2, col3 = st.columns(3)
             
-            # --- COLUNA 1: VALUATION (6 itens) ---
             with col1:
                 st.markdown("#### 📊 Valuation")
-                st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
+                st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
-                st.markdown(f"**Mínima (52 sem):** {low}")
-                st.markdown(f"**Máxima (52 sem):** {high}")
-                # Barra de progresso (6ª posição)
-                st.markdown(f"**⭐ Meta 2026:** {row.get('RESULTADO 2026 (1/4)', '-')}")
+                # Renomeado conforme solicitado:
+                st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
+                
+                # Resultado entregue com destaque verde
+                res_entregue_str = row.get('RESULTADO 2026 (1/4)', '-')
+                st.markdown(f"**⭐ RESULTADO ENTREGUE (1/4):** <span style='color:#39FF14; font-weight:bold;'>{res_entregue_str}</span>", unsafe_allow_html=True)
+                
                 st.progress(progresso)
-                st.caption(f"Status: {porcentagem}% da meta")
+                st.caption(f"Status: {porcentagem}% da meta projetada")
             
-            # --- COLUNA 2: DIVIDENDOS (6 itens) ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                st.markdown(f"**Dividend Yield:** :green[{dy_str}]")
+                # DY com destaque condicional
+                st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_str}</span>", unsafe_allow_html=True)
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
-                st.markdown(f"**Data Ex:** {dt}")
-                st.markdown(f"**Valor Atual:** {val}")
-                st.write("") # Espaçador invisível para manter simetria
+                st.write("") 
 
-            # --- COLUNA 3: OPERACIONAL (6 itens) ---
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**Beta (vs IBOV):** {beta}")
-                st.markdown(f"**ROE:** {roe}")
-                st.markdown(f"**Margem Líq.:** {margem}")
+                st.markdown(f"**ROE:** {row.get('ROE', '-')}")
+                st.markdown(f"**Margem Líq.:** {row.get('Margem Líquida', '-')}")
