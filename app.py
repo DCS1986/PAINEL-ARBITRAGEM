@@ -209,7 +209,7 @@ else:
                 st.markdown(f"**Mínima (52 sem):** {low}")
                 st.markdown(f"**Máxima (52 sem):** {high}")
                 # Barra de progresso (6ª posição)
-                st.markdown(f"**⭐ Meta 2026:** {row.get('RESULTADO 2026 (1/4)', '-')}")
+                st.markdown(f"**⭐ RESULTADO ENTREGUE:** {row.get('RESULTADO 2026 (1/4)', '-')}")
                 st.progress(progresso)
                 st.caption(f"Status: {porcentagem}% da meta")
             
