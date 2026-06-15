@@ -246,4 +246,4 @@ for _, row in df_f.iterrows():
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/)
+                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/
