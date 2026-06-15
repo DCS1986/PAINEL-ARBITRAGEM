@@ -667,7 +667,7 @@ else:
             iv_label = f"IV: {iv_str}" if iv_str != "-" else ""
 
             titulo = (
-                f"{ic_setor} **{row['CÓDIGO']}** | {cot} {var_str} | P/L: {pl} | "
+                f"{ic_setor} :orange[**{row['CÓDIGO']}**] | {cot} {var_str} | P/L: {pl} | "
                 f"DY: {dy_icone} {dy_clean}% | {iv_label} | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
             )
 
