@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-import yfinance as yf # Adicionado para automação
+import yfinance as yf
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
@@ -26,14 +26,6 @@ page_bg_img = f"""
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# --- DICIONÁRIO DE SETORES (PARA O GRÁFICO) ---
-mapa_setor_pl = {
-    "Bancos": 9.0, "Energia": 10.0, "Saneamento": 11.0,
-    "Seguridade": 12.0, "Varejo": 15.0, "Papel e Celulose": 8.0,
-    "Agronegócio": 12.0, "Holding": 10.0, "Shoppings": 13.0,
-    "Automóveis e Motocicletas": 10.0
-}
 
 # --- FUNÇÕES ---
 def limpar_valor(valor):
@@ -61,6 +53,7 @@ def formatar_yield(valor):
 @st.cache_data(ttl=86400)
 def get_dividendos(ticker):
     try:
+        # Busca automática via API
         stock = yf.Ticker(f"{ticker}.SA")
         hist = stock.dividends
         if not hist.empty:
@@ -98,101 +91,4 @@ def carregar_dados():
     except:
         return pd.DataFrame()
 
-df = carregar_dados()
-
-# --- SIDEBAR ---
-st.sidebar.header("🎯 Filtros Quantitativos")
-ativar_filtros = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
-busca_ticker = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
-setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
-filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
-
-max_pl = st.sidebar.slider("P/L abaixo de:", 0.0, 50.0, 20.0)
-min_dy = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0, 6.0)
-max_div = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
-min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)", 0.0, 50.0, 10.0)
-
-# --- LÓGICA ---
-df_f = df.copy()
-if ativar_filtros:
-    df_f = df_f[(df_f['pl_num'] <= max_pl) & (df_f['dy_num'] >= min_dy) & (df_f['div_num'] <= max_div) & (df_f['cagr_num'] >= min_cagr)]
-if busca_ticker:
-    df_f = df_f[df_f['CÓDIGO'].str.contains(busca_ticker)]
-if filtro_setor:
-    df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
-
-# --- DASHBOARD ---
-st.title("🎯 Radar de ações")
-
-c1, c2 = st.columns(2)
-c1.metric("Total de Ativos", len(df))
-c2.metric("Ativos Filtrados", len(df_f))
-
-# LÓGICA DE DESTAQUES
-if not df_f.empty:
-    idx_max_dy = df_f['dy_num'].idxmax()
-    ticker_max_dy = df_f.loc[idx_max_dy, 'CÓDIGO']
-    val_max_dy = df_f.loc[idx_max_dy, 'Dividend Yield bruto estimado']
-    
-    df_pl_valido = df_f[df_f['pl_num'] > 0]
-    if not df_pl_valido.empty:
-        idx_min_pl = df_pl_valido['pl_num'].idxmin()
-        ticker_min_pl = df_pl_valido.loc[idx_min_pl, 'CÓDIGO']
-        val_min_pl = formatar_pl(df_pl_valido.loc[idx_min_pl, 'P/L PROJETADO'])
-    else:
-        ticker_min_pl, val_min_pl = "-", "-"
-
-    c3, c4 = st.columns(2)
-    c3.metric("🏆 Maior DY", ticker_max_dy, val_max_dy)
-    c4.metric("📉 Menor P/L", ticker_min_pl, val_min_pl)
-
-st.markdown("---")
-
-# --- LISTAGEM DE ATIVOS ---
-if df_f.empty:
-    st.warning("Nenhum ativo encontrado.")
-else:
-    for _, row in df_f.iterrows():
-        cot = formatar_cotacao(row['Cotação atual'])
-        pl = formatar_pl(row['P/L PROJETADO'])
-        dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
-        setor = row['SETOR']
-        
-        # Destaque condicional
-        dy_display = f":green[{dy_str}]" if row['dy_num'] > 8 else dy_str
-        
-        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_display} | Setor: {setor}"
-        
-        with st.expander(titulo):
-            c1_exp, c2_exp, c3_exp = st.columns(3)
-            c1_exp.metric("Cotação", cot)
-            c2_exp.metric("P/L Projetado", pl)
-            c3_exp.metric("Dividend Yield", dy_str)
-            
-            st.markdown("---")
-            
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown("#### 📊 Valuation")
-                pl_medio = row.get('P/L médio (últ. 10 anos)', '-')
-                pl_medio_formatado = f"{pl_medio}x" if pl_medio != '-' else "-"
-                st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
-                
-                # Comparativo Setorial
-                setor_atual = row.get('SETOR', '')
-                media_setor = mapa_setor_pl.get(setor_atual)
-                if media_setor:
-                    st.markdown(f"**Comparativo vs Setor ({setor_atual}):**")
-                    df_comp = pd.DataFrame({'P/L': [row['pl_num'], media_setor]}, index=['Empresa', 'Setor (Médio)'])
-                    st.bar_chart(df_comp)
-                
-                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
-                st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold; background-color: rgba(57, 255, 20, 0.1); padding: 2px 4px; border-radius: 4px;'>{valor_resultado}</span>", unsafe_allow_html=True)
-                
-            with col2:
-                st.markdown("#### 💰 Dividendos")
-                dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
-                dy_num = row.get('dy_num', 0)
-                style_dy = "color: #39FF14; font-weight
+df =
