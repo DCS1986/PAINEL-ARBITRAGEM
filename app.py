@@ -181,15 +181,14 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
-        # --- 1. PREPARAÇÃO E CÁLCULOS ---
-        # Dados do Yahoo (Aqui restauramos o que sumiu)
+        # --- 1. CARREGAMENTO E CÁLCULOS (Recuperando todos os dados) ---
         dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
         
         # Limpeza para cálculo da meta
         val_entregue = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         
-        # Cálculo da barra
+        # Cálculo do progresso (Entregue / Projetado)
         progresso = min(val_entregue / val_projetado, 1.0) if val_projetado > 0 else 0
         porcentagem = int(progresso * 100)
 
@@ -197,9 +196,15 @@ else:
         cot = formatar_cotacao(row['Cotação atual'])
         pl = f"{row.get('P/L PROJETADO', '0')}x"
         dy_val = row.get('Dividend Yield bruto estimado', 0)
-        style_dy = "color: #39FF14; font-weight: bold;" if (isinstance(dy_val, (int, float)) and dy_val > 8) else ""
+        
+        # Estilo do Dividend Yield (verde se > 8%)
+        try:
+            dy_num = float(str(dy_val).replace('%','').replace(',','.'))
+        except:
+            dy_num = 0
+        style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
 
-        # --- 2. EXIBIÇÃO ORGANIZADA (6 itens por coluna) ---
+        # --- 2. EXIBIÇÃO (Simetria de 6 linhas por coluna) ---
         titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_val}% | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
@@ -211,7 +216,7 @@ else:
                 st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
-                # Destaque em verde
+                # Destaque verde no resultado entregue
                 st.markdown(f"**⭐ RESULTADO ENTREGUE (1/4):** <span style='color:#39FF14; font-weight:bold;'>{row.get('RESULTADO 2026 (1/4)', '-')}</span>", unsafe_allow_html=True)
                 st.progress(progresso)
                 st.caption(f"Status: {porcentagem}% da meta projetada")
