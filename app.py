@@ -118,7 +118,7 @@ if not df_f.empty:
 
     c3, c4 = st.columns(2)
     c3.metric("🏆 Maior DY", ticker_max_dy, val_max_dy)
-    c4.metric("📉 Menor P/L", ticker_min_pl, val_min_pl)
+    c4.metric("📉 Menor P/L", ticker_min_pl, f"{val_min_pl}x")
 
 st.markdown("---")
 
