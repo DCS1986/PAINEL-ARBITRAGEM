@@ -134,18 +134,22 @@ else:
         # Captura os dados básicos
         cot = formatar_cotacao(row['Cotação atual'])
         pl = formatar_pl(row['P/L PROJETADO'])
-        dy = formatar_yield(row['Dividend Yield bruto estimado'])
+        dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
         setor = row['SETOR']
         
+        # --- Lógica de Destaque no Título ---
+        # Se for > 8, colorimos em verde usando sintaxe do Streamlit
+        dy_display = f":green[{dy_str}]" if row['dy_num'] > 8 else dy_str
+        
         # Título do Expander
-        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy} | Setor: {setor}"
+        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_display} | Setor: {setor}"
         
         with st.expander(titulo):
             # Métricas rápidas
             c1_exp, c2_exp, c3_exp = st.columns(3)
             c1_exp.metric("Cotação", cot)
             c2_exp.metric("P/L Projetado", pl)
-            c3_exp.metric("Dividend Yield", dy)
+            c3_exp.metric("Dividend Yield", dy_str)
             
             st.markdown("---")
             
@@ -166,10 +170,9 @@ else:
             with col2:
                 st.markdown("#### 💰 Dividendos")
                 
-                # --- NOVO: Lógica de destaque para DY > 8% ---
+                # --- Destacando DY > 8% dentro dos detalhes também ---
                 dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
                 dy_num = row.get('dy_num', 0)
-                # Se for maior que 8, aplica o estilo verde neon, senão usa branco padrão
                 style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
                 st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_valor_display}</span>", unsafe_allow_html=True)
                 
