@@ -53,7 +53,6 @@ def formatar_yield(valor):
 @st.cache_data(ttl=86400)
 def get_dividendos(ticker):
     try:
-        # Busca automática via API
         stock = yf.Ticker(f"{ticker}.SA")
         hist = stock.dividends
         if not hist.empty:
@@ -91,4 +90,13 @@ def carregar_dados():
     except:
         return pd.DataFrame()
 
-df =
+df = carregar_dados()
+
+# --- SIDEBAR ---
+st.sidebar.header("🎯 Filtros Quantitativos")
+ativar_filtros = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
+busca_ticker = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
+setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
+filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
+
+max_pl = st.sidebar.slider("P/L
