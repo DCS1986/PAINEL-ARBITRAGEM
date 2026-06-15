@@ -510,10 +510,7 @@ with c1:
         <div class='value'>{len(df)}</div>
     </div>""", unsafe_allow_html=True)
 with c2:
-    st.markdown(f"""<div class='top-card'>
-        <div class='label'>🔍 Ativos Filtrados</div>
-        <div class='value'>{len(df_f)}</div>
-    </div>""", unsafe_allow_html=True)
+    card_filtrados = st.empty()  # será preenchido após o filtro de score
 with c3:
     st.markdown(f"""<div class='top-card'>
         <div class='label'>🏆 Maior DY</div>
@@ -531,6 +528,10 @@ st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
 # --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
+    card_filtrados.markdown("""<div class='top-card'>
+        <div class='label'>🔍 Ativos Filtrados</div>
+        <div class='value'>0</div>
+    </div>""", unsafe_allow_html=True)
     st.warning("Nenhum ativo encontrado.")
 else:
     ativos_com_score = []
@@ -585,6 +586,12 @@ else:
     # Filtro e ordenação por score
     ativos_com_score = [a for a in ativos_com_score if a['score'] >= min_score]
     ativos_com_score.sort(key=lambda x: x['score'], reverse=True)
+
+    # Atualiza o card de Ativos Filtrados com o número real após filtro de score
+    card_filtrados.markdown(f"""<div class='top-card'>
+        <div class='label'>🔍 Ativos Filtrados</div>
+        <div class='value'>{len(ativos_com_score)}</div>
+    </div>""", unsafe_allow_html=True)
 
     if not ativos_com_score:
         st.warning("Nenhum ativo com score suficiente encontrado.")
