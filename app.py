@@ -181,29 +181,25 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
+        # 1. Cálculos preparatórios (para evitar o NameError)
         cot = formatar_cotacao(row['Cotação atual'])
         pl = formatar_pl(row['P/L PROJETADO'])
         dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
-        setor = row['SETOR']
         
-        dy_display = f":green[{dy_str}]" if row['dy_num'] > 8 else dy_str
+        # Cálculo da barra de progresso
+        val_num = row.get('res_val_num', 0)
+        meta = 7_800_000_000
+        progresso = min(val_num / meta, 1.0)
+        porcentagem = int(progresso * 100)
         
-        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_display} | Setor: {setor}"
+        dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
+
+        # 2. Exibição
+        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_str} | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
-            c1_exp, c2_exp, c3_exp = st.columns(3)
-            c1_exp.metric("Cotação", cot)
-            c2_exp.metric("P/L Projetado", pl)
-            c3_exp.metric("Dividend Yield", dy_str)
-            
-            st.markdown("---")
-            
-            # --- Busca dados do Yahoo ---
-            dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
-            
             col1, col2, col3 = st.columns(3)
             
-            # --- COLUNA 1: VALUATION & FUNDAMENTOS ---
             with col1:
                 st.markdown("#### 📊 Valuation")
                 st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
@@ -211,22 +207,21 @@ else:
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Mínima (52 sem):** {low}")
                 st.markdown(f"**Máxima (52 sem):** {high}")
-                # Resultado 2026 com barra de progresso (ocupa o espaço final da coluna)
+                # Barra de progresso ocupa a 6ª posição (simetria)
                 st.markdown(f"**⭐ Meta 2026:** {row.get('RESULTADO 2026 (1/4)', '-')}")
                 st.progress(progresso)
-                st.caption(f"Status: {porcentagem}% da meta de R$ 7,8 bi")
-
-            # --- COLUNA 2: DIVIDENDOS ---
+                st.caption(f"Status: {porcentagem}% da meta")
+            
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                st.markdown(f"**Dividend Yield:** :green[{row.get('Dividend Yield bruto estimado', '-')}]")
+                st.markdown(f"**Dividend Yield:** :green[{dy_str}]")
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 st.markdown(f"**Data Ex:** {dt}")
                 st.markdown(f"**Valor Atual:** {val}")
+                st.write("") # Espaço invisível para manter simetria
 
-            # --- COLUNA 3: OPERACIONAL & PERFORMANCE ---
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
