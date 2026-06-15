@@ -106,7 +106,28 @@ c1, c2 = st.columns(2)
 c1.metric("Total de Ativos", len(df))
 c2.metric("Ativos Filtrados", len(df_f))
 
-st.markdown("---")
+st.markdown("--")
+
+# --- CÁLCULO DE DESTAQUES (Cole isto antes da sua linha st.markdown("---")) ---
+    if not df_f.empty:
+        # Pega o índice do maior DY
+        idx_max_dy = df_f['dy_num'].idxmax()
+        ticker_max_dy = df_f.loc[idx_max_dy, 'CÓDIGO']
+        val_max_dy = df_f.loc[idx_max_dy, 'Dividend Yield bruto estimado']
+        
+        # Pega o índice do menor P/L (ignorando 0)
+        df_pl_valido = df_f[df_f['pl_num'] > 0]
+        if not df_pl_valido.empty:
+            idx_min_pl = df_pl_valido['pl_num'].idxmin()
+            ticker_min_pl = df_pl_valido.loc[idx_min_pl, 'CÓDIGO']
+            val_min_pl = df_pl_valido.loc[idx_min_pl, 'P/L PROJETADO']
+        else:
+            ticker_min_pl, val_min_pl = "-", "-"
+
+        # Exibe as métricas (o "x" está incluído aqui)
+        c3, c4 = st.columns(2)
+        c3.metric("🏆 Maior DY", ticker_max_dy, val_max_dy)
+        c4.metric("📉 Menor P/L", ticker_min_pl, f"{val_min_pl}x")
 
 # --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
