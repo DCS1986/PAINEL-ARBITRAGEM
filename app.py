@@ -26,13 +26,18 @@ page_bg_img = f"""
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# --- FUNÇÕES ---
+# --- FUNÇÕES AUXILIARES ---
 def limpar_valor(valor):
     try:
-        s = str(valor).replace('%', '').replace(',', '.').replace('R$', '').strip()
+        s = str(valor).replace('%', '').replace(',', '.').replace('R$', '').replace('x', '').strip()
         return float(s)
     except:
         return 0.0
+
+def formatar_pl_exibir(valor):
+    # Garante que apareça o 'x' no final
+    val_limpo = limpar_valor(valor)
+    return f"{val_limpo:.1f}x"
 
 def formatar_cotacao(valor):
     try:
@@ -49,10 +54,10 @@ def get_info_dividendos(ticker):
         if not divs.empty:
             data = divs.index[-1].strftime('%d/%m/%Y')
             valor = divs.iloc[-1]
-            return data, f"R$ {valor:.2f}"
+            return data, f"R$ {valor:.4f}" # 4 casas decimais conforme pedido
         return "-", "-"
     except:
-        return "-", "-"
+        return "Erro", "-"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -72,7 +77,6 @@ def carregar_dados():
         df = df.iloc[idx + 1:].reset_index(drop=True)
         df = df.dropna(how='all')
         
-        # Mapeamento de colunas para cálculo
         df['pl_num'] = df['P/L PROJETADO'].apply(limpar_valor)
         df['dy_num'] = df['Dividend Yield bruto estimado'].apply(limpar_valor)
         df['div_num'] = df['Dívida líquida/EBITDA'].apply(limpar_valor)
@@ -108,55 +112,50 @@ if filtro_setor:
 # --- DASHBOARD ---
 st.title("🎯 Radar de ações")
 
-# --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
+        # Formatação básica
         cot = formatar_cotacao(row.get('Cotação atual', '0'))
-        pl = str(row.get('P/L PROJETADO', '-'))
-        dy = str(row.get('Dividend Yield bruto estimado', '-'))
-        setor = row.get('SETOR', '-')
+        pl_exib = formatar_pl_exibir(row.get('P/L PROJETADO', '0'))
+        dy_exib = str(row.get('Dividend Yield bruto estimado', '0'))
         
-        titulo = f"🏦 **{row.get('CÓDIGO', 'N/A')}** | {cot} | P/L: {pl} | DY: {dy} | Setor: {setor}"
+        # Cor condicional para o DY na lista
+        if row['dy_num'] > 8:
+            dy_display = f":green[{dy_exib}]"
+        else:
+            dy_display = dy_exib
+            
+        titulo = f"🏦 **{row.get('CÓDIGO', 'N/A')}** | {cot} | P/L: {pl_exib} | DY: {dy_display} | Setor: {row.get('SETOR', '-')}"
         
         with st.expander(titulo):
-            # Header Expander
             c1_exp, c2_exp, c3_exp = st.columns(3)
             c1_exp.metric("Cotação", cot)
-            c2_exp.metric("P/L Projetado", pl)
-            c3_exp.metric("Dividend Yield", dy)
+            c2_exp.metric("P/L Projetado", pl_exib)
+            c3_exp.metric("Dividend Yield", dy_exib)
             
             st.markdown("---")
-            
-            # Detalhes (Restaurados conforme prints)
             col1, col2, col3 = st.columns(3)
             
             with col1:
                 st.markdown("#### 📊 Valuation")
-                st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
+                pl_med = formatar_pl_exibir(row.get('P/L médio (últ. 10 anos)', '-'))
+                st.markdown(f"**P/L Médio (10 anos):** {pl_med}")
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                # Estilização especial conforme print
-                res_2026 = row.get('RESULTADO 2026 (1/4)', '-')
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold;'>{res_2026}</span>", unsafe_allow_html=True)
                 
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                st.markdown(f"**Dividend Yield:** {dy}")
+                st.markdown(f"**Dividend Yield:** {dy_exib}")
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-                st.markdown(f"**Div. Bruto Proj.:** {row.get('Dividendo por ação bruto projetado', '-')}")
+                st.markdown(f"**Div. Proj.:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 
             with col3:
                 st.markdown("#### ⚙️ Operacional")
-                st.markdown(f"**Setor:** {setor}")
+                dt, val = get_info_dividendos(row.get('CÓDIGO', ''))
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
-                
-                # Divs via API
-                st.markdown("---")
-                dt, val = get_info_dividendos(row.get('CÓDIGO', ''))
-                st.markdown(f"**Últ. Div. (YF):** {val}")
+                st.markdown(f"**Últ. Div (YF):** {val}")
                 st.markdown(f"**Data Ex-Div:** {dt}")
