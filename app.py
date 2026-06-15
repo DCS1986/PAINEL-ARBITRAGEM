@@ -51,17 +51,27 @@ def formatar_yield(valor):
     return f"{s}%"
 
 @st.cache_data(ttl=86400)
-def get_info_dividendos(ticker):
+def get_dados_yahoo(ticker):
+    """Busca dividendos, ROE e Margem do Yahoo Finance"""
     try:
         stock = yf.Ticker(f"{ticker}.SA")
+        info = stock.info
+        
+        # Dividendos
         divs = stock.dividends
-        if not divs.empty:
-            data = divs.index[-1].strftime('%d/%m/%Y')
-            valor = divs.iloc[-1]
-            return data, f"R$ {valor:.4f}"
-        return "-", "-"
+        data_ex = divs.index[-1].strftime('%d/%m/%Y') if not divs.empty else "-"
+        valor_div = f"R$ {divs.iloc[-1]:.4f}" if not divs.empty else "-"
+        
+        # Métricas Financeiras
+        roe = info.get('returnOnEquity', 0)
+        margem = info.get('profitMargins', 0)
+        
+        roe_str = f"{roe*100:.1f}%" if roe else "-"
+        margem_str = f"{margem*100:.1f}%" if margem else "-"
+        
+        return data_ex, valor_div, roe_str, margem_str
     except:
-        return "-", "-"
+        return "-", "-", "-", "-"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -168,39 +178,45 @@ else:
             
             # Detalhes completos
             col1, col2, col3 = st.columns(3)
+            
+            # --- Coluna 1: Valuation ---
             with col1:
                 st.markdown("#### 📊 Valuation")
-                
                 pl_medio = row.get('P/L médio (últ. 10 anos)', '-')
                 pl_medio_formatado = f"{pl_medio}x" if pl_medio != '-' else "-"
                 st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
-                
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
                 st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold; background-color: rgba(57, 255, 20, 0.1); padding: 2px 4px; border-radius: 4px;'>{valor_resultado}</span>", unsafe_allow_html=True)
-                
+            
+            # --- Coluna 2: Dividendos ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                
                 dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
                 dy_num = row.get('dy_num', 0)
                 style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
                 st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_valor_display}</span>", unsafe_allow_html=True)
-                
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 
-                # --- AQUI: Integração Yahoo Finance ---
+                # Dados Yahoo
+                dt, val, _, _ = get_dados_yahoo(row['CÓDIGO'])
                 st.markdown("---")
-                dt, val = get_info_dividendos(row['CÓDIGO'])
                 st.markdown(f"**📅 Data Ex:** {dt}")
-                st.markdown(f"**💰 Último Valor:** {val}")
+                st.markdown(f"**💰 Valor Atual:** {val}")
                 
+            # --- Coluna 3: Operacional ---
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
                 st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
+                
+                # Dados Yahoo (ROE e Margem)
+                _, _, roe, margem = get_dados_yahoo(row['CÓDIGO'])
+                st.markdown("---")
+                st.markdown(f"**📈 ROE:** {roe}")
+                st.markdown(f"**📋 Margem Líq.:** {margem}")
