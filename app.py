@@ -14,7 +14,8 @@ def get_logo_url(ticker):
         resp = requests.get(url, timeout=10)
         data = resp.json()
         if data.get('results'):
-            return data['results'][0].get('logourl', '')
+            logo = data['results'][0].get('logourl', '')
+            return logo if logo else ''
     except:
         pass
     return ''
@@ -642,11 +643,6 @@ else:
                 col1, col2, col3 = st.columns(3)
 
                 with col1:
-                    if logo_url:
-                        st.markdown(
-                            f"<div style='display:flex; align-items:center; gap:12px; margin-bottom:12px;'>"                            f"<img src='{logo_url}' style='height:44px; width:44px; border-radius:50%; "                            f"object-fit:cover; border:2px solid rgba(255,255,255,0.15);'>"                            f"<span style='font-size:1.2em; font-weight:800; color:#FFD700;'>{row['CÓDIGO']}</span>"                            f"</div>",
-                            unsafe_allow_html=True
-                        )
                     st.markdown("#### 📊 Valuation")
                     st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
                     st.markdown(f"**P/VP:** {pvp_str}")
