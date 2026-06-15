@@ -650,18 +650,18 @@ else:
             variacao_dia           = ativo['variacao_dia']
             iv_str                 = ativo['iv_str']
 
-            dy_icone  = "🟢" if dy_num > 8 else ""
+            dy_icone  = "🔷" if dy_num > 8 else ""
             cot       = formatar_cotacao(row.get('Cotação atual', 0))
             pl        = f"{row.get('P/L PROJETADO', '0')}x"
             ic_setor  = icone_setor(row['SETOR'])
 
             # Variação do dia colorida
             if variacao_dia > 0:
-                var_str = f"🔼 +{variacao_dia:.2f}%"
+                var_str = f"🟢 +{variacao_dia:.2f}%"
             elif variacao_dia < 0:
-                var_str = f"🔽 {variacao_dia:.2f}%"
+                var_str = f"🔴 {variacao_dia:.2f}%"
             else:
-                var_str = f"▶️ {variacao_dia:.2f}%"
+                var_str = f"🟡 {variacao_dia:.2f}%"
 
             # IV
             iv_label = f"IV: {iv_str}" if iv_str != "-" else ""
