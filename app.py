@@ -35,6 +35,16 @@ def limpar_valor(valor):
     except:
         return 0.0
 
+def limpar_valor_resultado(valor):
+    """Converte 'R$ 1,5 bi' ou 'R$ 500 mi' para número real"""
+    s = str(valor).lower().replace('r$', '').replace(',', '.').strip()
+    mult = 1
+    if 'bi' in s: mult = 1_000_000_000
+    elif 'mi' in s: mult = 1_000_000
+    s_clean = s.replace('bi', '').replace('mi', '').strip()
+    try: return float(s_clean) * mult
+    except: return 0.0
+
 def formatar_cotacao(valor):
     try:
         s = str(valor).replace('R$', '').replace(',', '.').strip()
@@ -52,7 +62,7 @@ def formatar_yield(valor):
 
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
-    """Busca dividendos, ROE, Margem e 52 semanas do Yahoo Finance"""
+    """Busca dividendos, ROE, Margem, 52 semanas e BETA do Yahoo Finance"""
     try:
         stock = yf.Ticker(f"{ticker}.SA")
         info = stock.info
@@ -65,8 +75,11 @@ def get_dados_yahoo(ticker):
         # Métricas Financeiras
         roe = info.get('returnOnEquity', 0)
         margem = info.get('profitMargins', 0)
+        beta = info.get('beta', 0)
+        
         roe_str = f"{roe*100:.1f}%" if roe else "-"
         margem_str = f"{margem*100:.1f}%" if margem else "-"
+        beta_str = f"{beta:.2f}" if beta else "-"
         
         # Preços 52 semanas
         low52 = info.get('fiftyTwoWeekLow', 0)
@@ -74,9 +87,9 @@ def get_dados_yahoo(ticker):
         low_str = f"R$ {low52:.2f}" if low52 else "-"
         high_str = f"R$ {high52:.2f}" if high52 else "-"
         
-        return data_ex, valor_div, roe_str, margem_str, low_str, high_str
+        return data_ex, valor_div, roe_str, margem_str, low_str, high_str, beta_str
     except:
-        return "-", "-", "-", "-", "-", "-"
+        return "-", "-", "-", "-", "-", "-", "-"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -100,6 +113,8 @@ def carregar_dados():
         df['dy_num'] = df['Dividend Yield bruto estimado'].apply(limpar_valor)
         df['div_num'] = df['Dívida líquida/EBITDA'].apply(limpar_valor)
         df['cagr_num'] = df['CAGR lucros (últ. 5 anos)'].apply(limpar_valor)
+        # Conversão para cálculo da barra de progresso
+        df['res_val_num'] = df['RESULTADO 2026 (1/4)'].apply(limpar_valor_resultado)
         
         return df
     except:
@@ -160,20 +175,16 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
-        # Captura os dados básicos
         cot = formatar_cotacao(row['Cotação atual'])
         pl = formatar_pl(row['P/L PROJETADO'])
         dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
         setor = row['SETOR']
         
-        # --- Lógica de Destaque no Título ---
         dy_display = f":green[{dy_str}]" if row['dy_num'] > 8 else dy_str
         
-        # Título do Expander
         titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_display} | Setor: {setor}"
         
         with st.expander(titulo):
-            # Métricas rápidas
             c1_exp, c2_exp, c3_exp = st.columns(3)
             c1_exp.metric("Cotação", cot)
             c2_exp.metric("P/L Projetado", pl)
@@ -182,9 +193,8 @@ else:
             st.markdown("---")
             
             # --- Busca dados do Yahoo ---
-            dt, val, roe, margem, low, high = get_dados_yahoo(row['CÓDIGO'])
+            dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
             
-            # Detalhes completos
             col1, col2, col3 = st.columns(3)
             
             # --- Coluna 1: Valuation ---
@@ -195,8 +205,17 @@ else:
                 st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
+                
+                # --- Lógica do Resultado e Barra ---
                 valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold; background-color: rgba(57, 255, 20, 0.1); padding: 2px 4px; border-radius: 4px;'>{valor_resultado}</span>", unsafe_allow_html=True)
+                val_num = row.get('res_val_num', 0)
+                meta = 7_800_000_000
+                progresso = min(val_num / meta, 1.0)
+                porcentagem = int(progresso * 100)
+                
+                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold;'>{valor_resultado}</span>", unsafe_allow_html=True)
+                st.progress(progresso)
+                st.caption(f"Meta de R$ 7,8 bi: **{porcentagem}% alcançado**")
                 
                 st.markdown("---")
                 st.markdown(f"**📉 Mínima (52 sem):** {low}")
@@ -223,8 +242,8 @@ else:
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
                 
                 st.markdown("---")
+                st.markdown(f"**📊 Beta (vs IBOV):** {beta}")
                 st.markdown(f"**📈 ROE:** {roe}")
                 st.markdown(f"**📋 Margem Líq.:** {margem}")
