@@ -152,7 +152,6 @@ else:
         setor = row['SETOR']
         
         # --- Lógica de Destaque no Título ---
-        # Se for > 8, colorimos em verde usando sintaxe do Streamlit
         dy_display = f":green[{dy_str}]" if row['dy_num'] > 8 else dy_str
         
         # Título do Expander
@@ -184,7 +183,6 @@ else:
             with col2:
                 st.markdown("#### 💰 Dividendos")
                 
-                # --- Destacando DY > 8% dentro dos detalhes também ---
                 dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
                 dy_num = row.get('dy_num', 0)
                 style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
@@ -194,15 +192,15 @@ else:
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 
+                # --- AQUI: Integração Yahoo Finance ---
+                st.markdown("---")
+                dt, val = get_info_dividendos(row['CÓDIGO'])
+                st.markdown(f"**📅 Data Ex:** {dt}")
+                st.markdown(f"**💰 Último Valor:** {val}")
+                
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
                 st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
-                
-                # --- Integração Yahoo Finance ---
-                st.markdown("---")
-                dt, val = get_info_dividendos(row['CÓDIGO'])
-                st.markdown(f"**📅 Data Ex:** {dt}")
-                st.markdown(f"**💰 Último provento:** {val}")
