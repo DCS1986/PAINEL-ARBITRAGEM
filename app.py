@@ -153,7 +153,7 @@ else:
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown("#### 📊 Valuation")
-                st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
+                st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
