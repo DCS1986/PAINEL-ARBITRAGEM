@@ -67,6 +67,41 @@ page_bg_img = f"""
     font-size: 1.1em;
     margin-top: 4px;
 }}
+
+/* ---- CARDS DO TOPO ---- */
+.top-card {{
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+}}
+.top-card .label {{
+    font-size: 0.78em;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}}
+.top-card .value {{
+    font-size: 1.9em;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+}}
+.top-card .sub {{
+    font-size: 0.85em;
+    color: #39FF14;
+    margin-top: 4px;
+    font-weight: bold;
+}}
+
+/* ---- SEPARADOR ENTRE ATIVOS ---- */
+.ativo-sep {{
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
+    margin: 4px 0;
+}}
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
@@ -236,6 +271,41 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=95, largura=420):
     return f"<div style='margin-top:8px; overflow:visible;'>{svg}</div>"
 
 
+
+ICONES_SETOR = {
+    "Bancos": "🏦",
+    "Seguros": "🛡️",
+    "Energia": "⚡",
+    "Elétrico": "⚡",
+    "Petróleo": "🛢️",
+    "Óleo": "🛢️",
+    "Mineração": "⛏️",
+    "Saúde": "🏥",
+    "Varejo": "🛒",
+    "Shoppings": "🏬",
+    "Telecomunicações": "📡",
+    "Agronegócio": "🌾",
+    "Serviços Financeiros": "💹",
+    "Holding": "🏛️",
+    "Transportes": "🚚",
+    "Logística": "🚚",
+    "Bens Industriais": "⚙️",
+    "Construção": "🏗️",
+    "Tecnologia": "💻",
+    "Automóveis": "🚗",
+    "Papel": "📄",
+    "Alimentos": "🍽️",
+    "Bebidas": "🍺",
+    "Saneamento": "💧",
+    "Utilities": "💡",
+}
+
+def icone_setor(setor):
+    for chave, icone in ICONES_SETOR.items():
+        if chave.lower() in str(setor).lower():
+            return icone
+    return "📊"
+
 # ---- Busca de dados no Yahoo Finance ----
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
@@ -399,11 +469,7 @@ if filtro_setor:
     df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
 
 # --- DASHBOARD ---
-st.title("🎯 Radar de Ações")
-
-c1, c2 = st.columns(2)
-c1.metric("Total de Ativos",    len(df))
-c2.metric("Ativos Filtrados",   len(df_f))
+st.markdown("<h1 style='margin-bottom:20px;'>🎯 Radar de Ações</h1>", unsafe_allow_html=True)
 
 if not df_f.empty:
     idx_max_dy    = df_f['dy_num'].idxmax()
@@ -417,12 +483,34 @@ if not df_f.empty:
         val_min_pl    = formatar_pl(df_pl_valido.loc[idx_min_pl, 'P/L PROJETADO'])
     else:
         ticker_min_pl, val_min_pl = "-", "-"
+else:
+    ticker_max_dy = val_max_dy = ticker_min_pl = val_min_pl = "-"
 
-    c3, c4 = st.columns(2)
-    c3.metric("🏆 Maior DY",  ticker_max_dy, val_max_dy)
-    c4.metric("📉 Menor P/L", ticker_min_pl, val_min_pl)
+c1, c2, c3, c4 = st.columns(4)
+with c1:
+    st.markdown(f"""<div class='top-card'>
+        <div class='label'>📋 Total de Ativos</div>
+        <div class='value'>{len(df)}</div>
+    </div>""", unsafe_allow_html=True)
+with c2:
+    st.markdown(f"""<div class='top-card'>
+        <div class='label'>🔍 Ativos Filtrados</div>
+        <div class='value'>{len(df_f)}</div>
+    </div>""", unsafe_allow_html=True)
+with c3:
+    st.markdown(f"""<div class='top-card'>
+        <div class='label'>🏆 Maior DY</div>
+        <div class='value'>{ticker_max_dy}</div>
+        <div class='sub'>{val_max_dy}</div>
+    </div>""", unsafe_allow_html=True)
+with c4:
+    st.markdown(f"""<div class='top-card'>
+        <div class='label'>📉 Menor P/L</div>
+        <div class='value'>{ticker_min_pl}</div>
+        <div class='sub'>{val_min_pl}</div>
+    </div>""", unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
 # --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
@@ -503,15 +591,17 @@ else:
             proximo_provento_data  = ativo['proximo_provento_data']
             proximo_provento_valor = ativo['proximo_provento_valor']
 
-            dy_icone = "🟢" if dy_num > 8 else ""
-            cot      = formatar_cotacao(row.get('Cotação atual', 0))
-            pl       = f"{row.get('P/L PROJETADO', '0')}x"
+            dy_icone  = "🟢" if dy_num > 8 else ""
+            cot       = formatar_cotacao(row.get('Cotação atual', 0))
+            pl        = f"{row.get('P/L PROJETADO', '0')}x"
+            ic_setor  = icone_setor(row['SETOR'])
 
             titulo = (
-                f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | "
+                f"{ic_setor} **{row['CÓDIGO']}** | {cot} | P/L: {pl} | "
                 f"DY: {dy_icone} {dy_clean}% | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
             )
 
+            st.markdown("<div class='ativo-sep'></div>", unsafe_allow_html=True)
             with st.expander(titulo):
                 col1, col2, col3 = st.columns(3)
 
