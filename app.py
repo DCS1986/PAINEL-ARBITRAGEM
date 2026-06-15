@@ -318,6 +318,28 @@ def get_dados_yahoo(ticker):
         data_ex  = divs.index[-1].strftime('%d/%m/%Y') if not divs.empty else "-"
         valor_div = f"R$ {divs.iloc[-1]:.4f}" if not divs.empty else "-"
 
+        # Variação do dia
+        preco_atual_iv = info.get('currentPrice') or info.get('regularMarketPrice', 0)
+        preco_anterior = info.get('previousClose', 0)
+        if preco_anterior and preco_atual_iv:
+            variacao_dia = ((preco_atual_iv - preco_anterior) / preco_anterior) * 100
+        else:
+            variacao_dia = 0.0
+
+        # IV via cadeia de opções (mediana das calls ATM)
+        iv_str = "-"
+        try:
+            datas_opcoes = stock.options
+            if datas_opcoes:
+                chain = stock.option_chain(datas_opcoes[0])
+                calls_iv = chain.calls['impliedVolatility']
+                calls_iv = calls_iv[calls_iv > 0]
+                if not calls_iv.empty:
+                    iv_val = calls_iv.median() * 100
+                    iv_str = f"{iv_val:.1f}%"
+        except:
+            iv_str = "-"
+
         # Métricas financeiras
         roe    = info.get('returnOnEquity', 0)
         margem = info.get('profitMargins', 0)
@@ -411,10 +433,11 @@ def get_dados_yahoo(ticker):
             data_ex, valor_div, roe_str, margem_str, low_str, high_str,
             beta_str, pvp_str, roe_num, margem_num,
             historico_dy, historico_pl, historico_lucro,
-            proximo_provento_data, proximo_provento_valor
+            proximo_provento_data, proximo_provento_valor,
+            variacao_dia, iv_str
         )
     except:
-        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-"
+        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-"
 
 
 # ---- Carrega planilha ----
@@ -547,13 +570,16 @@ else:
         roe_num_raw = margem_num_raw = 0
         historico_dy = historico_pl = historico_lucro = {}
         proximo_provento_data = proximo_provento_valor = "-"
+        variacao_dia = 0.0
+        iv_str = "-"
         progresso = 0.0
 
         try:
             (dt, val, roe, margem, low, high,
              beta, pvp_str, roe_num_raw, margem_num_raw,
              historico_dy, historico_pl, historico_lucro,
-             proximo_provento_data, proximo_provento_valor) = get_dados_yahoo(row['CÓDIGO'])
+             proximo_provento_data, proximo_provento_valor,
+             variacao_dia, iv_str) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
 
@@ -586,6 +612,8 @@ else:
             'historico_lucro': historico_lucro,
             'proximo_provento_data': proximo_provento_data,
             'proximo_provento_valor': proximo_provento_valor,
+            'variacao_dia': variacao_dia,
+            'iv_str': iv_str,
         })
 
     # Filtro e ordenação por score
@@ -619,15 +647,28 @@ else:
             historico_lucro        = ativo['historico_lucro']
             proximo_provento_data  = ativo['proximo_provento_data']
             proximo_provento_valor = ativo['proximo_provento_valor']
+            variacao_dia           = ativo['variacao_dia']
+            iv_str                 = ativo['iv_str']
 
             dy_icone  = "🟢" if dy_num > 8 else ""
             cot       = formatar_cotacao(row.get('Cotação atual', 0))
             pl        = f"{row.get('P/L PROJETADO', '0')}x"
             ic_setor  = icone_setor(row['SETOR'])
 
+            # Variação do dia colorida
+            if variacao_dia > 0:
+                var_str = f"🔼 +{variacao_dia:.2f}%"
+            elif variacao_dia < 0:
+                var_str = f"🔽 {variacao_dia:.2f}%"
+            else:
+                var_str = f"▶️ {variacao_dia:.2f}%"
+
+            # IV
+            iv_label = f"IV: {iv_str}" if iv_str != "-" else ""
+
             titulo = (
-                f"{ic_setor} **{row['CÓDIGO']}** | {cot} | P/L: {pl} | "
-                f"DY: {dy_icone} {dy_clean}% | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
+                f"{ic_setor} **{row['CÓDIGO']}** | {cot} {var_str} | P/L: {pl} | "
+                f"DY: {dy_icone} {dy_clean}% | {iv_label} | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
             )
 
             st.markdown("<div class='ativo-sep'></div>", unsafe_allow_html=True)
