@@ -3,7 +3,7 @@ import streamlit as st
 import yfinance as yf
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Screener Estratégico", layout="wide")
+st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
 
 # --- CONFIGURAÇÃO DO FUNDO ---
 link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
@@ -469,7 +469,17 @@ if filtro_setor:
     df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
 
 # --- DASHBOARD ---
-st.markdown("<h1 style='margin-bottom:20px;'>🎯 Radar de Ações</h1>", unsafe_allow_html=True)
+st.markdown("""
+<div style="margin-bottom:28px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
+    <span style="font-size:0.75em; letter-spacing:3px; text-transform:uppercase;
+                 color:#555; font-weight:600;">Diego Castro</span>
+    <h1 style="margin:4px 0 0 0; font-size:2.2em; font-weight:800; letter-spacing:-0.5px;
+               color:#fff; line-height:1.1;">Radar Fundamentalista</h1>
+    <span style="font-size:0.8em; color:#444; letter-spacing:1px;">
+        Análise quantitativa de ações brasileiras
+    </span>
+</div>
+""", unsafe_allow_html=True)
 
 if not df_f.empty:
     idx_max_dy    = df_f['dy_num'].idxmax()
