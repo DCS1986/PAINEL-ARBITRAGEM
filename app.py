@@ -53,6 +53,7 @@ def formatar_yield(valor):
 @st.cache_data(ttl=86400)
 def get_dividendos(ticker):
     try:
+        # Busca automática via API
         stock = yf.Ticker(f"{ticker}.SA")
         hist = stock.dividends
         if not hist.empty:
@@ -73,30 +74,4 @@ def carregar_dados():
         
         idx = 0
         for i, row in df.iterrows():
-            if "CÓDIGO" in [str(x).upper().strip() for x in row.values]:
-                idx = i
-                break
-        
-        df.columns = [str(c).strip() for c in df.iloc[idx]]
-        df = df.iloc[idx + 1:].reset_index(drop=True)
-        df = df.dropna(how='all')
-        
-        df['pl_num'] = df['P/L PROJETADO'].apply(limpar_valor)
-        df['dy_num'] = df['Dividend Yield bruto estimado'].apply(limpar_valor)
-        df['div_num'] = df['Dívida líquida/EBITDA'].apply(limpar_valor)
-        df['cagr_num'] = df['CAGR lucros (últ. 5 anos)'].apply(limpar_valor)
-        
-        return df
-    except:
-        return pd.DataFrame()
-
-df = carregar_dados()
-
-# --- SIDEBAR ---
-st.sidebar.header("🎯 Filtros Quantitativos")
-ativar_filtros = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
-busca_ticker = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
-setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
-filtro_setor = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
-
-max_pl = st.sidebar.slider("P/L
+            if "CÓDIGO" in [str(x).upper().strip
