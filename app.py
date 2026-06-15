@@ -203,53 +203,35 @@ else:
             
             col1, col2, col3 = st.columns(3)
             
-            # --- Coluna 1: Valuation ---
+            # --- COLUNA 1: VALUATION & FUNDAMENTOS ---
             with col1:
                 st.markdown("#### 📊 Valuation")
-                pl_medio = row.get('P/L médio (últ. 10 anos)', '-')
-                pl_medio_formatado = f"{pl_medio}x" if pl_medio != '-' else "-"
-                st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
-                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
+                st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                
-                # --- Barra de Progresso do Resultado ---
-                valor_resultado_str = row.get('RESULTADO 2026 (1/4)', '-')
-                val_num = row.get('res_val_num', 0)
-                meta = 7_800_000_000
-                progresso = min(val_num / meta, 1.0)
-                porcentagem = int(progresso * 100)
-                
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold;'>{valor_resultado_str}</span>", unsafe_allow_html=True)
+                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
+                st.markdown(f"**Mínima (52 sem):** {low}")
+                st.markdown(f"**Máxima (52 sem):** {high}")
+                # Resultado 2026 com barra de progresso (ocupa o espaço final da coluna)
+                st.markdown(f"**⭐ Meta 2026:** {row.get('RESULTADO 2026 (1/4)', '-')}")
                 st.progress(progresso)
-                st.caption(f"Meta de R$ 7,8 bi: **{porcentagem}% alcançado**")
-                
-                st.markdown("---")
-                st.markdown(f"**📉 Mínima (52 sem):** {low}")
-                st.markdown(f"**📈 Máxima (52 sem):** {high}")
-            
-            # --- Coluna 2: Dividendos ---
+                st.caption(f"Status: {porcentagem}% da meta de R$ 7,8 bi")
+
+            # --- COLUNA 2: DIVIDENDOS ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
-                dy_num = row.get('dy_num', 0)
-                style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
-                st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_valor_display}</span>", unsafe_allow_html=True)
+                st.markdown(f"**Dividend Yield:** :green[{row.get('Dividend Yield bruto estimado', '-')}]")
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
-                
-                st.markdown("---")
-                st.markdown(f"**📅 Data Ex:** {dt}")
-                st.markdown(f"**💰 Valor Atual:** {val}")
-                
-            # --- Coluna 3: Operacional ---
+                st.markdown(f"**Data Ex:** {dt}")
+                st.markdown(f"**Valor Atual:** {val}")
+
+            # --- COLUNA 3: OPERACIONAL & PERFORMANCE ---
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                
-                st.markdown("---")
-                st.markdown(f"**📊 Beta (vs IBOV):** {beta}")
-                st.markdown(f"**📈 ROE:** {roe}")
-                st.markdown(f"**📋 Margem Líq.:** {margem}")
+                st.markdown(f"**Beta (vs IBOV):** {beta}")
+                st.markdown(f"**ROE:** {roe}")
+                st.markdown(f"**Margem Líq.:** {margem}")
