@@ -522,12 +522,12 @@ else:
         try:
             (dt, val, roe, margem, low, high,
              beta, pvp_str, roe_num_raw, margem_num_raw,
-             historico_dy, proximo_provento_data, proximo_provento_valor,
+             historico_dy, historico_lucro, historico_pl,
+             proximo_provento_data, proximo_provento_valor,
              variacao_dia, iv_str) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
 
-        historico_lucro, historico_pl = get_brapi_financials(row['CÓDIGO'])
         logo_url = get_logo_url(row['CÓDIGO'])
 
         val_entregue  = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
