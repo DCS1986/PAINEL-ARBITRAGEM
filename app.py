@@ -421,35 +421,7 @@ def get_dados_yahoo(ticker):
         except:
             historico_dy = {}
 
-        # Histórico de P/L e Lucro Líquido dos últimos 5 anos
-        historico_pl    = {}
-        historico_lucro = {}
-        try:
-            financials  = stock.financials
-            preco_atual = info.get('currentPrice') or info.get('regularMarketPrice', 0)
-            shares      = info.get('sharesOutstanding', 0)
 
-            if financials is not None and not financials.empty:
-                ano_atual = pd.Timestamp.now().year
-                for col in financials.columns:
-                    ano = col.year
-                    if ano < ano_atual - 4:
-                        continue
-                    # Lucro Líquido
-                    for chave in ['Net Income', 'Net Income Common Stockholders']:
-                        if chave in financials.index:
-                            lucro = financials.loc[chave, col]
-                            if pd.notna(lucro) and lucro != 0:
-                                historico_lucro[ano] = float(lucro)
-                            break
-                    # P/L histórico estimado (preço atual / LPA histórico)
-                    if shares > 0 and ano in historico_lucro and historico_lucro[ano] > 0:
-                        lpa = historico_lucro[ano] / shares
-                        if lpa > 0 and preco_atual:
-                            historico_pl[ano] = round(preco_atual / lpa, 1)
-        except:
-            historico_pl    = {}
-            historico_lucro = {}
 
         # Próximo provento em aberto
         # Lógica: Yahoo dá a Data Ex. A Data COM no Brasil é 1 dia útil antes da Data Ex.
@@ -477,12 +449,12 @@ def get_dados_yahoo(ticker):
         return (
             data_ex, valor_div, roe_str, margem_str, low_str, high_str,
             beta_str, pvp_str, roe_num, margem_num,
-            historico_dy, historico_pl, historico_lucro,
+            historico_dy,
             proximo_provento_data, proximo_provento_valor,
             variacao_dia, iv_str
         )
     except:
-        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-"
+        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, "-", "-", 0.0, "-"
 
 
 # ---- Carrega planilha ----
@@ -613,7 +585,7 @@ else:
         # Inicialização segura
         dt = val = roe = margem = low = high = beta = pvp_str = "-"
         roe_num_raw = margem_num_raw = 0
-        historico_dy = historico_pl = historico_lucro = {}
+        historico_dy = {}
         proximo_provento_data = proximo_provento_valor = "-"
         variacao_dia = 0.0
         iv_str = "-"
@@ -622,11 +594,14 @@ else:
         try:
             (dt, val, roe, margem, low, high,
              beta, pvp_str, roe_num_raw, margem_num_raw,
-             historico_dy, historico_pl, historico_lucro,
+             historico_dy,
              proximo_provento_data, proximo_provento_valor,
              variacao_dia, iv_str) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
+
+        # Lucro e P/L via brapi.dev (fonte: CVM — anos fechados)
+        historico_lucro, historico_pl = get_brapi_financials(row['CÓDIGO'])
 
         val_entregue  = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
@@ -751,6 +726,18 @@ else:
                     )
 
 
+
+                    # Mini gráfico de linha — P/L histórico (azul) via brapi
+                    if historico_pl:
+                        st.markdown(
+                            "<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>"
+                            "📈 P/L Histórico (5 anos)</span>",
+                            unsafe_allow_html=True
+                        )
+                        st.markdown(
+                            mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"),
+                            unsafe_allow_html=True
+                        )
 
                 # ── COLUNA 2: DIVIDENDOS ─────────────────────────────────
                 with col2:
