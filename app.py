@@ -144,7 +144,7 @@ else:
             # Métricas rápidas
             c1_exp, c2_exp, c3_exp = st.columns(3)
             c1_exp.metric("Cotação", cot)
-            c2_exp.metric("P/L Proj.", pl)
+            c2_exp.metric("P/L Projetado", pl)
             c3_exp.metric("Dividend Yield", dy)
             
             st.markdown("---")
