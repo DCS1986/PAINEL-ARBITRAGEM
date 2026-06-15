@@ -36,14 +36,20 @@ def limpar_valor(valor):
         return 0.0
 
 def limpar_valor_resultado(valor):
-    """Converte 'R$ 1,5 bi' ou 'R$ 500 mi' para número real"""
-    s = str(valor).lower().replace('r$', '').replace(',', '.').strip()
-    mult = 1
-    if 'bi' in s: mult = 1_000_000_000
-    elif 'mi' in s: mult = 1_000_000
-    s_clean = s.replace('bi', '').replace('mi', '').strip()
-    try: return float(s_clean) * mult
-    except: return 0.0
+    """Limpa o formato 'R$ 236.100.000,00' para um número utilizável."""
+    if pd.isna(valor) or str(valor).strip() == '-': 
+        return 0.0
+    
+    # 1. Remove 'R$', espaços e os pontos de milhar
+    s = str(valor).replace('R$', '').replace('.', '').replace(' ', '')
+    
+    # 2. Substitui a vírgula decimal por ponto
+    s = s.replace(',', '.')
+    
+    try:
+        return float(s)
+    except:
+        return 0.0
 
 def formatar_cotacao(valor):
     try:
