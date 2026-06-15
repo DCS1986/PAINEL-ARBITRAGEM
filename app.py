@@ -205,11 +205,11 @@ else:
                 st.markdown("#### 📊 Valuation")
                 st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
+                st.markdown(f"**LL Projetado:** {row.get('RESULTADO PROJETADO', '-')}")
                 st.markdown(f"**Mínima (52 sem):** {low}")
                 st.markdown(f"**Máxima (52 sem):** {high}")
                 # Barra de progresso (6ª posição)
-                st.markdown(f"**⭐ RESULTADO ENTREGUE:** {row.get('RESULTADO 2026 (1/4)', '-')}")
+                st.markdown(f"**⭐ RESULTADO ENTREGUE (1/4):** {row.get('RESULTADO 2026 (1/4)', '-')}")
                 st.progress(progresso)
                 st.caption(f"Status: {porcentagem}% da meta")
             
