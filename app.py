@@ -156,9 +156,9 @@ def mini_grafico_dy(historico_dy):
     return f'<div class="dy-bar-container">{barras}</div>'
 
 # ---- Mini gráfico de linha SVG — P/L e Lucro ----
-def mini_grafico_linha(dados, cor, label_suffix="", altura=75, largura=260):
+def mini_grafico_linha(dados, cor, label_suffix="", altura=120, largura=300):
     if not dados or len(dados) < 2:
-        return "<span style='color:#888; font-size:0.85em;'>Dados insuficientes</span>"
+        return "<span style='color:#888; font-size:0.9em;'>Dados insuficientes</span>"
 
     itens = sorted(dados.items())
     anos  = [str(a) for a, _ in itens]
@@ -168,7 +168,7 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=75, largura=260):
     max_v = max(vals)
     span  = max_v - min_v if max_v != min_v else 1
 
-    pad_x, pad_y = 30, 16
+    pad_x, pad_y = 38, 24
     w = largura - pad_x * 2
     h = altura  - pad_y * 2
     n = len(vals)
@@ -194,43 +194,46 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=75, largura=260):
             return f"{v / 1_000_000:.0f}M{label_suffix}"
         return f"{v:.1f}{label_suffix}"
 
+    # Valor em TODOS os pontos, acima de cada círculo
     val_labels = ""
-    for i in [0, len(pts) - 1]:
-        x, y = pts[i]
-        anchor = "start" if i == 0 else "end"
+    for i, (x, y) in enumerate(pts):
+        anchor = "start" if i == 0 else ("end" if i == len(pts) - 1 else "middle")
         val_labels += (
-            f'<text x="{x:.1f}" y="{y - 5:.1f}" text-anchor="{anchor}" '
-            f'font-size="9" fill="{cor}" font-weight="bold">{fmt(vals[i])}</text>'
+            f'<text x="{x:.1f}" y="{y - 9:.1f}" text-anchor="{anchor}" '
+            f'font-size="12" fill="{cor}" font-weight="bold">{fmt(vals[i])}</text>'
         )
 
+    # Ano em todos os pontos no eixo X
     labels_x = ""
     for i, (x, _) in enumerate(pts):
         labels_x += (
-            f'<text x="{x:.1f}" y="{altura - 1}" text-anchor="middle" '
-            f'font-size="9" fill="#888">{anos[i]}</text>'
+            f'<text x="{x:.1f}" y="{altura - 2}" text-anchor="middle" '
+            f'font-size="11" fill="#aaa" font-weight="bold">{anos[i]}</text>'
         )
 
+    # Círculos maiores
     circles = "".join(
-        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" fill="{cor}" />'
+        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" fill="{cor}" '
+        f'stroke="#111" stroke-width="1.5"/>'
         for x, y in pts
     )
 
     svg = f"""<svg width="{largura}" height="{altura}" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible;">
   <defs>
     <linearGradient id="{grad_id}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="{cor}" stop-opacity="0.25"/>
-      <stop offset="100%" stop-color="{cor}" stop-opacity="0.02"/>
+      <stop offset="0%" stop-color="{cor}" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="{cor}" stop-opacity="0.03"/>
     </linearGradient>
   </defs>
   <polygon points="{area_pts}" fill="url(#{grad_id})" />
-  <polyline points="{polyline}" fill="none" stroke="{cor}" stroke-width="2"
+  <polyline points="{polyline}" fill="none" stroke="{cor}" stroke-width="2.5"
             stroke-linejoin="round" stroke-linecap="round"/>
   {circles}
   {val_labels}
   {labels_x}
 </svg>"""
 
-    return f"<div style='margin-top:6px; overflow:visible;'>{svg}</div>"
+    return f"<div style='margin-top:8px; overflow:visible;'>{svg}</div>"
 
 
 # ---- Busca de dados no Yahoo Finance ----
