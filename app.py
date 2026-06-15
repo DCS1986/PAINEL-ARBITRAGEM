@@ -205,4 +205,4 @@ else:
                 st.markdown("---")
                 dt, val = get_info_dividendos(row['CÓDIGO'])
                 st.markdown(f"**📅 Data Ex:** {dt}")
-                st.markdown(f"**💰 Valor Atual:** {val}")
+                st.markdown(f"**💰 Valor Último provento:** {val}")
