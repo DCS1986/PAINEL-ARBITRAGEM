@@ -181,31 +181,34 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
-        # --- 1. CARREGAMENTO E CÁLCULOS (Recuperando todos os dados) ---
+        # --- 1. CARREGAMENTO E CÁLCULOS ---
         dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
         
         # Limpeza para cálculo da meta
         val_entregue = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         
-        # Cálculo do progresso (Entregue / Projetado)
+        # Cálculo do progresso
         progresso = min(val_entregue / val_projetado, 1.0) if val_projetado > 0 else 0
         porcentagem = int(progresso * 100)
 
-        # Formatação Visual
-        cot = formatar_cotacao(row['Cotação atual'])
-        pl = f"{row.get('P/L PROJETADO', '0')}x"
-        dy_val = row.get('Dividend Yield bruto estimado', 0)
-        
-        # Estilo do Dividend Yield (verde se > 8%)
+        # Formatação do DY (Limpeza para evitar % duplicado e para comparação)
+        dy_raw = str(row.get('Dividend Yield bruto estimado', '0'))
         try:
-            dy_num = float(str(dy_val).replace('%','').replace(',','.'))
+            # Converte '9,0%' para 9.0 para comparação
+            dy_num = float(dy_raw.replace('%', '').replace(',', '.'))
         except:
             dy_num = 0
-        style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
-
-        # --- 2. EXIBIÇÃO (Simetria de 6 linhas por coluna) ---
-        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_val}% | Setor: {row['SETOR']}"
+            
+        # Define se mostra o ícone de destaque na lista
+        dy_icone = "🟢" if dy_num > 8 else ""
+        
+        # String limpa do DY (remove o % se já existir, para não duplicar)
+        dy_str_clean = dy_raw.replace('%', '') 
+        
+        # --- 2. EXIBIÇÃO ---
+        # Título do Expander (Sem HTML de cor, pois não funciona, mas com ícone de destaque)
+        titulo = f"🏦 **{row['CÓDIGO']}** | {formatar_cotacao(row['Cotação atual'])} | P/L: {row.get('P/L PROJETADO', '0')}x | DY: {dy_icone} {dy_str_clean}% | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
             col1, col2, col3 = st.columns(3)
@@ -216,7 +219,6 @@ else:
                 st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
-                # Destaque verde no resultado entregue
                 st.markdown(f"**⭐ RESULTADO ENTREGUE (1/4):** <span style='color:#39FF14; font-weight:bold;'>{row.get('RESULTADO 2026 (1/4)', '-')}</span>", unsafe_allow_html=True)
                 st.progress(progresso)
                 st.caption(f"Status: {porcentagem}% da meta projetada")
@@ -224,9 +226,11 @@ else:
             # --- COLUNA 2: DIVIDENDOS ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_val}%</span>", unsafe_allow_html=True)
+                # Aqui mantemos a cor verde, pois dentro do expander o HTML funciona
+                style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
+                st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_str_clean}%</span>", unsafe_allow_html=True)
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
+                st.markdown(f"**LPA Est.: {row.get('LPA ESTIMADO', '-')}**")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 st.markdown(f"**Data Ex:** {dt}")
                 st.markdown(f"**Valor Atual:** {val}")
