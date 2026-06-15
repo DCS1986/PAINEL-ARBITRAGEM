@@ -513,7 +513,7 @@ else:
     for _, row in df_f.iterrows():
         dt = val = roe = margem = low = high = beta = pvp_str = "-"
         roe_num_raw = margem_num_raw = 0
-        historico_dy = {}
+        historico_dy = historico_lucro = historico_pl = {}
         proximo_provento_data = proximo_provento_valor = "-"
         variacao_dia = 0.0
         iv_str       = "-"
