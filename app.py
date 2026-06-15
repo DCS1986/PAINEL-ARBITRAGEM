@@ -6,7 +6,7 @@ import yfinance as yf
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
 
 # --- CONFIGURAÇÃO DO FUNDO ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.PNG"
 
 page_bg_img = f"""
 <style>
