@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import yfinance as yf
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
@@ -48,6 +49,21 @@ def formatar_pl(valor):
 def formatar_yield(valor):
     s = str(valor).replace('%', '').replace(',', '.').strip()
     return f"{s}%"
+
+# --- FUNÇÃO DE BUSCA DE DIVIDENDOS (INTEGRADA) ---
+@st.cache_data(ttl=86400)
+def get_info_dividendos(ticker):
+    try:
+        stock = yf.Ticker(f"{ticker}.SA")
+        # Pega o último dividendo registrado
+        divs = stock.dividends
+        if not divs.empty:
+            data = divs.index[-1].strftime('%d/%m/%Y')
+            valor = divs.iloc[-1]
+            return data, f"R$ {valor:.2f}"
+        return "-", "-"
+    except:
+        return "-", "-"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -131,21 +147,16 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
-        # Captura os dados básicos
         cot = formatar_cotacao(row['Cotação atual'])
         pl = formatar_pl(row['P/L PROJETADO'])
         dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
         setor = row['SETOR']
         
-        # --- Lógica de Destaque no Título ---
-        # Se for > 8, colorimos em verde usando sintaxe do Streamlit
         dy_display = f":green[{dy_str}]" if row['dy_num'] > 8 else dy_str
         
-        # Título do Expander
         titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_display} | Setor: {setor}"
         
         with st.expander(titulo):
-            # Métricas rápidas
             c1_exp, c2_exp, c3_exp = st.columns(3)
             c1_exp.metric("Cotação", cot)
             c2_exp.metric("P/L Projetado", pl)
@@ -153,7 +164,6 @@ else:
             
             st.markdown("---")
             
-            # Detalhes completos
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown("#### 📊 Valuation")
@@ -170,7 +180,6 @@ else:
             with col2:
                 st.markdown("#### 💰 Dividendos")
                 
-                # --- Destacando DY > 8% dentro dos detalhes também ---
                 dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
                 dy_num = row.get('dy_num', 0)
                 style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
@@ -186,4 +195,9 @@ else:
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
                 st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
-
+                
+                # --- NOVA INFORMAÇÃO ---
+                st.markdown("---")
+                dt, val = get_info_dividendos(row['CÓDIGO'])
+                st.markdown(f"**Últ. Div. Registrado:** {val}")
+                st.markdown(f"**Data base (ou Ex):** {dt}")
