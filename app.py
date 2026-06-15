@@ -195,19 +195,15 @@ else:
         # Formatação do DY (Limpeza para evitar % duplicado e para comparação)
         dy_raw = str(row.get('Dividend Yield bruto estimado', '0'))
         try:
-            # Converte '9,0%' para 9.0 para comparação
             dy_num = float(dy_raw.replace('%', '').replace(',', '.'))
         except:
             dy_num = 0
             
         # Define se mostra o ícone de destaque na lista
         dy_icone = "🟢" if dy_num > 8 else ""
-        
-        # String limpa do DY (remove o % se já existir, para não duplicar)
         dy_str_clean = dy_raw.replace('%', '') 
         
         # --- 2. EXIBIÇÃO ---
-        # Título do Expander (Sem HTML de cor, pois não funciona, mas com ícone de destaque)
         titulo = f"🏦 **{row['CÓDIGO']}** | {formatar_cotacao(row['Cotação atual'])} | P/L: {row.get('P/L PROJETADO', '0')}x | DY: {dy_icone} {dy_str_clean}% | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
@@ -226,21 +222,5 @@ else:
             # --- COLUNA 2: DIVIDENDOS ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                # Aqui mantemos a cor verde, pois dentro do expander o HTML funciona
                 style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
-                st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_str_clean}%</span>", unsafe_allow_html=True)
-                st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                st.markdown(f"**LPA Est.: {row.get('LPA ESTIMADO', '-')}**")
-                st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
-                st.markdown(f"**Data Ex:** {dt}")
-                st.markdown(f"**Valor Atual:** {val}")
-
-            # --- COLUNA 3: OPERACIONAL ---
-            with col3:
-                st.markdown("#### ⚙️ Operacional")
-                st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
-                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**Beta (vs IBOV):** {beta}")
-                st.markdown(f"**ROE:** {roe}")
-                st.markdown(f"**Margem Líq.:** {margem}")
+                st.markdown(f"**Dividend Yield:** <span style='{style_dy
