@@ -475,6 +475,9 @@ if busca_ticker:
 if filtro_setor:
     df_f = df_f[df_f['SETOR'].isin(filtro_setor)]
 
+# Score mínimo: só aplicar se filtros estiverem ativos
+_min_score_efetivo = min_score if ativar_filtros else 0.0
+
 # --- DASHBOARD ---
 st.markdown("""
 <div style="margin-bottom:28px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
@@ -584,7 +587,7 @@ else:
         })
 
     # Filtro e ordenação por score
-    ativos_com_score = [a for a in ativos_com_score if a['score'] >= min_score]
+    ativos_com_score = [a for a in ativos_com_score if a['score'] >= _min_score_efetivo]
     ativos_com_score.sort(key=lambda x: x['score'], reverse=True)
 
     # Atualiza o card de Ativos Filtrados com o número real após filtro de score
