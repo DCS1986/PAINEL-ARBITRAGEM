@@ -3,71 +3,6 @@ import streamlit as st
 import yfinance as yf
 import requests
 
-# ---- Chave brapi.dev ----
-BRAPI_TOKEN = "qX942ePxQaNWzSEs9gphZi"
-
-@st.cache_data(ttl=86400)
-def get_logo_url(ticker):
-    """Busca URL do logo via brapi.dev"""
-    try:
-        url = f"https://brapi.dev/api/quote/{ticker}?token={BRAPI_TOKEN}"
-        resp = requests.get(url, timeout=10)
-        data = resp.json()
-        if data.get('results'):
-            logo = data['results'][0].get('logourl', '')
-            return logo if logo else ''
-    except:
-        pass
-    return ''
-
-@st.cache_data(ttl=86400)
-def get_brapi_financials(ticker):
-    historico_lucro = {}
-    historico_pl    = {}
-    try:
-        url = (f"https://brapi.dev/api/quote/{ticker}"
-               f"?modules=incomeStatementHistory&token={BRAPI_TOKEN}")
-        resp   = requests.get(url, timeout=15)
-        data   = resp.json()
-        if not data.get('results'):
-            return {}, {}
-        result      = data['results'][0]
-        preco_atual = result.get('regularMarketPrice', 0)
-        shares      = result.get('sharesOutstanding', 0)
-        income      = result.get('incomeStatementHistory', {})
-        statements  = income.get('incomeStatementHistory', [])
-        ano_atual   = pd.Timestamp.now().year
-        for item in statements:
-            end_date = item.get('endDate', {})
-            fmt = end_date.get('fmt', '') if isinstance(end_date, dict) else str(end_date)
-            ano = int(fmt[:4]) if fmt else None
-            if not ano or ano >= ano_atual or ano < ano_atual - 5:
-                continue
-            net   = item.get('netIncome', {})
-            lucro = net.get('raw') if isinstance(net, dict) else net
-            if lucro and float(lucro) != 0:
-                historico_lucro[ano] = float(lucro)
-                if preco_atual and shares and shares > 0:
-                    lpa = float(lucro) / shares
-                    if lpa > 0:
-                        historico_pl[ano] = round(preco_atual / lpa, 1)
-    except:
-        pass
-    return historico_lucro, historico_pl
-
-@st.cache_data(ttl=86400)
-def get_logo_url(ticker):
-    try:
-        url  = f"https://brapi.dev/api/quote/{ticker}?token={BRAPI_TOKEN}"
-        resp = requests.get(url, timeout=10)
-        data = resp.json()
-        if data.get('results'):
-            r = data['results'][0]
-            return r.get('logourl', '') or r.get('logo', '') or ''
-        return ''
-    except:
-        return ''
-
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
 
@@ -87,10 +22,10 @@ page_bg_img = f"""
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.7); 
 }}
 
-/* ---- GRÁFICO DE BARRAS DY ---- */
+/* ---- ESTILOS DO GRÁFICO DE DY ---- */
 .dy-bar-container {{
     display: flex;
     align-items: flex-end;
@@ -124,7 +59,7 @@ page_bg_img = f"""
     font-weight: bold;
 }}
 
-/* ---- SCORE BADGE ---- */
+/* ---- ESTILOS DO SCORE ---- */
 .score-badge {{
     display: inline-block;
     padding: 4px 14px;
@@ -162,7 +97,7 @@ page_bg_img = f"""
     font-weight: bold;
 }}
 
-/* ---- SEPARADOR ---- */
+/* ---- SEPARADOR ENTRE ATIVOS ---- */
 .ativo-sep {{
     height: 1px;
     background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
@@ -175,7 +110,7 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 # --- FUNÇÕES UTILITÁRIAS ---
 def limpar_valor(valor):
     try:
-        s = str(valor).replace('%','').replace(',','.').replace('R$','').strip()
+        s = str(valor).replace('%', '').replace(',', '.').replace('R$', '').strip()
         return float(s)
     except:
         return 0.0
@@ -183,7 +118,8 @@ def limpar_valor(valor):
 def limpar_valor_resultado(valor):
     if pd.isna(valor) or str(valor).strip() == '-':
         return 0.0
-    s = str(valor).replace('R$','').replace('.','').replace(' ','').replace(',','.')
+    s = str(valor).replace('R$', '').replace('.', '').replace(' ', '')
+    s = s.replace(',', '.')
     try:
         return float(s)
     except:
@@ -191,15 +127,16 @@ def limpar_valor_resultado(valor):
 
 def formatar_cotacao(valor):
     try:
-        s = str(valor).replace('R$','').replace(',','.').strip()
+        s = str(valor).replace('R$', '').replace(',', '.').strip()
         return f"R$ {s}"
     except:
         return "R$ 0,00"
 
 def formatar_pl(valor):
-    s = str(valor).replace('x','').replace(',','.').strip()
+    s = str(valor).replace('x', '').replace(',', '.').strip()
     return f"{s}x"
 
+# ---- Cor dinâmica da barra de progresso ----
 def cor_progresso(porcentagem):
     if porcentagem >= 50:
         return "#39FF14"
@@ -208,6 +145,7 @@ def cor_progresso(porcentagem):
     else:
         return "#FF4444"
 
+# ---- Score Geral (0–10) ----
 def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num):
     score = 0.0
     score += min(dy_num / 10.0, 1.0) * 2.5
@@ -219,6 +157,24 @@ def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num
     score += min(margem_num / 30.0, 1.0) * 1.0
     return round(min(score, 10.0), 1)
 
+def badge_score(score):
+    if score >= 7:
+        cor_bg, cor_txt, label = "#1a3a1a", "#39FF14", "Ótimo"
+    elif score >= 5:
+        cor_bg, cor_txt, label = "#3a3a10", "#FFD700", "Bom"
+    elif score >= 3:
+        cor_bg, cor_txt, label = "#3a2010", "#FFA500", "Regular"
+    else:
+        cor_bg, cor_txt, label = "#3a1010", "#FF4444", "Fraco"
+    return f"""
+    <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+        <span class="score-badge" style="background:{cor_bg}; color:{cor_txt}; border:1px solid {cor_txt};">
+            ⭐ Score: {score}/10
+        </span>
+        <span style="color:{cor_txt}; font-size:0.9em; font-weight:bold;">{label}</span>
+    </div>"""
+
+# ---- Gráfico de barras — Histórico DY ----
 def mini_grafico_dy(historico_dy):
     if not historico_dy:
         return "<span style='color:#888; font-size:0.9em;'>Histórico indisponível</span>"
@@ -235,47 +191,66 @@ def mini_grafico_dy(historico_dy):
         </div>"""
     return f'<div class="dy-bar-container">{barras}</div>'
 
+# ---- Mini gráfico de linha SVG — P/L e Lucro ----
 def mini_grafico_linha(dados, cor, label_suffix="", altura=95, largura=420):
     if not dados or len(dados) < 2:
-        return "<span style='color:#888; font-size:0.85em;'>Dados insuficientes</span>"
+        return "<span style='color:#888; font-size:0.9em;'>Dados insuficientes</span>"
+
     itens = sorted(dados.items())
     anos  = [str(a) for a, _ in itens]
     vals  = [v for _, v in itens]
+
     min_v = min(vals)
     max_v = max(vals)
     span  = max_v - min_v if max_v != min_v else 1
+
     pad_x, pad_y = 38, 24
     w = largura - pad_x * 2
     h = altura  - pad_y * 2
     n = len(vals)
+
     pts = []
     for i, v in enumerate(vals):
         x = pad_x + (i / (n - 1)) * w
         y = pad_y + h - ((v - min_v) / span) * h
         pts.append((x, y))
+
     polyline = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
-    area_pts = (f"{pts[0][0]:.1f},{pad_y+h} "
-                + " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
-                + f" {pts[-1][0]:.1f},{pad_y+h}")
-    grad_id = f"grad_{cor.replace('#','')}"
+    area_pts = (
+        f"{pts[0][0]:.1f},{pad_y + h} "
+        + " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+        + f" {pts[-1][0]:.1f},{pad_y + h}"
+    )
+    grad_id = f"grad_{cor.replace('#', '')}"
 
     def fmt(v):
-        if abs(v) >= 1_000_000_000: return f"{v/1_000_000_000:.1f}B{label_suffix}"
-        if abs(v) >= 1_000_000:     return f"{v/1_000_000:.0f}M{label_suffix}"
+        if abs(v) >= 1_000_000_000:
+            return f"{v / 1_000_000_000:.1f}B{label_suffix}"
+        if abs(v) >= 1_000_000:
+            return f"{v / 1_000_000:.0f}M{label_suffix}"
         return f"{v:.1f}{label_suffix}"
 
     val_labels = ""
     for i, (x, y) in enumerate(pts):
-        anchor = "start" if i == 0 else ("end" if i == len(pts)-1 else "middle")
-        val_labels += (f'<text x="{x:.1f}" y="{y-9:.1f}" text-anchor="{anchor}" '
-                       f'font-size="10" fill="{cor}" font-weight="bold">{fmt(vals[i])}</text>')
+        anchor = "start" if i == 0 else ("end" if i == len(pts) - 1 else "middle")
+        val_labels += (
+            f'<text x="{x:.1f}" y="{y - 9:.1f}" text-anchor="{anchor}" '
+            f'font-size="10" fill="{cor}" font-weight="bold">{fmt(vals[i])}</text>'
+        )
+
     labels_x = ""
     for i, (x, _) in enumerate(pts):
-        labels_x += (f'<text x="{x:.1f}" y="{altura-2}" text-anchor="middle" '
-                     f'font-size="9" fill="#aaa" font-weight="bold">{anos[i]}</text>')
+        labels_x += (
+            f'<text x="{x:.1f}" y="{altura - 2}" text-anchor="middle" '
+            f'font-size="9" fill="#aaa" font-weight="bold">{anos[i]}</text>'
+        )
+
     circles = "".join(
-        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="{cor}" stroke="#111" stroke-width="1.5"/>'
-        for x, y in pts)
+        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="{cor}" '
+        f'stroke="#111" stroke-width="1.5"/>'
+        for x, y in pts
+    )
+
     svg = f"""<svg viewBox="0 0 {largura} {altura}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible;">
   <defs>
     <linearGradient id="{grad_id}" x1="0" y1="0" x2="0" y2="1">
@@ -286,19 +261,40 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=95, largura=420):
   <polygon points="{area_pts}" fill="url(#{grad_id})" />
   <polyline points="{polyline}" fill="none" stroke="{cor}" stroke-width="2.5"
             stroke-linejoin="round" stroke-linecap="round"/>
-  {circles}{val_labels}{labels_x}
+  {circles}
+  {val_labels}
+  {labels_x}
 </svg>"""
-    return f"<div style='margin-top:8px;overflow:visible;'>{svg}</div>"
+
+    return f"<div style='margin-top:8px; overflow:visible;'>{svg}</div>"
+
 
 ICONES_SETOR = {
-    "Bancos": "🏦", "Seguros": "🛡️", "Energia": "⚡", "Elétrico": "⚡",
-    "Petróleo": "🛢️", "Óleo": "🛢️", "Mineração": "⛏️", "Saúde": "🏥",
-    "Varejo": "🛒", "Shoppings": "🏬", "Telecomunicações": "📡",
-    "Agronegócio": "🌾", "Serviços Financeiros": "💹", "Holding": "🏛️",
-    "Transportes": "🚚", "Logística": "🚚", "Bens Industriais": "⚙️",
-    "Construção": "🏗️", "Tecnologia": "💻", "Automóveis": "🚗",
-    "Papel": "📄", "Alimentos": "🍽️", "Bebidas": "🍺",
-    "Saneamento": "💧", "Utilities": "💡",
+    "Bancos": "🏦",
+    "Seguros": "🛡️",
+    "Energia": "⚡",
+    "Elétrico": "⚡",
+    "Petróleo": "🛢️",
+    "Óleo": "🛢️",
+    "Mineração": "⛏️",
+    "Saúde": "🏥",
+    "Varejo": "🛒",
+    "Shoppings": "🏬",
+    "Telecomunicações": "📡",
+    "Agronegócio": "🌾",
+    "Serviços Financeiros": "💹",
+    "Holding": "🏛️",
+    "Transportes": "🚚",
+    "Logística": "🚚",
+    "Bens Industriais": "⚙️",
+    "Construção": "🏗️",
+    "Tecnologia": "💻",
+    "Automóveis": "🚗",
+    "Papel": "📄",
+    "Alimentos": "🍽️",
+    "Bebidas": "🍺",
+    "Saneamento": "💧",
+    "Utilities": "💡",
 }
 
 def icone_setor(setor):
@@ -307,36 +303,49 @@ def icone_setor(setor):
             return icone
     return "📊"
 
+# ---- Logo via brapi ----
+@st.cache_data(ttl=86400)
+def get_logo_url(ticker):
+    try:
+        url = f"https://brapi.dev/api/quote/{ticker}?token=qX942ePxQaNWzSEs9gphZi"
+        r = requests.get(url, timeout=8).json()
+        if r.get('results'):
+            return r['results'][0].get('logourl', '') or ''
+    except:
+        pass
+    return ''
+
+# ---- Busca de dados no Yahoo Finance ----
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
     try:
         stock = yf.Ticker(f"{ticker}.SA")
         info  = stock.info
 
-        # Último dividendo
         divs     = stock.dividends
         data_ex  = divs.index[-1].strftime('%d/%m/%Y') if not divs.empty else "-"
         valor_div = f"R$ {divs.iloc[-1]:.4f}" if not divs.empty else "-"
 
-        # Variação do dia
         preco_atual_iv = info.get('currentPrice') or info.get('regularMarketPrice', 0)
         preco_anterior = info.get('previousClose', 0)
-        variacao_dia   = ((preco_atual_iv - preco_anterior) / preco_anterior * 100) if preco_anterior else 0.0
+        if preco_anterior and preco_atual_iv:
+            variacao_dia = ((preco_atual_iv - preco_anterior) / preco_anterior) * 100
+        else:
+            variacao_dia = 0.0
 
-        # IV via options chain
         iv_str = "-"
         try:
             datas_opcoes = stock.options
             if datas_opcoes:
-                chain    = stock.option_chain(datas_opcoes[0])
+                chain = stock.option_chain(datas_opcoes[0])
                 calls_iv = chain.calls['impliedVolatility']
                 calls_iv = calls_iv[calls_iv > 0]
                 if not calls_iv.empty:
-                    iv_str = f"{calls_iv.median()*100:.1f}%"
+                    iv_val = calls_iv.median() * 100
+                    iv_str = f"{iv_val:.1f}%"
         except:
             iv_str = "-"
 
-        # Métricas financeiras
         roe    = info.get('returnOnEquity', 0)
         margem = info.get('profitMargins', 0)
         beta   = info.get('beta', 0)
@@ -344,6 +353,7 @@ def get_dados_yahoo(ticker):
 
         roe_num    = (roe    * 100) if roe    else 0
         margem_num = (margem * 100) if margem else 0
+
         roe_str    = f"{roe_num:.1f}%"    if roe    else "-"
         margem_str = f"{margem_num:.1f}%" if margem else "-"
         beta_str   = f"{beta:.2f}"        if beta   else "N/A"
@@ -354,7 +364,6 @@ def get_dados_yahoo(ticker):
         low_str  = f"R$ {low52:.2f}"  if low52  else "-"
         high_str = f"R$ {high52:.2f}" if high52 else "-"
 
-        # Histórico DY (5 anos)
         historico_dy = {}
         try:
             preco_hist  = stock.history(period="5y", interval="1mo")
@@ -370,7 +379,33 @@ def get_dados_yahoo(ticker):
         except:
             historico_dy = {}
 
-        # Próximo provento (Data COM = 1 dia útil antes da Data Ex)
+        historico_pl    = {}
+        historico_lucro = {}
+        try:
+            financials  = stock.financials
+            preco_atual = info.get('currentPrice') or info.get('regularMarketPrice', 0)
+            shares      = info.get('sharesOutstanding', 0)
+
+            if financials is not None and not financials.empty:
+                ano_atual = pd.Timestamp.now().year
+                for col in financials.columns:
+                    ano = col.year
+                    if ano < ano_atual - 4:
+                        continue
+                    for chave in ['Net Income', 'Net Income Common Stockholders']:
+                        if chave in financials.index:
+                            lucro = financials.loc[chave, col]
+                            if pd.notna(lucro) and lucro != 0:
+                                historico_lucro[ano] = float(lucro)
+                            break
+                    if shares > 0 and ano in historico_lucro and historico_lucro[ano] > 0:
+                        lpa = historico_lucro[ano] / shares
+                        if lpa > 0 and preco_atual:
+                            historico_pl[ano] = round(preco_atual / lpa, 1)
+        except:
+            historico_pl    = {}
+            historico_lucro = {}
+
         proximo_provento_data  = "-"
         proximo_provento_valor = "-"
         try:
@@ -378,8 +413,8 @@ def get_dados_yahoo(ticker):
             if calendar is not None:
                 ex_date = calendar.get('Ex-Dividend Date') or calendar.get('Dividend Date')
                 if ex_date:
-                    hoje     = pd.Timestamp.now().normalize()
-                    ex_ts    = pd.Timestamp(ex_date).normalize()
+                    hoje  = pd.Timestamp.now().normalize()
+                    ex_ts = pd.Timestamp(ex_date).normalize()
                     data_com = ex_ts - pd.offsets.BDay(1)
                     if data_com > hoje:
                         proximo_provento_data  = data_com.strftime('%d/%m/%Y')
@@ -387,12 +422,16 @@ def get_dados_yahoo(ticker):
         except:
             pass
 
-        return (data_ex, valor_div, roe_str, margem_str, low_str, high_str,
-                beta_str, pvp_str, roe_num, margem_num,
-                historico_dy, proximo_provento_data, proximo_provento_valor,
-                variacao_dia, iv_str)
+        return (
+            data_ex, valor_div, roe_str, margem_str, low_str, high_str,
+            beta_str, pvp_str, roe_num, margem_num,
+            historico_dy, historico_pl, historico_lucro,
+            proximo_provento_data, proximo_provento_valor,
+            variacao_dia, iv_str
+        )
     except:
-        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, "-", "-", 0.0, "-"
+        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-"
+
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -401,19 +440,23 @@ def carregar_dados():
         gid_id         = "596101825"
         url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv&gid={gid_id}"
         df  = pd.read_csv(url, header=None)
+
         idx = 0
         for i, row in df.iterrows():
             if "CÓDIGO" in [str(x).upper().strip() for x in row.values]:
                 idx = i
                 break
+
         df.columns = [str(c).strip() for c in df.iloc[idx]]
         df = df.iloc[idx + 1:].reset_index(drop=True)
         df = df.dropna(how='all')
+
         df['pl_num']      = df['P/L PROJETADO'].apply(limpar_valor)
         df['dy_num']      = df['Dividend Yield bruto estimado'].apply(limpar_valor)
         df['div_num']     = df['Dívida líquida/EBITDA'].apply(limpar_valor)
         df['cagr_num']    = df['CAGR lucros (últ. 5 anos)'].apply(limpar_valor)
         df['res_val_num'] = df['RESULTADO 2026 (1/4)'].apply(limpar_valor_resultado)
+
         return df
     except:
         return pd.DataFrame()
@@ -422,15 +465,16 @@ df = carregar_dados()
 
 # --- SIDEBAR ---
 st.sidebar.header("🎯 Filtros Quantitativos")
-ativar_filtros      = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
-busca_ticker        = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
+ativar_filtros    = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
+busca_ticker      = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
 setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
-filtro_setor        = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
-max_pl    = st.sidebar.slider("P/L abaixo de:",              0.0, 50.0, 20.0)
-min_dy    = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0,  6.0)
-max_div   = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
-min_cagr  = st.sidebar.slider("CAGR Lucros acima de (%)",    0.0, 50.0, 10.0)
-min_score = st.sidebar.slider("⭐ Score mínimo (0–10):",      0.0, 10.0,  0.0, step=0.5)
+filtro_setor      = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
+
+max_pl   = st.sidebar.slider("P/L abaixo de:",              0.0, 50.0, 20.0)
+min_dy   = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0,  6.0)
+max_div  = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
+min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)",    0.0, 50.0, 10.0)
+min_score = st.sidebar.slider("⭐ Score mínimo (0–10):",     0.0, 10.0,  0.0, step=0.5)
 
 # --- FILTROS ---
 df_f = df.copy()
@@ -467,7 +511,8 @@ if not df_f.empty:
     idx_max_dy    = df_f['dy_num'].idxmax()
     ticker_max_dy = df_f.loc[idx_max_dy, 'CÓDIGO']
     val_max_dy    = df_f.loc[idx_max_dy, 'Dividend Yield bruto estimado']
-    df_pl_valido  = df_f[df_f['pl_num'] > 0]
+
+    df_pl_valido = df_f[df_f['pl_num'] > 0]
     if not df_pl_valido.empty:
         idx_min_pl    = df_pl_valido['pl_num'].idxmin()
         ticker_min_pl = df_pl_valido.loc[idx_min_pl, 'CÓDIGO']
@@ -500,7 +545,7 @@ with c4:
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
-# --- LISTAGEM ---
+# --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
     card_filtrados.markdown("""<div class='top-card'>
         <div class='label'>🔍 Ativos Filtrados</div>
@@ -513,21 +558,22 @@ else:
     for _, row in df_f.iterrows():
         dt = val = roe = margem = low = high = beta = pvp_str = "-"
         roe_num_raw = margem_num_raw = 0
-        historico_dy = historico_lucro = historico_pl = {}
+        historico_dy = historico_pl = historico_lucro = {}
         proximo_provento_data = proximo_provento_valor = "-"
         variacao_dia = 0.0
-        iv_str       = "-"
-        progresso    = 0.0
+        iv_str = "-"
+        progresso = 0.0
 
         try:
             (dt, val, roe, margem, low, high,
              beta, pvp_str, roe_num_raw, margem_num_raw,
-             historico_dy, historico_lucro, historico_pl,
+             historico_dy, historico_pl, historico_lucro,
              proximo_provento_data, proximo_provento_valor,
              variacao_dia, iv_str) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
 
+        # Logo — chamada separada, não interfere nos dados acima
         logo_url = get_logo_url(row['CÓDIGO'])
 
         val_entregue  = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
@@ -542,10 +588,11 @@ else:
         except:
             dy_num = 0
 
-        pl_num         = limpar_valor(row.get('P/L PROJETADO', 0))
-        div_ebitda_num = limpar_valor(row.get('Dívida líquida/EBITDA', 0))
+        pl_num         = limpar_valor(row.get('P/L PROJETADO',          0))
+        div_ebitda_num = limpar_valor(row.get('Dívida líquida/EBITDA',  0))
         cagr_num       = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
-        score          = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw)
+
+        score = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw)
 
         ativos_com_score.append({
             'row': row, 'score': score,
@@ -556,7 +603,6 @@ else:
             'historico_dy': historico_dy,
             'historico_pl': historico_pl,
             'historico_lucro': historico_lucro,
-            'logo_url': logo_url,
             'proximo_provento_data': proximo_provento_data,
             'proximo_provento_valor': proximo_provento_valor,
             'variacao_dia': variacao_dia,
@@ -591,7 +637,6 @@ else:
             historico_dy           = ativo['historico_dy']
             historico_pl           = ativo['historico_pl']
             historico_lucro        = ativo['historico_lucro']
-            logo_url               = ativo['logo_url']
             proximo_provento_data  = ativo['proximo_provento_data']
             proximo_provento_valor = ativo['proximo_provento_valor']
             variacao_dia           = ativo['variacao_dia']
@@ -612,12 +657,6 @@ else:
 
             iv_label = f"IV: {iv_str}" if iv_str != "-" else ""
 
-            # Logo inline no título via HTML — aparece ao lado do ticker
-            if logo_url:
-                logo_html = f"<img src='{logo_url}' style='height:18px; width:18px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:4px;'>"
-            else:
-                logo_html = ic_setor
-
             titulo = (
                 f"{ic_setor} :orange[**{row['CÓDIGO']}**] | {cot} {var_str} | P/L: {pl} | "
                 f"DY: {dy_icone} {dy_clean}% | {iv_label} | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
@@ -625,23 +664,25 @@ else:
 
             st.markdown("<div class='ativo-sep'></div>", unsafe_allow_html=True)
             with st.expander(titulo):
-                # Logo + ticker no topo do card
+
+                # Logo no topo do card — apenas uma vez, acima das colunas
                 if logo_url:
                     st.markdown(
-                        f"""<div style='display:flex; align-items:center; gap:12px;
-                                    margin-bottom:12px; padding-bottom:10px;
-                                    border-bottom:1px solid rgba(255,255,255,0.07);'>
-                            <img src='{logo_url}' style='height:36px; width:auto;
-                                 border-radius:6px; background:#fff; padding:3px;'/>
-                            <span style='font-size:1.1em; font-weight:700;
-                                         color:#FFD700; letter-spacing:1px;'>{row['CÓDIGO']}</span>
-                            <span style='font-size:0.85em; color:#888;'>{row.get('SETOR','-')}</span>
-                        </div>""",
+                        f"<div style='display:flex; align-items:center; gap:12px; "
+                        f"margin-bottom:14px; padding-bottom:10px; "
+                        f"border-bottom:1px solid rgba(255,255,255,0.07);'>"
+                        f"<img src='{logo_url}' style='height:36px; width:auto; "
+                        f"border-radius:6px; background:#fff; padding:3px;'/>"
+                        f"<span style='font-size:1.1em; font-weight:700; color:#FFD700; "
+                        f"letter-spacing:1px;'>{row['CÓDIGO']}</span>"
+                        f"<span style='font-size:0.85em; color:#888;'>{row.get('SETOR','-')}</span>"
+                        f"</div>",
                         unsafe_allow_html=True
                     )
 
                 col1, col2, col3 = st.columns(3)
 
+                # ── COLUNA 1: VALUATION ──────────────────────────────────
                 with col1:
                     st.markdown("#### 📊 Valuation")
                     st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
@@ -674,8 +715,12 @@ else:
                             "📈 P/L Histórico (5 anos)</span>",
                             unsafe_allow_html=True
                         )
-                        st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
+                        st.markdown(
+                            mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"),
+                            unsafe_allow_html=True
+                        )
 
+                # ── COLUNA 2: DIVIDENDOS ─────────────────────────────────
                 with col2:
                     st.markdown("#### 💰 Dividendos")
                     style_dy = "color:#39FF14; font-weight:bold;" if dy_num > 8 else ""
@@ -709,6 +754,7 @@ else:
                     st.markdown("**Histórico DY (5 anos):**")
                     st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
 
+                # ── COLUNA 3: OPERACIONAL ────────────────────────────────
                 with col3:
                     st.markdown("#### ⚙️ Operacional")
                     st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
@@ -723,4 +769,7 @@ else:
                             "📈 Lucro Líquido (5 anos)</span>",
                             unsafe_allow_html=True
                         )
-                        st.markdown(mini_grafico_linha(historico_lucro, "#39FF14"), unsafe_allow_html=True)
+                        st.markdown(
+                            mini_grafico_linha(historico_lucro, "#39FF14"),
+                            unsafe_allow_html=True
+                        )
