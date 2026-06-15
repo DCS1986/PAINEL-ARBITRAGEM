@@ -9,43 +9,57 @@ BRAPI_TOKEN = "qX942ePxQaNWzSEs9gphZi"
 @st.cache_data(ttl=86400)
 def get_brapi_financials(ticker):
     """Busca Lucro Líquido anual via brapi.dev (fonte CVM)."""
+    historico_lucro = {}
+    historico_pl    = {}
     try:
-        url = f"https://brapi.dev/api/v2/stocks/income-statement?symbols={ticker}&period=annual&token={BRAPI_TOKEN}"
-        resp = requests.get(url, timeout=10)
+        # Busca fundamentals via endpoint principal da brapi
+        url = (
+            f"https://brapi.dev/api/quote/{ticker}"
+            f"?modules=incomeStatementHistory&token={BRAPI_TOKEN}"
+        )
+        resp = requests.get(url, timeout=15)
         data = resp.json()
-        result = data['results'][0]
-        historico_lucro = {}
-        historico_pl    = {}
-        preco_atual     = None
 
-        # Pegar preço atual via brapi também
-        url_quote = f"https://brapi.dev/api/quote/{ticker}?token={BRAPI_TOKEN}"
-        resp_q = requests.get(url_quote, timeout=10)
-        data_q = resp_q.json()
-        if data_q.get('results'):
-            preco_atual  = data_q['results'][0].get('regularMarketPrice', 0)
-            shares       = data_q['results'][0].get('sharesOutstanding', 0)
+        if not data.get('results'):
+            return {}, {}
+
+        result     = data['results'][0]
+        preco_atual = result.get('regularMarketPrice', 0)
+        shares      = result.get('sharesOutstanding', 0)
+
+        # Tenta incomeStatementHistory
+        income = result.get('incomeStatementHistory', {})
+        statements = income.get('incomeStatementHistory', [])
 
         ano_atual = pd.Timestamp.now().year
-        for item in result.get('data', []):
-            end_date = item.get('endDate', '')
-            ano = int(end_date[:4]) if end_date else None
-            if not ano or ano >= ano_atual:  # ignora ano corrente (parcial)
+        for item in statements:
+            end_date = item.get('endDate', {})
+            # endDate pode vir como dict {'raw': timestamp, 'fmt': '2024-12-31'}
+            if isinstance(end_date, dict):
+                fmt = end_date.get('fmt', '')
+                ano = int(fmt[:4]) if fmt else None
+            else:
+                ano = int(str(end_date)[:4]) if end_date else None
+
+            if not ano or ano >= ano_atual:
                 continue
             if ano < ano_atual - 5:
                 continue
-            lucro = item.get('netIncome')
-            if lucro and lucro != 0:
+
+            net = item.get('netIncome', {})
+            lucro = net.get('raw') if isinstance(net, dict) else net
+
+            if lucro and float(lucro) != 0:
                 historico_lucro[ano] = float(lucro)
-                # P/L histórico: preço atual / LPA histórico
                 if preco_atual and shares and shares > 0:
                     lpa = float(lucro) / shares
                     if lpa > 0:
                         historico_pl[ano] = round(preco_atual / lpa, 1)
 
-        return historico_lucro, historico_pl
-    except:
-        return {}, {}
+    except Exception as e:
+        pass
+
+    return historico_lucro, historico_pl
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
