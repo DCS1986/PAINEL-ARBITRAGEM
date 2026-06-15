@@ -52,7 +52,7 @@ def formatar_yield(valor):
 
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
-    """Busca dividendos, ROE e Margem do Yahoo Finance"""
+    """Busca dividendos, ROE, Margem e 52 semanas do Yahoo Finance"""
     try:
         stock = yf.Ticker(f"{ticker}.SA")
         info = stock.info
@@ -65,13 +65,18 @@ def get_dados_yahoo(ticker):
         # Métricas Financeiras
         roe = info.get('returnOnEquity', 0)
         margem = info.get('profitMargins', 0)
-        
         roe_str = f"{roe*100:.1f}%" if roe else "-"
         margem_str = f"{margem*100:.1f}%" if margem else "-"
         
-        return data_ex, valor_div, roe_str, margem_str
+        # Preços 52 semanas
+        low52 = info.get('fiftyTwoWeekLow', 0)
+        high52 = info.get('fiftyTwoWeekHigh', 0)
+        low_str = f"R$ {low52:.2f}" if low52 else "-"
+        high_str = f"R$ {high52:.2f}" if high52 else "-"
+        
+        return data_ex, valor_div, roe_str, margem_str, low_str, high_str
     except:
-        return "-", "-", "-", "-"
+        return "-", "-", "-", "-", "-", "-"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -176,6 +181,9 @@ else:
             
             st.markdown("---")
             
+            # --- Busca dados do Yahoo ---
+            dt, val, roe, margem, low, high = get_dados_yahoo(row['CÓDIGO'])
+            
             # Detalhes completos
             col1, col2, col3 = st.columns(3)
             
@@ -189,6 +197,10 @@ else:
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
                 st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold; background-color: rgba(57, 255, 20, 0.1); padding: 2px 4px; border-radius: 4px;'>{valor_resultado}</span>", unsafe_allow_html=True)
+                
+                st.markdown("---")
+                st.markdown(f"**📉 Mínima (52 sem):** {low}")
+                st.markdown(f"**📈 Máxima (52 sem):** {high}")
             
             # --- Coluna 2: Dividendos ---
             with col2:
@@ -201,8 +213,6 @@ else:
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 
-                # Dados Yahoo
-                dt, val, _, _ = get_dados_yahoo(row['CÓDIGO'])
                 st.markdown("---")
                 st.markdown(f"**📅 Data Ex:** {dt}")
                 st.markdown(f"**💰 Valor Atual:** {val}")
@@ -215,8 +225,6 @@ else:
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
                 st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
                 
-                # Dados Yahoo (ROE e Margem)
-                _, _, roe, margem = get_dados_yahoo(row['CÓDIGO'])
                 st.markdown("---")
                 st.markdown(f"**📈 ROE:** {roe}")
                 st.markdown(f"**📋 Margem Líq.:** {margem}")
