@@ -181,8 +181,7 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
 for _, row in df_f.iterrows():
-        # 1. SEGURANÇA E INICIALIZAÇÃO DE VARIÁVEIS
-        # Evita erro caso os dados falhem
+        # --- 1. INICIALIZAÇÃO DE VARIÁVEIS SEGURA ---
         dt, val, roe, margem, low, high, beta = "-", "-", "-", "-", "-", "-", "-"
         progresso = 0.0
         
@@ -190,33 +189,34 @@ for _, row in df_f.iterrows():
         try:
             dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
         except:
-            pass
+            pass # Continua se o Yahoo falhar
 
-        # 2. CÁLCULOS E LIMPEZA DE DADOS
+        # --- 2. CÁLCULOS E LIMPEZA ---
         val_entregue = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         
-        # Cálculo do progresso com verificação de zero
         if val_projetado > 0:
             progresso = float(min(val_entregue / val_projetado, 1.0))
+        else:
+            progresso = 0.0 # Garante que o else tenha um comando
+            
         porcentagem = int(progresso * 100)
 
-        # Tratamento do DY para evitar duplicidade (como visto em)
+        # Limpeza do DY (resolve o % duplicado)
         dy_raw = str(row.get('Dividend Yield bruto estimado', '0'))
-        dy_clean = dy_raw.replace('%', '').strip() # Remove o % original
+        dy_clean = dy_raw.replace('%', '').strip()
+        
         try:
             dy_num = float(dy_clean.replace(',', '.'))
         except:
             dy_num = 0
             
-        # Define o ícone de alerta para DY acima de 8%
+        # Ícone de destaque (verde se > 8%)
         dy_icone = "🟢" if dy_num > 8 else ""
         
-        # 3. EXIBIÇÃO DO LAYOUT
+        # --- 3. EXIBIÇÃO ---
         cot = formatar_cotacao(row.get('Cotação atual', 0))
         pl = f"{row.get('P/L PROJETADO', '0')}x"
-        
-        # Título do expander: DY sem o % duplicado e com o ícone de destaque
         titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_icone} {dy_clean}% | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
@@ -228,7 +228,6 @@ for _, row in df_f.iterrows():
                 st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
-                # Destaque em verde para o resultado entregue
                 st.markdown(f"**⭐ RESULTADO ENTREGUE (1/4):** <span style='color:#39FF14; font-weight:bold;'>{row.get('RESULTADO 2026 (1/4)', '-')}</span>", unsafe_allow_html=True)
                 st.progress(progresso)
                 st.caption(f"Status: {porcentagem}% da meta projetada")
@@ -253,5 +252,4 @@ for _, row in df_f.iterrows():
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
                 st.markdown(f"**ROE:** {roe}")
                 st.markdown(f"**Margem Líq.:** {margem}")
-                # Beta explicitamente por último como solicitado
-                st.markdown(f"**
+                # Beta explicit
