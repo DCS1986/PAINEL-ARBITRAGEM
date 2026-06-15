@@ -385,6 +385,8 @@ def get_dados_yahoo(ticker):
             historico_lucro = {}
 
         # Próximo provento em aberto
+        # Lógica: Yahoo dá a Data Ex. A Data COM no Brasil é 1 dia útil antes da Data Ex.
+        # Provento está "em aberto" se a Data COM ainda não passou (ou seja, Data Ex > hoje).
         proximo_provento_data  = "-"
         proximo_provento_valor = "-"
         try:
@@ -393,9 +395,14 @@ def get_dados_yahoo(ticker):
                 ex_date = calendar.get('Ex-Dividend Date') or calendar.get('Dividend Date')
                 if ex_date:
                     hoje  = pd.Timestamp.now().normalize()
-                    ex_ts = pd.Timestamp(ex_date)
-                    if ex_ts >= hoje:
-                        proximo_provento_data  = ex_ts.strftime('%d/%m/%Y')
+                    ex_ts = pd.Timestamp(ex_date).normalize()
+
+                    # Calcula Data COM = 1 dia útil antes da Data Ex
+                    data_com = ex_ts - pd.offsets.BDay(1)
+
+                    # Provento em aberto somente se a Data COM ainda não chegou
+                    if data_com > hoje:
+                        proximo_provento_data  = data_com.strftime('%d/%m/%Y')
                         proximo_provento_valor = f"R$ {divs.iloc[-1]:.4f}" if not divs.empty else "-"
         except:
             pass
