@@ -180,7 +180,6 @@ st.markdown("---")
 if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
-
 for _, row in df_f.iterrows():
         # --- 1. CARREGAMENTO E CÁLCULOS ---
         dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
