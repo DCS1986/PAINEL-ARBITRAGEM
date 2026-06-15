@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import yfinance as yf
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Screener Estratégico", layout="wide")
@@ -48,6 +49,19 @@ def formatar_pl(valor):
 def formatar_yield(valor):
     s = str(valor).replace('%', '').replace(',', '.').strip()
     return f"{s}%"
+
+@st.cache_data(ttl=86400)
+def get_info_dividendos(ticker):
+    try:
+        stock = yf.Ticker(f"{ticker}.SA")
+        divs = stock.dividends
+        if not divs.empty:
+            data = divs.index[-1].strftime('%d/%m/%Y')
+            valor = divs.iloc[-1]
+            return data, f"R$ {valor:.4f}"
+        return "-", "-"
+    except:
+        return "-", "-"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -186,4 +200,9 @@ else:
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
                 st.markdown(f"**Nº Ações:** {row.get('Nº AÇÕES', '-')}")
-
+                
+                # --- Integração Yahoo Finance ---
+                st.markdown("---")
+                dt, val = get_info_dividendos(row['CÓDIGO'])
+                st.markdown(f"**📅 Data Ex:** {dt}")
+                st.markdown(f"**💰 Valor Atual:** {val}")
