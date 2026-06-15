@@ -181,28 +181,28 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
 for _, row in df_f.iterrows():
-        # --- 1. INICIALIZAÇÃO DE VARIÁVEIS SEGURA ---
+        # 1. INICIALIZAÇÃO SEGURA
         dt, val, roe, margem, low, high, beta = "-", "-", "-", "-", "-", "-", "-"
         progresso = 0.0
         
-        # Tenta carregar dados do Yahoo
+        # 2. CARREGAMENTO DOS DADOS (Yahoo)
         try:
             dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
         except:
-            pass # Continua se o Yahoo falhar
+            pass 
 
-        # --- 2. CÁLCULOS E LIMPEZA ---
+        # 3. CÁLCULOS
         val_entregue = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         
         if val_projetado > 0:
             progresso = float(min(val_entregue / val_projetado, 1.0))
         else:
-            progresso = 0.0 # Garante que o else tenha um comando
+            progresso = 0.0  # Correção da indentação do else
             
         porcentagem = int(progresso * 100)
 
-        # Limpeza do DY (resolve o % duplicado)
+        # 4. TRATAMENTO DO DY (Remove % original para evitar duplicidade)
         dy_raw = str(row.get('Dividend Yield bruto estimado', '0'))
         dy_clean = dy_raw.replace('%', '').strip()
         
@@ -211,10 +211,9 @@ for _, row in df_f.iterrows():
         except:
             dy_num = 0
             
-        # Ícone de destaque (verde se > 8%)
         dy_icone = "🟢" if dy_num > 8 else ""
         
-        # --- 3. EXIBIÇÃO ---
+        # 5. EXIBIÇÃO
         cot = formatar_cotacao(row.get('Cotação atual', 0))
         pl = f"{row.get('P/L PROJETADO', '0')}x"
         titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_icone} {dy_clean}% | Setor: {row['SETOR']}"
@@ -235,7 +234,6 @@ for _, row in df_f.iterrows():
             # --- COLUNA 2: DIVIDENDOS ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
-                # Cor verde apenas se > 8%
                 style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
                 st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_clean}%</span>", unsafe_allow_html=True)
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
@@ -248,8 +246,4 @@ for _, row in df_f.iterrows():
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
-                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**ROE:** {roe}")
-                st.markdown(f"**Margem Líq.:** {margem}")
-                # Beta explicit
+                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/)
