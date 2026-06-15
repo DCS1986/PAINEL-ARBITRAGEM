@@ -199,7 +199,7 @@ else:
                 pl_medio = row.get('P/L médio (últ. 10 anos)', '-')
                 pl_medio_formatado = f"{pl_medio}x" if pl_medio != '-' else "-"
                 st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
-                st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
+                st.markdown(f"**LL Projetado:** {row.get('RESULTADO PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 
                 # Barra de Progresso do Resultado
@@ -208,7 +208,7 @@ else:
                 meta = 7_800_000_000
                 progresso = min(val_num / meta, 1.0)
                 
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold;'>{valor_resultado}</span>", unsafe_allow_html=True)
+                st.markdown(f"**⭐ RESULTADO ENTREGUE 2026 (1/4):** <span style='color: #39FF14; font-weight: bold;'>{valor_resultado}</span>", unsafe_allow_html=True)
                 st.progress(progresso)
                 
                 st.markdown("---")
@@ -228,7 +228,7 @@ else:
                 
                 st.markdown("---")
                 st.markdown(f"**📅 Data Ex:** {dt}")
-                st.markdown(f"**💰 Valor Atual:** {val}")
+                st.markdown(f"**💰 Último Valor:** {val}")
                 
             # --- Coluna 3: Operacional ---
             with col3:
