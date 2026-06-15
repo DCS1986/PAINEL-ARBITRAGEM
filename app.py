@@ -49,7 +49,7 @@ def formatar_yield(valor):
     s = str(valor).replace('%', '').replace(',', '.').strip()
     return f"{s}%"
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def carregar_dados():
     try:
         spreadsheet_id = "1QM3xaaiZHleTJb8MEChy95LJSX3j3hLs8-ecQydMHYM"
