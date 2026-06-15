@@ -181,12 +181,12 @@ if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
     for _, row in df_f.iterrows():
-        # 1. Cálculos preparatórios (para evitar o NameError)
+        # 1. Cálculos preparatórios (Resolve o NameError)
         cot = formatar_cotacao(row['Cotação atual'])
         pl = formatar_pl(row['P/L PROJETADO'])
         dy_str = formatar_yield(row['Dividend Yield bruto estimado'])
         
-        # Cálculo da barra de progresso
+        # Cálculo da barra de progresso (Obrigatório antes de st.progress)
         val_num = row.get('res_val_num', 0)
         meta = 7_800_000_000
         progresso = min(val_num / meta, 1.0)
@@ -200,6 +200,7 @@ else:
         with st.expander(titulo):
             col1, col2, col3 = st.columns(3)
             
+            # --- COLUNA 1: VALUATION (6 itens) ---
             with col1:
                 st.markdown("#### 📊 Valuation")
                 st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
@@ -207,11 +208,12 @@ else:
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Mínima (52 sem):** {low}")
                 st.markdown(f"**Máxima (52 sem):** {high}")
-                # Barra de progresso ocupa a 6ª posição (simetria)
+                # Barra de progresso (6ª posição)
                 st.markdown(f"**⭐ Meta 2026:** {row.get('RESULTADO 2026 (1/4)', '-')}")
                 st.progress(progresso)
                 st.caption(f"Status: {porcentagem}% da meta")
             
+            # --- COLUNA 2: DIVIDENDOS (6 itens) ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
                 st.markdown(f"**Dividend Yield:** :green[{dy_str}]")
@@ -220,8 +222,9 @@ else:
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 st.markdown(f"**Data Ex:** {dt}")
                 st.markdown(f"**Valor Atual:** {val}")
-                st.write("") # Espaço invisível para manter simetria
+                st.write("") # Espaçador invisível para manter simetria
 
+            # --- COLUNA 3: OPERACIONAL (6 itens) ---
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
