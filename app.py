@@ -156,7 +156,8 @@ else:
                 st.markdown(f"**P/L Médio (10a):** {row.get('P/L médio (últ. 10 anos)', '-')}")
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** {row.get('RESULTADO 2026 (1/4)', '-')}")
+                valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
+                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold; background-color: rgba(57, 255, 20, 0.1); padding: 2px 4px; border-radius: 4px;'>{valor_resultado}</span>", unsafe_allow_html=True)
                 
             with col2:
                 st.markdown("#### 💰 Dividendos")
