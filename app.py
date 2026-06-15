@@ -156,7 +156,7 @@ def mini_grafico_dy(historico_dy):
     return f'<div class="dy-bar-container">{barras}</div>'
 
 # ---- Mini gráfico de linha SVG — P/L e Lucro ----
-def mini_grafico_linha(dados, cor, label_suffix="", altura=120, largura=300):
+def mini_grafico_linha(dados, cor, label_suffix="", altura=120, largura=420):
     if not dados or len(dados) < 2:
         return "<span style='color:#888; font-size:0.9em;'>Dados insuficientes</span>"
 
@@ -218,7 +218,7 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=120, largura=300):
         for x, y in pts
     )
 
-    svg = f"""<svg width="{largura}" height="{altura}" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible;">
+    svg = f"""<svg viewBox="0 0 {largura} {altura}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible;">
   <defs>
     <linearGradient id="{grad_id}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="{cor}" stop-opacity="0.30"/>
