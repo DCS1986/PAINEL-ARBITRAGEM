@@ -106,7 +106,7 @@ c1, c2 = st.columns(2)
 c1.metric("Total de Ativos", len(df))
 c2.metric("Ativos Filtrados", len(df_f))
 
-st.markdown("--")
+st.markdown("---")
 
 # --- CÁLCULO DE DESTAQUES (Cole isto antes da sua linha st.markdown("---")) ---
     if not df_f.empty:
