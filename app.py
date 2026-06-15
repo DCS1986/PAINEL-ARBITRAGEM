@@ -180,29 +180,31 @@ st.markdown("---")
 if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
+
 for _, row in df_f.iterrows():
-        # 1. INICIALIZAÇÃO SEGURA
+        # 1. INICIALIZAÇÃO SEGURA (Evita NameError)
         dt, val, roe, margem, low, high, beta = "-", "-", "-", "-", "-", "-", "-"
         progresso = 0.0
         
-        # 2. CARREGAMENTO DOS DADOS (Yahoo)
+        # 2. CARREGAMENTO DOS DADOS
         try:
             dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass 
 
-        # 3. CÁLCULOS
+        # 3. CÁLCULOS E TRATAMENTO
         val_entregue = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         
+        # Correção da lógica com indentação garantida
         if val_projetado > 0:
             progresso = float(min(val_entregue / val_projetado, 1.0))
         else:
-            progresso = 0.0  # Correção da indentação do else
+            progresso = 0.0 # Garante que o bloco não fique vazio
             
         porcentagem = int(progresso * 100)
 
-        # 4. TRATAMENTO DO DY (Remove % original para evitar duplicidade)
+        # 4. TRATAMENTO DO DY (Remove o % para evitar duplicidade)
         dy_raw = str(row.get('Dividend Yield bruto estimado', '0'))
         dy_clean = dy_raw.replace('%', '').strip()
         
@@ -211,11 +213,14 @@ for _, row in df_f.iterrows():
         except:
             dy_num = 0
             
+        # Ícone de destaque para DY > 8%
         dy_icone = "🟢" if dy_num > 8 else ""
         
         # 5. EXIBIÇÃO
         cot = formatar_cotacao(row.get('Cotação atual', 0))
         pl = f"{row.get('P/L PROJETADO', '0')}x"
+        
+        # Título limpo e com o ícone
         titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_icone} {dy_clean}% | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
@@ -246,4 +251,9 @@ for _, row in df_f.iterrows():
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
-                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/
+                st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
+                st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
+                st.markdown(f"**ROE:** {roe}")
+                st.markdown(f"**Margem Líq.:** {margem}")
+                # Beta explicitamente na última linha
+                st.markdown(f"**Beta (vs IBOV):** {beta}")
