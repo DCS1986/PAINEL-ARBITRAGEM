@@ -12,7 +12,7 @@ page_bg_img = f"""
 <style>
 [data-testid="stAppViewContainer"] {{
     background-image: url("{link_da_imagem}");
-    background-size: contain;
+    background-size: cover;
     background-position: top center;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -480,14 +480,16 @@ _min_score_efetivo = min_score if ativar_filtros else 0.0
 
 # --- DASHBOARD ---
 st.markdown("""
-<div style="margin-bottom:28px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
-    <span style="font-size:0.75em; letter-spacing:3px; text-transform:uppercase;
-                 color:#555; font-weight:600;">Diego Castro</span>
-    <h1 style="margin:4px 0 0 0; font-size:2.2em; font-weight:800; letter-spacing:-0.5px;
-               color:#fff; line-height:1.1;">Radar Fundamentalista</h1>
-    <span style="font-size:0.8em; color:#444; letter-spacing:1px;">
-        Análise quantitativa de ações brasileiras
-    </span>
+<div style="position:relative; margin-bottom:20px; padding:10px 0 16px 0;
+            border-bottom:1px solid rgba(255,255,255,0.08);">
+    <h1 style="margin:0; font-size:2.4em; font-weight:900; letter-spacing:2px;
+               text-transform:uppercase; color:#fff; line-height:1.1;
+               text-shadow: 0 0 30px rgba(57,255,20,0.3);">
+        Radar Fundamentalista
+    </h1>
+    <span style="position:absolute; top:14px; right:0; font-size:0.85em;
+                 letter-spacing:3px; text-transform:uppercase; font-weight:700;
+                 color:rgba(255,255,255,0.55);">Diego Castro</span>
 </div>
 """, unsafe_allow_html=True)
 
