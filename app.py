@@ -106,7 +106,7 @@ c1, c2 = st.columns(2)
 c1.metric("Total de Ativos", len(df))
 c2.metric("Ativos Filtrados", len(df_f))
 
-# LÓGICA DE DESTAQUES (Inserida aqui para não quebrar o layout)
+# LÓGICA DE DESTAQUES
 if not df_f.empty:
     idx_max_dy = df_f['dy_num'].idxmax()
     ticker_max_dy = df_f.loc[idx_max_dy, 'CÓDIGO']
@@ -153,7 +153,12 @@ else:
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown("#### 📊 Valuation")
-                st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}")
+                
+                # Lógica ajustada para o P/L Médio com o 'x'
+                pl_medio = row.get('P/L médio (últ. 10 anos)', '-')
+                pl_medio_formatado = f"{pl_medio}x" if pl_medio != '-' else "-"
+                st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
+                
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
