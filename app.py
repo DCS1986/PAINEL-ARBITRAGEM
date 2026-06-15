@@ -168,7 +168,7 @@ else:
                 st.markdown("#### 💰 Dividendos")
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-                st.markdown(f"**Div. Bruto Proj.:** {row.get('Dividendo por ação bruto projetado', '-')}")
+                st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 
             with col3:
                 st.markdown("#### ⚙️ Operacional")
