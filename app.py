@@ -62,7 +62,7 @@ def formatar_yield(valor):
 
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
-    """Busca dividendos, ROE, Margem, 52 semanas e BETA do Yahoo Finance"""
+    """Busca dividendos, ROE, Margem, 52 semanas e Beta do Yahoo Finance"""
     try:
         stock = yf.Ticker(f"{ticker}.SA")
         info = stock.info
@@ -79,7 +79,7 @@ def get_dados_yahoo(ticker):
         
         roe_str = f"{roe*100:.1f}%" if roe else "-"
         margem_str = f"{margem*100:.1f}%" if margem else "-"
-        beta_str = f"{beta:.2f}" if beta else "-"
+        beta_str = f"{beta:.2f}" if beta else "N/A"
         
         # Preços 52 semanas
         low52 = info.get('fiftyTwoWeekLow', 0)
@@ -89,7 +89,7 @@ def get_dados_yahoo(ticker):
         
         return data_ex, valor_div, roe_str, margem_str, low_str, high_str, beta_str
     except:
-        return "-", "-", "-", "-", "-", "-", "-"
+        return "-", "-", "-", "-", "-", "-", "N/A"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -206,14 +206,14 @@ else:
                 st.markdown(f"**LL Projetado:** {row.get('LL PROJETADO', '-')}")
                 st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                 
-                # --- Lógica do Resultado e Barra ---
-                valor_resultado = row.get('RESULTADO 2026 (1/4)', '-')
+                # --- Barra de Progresso do Resultado ---
+                valor_resultado_str = row.get('RESULTADO 2026 (1/4)', '-')
                 val_num = row.get('res_val_num', 0)
                 meta = 7_800_000_000
                 progresso = min(val_num / meta, 1.0)
                 porcentagem = int(progresso * 100)
                 
-                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold;'>{valor_resultado}</span>", unsafe_allow_html=True)
+                st.markdown(f"**⭐ RESULTADO 2026 (1/4):** <span style='color: #39FF14; font-weight: bold;'>{valor_resultado_str}</span>", unsafe_allow_html=True)
                 st.progress(progresso)
                 st.caption(f"Meta de R$ 7,8 bi: **{porcentagem}% alcançado**")
                 
