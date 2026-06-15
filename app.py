@@ -24,13 +24,14 @@ page_bg_img = f"""
     background: rgba(0, 0, 0, 0.7); 
 }}
 
-/* ---- ESTILOS DO MINI GRÁFICO DE DY ---- */
+/* ---- ESTILOS DO GRÁFICO DE DY ---- */
 .dy-bar-container {{
     display: flex;
     align-items: flex-end;
-    gap: 4px;
-    height: 50px;
-    margin-top: 8px;
+    gap: 8px;
+    height: 110px;
+    margin-top: 10px;
+    padding: 0 4px;
 }}
 .dy-bar-wrap {{
     display: flex;
@@ -40,19 +41,21 @@ page_bg_img = f"""
 }}
 .dy-bar {{
     width: 100%;
-    border-radius: 3px 3px 0 0;
-    min-height: 4px;
+    border-radius: 4px 4px 0 0;
+    min-height: 6px;
 }}
 .dy-bar-label {{
-    font-size: 9px;
-    color: #aaa;
-    margin-top: 3px;
+    font-size: 12px;
+    color: #bbb;
+    margin-top: 5px;
     white-space: nowrap;
+    font-weight: bold;
 }}
 .dy-bar-value {{
-    font-size: 8px;
-    color: #ccc;
-    margin-bottom: 2px;
+    font-size: 11px;
+    color: #fff;
+    margin-bottom: 4px;
+    font-weight: bold;
 }}
 
 /* ---- ESTILOS DO SCORE ---- */
@@ -166,10 +169,10 @@ def badge_score(score):
 def mini_grafico_dy(historico_dy):
     """
     historico_dy: dict {ano: valor_percentual}  ex: {2020: 6.2, 2021: 7.0, ...}
-    Retorna HTML de um mini gráfico de barras verticais.
+    Retorna HTML de um gráfico de barras verticais maior e mais legível.
     """
     if not historico_dy:
-        return "<span style='color:#888; font-size:0.85em;'>Histórico indisponível</span>"
+        return "<span style='color:#888; font-size:0.9em;'>Histórico indisponível</span>"
 
     max_val = max(historico_dy.values()) if historico_dy.values() else 1
     if max_val == 0:
@@ -177,7 +180,8 @@ def mini_grafico_dy(historico_dy):
 
     barras = ""
     for ano, val in sorted(historico_dy.items()):
-        altura = max(int((val / max_val) * 44), 4)
+        # Altura máxima de 90px para caber bem no container de 110px
+        altura = max(int((val / max_val) * 90), 6)
         cor = "#39FF14" if val >= 8 else "#1E90FF"
         barras += f"""
         <div class="dy-bar-wrap">
@@ -233,11 +237,8 @@ def get_dados_yahoo(ticker):
                 anos = range(ano_atual - 4, ano_atual + 1)
                 
                 for ano in anos:
-                    # Soma dos dividendos do ano
                     divs_ano = divs_anuais[divs_anuais.index.year == ano]
                     soma_divs = divs_ano.sum()
-                    
-                    # Preço médio do ano
                     preco_ano = preco_hist[preco_hist.index.year == ano]['Close']
                     preco_medio = preco_ano.mean() if not preco_ano.empty else 0
                     
@@ -246,10 +247,31 @@ def get_dados_yahoo(ticker):
                         historico_dy[ano] = round(dy_ano, 2)
         except:
             historico_dy = {}
-        
-        return data_ex, valor_div, roe_str, margem_str, low_str, high_str, beta_str, pvp_str, roe_num, margem_num, historico_dy
+
+        # ---- NOVO: Próximo provento em aberto ----
+        proximo_provento_data = "-"
+        proximo_provento_valor = "-"
+        try:
+            calendar = stock.calendar
+            # O Yahoo Finance retorna o campo 'Dividend Date' com a data ex futura
+            if calendar is not None:
+                ex_date = calendar.get('Ex-Dividend Date') or calendar.get('Dividend Date')
+                if ex_date:
+                    hoje = pd.Timestamp.now().normalize()
+                    ex_ts = pd.Timestamp(ex_date)
+                    if ex_ts >= hoje:
+                        proximo_provento_data = ex_ts.strftime('%d/%m/%Y')
+                        # Pega o último valor declarado como estimativa
+                        if not divs.empty:
+                            proximo_provento_valor = f"R$ {divs.iloc[-1]:.4f}"
+        except:
+            pass
+
+        return (data_ex, valor_div, roe_str, margem_str, low_str, high_str,
+                beta_str, pvp_str, roe_num, margem_num, historico_dy,
+                proximo_provento_data, proximo_provento_valor)
     except:
-        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}
+        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, "-", "-"
 
 @st.cache_data(ttl=60)
 def carregar_dados():
@@ -348,10 +370,14 @@ else:
         roe_num_raw = 0
         margem_num_raw = 0
         historico_dy = {}
+        proximo_provento_data = "-"
+        proximo_provento_valor = "-"
         progresso = 0.0
 
         try:
-            dt, val, roe, margem, low, high, beta, pvp_str, roe_num_raw, margem_num_raw, historico_dy = get_dados_yahoo(row['CÓDIGO'])
+            (dt, val, roe, margem, low, high, beta, pvp_str,
+             roe_num_raw, margem_num_raw, historico_dy,
+             proximo_provento_data, proximo_provento_valor) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
 
@@ -389,6 +415,8 @@ else:
             'beta': beta,
             'pvp_str': pvp_str,
             'historico_dy': historico_dy,
+            'proximo_provento_data': proximo_provento_data,
+            'proximo_provento_valor': proximo_provento_valor,
         })
 
     # Filtro por score mínimo
@@ -414,6 +442,8 @@ else:
             beta = ativo['beta']
             pvp_str = ativo['pvp_str']
             historico_dy = ativo['historico_dy']
+            proximo_provento_data = ativo['proximo_provento_data']
+            proximo_provento_valor = ativo['proximo_provento_valor']
 
             dy_icone = "🟢" if dy_num > 8 else ""
             cot = formatar_cotacao(row.get('Cotação atual', 0))
@@ -470,7 +500,27 @@ else:
                     st.markdown(f"**Data Ex:** {dt}")
                     st.markdown(f"**Valor Atual:** {val}")
 
-                    # ---- NOVO: Histórico de DY (mini gráfico) ----
+                    # ---- Próximo provento em aberto ----
+                    if proximo_provento_data != "-":
+                        st.markdown(
+                            f"<div style='margin-top:10px; padding:8px 12px; border-radius:8px; "
+                            f"background:#1a3a1a; border:1px solid #39FF14;'>"
+                            f"<span style='color:#39FF14; font-weight:bold; font-size:0.95em;'>"
+                            f"📅 Próximo Provento em Aberto</span><br>"
+                            f"<span style='color:#fff;'>Data Ex: <b>{proximo_provento_data}</b> &nbsp;|&nbsp; "
+                            f"Valor Est.: <b>{proximo_provento_valor}</b></span>"
+                            f"</div>",
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.markdown(
+                            "<div style='margin-top:10px; padding:6px 12px; border-radius:8px; "
+                            "background:#2a2a2a; border:1px solid #555; color:#888; font-size:0.85em;'>"
+                            "📅 Nenhum provento futuro identificado</div>",
+                            unsafe_allow_html=True
+                        )
+
+                    # ---- Histórico de DY (gráfico) ----
                     st.markdown("**Histórico DY (5 anos):**")
                     st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
 
