@@ -180,41 +180,35 @@ st.markdown("---")
 if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
-    for _, row in df_f.iterrows():
-        # --- 1. INICIALIZAÇÃO DE VARIÁVEIS (Previne erros) ---
-        dt, val, roe, margem, low, high, beta = "-", "-", "-", "-", "-", "-", "-"
-        progresso = 0.0
-        porcentagem = 0
+for _, row in df_f.iterrows():
+        # --- 1. CARREGAMENTO E CÁLCULOS ---
+        dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
         
-        # --- 2. CARREGAMENTO E CÁLCULOS ---
-        try:
-            dt, val, roe, margem, low, high, beta = get_dados_yahoo(row['CÓDIGO'])
-        except:
-            pass # Continua caso o Yahoo falhe
-            
         # Limpeza para cálculo da meta
         val_entregue = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         
-        # Cálculo seguro do progresso
-        if val_projetado > 0:
-            progresso = float(min(val_entregue / val_projetado, 1.0))
+        # Cálculo do progresso
+        progresso = min(val_entregue / val_projetado, 1.0) if val_projetado > 0 else 0
         porcentagem = int(progresso * 100)
 
-        # Formatação do DY
+        # Formatação do DY (Limpeza para evitar % duplicado e para comparação)
         dy_raw = str(row.get('Dividend Yield bruto estimado', '0'))
         try:
+            # Converte '9,0%' para 9.0 para comparação
             dy_num = float(dy_raw.replace('%', '').replace(',', '.'))
         except:
             dy_num = 0
             
+        # Define se mostra o ícone de destaque na lista
         dy_icone = "🟢" if dy_num > 8 else ""
+        
+        # String limpa do DY (remove o % se já existir, para não duplicar)
         dy_str_clean = dy_raw.replace('%', '') 
         
-        # --- 3. EXIBIÇÃO ---
-        cot = formatar_cotacao(row.get('Cotação atual', 0))
-        pl = f"{row.get('P/L PROJETADO', '0')}x"
-        titulo = f"🏦 **{row['CÓDIGO']}** | {cot} | P/L: {pl} | DY: {dy_icone} {dy_str_clean}% | Setor: {row['SETOR']}"
+        # --- 2. EXIBIÇÃO ---
+        # Título do Expander (Sem HTML de cor, pois não funciona, mas com ícone de destaque)
+        titulo = f"🏦 **{row['CÓDIGO']}** | {formatar_cotacao(row['Cotação atual'])} | P/L: {row.get('P/L PROJETADO', '0')}x | DY: {dy_icone} {dy_str_clean}% | Setor: {row['SETOR']}"
         
         with st.expander(titulo):
             col1, col2, col3 = st.columns(3)
@@ -232,20 +226,22 @@ else:
             # --- COLUNA 2: DIVIDENDOS ---
             with col2:
                 st.markdown("#### 💰 Dividendos")
+                # Aqui mantemos a cor verde, pois dentro do expander o HTML funciona
                 style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
                 st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_str_clean}%</span>", unsafe_allow_html=True)
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
+                st.markdown(f"**LPA Est.: {row.get('LPA ESTIMADO', '-')}**")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
                 st.markdown(f"**Data Ex:** {dt}")
                 st.markdown(f"**Valor Atual:** {val}")
 
-            # --- COLUNA 3: OPERACIONAL (Beta por último) ---
+            # --- COLUNA 3: OPERACIONAL ---
             with col3:
                 st.markdown("#### ⚙️ Operacional")
                 st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
                 st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                 st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                st.markdown(f"**ROE:** {roe}")
-                st.markdown(f"**Margem Líq.:** {margem}")
                 st.markdown(f"**Beta (vs IBOV):** {beta}")
+                st.markdown(f"**ROE:** {roe}")
+                st.markdown(f"**Margem Líq.:** {margem}")   
+       
