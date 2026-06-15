@@ -180,7 +180,7 @@ st.markdown("---")
 if df_f.empty:
     st.warning("Nenhum ativo encontrado.")
 else:
-for _, row in df_f.iterrows():
+    for _, row in df_f.iterrows():
         # --- 1. INICIALIZAÇÃO DE VARIÁVEIS (Proteção contra erros) ---
         dt, val, roe, margem, low, high, beta = "-", "-", "-", "-", "-", "-", "-"
         progresso = 0.0
