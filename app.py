@@ -154,7 +154,6 @@ else:
             with col1:
                 st.markdown("#### 📊 Valuation")
                 
-                # Lógica ajustada para o P/L Médio com o 'x'
                 pl_medio = row.get('P/L médio (últ. 10 anos)', '-')
                 pl_medio_formatado = f"{pl_medio}x" if pl_medio != '-' else "-"
                 st.markdown(f"**P/L Médio (10 anos):** {pl_medio_formatado}")
@@ -166,6 +165,14 @@ else:
                 
             with col2:
                 st.markdown("#### 💰 Dividendos")
+                
+                # --- NOVO: Lógica de destaque para DY > 8% ---
+                dy_valor_display = row.get('Dividend Yield bruto estimado', '-')
+                dy_num = row.get('dy_num', 0)
+                # Se for maior que 8, aplica o estilo verde neon, senão usa branco padrão
+                style_dy = "color: #39FF14; font-weight: bold;" if dy_num > 8 else ""
+                st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_valor_display}</span>", unsafe_allow_html=True)
+                
                 st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
                 st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
                 st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
