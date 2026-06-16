@@ -953,6 +953,26 @@ with c3:
 with c4:
     card_maior_score = st.empty()
 
+st.markdown("""
+<div style="margin:0 0 20px 0; padding:12px 18px; border-radius:10px;
+            background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+            border-left:3px solid rgba(255,255,255,0.25);">
+    <p style="margin:0 0 6px 0; font-size:0.82em; color:#bbb; line-height:1.65;">
+        <strong style="color:#ddd;">Radar Fundamentalista</strong> é uma ferramenta de análise
+        quantitativa e qualitativa de ações brasileiras desenvolvida para apoiar o processo de
+        tomada de decisão em investimentos de longo prazo. Os dados e projeções são obtidos de
+        fontes públicas e análises proprietárias do autor. O score combina critérios de qualidade
+        operacional (ROE, CAGR, consistência de resultados), governança corporativa e valuation,
+        com pesos diferenciados por setor.
+    </p>
+    <p style="margin:0; font-size:0.78em; color:#888; line-height:1.5;">
+        ⚠️ <strong style="color:#999;">As informações aqui contidas têm caráter exclusivamente
+        educacional e não constituem recomendação de compra ou venda de ativos.
+        Invista com responsabilidade.</strong>
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
 st.markdown("""
