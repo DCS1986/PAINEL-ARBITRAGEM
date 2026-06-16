@@ -395,7 +395,7 @@ GOVERNANCA = {
 }
 
 OUTLOOK_2026 = {
-    "BBSE3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Atenção: exposição ao agro (granizo, seca, El Niño) pode pressionar sinistros em 2026. Posição relevante na carteira — não aumentar sem monitorar sinistralidade agrícola do 1T26."},
+    "BBSE3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Atenção: exposição ao agro (granizo, seca, El Niño) pode pressionar sinistros em 2026. Monitorar sinistralidade agrícola no 1T26 antes de ampliar posição."},
     "ITUB4":  {"icone": "✅", "cor": "#39FF14", "texto": "Ciclo de crédito favorável, inadimplência sob controle, ROE elevado. Um dos melhores momentos operacionais da história. Perspectiva positiva para 2026."},
     "BBAS3":  {"icone": "🔴", "cor": "#FF4444", "texto": "Risco elevado: carteira agro sob pressão com alta inadimplência. Guidance revisado sem aviso. Aguardar 2T26 para avaliar se deterioração foi pontual ou estrutural antes de aportar."},
     "BBDC3":  {"icone": "🟡", "cor": "#FFD700", "texto": "Recuperação em curso após anos difíceis. Lucro voltando a crescer mas abaixo dos pares. Posição especulativa de melhora — cautela com alocação."},
@@ -770,19 +770,6 @@ def pagina_ativo(ticker, row, ativo_data):
         st.markdown("**Histórico DY (5 anos):**")
         st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
 
-        # ---- Outlook 2026 ----
-        out = OUTLOOK_2026.get(ticker, {})
-        if out:
-            st.markdown(
-                "<div style='margin-top:12px;padding:10px 14px;border-radius:8px;"
-                "background:rgba(255,255,255,0.05);border:1px solid {};'>"
-                "<div style='font-size:0.85em;font-weight:bold;color:{};margin-bottom:5px;'>"
-                "{} Outlook 2026</div>"
-                "<div style='font-size:0.82em;color:#ccc;line-height:1.6;'>{}</div>"
-                "</div>".format(out['cor'], out['cor'], out['icone'], out['texto']),
-                unsafe_allow_html=True
-            )
-
     with col3:
         st.markdown("#### ⚙️ Operacional")
         pl_proj = row.get('P/L PROJETADO', '-')
@@ -793,11 +780,20 @@ def pagina_ativo(ticker, row, ativo_data):
         st.markdown("**Margem Líq.:** {}".format(margem))
         st.markdown("**Beta (vs IBOV):** {}".format(beta))
 
-        # ---- Governança ----
-        gov = GOVERNANCA.get(ticker, {})
-        nota_gov = gov.get('nota', '-')
-        obs_gov  = gov.get('obs', '')
-        if nota_gov != '-':
+        if historico_pl:
+            st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
+            st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
+
+    # ---- Governança + Outlook lado a lado ----
+    gov = GOVERNANCA.get(ticker, {})
+    out = OUTLOOK_2026.get(ticker, {})
+    nota_gov = gov.get('nota', None)
+    obs_gov  = gov.get('obs', '')
+
+    gcol1, gcol2 = st.columns(2)
+
+    with gcol1:
+        if nota_gov is not None:
             if nota_gov >= 8:
                 gov_cor, gov_label = "#39FF14", "Alta"
             elif nota_gov >= 6:
@@ -807,23 +803,32 @@ def pagina_ativo(ticker, row, ativo_data):
             pen = penalizacao_governanca(nota_gov)
             pen_str = "{:.1f}".format(pen) if pen < 0 else "0"
             st.markdown(
-                "<div style='margin-top:14px;padding:10px 14px;border-radius:8px;"
-                "background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);'>"
-                "<div style='font-size:0.85em;color:#aaa;font-weight:bold;margin-bottom:4px;'>🏛️ Governança Corporativa</div>"
-                "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
-                "<span style='font-size:1.3em;font-weight:900;color:{cor};'>{nota}</span>"
-                "<span style='font-size:0.78em;color:{cor};font-weight:bold;'>{label}</span>"
-                "<span style='font-size:0.75em;color:#888;margin-left:auto;'>penalização: {pen} no score</span>"
+                "<div style='padding:14px 16px;border-radius:10px;height:100%;"
+                "background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);'>"
+                "<div style='font-size:0.85em;color:#aaa;font-weight:bold;margin-bottom:8px;'>🏛️ Governança Corporativa</div>"
+                "<div style='display:flex;align-items:center;gap:12px;margin-bottom:8px;'>"
+                "<span style='font-size:2em;font-weight:900;color:{cor};'>{nota}</span>"
+                "<div><span style='font-size:0.9em;color:{cor};font-weight:bold;display:block;'>{label}</span>"
+                "<span style='font-size:0.75em;color:#666;'>penalização: {pen} no score</span></div>"
                 "</div>"
-                "<div style='font-size:0.8em;color:#ccc;line-height:1.5;'>{obs}</div>"
+                "<div style='font-size:0.82em;color:#bbb;line-height:1.6;'>{obs}</div>"
                 "</div>".format(cor=gov_cor, nota=nota_gov, label=gov_label, pen=pen_str, obs=obs_gov),
                 unsafe_allow_html=True
             )
 
-        if historico_pl:
-            st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
-            st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
+    with gcol2:
+        if out:
+            st.markdown(
+                "<div style='padding:14px 16px;border-radius:10px;height:100%;"
+                "background:rgba(255,255,255,0.04);border:1px solid {cor};'>"
+                "<div style='font-size:0.85em;font-weight:bold;color:{cor};margin-bottom:8px;'>"
+                "{icone} Outlook 2026</div>"
+                "<div style='font-size:0.82em;color:#ccc;line-height:1.6;'>{texto}</div>"
+                "</div>".format(cor=out['cor'], icone=out['icone'], texto=out['texto']),
+                unsafe_allow_html=True
+            )
 
+    st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("#### 📉 Preço Histórico")
     periodo_opcoes = {"1 mês": "1mo", "3 meses": "3mo", "6 meses": "6mo", "1 ano": "1y", "2 anos": "2y", "5 anos": "5y"}
@@ -998,14 +1003,14 @@ else:
     ativos_com_score = [a for a in ativos_com_score if a['score'] >= _min_score_efetivo]
     ativos_com_score.sort(key=lambda x: x['score'], reverse=True)
 
-    # Piso de 5.0: eleva todos pelo mesmo delta para que a pior empresa receba 5.0
-    # O teto de 10.0 existe mas ninguém é forçado a chegar lá
+    # Piso 5.0 / Teto 9.5 — o 10 fica reservado para casos excepcionais
+    # A elevação mantém as distâncias entre empresas intactas
     if ativos_com_score:
         score_min = ativos_com_score[-1]['score']
+        score_max = ativos_com_score[0]['score']
         elevacao  = max(0.0, 5.0 - score_min)
-        if elevacao > 0:
-            for a in ativos_com_score:
-                a['score'] = round(min(a['score'] + elevacao, 10.0), 1)
+        for a in ativos_com_score:
+            a['score'] = round(min(a['score'] + elevacao, 9.5), 1)
 
     card_filtrados.markdown(f"""<div class='top-card'>
         <div class='label'>🔍 Ativos Filtrados</div>
