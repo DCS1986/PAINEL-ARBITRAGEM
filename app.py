@@ -11,7 +11,7 @@ if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
 
 # --- CONFIGURAÇÃO DO FUNDO ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.PNG"
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
 
 page_bg_img = f"""
 <style>
