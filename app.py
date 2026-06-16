@@ -29,12 +29,16 @@ page_bg_img = f"""
     background: rgba(0, 0, 0, 0.7);
 }}
 
-/* Reduzir espaço do topo */
-[data-testid="stAppViewContainer"] > .main > div:first-child {{
-    padding-top: 20px !important;
-}}
+/* Remover espaço do topo */
 [data-testid="stHeader"] {{
     display: none !important;
+}}
+[data-testid="stAppViewContainer"] > .main {{
+    padding-top: 0px !important;
+}}
+.block-container {{
+    padding-top: 16px !important;
+    padding-bottom: 0px !important;
 }}
 
 /* ---- ESTILOS DO GRÁFICO DE DY ---- */
@@ -198,6 +202,7 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
             senha_correta = st.secrets.get("SENHA_ACESSO", "")
             if senha == senha_correta and senha_correta != "":
                 st.session_state.autenticado = True
+                st.session_state.modo_exibicao = 'Cards'
                 st.rerun()
             else:
                 st.error("Senha incorreta.")
