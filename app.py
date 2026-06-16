@@ -1205,12 +1205,12 @@ else:
             st.stop()
 
         # Modo Lista — duas colunas para ver mais ativos na tela
-        metade    = len(ativos_com_score) // 2 + len(ativos_com_score) % 2
+        metade     = len(ativos_com_score) // 2 + len(ativos_com_score) % 2
         lista_col1 = ativos_com_score[:metade]
         lista_col2 = ativos_com_score[metade:]
         lcol1, lcol2 = st.columns(2)
 
-        def render_lista_item(ativo, col):
+        def render_ativo(ativo):
             row                    = ativo['row']
             score                  = ativo['score']
             dy_num                 = ativo['dy_num']
@@ -1231,113 +1231,95 @@ else:
             variacao_dia           = ativo['variacao_dia']
             iv_str                 = ativo['iv_str']
             logo_url               = ativo['logo_url']
-
             dy_icone = "🔷" if dy_num > 8 else ""
             cot      = formatar_cotacao(row.get('Cotação atual', 0))
             pl       = f"{row.get('P/L PROJETADO', '0')}x"
             ic_setor = icone_setor(row['SETOR'])
-
             if variacao_dia > 0:
                 var_str = f"🟢 +{variacao_dia:.2f}%"
             elif variacao_dia < 0:
                 var_str = f"🔴 {variacao_dia:.2f}%"
             else:
                 var_str = f"🟡 {variacao_dia:.2f}%"
-
             iv_label = f"IV: {iv_str}" if iv_str != "-" else ""
-
             titulo = (
                 f"{ic_setor} :orange[**{row['CÓDIGO']}**] | {cot} {var_str} | P/L: {pl} | "
                 f"DY: {dy_icone} {dy_clean}% | {iv_label} | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
             )
+            st.markdown("<div class='ativo-sep'></div>", unsafe_allow_html=True)
+            with st.expander(titulo):
+                if logo_url:
+                    st.markdown(
+                        f"<div style='display:flex;align-items:center;gap:12px;"
+                        f"margin-bottom:14px;padding-bottom:10px;"
+                        f"border-bottom:1px solid rgba(255,255,255,0.07);'>"
+                        f"<img src='{logo_url}' style='height:36px;width:auto;"
+                        f"border-radius:6px;background:#fff;padding:3px;'/>"
+                        f"<span style='font-size:1.1em;font-weight:700;color:#FFD700;"
+                        f"letter-spacing:1px;'>{row['CÓDIGO']}</span>"
+                        f"<span style='font-size:0.85em;color:#888;'>{row.get('SETOR','-')}</span>"
+                        f"</div>", unsafe_allow_html=True)
+                c1, c2, c3 = st.columns(3)
+                with c1:
+                    st.markdown("#### 📊 Valuation")
+                    st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
+                    st.markdown(f"**P/VP:** {pvp_str}")
+                    st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
+                    st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
+                    st.markdown(
+                        f"**⭐ RESULTADO ENTREGUE (1/4):** "
+                        f"<span style='color:#39FF14;font-weight:bold;'>{row.get('RESULTADO 2026 (1/4)', '-')}</span>",
+                        unsafe_allow_html=True)
+                    cor = cor_progresso(porcentagem)
+                    st.markdown(
+                        f"<div style='background:#222;border-radius:6px;height:12px;width:100%;margin:6px 0;'>"
+                        f"<div style='background:{cor};width:{porcentagem}%;height:12px;border-radius:6px;'></div></div>",
+                        unsafe_allow_html=True)
+                    st.markdown(f"<span style='color:{cor};font-weight:bold;'>Status: {porcentagem}% do resultado projetado</span>", unsafe_allow_html=True)
+                    if historico_lucro:
+                        st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
+                        st.markdown(mini_grafico_linha(historico_lucro, "#39FF14"), unsafe_allow_html=True)
+                with c2:
+                    st.markdown("#### 💰 Dividendos")
+                    style_dy = "color:#39FF14;font-weight:bold;" if dy_num > 8 else ""
+                    st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_clean}%</span>", unsafe_allow_html=True)
+                    st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
+                    st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
+                    st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
+                    st.markdown(f"**Data Ex (último):** {dt}")
+                    st.markdown(f"**Valor Último Div.:** {val}")
+                    if proximo_provento_data != "-":
+                        st.markdown(
+                            f"<div style='margin-top:10px;padding:8px 12px;border-radius:8px;"
+                            f"background:#1a3a1a;border:1px solid #39FF14;'>"
+                            f"<span style='color:#39FF14;font-weight:bold;'>📅 Próximo Provento em Aberto</span><br>"
+                            f"<span style='color:#fff;'>Data COM: <b>{proximo_provento_data}</b>"
+                            f" | Valor Est.: <b>{proximo_provento_valor}</b></span></div>",
+                            unsafe_allow_html=True)
+                    else:
+                        st.markdown(
+                            "<div style='margin-top:10px;padding:6px 12px;border-radius:8px;"
+                            "background:#2a2a2a;border:1px solid #555;color:#888;font-size:0.85em;'>"
+                            "📅 Nenhum provento futuro identificado</div>",
+                            unsafe_allow_html=True)
+                    st.markdown("**Histórico DY (5 anos):**")
+                    st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
+                with c3:
+                    st.markdown("#### ⚙️ Operacional")
+                    pl_proj = row.get('P/L PROJETADO', '-')
+                    st.markdown(f"**P/L Projetado:** <span style='color:#FFD700;font-weight:bold;font-size:1.1em;'>{pl_proj}x</span>", unsafe_allow_html=True)
+                    st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
+                    st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
+                    st.markdown(f"**ROE:** {roe}")
+                    st.markdown(f"**Margem Líq.:** {margem}")
+                    st.markdown(f"**Beta (vs IBOV):** {beta}")
+                    if historico_pl:
+                        st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
+                        st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
 
-            with col:
-                st.markdown("<div class='ativo-sep'></div>", unsafe_allow_html=True)
-                with st.expander(titulo):
-                    if logo_url:
-                        st.markdown(
-                            f"<div style='display:flex; align-items:center; gap:12px; "
-                            f"margin-bottom:14px; padding-bottom:10px; "
-                            f"border-bottom:1px solid rgba(255,255,255,0.07);'>"
-                            f"<img src='{logo_url}' style='height:36px; width:auto; "
-                            f"border-radius:6px; background:#fff; padding:3px;'/>"
-                            f"<span style='font-size:1.1em; font-weight:700; color:#FFD700; "
-                            f"letter-spacing:1px;'>{row['CÓDIGO']}</span>"
-                            f"<span style='font-size:0.85em; color:#888;'>{row.get('SETOR','-')}</span>"
-                            f"</div>",
-                            unsafe_allow_html=True
-                        )
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.markdown("#### 📊 Valuation")
-                        st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
-                        st.markdown(f"**P/VP:** {pvp_str}")
-                        st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                        st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
-                        st.markdown(
-                            f"**⭐ RESULTADO ENTREGUE (1/4):** "
-                            f"<span style='color:#39FF14; font-weight:bold;'>"
-                            f"{row.get('RESULTADO 2026 (1/4)', '-')}</span>",
-                            unsafe_allow_html=True
-                        )
-                        cor = cor_progresso(porcentagem)
-                        st.markdown(
-                            f"""<div style="background:#222; border-radius:6px; height:12px;
-                                            width:100%; margin:6px 0;">
-                                  <div style="background:{cor}; width:{porcentagem}%; height:12px;
-                                              border-radius:6px;"></div>
-                                </div>""",
-                            unsafe_allow_html=True
-                        )
-                        st.markdown(
-                            f"<span style='color:{cor}; font-weight:bold;'>"
-                            f"Status: {porcentagem}% do resultado projetado</span>",
-                            unsafe_allow_html=True
-                        )
-                        if historico_lucro:
-                            st.markdown("<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
-                            st.markdown(mini_grafico_linha(historico_lucro, "#39FF14"), unsafe_allow_html=True)
-                    with col2:
-                        st.markdown("#### 💰 Dividendos")
-                        style_dy = "color:#39FF14; font-weight:bold;" if dy_num > 8 else ""
-                        st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_clean}%</span>", unsafe_allow_html=True)
-                        st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                        st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-                        st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
-                        st.markdown(f"**Data Ex (último):** {dt}")
-                        st.markdown(f"**Valor Último Div.:** {val}")
-                        if proximo_provento_data != "-":
-                            st.markdown(
-                                f"<div style='margin-top:10px; padding:8px 12px; border-radius:8px;"
-                                f"background:#1a3a1a; border:1px solid #39FF14;'>"
-                                f"<span style='color:#39FF14; font-weight:bold; font-size:0.95em;'>"
-                                f"📅 Próximo Provento em Aberto</span><br>"
-                                f"<span style='color:#fff;'>Data COM: <b>{proximo_provento_data}</b>"
-                                f" &nbsp;|&nbsp; Valor Est.: <b>{proximo_provento_valor}</b></span>"
-                                f"</div>",
-                                unsafe_allow_html=True
-                            )
-                        else:
-                            st.markdown(
-                                "<div style='margin-top:10px; padding:6px 12px; border-radius:8px;"
-                                "background:#2a2a2a; border:1px solid #555; color:#888; font-size:0.85em;'>"
-                                "📅 Nenhum provento futuro identificado</div>",
-                                unsafe_allow_html=True
-                            )
-                        st.markdown("**Histórico DY (5 anos):**")
-                        st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
-                    with col3:
-                        st.markdown("#### ⚙️ Operacional")
-                        pl_proj = row.get('P/L PROJETADO', '-')
-                        st.markdown(f"**P/L Projetado:** <span style='color:#FFD700; font-weight:bold; font-size:1.1em;'>{pl_proj}x</span>", unsafe_allow_html=True)
-                        st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
-                        st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                        st.markdown(f"**ROE:** {roe}")
-                        st.markdown(f"**Margem Líq.:** {margem}")
-                        st.markdown(f"**Beta (vs IBOV):** {beta}")
-                        if historico_pl:
-                            st.markdown("<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
-                            st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
-
-        for ativo in lista_col2:
-            render_lista_item(ativo, lcol2)
+        with lcol1:
+            for ativo in lista_col1:
+                render_ativo(ativo)
+        with lcol2:
+            for ativo in lista_col2:
+                render_ativo(ativo)
