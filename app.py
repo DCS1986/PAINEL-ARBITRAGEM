@@ -26,7 +26,15 @@ page_bg_img = f"""
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7); 
+    background: rgba(0, 0, 0, 0.7);
+}}
+
+/* Reduzir espaço do topo */
+[data-testid="stAppViewContainer"] > .main > div:first-child {{
+    padding-top: 20px !important;
+}}
+[data-testid="stHeader"] {{
+    display: none !important;
 }}
 
 /* ---- ESTILOS DO GRÁFICO DE DY ---- */
@@ -1287,19 +1295,42 @@ else:
                     logo_html = "<img src='{}' class='ac-logo'/>".format(logo_c) if logo_c else "<div style='font-size:2em;margin-bottom:8px;'>{}</div>".format(ic_c)
 
                     with cols[idx]:
-                        st_s  = ativo.get('st_status', 'neutro')
-                        st_c  = ativo.get('st_cor', '#888888')
-                        st_i  = ativo.get('st_icone', '⚪')
-                        border_color = st_c
+                        st_s   = ativo.get('st_status', 'neutro')
+                        st_c   = ativo.get('st_cor', '#888888')
+                        st_i   = ativo.get('st_icone', '⚪')
+                        status_labels = {
+                            'oportunidade': 'Forte oportunidade',
+                            'compra':       'Zona de compra',
+                            'acima_teto':   'Acima do teto',
+                            'acima_target': 'Acima do target',
+                            'neutro':       'Sem dados',
+                        }
+                        st_label = status_labels.get(st_s, 'Sem dados')
                         st.markdown(
-                            f"<div class='asset-card' style='border-color:{border_color};'>"
+                            f"<div class='asset-card' style='border:1.5px solid {st_c};'>"
                             + logo_html
-                            + "<div class='ac-ticker'>{}</div>".format(ticker_c)
-                            + "<div class='ac-cot'>{}</div>".format(cot_c)
-                            + "<div style='margin-top:4px;'>{}</div>".format(var_html)
-                            + "<div class='ac-row'><span>DY</span><span class='ac-val' style='color:{};'>{}%</span></div>".format(dy_color, dy_c)
-                            + "<div class='ac-row'><span>P/L</span><span class='ac-val'>{}x</span></div>".format(pl_c)
-                            + "<div class='ac-row'><span>Score</span><span class='ac-val' style='color:#FFD700;'>⭐ {}</span></div>".format(score_c)
+                            + f"<div class='ac-ticker'>{ticker_c}</div>"
+                            + f"<div class='ac-cot'>{cot_c}</div>"
+                            + f"<div style='margin-top:4px;'>{var_html}</div>"
+                            + "<div style='display:flex;justify-content:center;gap:14px;"
+                              "margin-top:10px;padding-top:8px;"
+                              "border-top:1px solid rgba(255,255,255,0.07);'>"
+                            + f"<div style='text-align:center;'>"
+                              f"<div style='font-size:0.68em;color:#888;'>DY</div>"
+                              f"<div style='font-size:0.92em;font-weight:bold;color:#fff;'>{dy_c}%</div></div>"
+                            + f"<div style='text-align:center;'>"
+                              f"<div style='font-size:0.68em;color:#888;'>P/L</div>"
+                              f"<div style='font-size:0.92em;font-weight:bold;color:#fff;'>{pl_c}x</div></div>"
+                            + f"<div style='text-align:center;'>"
+                              f"<div style='font-size:0.68em;color:#888;'>Score</div>"
+                              f"<div style='font-size:0.92em;font-weight:bold;color:#FFD700;'>⭐{score_c}</div></div>"
+                            + "</div>"
+                            + f"<div style='margin-top:8px;padding:5px 8px;border-radius:6px;"
+                              f"background:rgba(255,255,255,0.04);display:flex;align-items:center;"
+                              f"justify-content:center;gap:5px;'>"
+                              f"<span style='font-size:0.9em;'>{st_i}</span>"
+                              f"<span style='font-size:0.72em;color:{st_c};font-weight:600;'>{st_label}</span>"
+                            + "</div>"
                             + "</div>",
                             unsafe_allow_html=True
                         )
