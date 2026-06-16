@@ -13,7 +13,7 @@ if 'modo_tema' not in st.session_state:
     st.session_state.modo_tema = 'dark'
 
 # --- CONFIGURAÇÃO DO FUNDO ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.PNG"
 
 # Tema claro ou escuro
 _tema = st.session_state.get('modo_tema', 'dark')
@@ -828,13 +828,6 @@ def carregar_dados():
 df = carregar_dados()
 
 # --- SIDEBAR ---
-# Toggle Dark/Light
-tema_atual = st.session_state.modo_tema
-btn_label  = "☀️ Modo Claro" if tema_atual == 'dark' else "🌙 Modo Escuro"
-if st.sidebar.button(btn_label, use_container_width=True):
-    st.session_state.modo_tema = 'light' if tema_atual == 'dark' else 'dark'
-    st.rerun()
-
 st.sidebar.markdown("""
 <div style="padding:4px 0 12px 0; border-bottom:1px solid rgba(255,255,255,0.08);
             margin-bottom:16px;">
@@ -1126,19 +1119,29 @@ def pagina_ativo(ticker, row, ativo_data):
 
 
 # --- DASHBOARD ---
-st.markdown("""
-<div style="position:relative; margin-bottom:20px; padding:10px 0 16px 0;
-            border-bottom:1px solid rgba(255,255,255,0.08);">
-    <h1 style="margin:0; font-size:2.4em; font-weight:900; letter-spacing:2px;
-               text-transform:uppercase; color:#fff; line-height:1.1;
-               text-shadow: 0 0 30px rgba(57,255,20,0.3);">
-        Radar Fundamentalista
-    </h1>
-    <span style="position:absolute; top:14px; right:0; font-size:0.85em;
-                 letter-spacing:3px; text-transform:uppercase; font-weight:700;
-                 color:rgba(255,255,255,0.55);">Diego Castro</span>
-</div>
-""", unsafe_allow_html=True)
+h_col1, h_col2 = st.columns([8, 1])
+with h_col1:
+    tema_atual = st.session_state.modo_tema
+    txt_cor = "#fff" if tema_atual == 'dark' else "#111"
+    st.markdown(
+        f"<div style='position:relative; margin-bottom:16px; padding:8px 0 14px 0;"
+        f"border-bottom:1px solid rgba(128,128,128,0.2);'>"
+        f"<h1 style='margin:0; font-size:2.4em; font-weight:900; letter-spacing:2px;"
+        f"text-transform:uppercase; color:{txt_cor}; line-height:1.1;'>"
+        f"Radar Fundamentalista</h1>"
+        f"<span style='position:absolute; top:12px; right:0; font-size:0.85em;"
+        f"letter-spacing:3px; text-transform:uppercase; font-weight:700;"
+        f"color:rgba(128,128,128,0.6);'>Diego Castro</span>"
+        f"</div>",
+        unsafe_allow_html=True
+    )
+with h_col2:
+    st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+    tema_atual = st.session_state.modo_tema
+    btn_label  = "☀️" if tema_atual == 'dark' else "🌙"
+    if st.button(btn_label, help="Alternar Dark/Light", use_container_width=True):
+        st.session_state.modo_tema = 'light' if tema_atual == 'dark' else 'dark'
+        st.rerun()
 
 if not df_f.empty:
     idx_max_dy    = df_f['dy_num'].idxmax()
