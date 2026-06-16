@@ -852,6 +852,15 @@ else:
     ativos_com_score = [a for a in ativos_com_score if a['score'] >= _min_score_efetivo]
     ativos_com_score.sort(key=lambda x: x['score'], reverse=True)
 
+    # Piso de 5.0: eleva todos pelo mesmo delta para que a pior empresa receba 5.0
+    # O teto de 10.0 existe mas ninguém é forçado a chegar lá
+    if ativos_com_score:
+        score_min = ativos_com_score[-1]['score']
+        elevacao  = max(0.0, 5.0 - score_min)
+        if elevacao > 0:
+            for a in ativos_com_score:
+                a['score'] = round(min(a['score'] + elevacao, 10.0), 1)
+
     card_filtrados.markdown(f"""<div class='top-card'>
         <div class='label'>🔍 Ativos Filtrados</div>
         <div class='value'>{len(ativos_com_score)}</div>
