@@ -790,7 +790,14 @@ def pagina_ativo(ticker, row, ativo_data):
     nota_gov = gov.get('nota', None)
     obs_gov  = gov.get('obs', '')
 
+    st.markdown("<div style='margin-top:32px;'></div>", unsafe_allow_html=True)
+
     gcol1, gcol2 = st.columns(2)
+
+    card_style = (
+        "display:flex; flex-direction:column; padding:20px 22px; border-radius:12px; "
+        "background:rgba(255,255,255,0.04); min-height:140px; "
+    )
 
     with gcol1:
         if nota_gov is not None:
@@ -803,32 +810,33 @@ def pagina_ativo(ticker, row, ativo_data):
             pen = penalizacao_governanca(nota_gov)
             pen_str = "{:.1f}".format(pen) if pen < 0 else "0"
             st.markdown(
-                "<div style='padding:14px 16px;border-radius:10px;height:100%;"
-                "background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);'>"
-                "<div style='font-size:0.85em;color:#aaa;font-weight:bold;margin-bottom:8px;'>🏛️ Governança Corporativa</div>"
-                "<div style='display:flex;align-items:center;gap:12px;margin-bottom:8px;'>"
-                "<span style='font-size:2em;font-weight:900;color:{cor};'>{nota}</span>"
-                "<div><span style='font-size:0.9em;color:{cor};font-weight:bold;display:block;'>{label}</span>"
-                "<span style='font-size:0.75em;color:#666;'>penalização: {pen} no score</span></div>"
+                "<div style='{base}border:1px solid rgba(255,255,255,0.12);'>"
+                "<div style='font-size:0.82em;color:#888;font-weight:600;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:12px;'>🏛️ Governança Corporativa</div>"
+                "<div style='display:flex;align-items:center;gap:14px;margin-bottom:12px;'>"
+                "<span style='font-size:2.4em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
+                "<div><span style='font-size:0.95em;color:{cor};font-weight:700;display:block;'>{label}</span>"
+                "<span style='font-size:0.75em;color:#555;'>penalização: {pen} no score</span></div>"
                 "</div>"
-                "<div style='font-size:0.82em;color:#bbb;line-height:1.6;'>{obs}</div>"
-                "</div>".format(cor=gov_cor, nota=nota_gov, label=gov_label, pen=pen_str, obs=obs_gov),
+                "<div style='font-size:0.83em;color:#bbb;line-height:1.65;'>{obs}</div>"
+                "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
+                                label=gov_label, pen=pen_str, obs=obs_gov),
                 unsafe_allow_html=True
             )
 
     with gcol2:
         if out:
             st.markdown(
-                "<div style='padding:14px 16px;border-radius:10px;height:100%;"
-                "background:rgba(255,255,255,0.04);border:1px solid {cor};'>"
-                "<div style='font-size:0.85em;font-weight:bold;color:{cor};margin-bottom:8px;'>"
-                "{icone} Outlook 2026</div>"
-                "<div style='font-size:0.82em;color:#ccc;line-height:1.6;'>{texto}</div>"
-                "</div>".format(cor=out['cor'], icone=out['icone'], texto=out['texto']),
+                "<div style='{base}border:1px solid {cor};'>"
+                "<div style='font-size:0.82em;font-weight:600;color:{cor};letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:12px;'>{icone} Outlook 2026</div>"
+                "<div style='font-size:0.83em;color:#ccc;line-height:1.65;'>{texto}</div>"
+                "</div>".format(base=card_style, cor=out['cor'],
+                                icone=out['icone'], texto=out['texto']),
                 unsafe_allow_html=True
             )
 
-    st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:32px;'></div>", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("#### 📉 Preço Histórico")
     periodo_opcoes = {"1 mês": "1mo", "3 meses": "3mo", "6 meses": "6mo", "1 ano": "1y", "2 anos": "2y", "5 anos": "5y"}
