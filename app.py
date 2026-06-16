@@ -187,7 +187,8 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
         senha = st.text_input("", placeholder="senha de acesso",
                               type="password", label_visibility="collapsed")
         if st.button("Acessar →", use_container_width=True, type="primary"):
-            if senha == "dc1986":
+            senha_correta = st.secrets.get("SENHA_ACESSO", "")
+            if senha == senha_correta and senha_correta != "":
                 st.session_state.autenticado = True
                 st.rerun()
             else:
