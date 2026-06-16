@@ -175,7 +175,7 @@ def classificar_setor(setor):
         return 'ciclica'
     return 'geral'
 
-def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num, pvp_num=0, setor=''):
+def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num, pvp_num=0, setor='', ticker=''):
     categoria = classificar_setor(setor)
     score = 0.0
 
@@ -232,6 +232,9 @@ def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num
         if pvp_num > 0:
             score += max(0, (3 - pvp_num) / 3.0) * 1.0   # P/VP: 1.0
 
+    # Penalização de governança
+    pen = penalizacao_governanca(GOVERNANCA.get(ticker, {}).get('nota', 7.0))
+    score = max(0.0, score + pen)
     return round(min(score, 10.0), 1)
 
 def badge_score(score):
@@ -345,6 +348,108 @@ def mini_grafico_linha(dados, cor, label_suffix="", altura=95, largura=420):
 
     return f"<div style='margin-top:8px; overflow:visible;'>{svg}</div>"
 
+
+
+# ---- Dados de Governança e Outlook 2026 ----
+GOVERNANCA = {
+    "BBSE3":  {"nota": 9.2, "obs": "Subsidiária do BB com alta transparência, política clara de dividendos, sem polêmicas relevantes. Tag along 100%."},
+    "ITUB4":  {"nota": 8.8, "obs": "Tag along 100%, sólido histórico com minoritários. Controle familiar bem gerido e previsível."},
+    "BBAS3":  {"nota": 6.8, "obs": "Banco público com interferência política crescente. Revisão de guidance sem aviso e surpresa na inadimplência em 2023-24 penalizam a relação com minoritários."},
+    "BBDC3":  {"nota": 7.2, "obs": "Histórico de polêmicas com minoritários em 2021-22. Tag along 100% mas ações PN sem voto pesam."},
+    "ABCB4":  {"nota": 8.0, "obs": "Boa transparência, histórico limpo. Comunicação consistente para o porte."},
+    "BRSR6":  {"nota": 6.5, "obs": "Banco público estadual do RS — interferência política do governo gaúcho é risco real e recorrente."},
+    "SANB3":  {"nota": 7.8, "obs": "Controle espanhol traz boas práticas europeias. Tag along 100%."},
+    "BMGB4":  {"nota": 6.0, "obs": "Histórico de irregularidades no passado. Governança melhorou mas ainda em reconstrução de reputação."},
+    "BPAC11": {"nota": 8.5, "obs": "BTG — alta transparência, management alinhado ao resultado. Referência no setor financeiro."},
+    "IRBR3":  {"nota": 4.5, "obs": "Fraudes contábeis graves em 2020, gestão substituída. Recuperação em curso mas histórico pesa estruturalmente."},
+    "PSSA3":  {"nota": 8.8, "obs": "Porto Seguro — governança exemplar, família fundadora alinhada com minoritários."},
+    "CXSE3":  {"nota": 8.0, "obs": "Boa transparência. Vinculação à Caixa traz algum risco político indireto."},
+    "ITSA4":  {"nota": 8.5, "obs": "Holding do Itaú — muito transparente, histórico consistente, forte alinhamento com minoritários."},
+    "PETR4":  {"nota": 6.2, "obs": "Lava Jato no passado (peso leve — +10 anos de melhora). Interferência política ainda estrutural. Comunicação melhorou muito, mas DNA estatal persiste."},
+    "VALE3":  {"nota": 5.5, "obs": "Mariana e Brumadinho — passivo ESG e reputacional gravíssimo. Governança melhorou mas desconto permanente é justo."},
+    "BRAP4":  {"nota": 7.0, "obs": "Holding da Vale — herda riscos da controlada, mas histórico próprio limpo."},
+    "CMIN3":  {"nota": 7.2, "obs": "CSN Mineração — boa transparência, mas controle concentrado no grupo CSN."},
+    "GGBR3":  {"nota": 6.5, "obs": "Gerdau — controle familiar forte, tag along adequado, sem grandes polêmicas recentes."},
+    "KLBN4":  {"nota": 8.2, "obs": "Klabin — excelente comunicação com mercado, política de dividendos clara e previsível."},
+    "UNIP6":  {"nota": 5.5, "obs": "Controle familiar fechado, baixa liquidez, comunicação limitada com minoritários."},
+    "LEVE3":  {"nota": 8.5, "obs": "Mahle Metal Leve — controle alemão traz práticas europeias exemplares."},
+    "SHUL4":  {"nota": 7.5, "obs": "Schulz — boa governança para o porte, comunicação adequada e histórico limpo."},
+    "VULC3":  {"nota": 7.8, "obs": "Vulcabras — melhora consistente nos últimos anos, gestão cada vez mais transparente."},
+    "TIMS3":  {"nota": 8.8, "obs": "TIM — controle italiano, práticas europeias, tag along 100%. Referência no setor."},
+    "ALOS3":  {"nota": 8.5, "obs": "Allos — fusão recente mas boa integração, comunicação forte com investidores."},
+    "KEPL3":  {"nota": 7.5, "obs": "Kepler Weber — boa governança para o porte, nicho bem gerido."},
+    "SLCE3":  {"nota": 7.0, "obs": "SLC Agrícola — transparente, mas setor cíclico gera volatilidade nos comunicados."},
+    "RANI3":  {"nota": 7.8, "obs": "Irani — governança sólida, comunicação consistente, estrutura familiar bem organizada."},
+    "CMIG4":  {"nota": 6.5, "obs": "Cemig — empresa pública de MG, risco de interferência política relevante."},
+    "CPLE3":  {"nota": 6.8, "obs": "Copel — privatizada recentemente, governança em transição positiva."},
+    "EGIE3":  {"nota": 8.8, "obs": "Engie — controle francês, ESG exemplar, uma das melhores governanças do setor elétrico."},
+    "TAEE11": {"nota": 8.2, "obs": "Taesa — previsibilidade de receita e dividendos, comunicação muito clara."},
+    "ISAE4":  {"nota": 7.0, "obs": "Isa Cteep — controle colombiano, boa transparência, menor histórico local."},
+    "CPFE3":  {"nota": 8.0, "obs": "CPFL — controle State Grid (China), governança melhorou após aquisição."},
+    "SBSP3":  {"nota": 5.8, "obs": "Sabesp — privatização recente, governança em transição. Melhora em curso."},
+    "SAPR4":  {"nota": 6.2, "obs": "Sanepar — empresa pública do PR, histórico razoável mas risco político persiste."},
+    "CSMG3":  {"nota": 5.5, "obs": "Copasa — empresa pública de MG, interferência política frequente nas decisões."},
+    "AXIA3":  {"nota": 8.0, "obs": "Holding de fibra — nova no mercado, mas estrutura de governança bem desenhada."},
+    "B3SA3":  {"nota": 9.0, "obs": "B3 — autolistada, padrão máximo de governança no Brasil. Referência para o mercado."},
+    "BRBI11": {"nota": 7.5, "obs": "BR Partners — gestão alinhada, transparência adequada para o porte."},
+}
+
+OUTLOOK_2026 = {
+    "BBSE3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Atenção: exposição ao agro (granizo, seca, El Niño) pode pressionar sinistros em 2026. Posição relevante na carteira — não aumentar sem monitorar sinistralidade agrícola do 1T26."},
+    "ITUB4":  {"icone": "✅", "cor": "#39FF14", "texto": "Ciclo de crédito favorável, inadimplência sob controle, ROE elevado. Um dos melhores momentos operacionais da história. Perspectiva positiva para 2026."},
+    "BBAS3":  {"icone": "🔴", "cor": "#FF4444", "texto": "Risco elevado: carteira agro sob pressão com alta inadimplência. Guidance revisado sem aviso. Aguardar 2T26 para avaliar se deterioração foi pontual ou estrutural antes de aportar."},
+    "BBDC3":  {"icone": "🟡", "cor": "#FFD700", "texto": "Recuperação em curso após anos difíceis. Lucro voltando a crescer mas abaixo dos pares. Posição especulativa de melhora — cautela com alocação."},
+    "ABCB4":  {"icone": "✅", "cor": "#39FF14", "texto": "Carteira corporativa de alta qualidade, inadimplência estruturalmente baixa. Perspectiva positiva, menos sensível ao ciclo de varejo."},
+    "BRSR6":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Exposição significativa ao agro gaúcho e reflexos das enchentes de 2024. Monitorar evolução da carteira de crédito rural em 2026."},
+    "SANB3":  {"icone": "✅", "cor": "#39FF14", "texto": "Ciclo de melhora operacional. ROE subindo, foco em eficiência. Perspectiva moderadamente positiva para 2026."},
+    "BMGB4":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Nicho de consignado INSS sob pressão regulatória. Teto de juros pode impactar margens. Monitorar evolução da regulação em 2026."},
+    "BPAC11": {"icone": "✅", "cor": "#39FF14", "texto": "Forte expansão de receitas recorrentes. Menos dependente do ciclo de crédito. Uma das melhores perspectivas do setor financeiro para 2026."},
+    "IRBR3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Ressegurador em recuperação pós-fraude. Resultados melhorando, mas histórico exige cautela. El Niño e eventos climáticos extremos são risco relevante."},
+    "PSSA3":  {"icone": "✅", "cor": "#39FF14", "texto": "Momento operacional sólido. Seguros auto e residencial com bons resultados. Perspectiva positiva, mas monitorar sinistralidade climática."},
+    "CXSE3":  {"icone": "✅", "cor": "#39FF14", "texto": "Crescimento consistente de prêmios via rede da Caixa. Vantagem competitiva de distribuição enorme. Perspectiva positiva para 2026."},
+    "ITSA4":  {"icone": "✅", "cor": "#39FF14", "texto": "Holding do Itaú — resultado acompanha o banco. Desconto histórico pode se fechar. Perspectiva positiva com menor volatilidade que o banco diretamente."},
+    "PETR4":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Petróleo em patamar moderado (~$70-75). Risco fiscal e de interferência na política de dividendos. Monitorar anúncio de investimentos e possível revisão da remuneração em 2026."},
+    "VALE3":  {"icone": "🔴", "cor": "#FF4444", "texto": "Minério de ferro pressionado pela desaceleração chinesa. Acordo de Mariana ainda em negociação (provisão bilionária). 2026 desafiador — aguardar estabilização do cenário China."},
+    "BRAP4":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Herda o cenário desafiador da Vale com desconto adicional de holding. Monitorar acordo de Mariana e preço do minério."},
+    "CMIN3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Sensível ao preço do minério e desaceleração chinesa. Perspectiva cautelosa para 2026."},
+    "GGBR3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Dependente do ciclo de construção civil. Perspectiva neutra — programa de infraestrutura pode ser catalisador positivo em 2026."},
+    "KLBN4":  {"icone": "✅", "cor": "#39FF14", "texto": "Celulose e papel com demanda resiliente. Expansão Puma II maturando. Perspectiva positiva para 2026, menos cíclica que pares do setor."},
+    "UNIP6":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Margens pressionadas pelo ciclo químico global e dumping chinês de petroquímicos. Perspectiva neutra a negativa para 2026."},
+    "LEVE3":  {"icone": "✅", "cor": "#39FF14", "texto": "Reposição automotiva resiliente. Transição para elétricos é risco de longo prazo, irrelevante para 2026. Perspectiva positiva."},
+    "SHUL4":  {"icone": "✅", "cor": "#39FF14", "texto": "Compressores industriais com demanda estável. Nicho protegido e bem gerido. Perspectiva positiva para 2026."},
+    "VULC3":  {"icone": "✅", "cor": "#39FF14", "texto": "Marca consolidada no esportivo. Expansão de margens em curso. Perspectiva positiva, dependente do consumo doméstico."},
+    "TIMS3":  {"icone": "✅", "cor": "#39FF14", "texto": "Crescimento consistente de receita e margens. Mercado consolidado favorece rentabilidade. Excelente perspectiva para 2026."},
+    "ALOS3":  {"icone": "✅", "cor": "#39FF14", "texto": "Shoppings em ciclo favorável. Consumo aquecido e vacância baixa. Integração da fusão gerando sinergias. Perspectiva positiva para 2026."},
+    "KEPL3":  {"icone": "✅", "cor": "#39FF14", "texto": "Armazenagem agrícola com demanda estrutural crescente. Perspectiva positiva, pouco sensível ao preço das commodities."},
+    "SLCE3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Exposta à cotação de soja/algodão e câmbio. El Niño traz incerteza climática para 2ª safra. Cautela — aguardar definição do clima antes de ampliar posição."},
+    "RANI3":  {"icone": "✅", "cor": "#39FF14", "texto": "Embalagens de papel com demanda resiliente e crescente. Expansão de capacidade em andamento. Perspectiva positiva para 2026."},
+    "CMIG4":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Distribuição e geração reguladas, mas gestão pública limita eficiência. Perspectiva neutra. Atenção ao processo de renovação de concessões."},
+    "CPLE3":  {"icone": "✅", "cor": "#39FF14", "texto": "Privatização trazendo eficiência. Perspectiva positiva com potencial de redução de custos e melhora de margens em 2026."},
+    "EGIE3":  {"icone": "✅", "cor": "#39FF14", "texto": "Geração renovável com contratos longos. Menor exposição a risco hidrológico por mix diversificado. Perspectiva excelente para 2026."},
+    "TAEE11": {"icone": "✅", "cor": "#39FF14", "texto": "Transmissão com RAP garantido — completamente independente de hidrologia. Perspectiva muito positiva e previsível para 2026."},
+    "ISAE4":  {"icone": "✅", "cor": "#39FF14", "texto": "Transmissão regulada, receita previsível. Perspectiva positiva similar à Taesa, com ciclo de revisão tarifária favorável."},
+    "CPFE3":  {"icone": "✅", "cor": "#39FF14", "texto": "Mix equilibrado de distribuição e geração. Perspectiva positiva beneficiada por revisão tarifária e expansão renovável em 2026."},
+    "SBSP3":  {"icone": "✅", "cor": "#39FF14", "texto": "Pós-privatização acelerando investimentos. Perspectiva positiva de médio prazo, mas 2026 ainda é ano de transição e reorganização."},
+    "SAPR4":  {"icone": "✅", "cor": "#39FF14", "texto": "Saneamento com demanda inelástica. Perspectiva estável. Revisão tarifária pendente pode ser catalisador positivo em 2026."},
+    "CSMG3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Ainda pública. Privatização em discussão pode ser catalisador, mas risco político de MG é relevante. Perspectiva neutra."},
+    "AXIA3":  {"icone": "✅", "cor": "#39FF14", "texto": "Fibra óptica em expansão acelerada. Demanda por conectividade crescente e estrutural. Perspectiva positiva para 2026."},
+    "B3SA3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Dependente do volume de negociação. Juros altos reduzem fluxo para renda variável. Melhora depende de queda de juros e volta do PF — perspectiva neutra para 2026."},
+    "BRBI11": {"icone": "✅", "cor": "#39FF14", "texto": "Banco de investimento em crescimento. Perspectiva positiva dependente do ambiente de M&A e mercado de capitais em 2026."},
+}
+
+def penalizacao_governanca(nota_gov):
+    if nota_gov >= 9.0:
+        return 0.0
+    elif nota_gov >= 8.0:
+        return -0.3
+    elif nota_gov >= 7.0:
+        return -0.6
+    elif nota_gov >= 6.0:
+        return -1.0
+    elif nota_gov >= 5.0:
+        return -1.3
+    else:
+        return -1.5
 
 ICONES_SETOR = {
     "Bancos": "🏦",
@@ -665,6 +770,19 @@ def pagina_ativo(ticker, row, ativo_data):
         st.markdown("**Histórico DY (5 anos):**")
         st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
 
+        # ---- Outlook 2026 ----
+        out = OUTLOOK_2026.get(ticker, {})
+        if out:
+            st.markdown(
+                "<div style='margin-top:12px;padding:10px 14px;border-radius:8px;"
+                "background:rgba(255,255,255,0.05);border:1px solid {};'>"
+                "<div style='font-size:0.85em;font-weight:bold;color:{};margin-bottom:5px;'>"
+                "{} Outlook 2026</div>"
+                "<div style='font-size:0.82em;color:#ccc;line-height:1.6;'>{}</div>"
+                "</div>".format(out['cor'], out['cor'], out['icone'], out['texto']),
+                unsafe_allow_html=True
+            )
+
     with col3:
         st.markdown("#### ⚙️ Operacional")
         pl_proj = row.get('P/L PROJETADO', '-')
@@ -674,6 +792,34 @@ def pagina_ativo(ticker, row, ativo_data):
         st.markdown("**ROE:** {}".format(roe))
         st.markdown("**Margem Líq.:** {}".format(margem))
         st.markdown("**Beta (vs IBOV):** {}".format(beta))
+
+        # ---- Governança ----
+        gov = GOVERNANCA.get(ticker, {})
+        nota_gov = gov.get('nota', '-')
+        obs_gov  = gov.get('obs', '')
+        if nota_gov != '-':
+            if nota_gov >= 8:
+                gov_cor, gov_label = "#39FF14", "Alta"
+            elif nota_gov >= 6:
+                gov_cor, gov_label = "#FFD700", "Média"
+            else:
+                gov_cor, gov_label = "#FF4444", "Baixa"
+            pen = penalizacao_governanca(nota_gov)
+            pen_str = "{:.1f}".format(pen) if pen < 0 else "0"
+            st.markdown(
+                "<div style='margin-top:14px;padding:10px 14px;border-radius:8px;"
+                "background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);'>"
+                "<div style='font-size:0.85em;color:#aaa;font-weight:bold;margin-bottom:4px;'>🏛️ Governança Corporativa</div>"
+                "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
+                "<span style='font-size:1.3em;font-weight:900;color:{cor};'>{nota}</span>"
+                "<span style='font-size:0.78em;color:{cor};font-weight:bold;'>{label}</span>"
+                "<span style='font-size:0.75em;color:#888;margin-left:auto;'>penalização: {pen} no score</span>"
+                "</div>"
+                "<div style='font-size:0.8em;color:#ccc;line-height:1.5;'>{obs}</div>"
+                "</div>".format(cor=gov_cor, nota=nota_gov, label=gov_label, pen=pen_str, obs=obs_gov),
+                unsafe_allow_html=True
+            )
+
         if historico_pl:
             st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
             st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
@@ -831,7 +977,7 @@ else:
 
         pvp_num_raw = limpar_valor(pvp_str.replace('x','')) if pvp_str != '-' else 0
         score = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw,
-                               pvp_num=pvp_num_raw, setor=row.get('SETOR', ''))
+                               pvp_num=pvp_num_raw, setor=row.get('SETOR', ''), ticker=row.get('CÓDIGO', ''))
 
         ativos_com_score.append({
             'row': row, 'score': score,
