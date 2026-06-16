@@ -358,6 +358,10 @@ def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num
     # Penalização de governança
     pen = penalizacao_governanca(GOVERNANCA.get(ticker, {}).get('nota', 7.0))
     score = max(0.0, score + pen)
+
+    # Multiplicador de outlook — cenário 2026 impacta o score
+    score = score * penalizacao_outlook(ticker)
+
     return round(min(score, 10.0), 1)
 
 def badge_score(score):
@@ -520,10 +524,10 @@ GOVERNANCA = {
 OUTLOOK_2026 = {
     "BBSE3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Atenção: exposição ao agro (granizo, seca, El Niño) pode pressionar sinistros em 2026. Monitorar sinistralidade agrícola no 1T26 antes de ampliar posição."},
     "ITUB4":  {"icone": "✅", "cor": "#39FF14", "texto": "Ciclo de crédito favorável, inadimplência sob controle, ROE elevado. Um dos melhores momentos operacionais da história. Perspectiva positiva para 2026."},
-    "BBAS3":  {"icone": "🔴", "cor": "#FF4444", "texto": "Risco elevado: carteira agro sob pressão com alta inadimplência. Guidance revisado sem aviso. Aguardar 2T26 para avaliar se deterioração foi pontual ou estrutural antes de aportar."},
+    "BBAS3":  {"icone": "🔴", "cor": "#FF4444", "texto": "Carteira agro comprometida pela crise do crédito rural — inadimplência em alta e sem sinais de reversão rápida. Guidance revisado para baixo sem aviso. Banco público sujeito a pressão política. Perspectiva negativa para 2026 — aguardar pelo menos 2 trimestres antes de reavaliar."},
     "BBDC3":  {"icone": "🟡", "cor": "#FFD700", "texto": "Recuperação em curso após anos difíceis. Lucro voltando a crescer mas abaixo dos pares. Posição especulativa de melhora — cautela com alocação."},
     "ABCB4":  {"icone": "✅", "cor": "#39FF14", "texto": "Carteira corporativa de alta qualidade, inadimplência estruturalmente baixa. Perspectiva positiva, menos sensível ao ciclo de varejo."},
-    "BRSR6":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Exposição significativa ao agro gaúcho e reflexos das enchentes de 2024. Monitorar evolução da carteira de crédito rural em 2026."},
+    "BRSR6":  {"icone": "🔴", "cor": "#FF4444", "texto": "Duplo impacto: crise do crédito rural gaúcho + reflexos das enchentes de 2024 ainda presentes na carteira. Inadimplência estruturalmente elevada para 2026. Perspectiva negativa."},
     "SANB3":  {"icone": "✅", "cor": "#39FF14", "texto": "Ciclo de melhora operacional. ROE subindo, foco em eficiência. Perspectiva moderadamente positiva para 2026."},
     "BMGB4":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Nicho de consignado INSS sob pressão regulatória. Teto de juros pode impactar margens. Monitorar evolução da regulação em 2026."},
     "BPAC11": {"icone": "✅", "cor": "#39FF14", "texto": "Forte expansão de receitas recorrentes. Menos dependente do ciclo de crédito. Uma das melhores perspectivas do setor financeiro para 2026."},
@@ -543,8 +547,8 @@ OUTLOOK_2026 = {
     "VULC3":  {"icone": "✅", "cor": "#39FF14", "texto": "Marca consolidada no esportivo. Expansão de margens em curso. Perspectiva positiva, dependente do consumo doméstico."},
     "TIMS3":  {"icone": "✅", "cor": "#39FF14", "texto": "Crescimento consistente de receita e margens. Mercado consolidado favorece rentabilidade. Excelente perspectiva para 2026."},
     "ALOS3":  {"icone": "✅", "cor": "#39FF14", "texto": "Shoppings em ciclo favorável. Consumo aquecido e vacância baixa. Integração da fusão gerando sinergias. Perspectiva positiva para 2026."},
-    "KEPL3":  {"icone": "✅", "cor": "#39FF14", "texto": "Armazenagem agrícola com demanda estrutural crescente. Perspectiva positiva, pouco sensível ao preço das commodities."},
-    "SLCE3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Exposta à cotação de soja/algodão e câmbio. El Niño traz incerteza climática para 2ª safra. Cautela — aguardar definição do clima antes de ampliar posição."},
+    "KEPL3":  {"icone": "🔴", "cor": "#FF4444", "texto": "Cenário desafiador: inadimplência rural elevada e crédito agrícola travado reduzem investimentos em armazenagem. Clientes endividados adiam expansões. 2026 deve ser ano de contração de receita — aguardar estabilização do crédito rural."},
+    "SLCE3":  {"icone": "🔴", "cor": "#FF4444", "texto": "Agro em momento crítico: margens comprimidas por queda de commodities, câmbio desfavorável e clima incerto. Produtores endividados e sem apetite a risco. 2026 deve trazer queda de receita e resultado — cautela máxima."},
     "RANI3":  {"icone": "✅", "cor": "#39FF14", "texto": "Embalagens de papel com demanda resiliente e crescente. Expansão de capacidade em andamento. Perspectiva positiva para 2026."},
     "CMIG4":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Distribuição e geração reguladas, mas gestão pública limita eficiência. Perspectiva neutra. Atenção ao processo de renovação de concessões."},
     "CPLE3":  {"icone": "✅", "cor": "#39FF14", "texto": "Privatização trazendo eficiência. Perspectiva positiva com potencial de redução de custos e melhora de margens em 2026."},
@@ -559,6 +563,22 @@ OUTLOOK_2026 = {
     "B3SA3":  {"icone": "⚠️", "cor": "#FFD700", "texto": "Dependente do volume de negociação. Juros altos reduzem fluxo para renda variável. Melhora depende de queda de juros e volta do PF — perspectiva neutra para 2026."},
     "BRBI11": {"icone": "✅", "cor": "#39FF14", "texto": "Banco de investimento em crescimento. Perspectiva positiva dependente do ambiente de M&A e mercado de capitais em 2026."},
 }
+
+def penalizacao_outlook(ticker):
+    """
+    Aplica multiplicador no score baseado no outlook 2026.
+    ✅ Positivo  → sem alteração
+    ⚠️ Atenção   → −5%
+    🔴 Cautela   → −12%
+    """
+    out = OUTLOOK_2026.get(ticker, {})
+    icone = out.get('icone', '✅')
+    if icone == '🔴':
+        return 0.88   # −12%
+    elif icone == '⚠️':
+        return 0.95   # −5%
+    else:
+        return 1.0    # sem alteração
 
 def penalizacao_governanca(nota_gov):
     if nota_gov >= 9.0:
