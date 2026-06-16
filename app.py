@@ -163,6 +163,11 @@ def cor_progresso(porcentagem):
         return "#FF4444"
 
 # ---- Score Geral por Setor (0–10) ----
+# Estrutura: 65% Qualidade (ROE, CAGR, Dívida) + 35% Valuation (DY projetado, P/L, P/VP)
+# DY projetado = análise do investidor, olha pra frente não pra trás
+# DY tem peso reduzido para não dominar o score — qualidade dos resultados é mais importante
+# Empresas que reinvestem bem (BTG, Itaú) são justamente avaliadas pelo ROE e CAGR
+
 def classificar_setor(setor):
     s = str(setor).lower()
     if any(x in s for x in ['banco', 'financeiro', 'holding']):
@@ -171,66 +176,72 @@ def classificar_setor(setor):
         return 'seguradora'
     if any(x in s for x in ['elétric', 'eletric', 'energia', 'saneamento', 'utilities']):
         return 'capital_intensivo'
-    if any(x in s for x in ['papel', 'celulose', 'mineração', 'minera', 'petróleo', 'petro', 'óleo', 'cíclico']):
+    if any(x in s for x in ['papel', 'celulose', 'mineração', 'minera', 'petróleo', 'petro', 'óleo', 'cíclico', 'química', 'siderur', 'borracha']):
         return 'ciclica'
     return 'geral'
 
-def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num, pvp_num=0, setor='', ticker=''):
+def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num,
+                   pvp_num=0, setor='', ticker='', historico_dy=None):
     categoria = classificar_setor(setor)
     score = 0.0
 
     if categoria == 'banco':
-        # Bancos: P/VP e ROE têm muito peso; dívida irrelevante; margem distorce
-        score += min(dy_num / 10.0, 1.0) * 2.0          # DY: 2.0
-        score += min(roe_num / 25.0, 1.0) * 2.5          # ROE: 2.5 (mais importante)
-        if pl_num > 0:
-            score += max(0, (12 - pl_num) / 12.0) * 1.5  # P/L: 1.5 (referência menor pra bancos)
+        # QUALIDADE 65%: ROE (3.0) + CAGR (2.5) + Dívida (1.0) = 6.5
+        score += min(roe_num / 25.0, 1.0) * 3.0
+        score += min(cagr_num / 20.0, 1.0) * 2.5
+        score += max(0, (4 - div_ebitda_num) / 4.0) * 1.0
+        # VALUATION 35%: P/VP (1.5) + DY projetado (1.0) + P/L (1.0) = 3.5
         if pvp_num > 0:
-            score += max(0, (2.0 - pvp_num) / 2.0) * 2.0 # P/VP: 2.0 (muito relevante)
-        score += min(cagr_num / 20.0, 1.0) * 1.0         # CAGR: 1.0
-        score += max(0, (5 - div_ebitda_num) / 5.0) * 1.0 # Dívida: 1.0 (baixo peso)
+            score += max(0, (2.0 - pvp_num) / 2.0) * 1.5
+        score += min(dy_num / 10.0, 1.0) * 1.0
+        if pl_num > 0:
+            score += max(0, (12 - pl_num) / 12.0) * 1.0
 
     elif categoria == 'seguradora':
-        # Seguradoras: ROE e DY dominam; P/VP irrelevante; dívida irrelevante
-        score += min(dy_num / 10.0, 1.0) * 2.5           # DY: 2.5
-        score += min(roe_num / 25.0, 1.0) * 3.0          # ROE: 3.0 (mais importante)
+        # QUALIDADE 65%: ROE (3.0) + CAGR (2.5) + Margem (1.0) = 6.5
+        score += min(roe_num / 25.0, 1.0) * 3.0
+        score += min(cagr_num / 20.0, 1.0) * 2.5
+        score += min(margem_num / 40.0, 1.0) * 1.0
+        # VALUATION 35%: DY projetado (1.5) + P/L (2.0) = 3.5
+        score += min(dy_num / 10.0, 1.0) * 1.5
         if pl_num > 0:
-            score += max(0, (15 - pl_num) / 15.0) * 2.0  # P/L: 2.0
-        score += min(cagr_num / 20.0, 1.0) * 1.5         # CAGR: 1.5
-        score += max(0, (5 - div_ebitda_num) / 5.0) * 1.0 # Dívida: 1.0 (baixo)
+            score += max(0, (15 - pl_num) / 15.0) * 2.0
 
     elif categoria == 'capital_intensivo':
-        # Elétricas, saneamento: dívida pode ser alta (aceita até 4x); DY e ROE importantes
-        score += min(dy_num / 10.0, 1.0) * 2.5           # DY: 2.5
-        score += min(roe_num / 20.0, 1.0) * 2.0          # ROE: 2.0
+        # QUALIDADE 65%: CAGR (2.5) + Dívida até 4x (2.0) + ROE (2.0) = 6.5
+        score += min(cagr_num / 15.0, 1.0) * 2.5
+        score += max(0, (4 - div_ebitda_num) / 4.0) * 2.0
+        score += min(roe_num / 18.0, 1.0) * 2.0
+        # VALUATION 35%: DY projetado (2.0) + P/L (1.5) = 3.5
+        score += min(dy_num / 10.0, 1.0) * 2.0
         if pl_num > 0:
-            score += max(0, (18 - pl_num) / 18.0) * 1.5  # P/L: 1.5
-        score += max(0, (4 - div_ebitda_num) / 4.0) * 2.0 # Dívida: 2.0 (aceita até 4x)
-        score += min(cagr_num / 15.0, 1.0) * 1.0         # CAGR: 1.0
-        if pvp_num > 0:
-            score += max(0, (2.5 - pvp_num) / 2.5) * 1.0 # P/VP: 1.0
+            score += max(0, (18 - pl_num) / 18.0) * 1.5
 
     elif categoria == 'ciclica':
-        # Cíclicas (Vale, PETR, Klabin): P/L distorce muito — menor peso; DY e ROE lideram
-        score += min(dy_num / 12.0, 1.0) * 3.0           # DY: 3.0 (proventos baseados em EBITDA)
-        score += min(roe_num / 20.0, 1.0) * 2.5          # ROE: 2.5
-        if pl_num > 0:
-            score += max(0, (15 - pl_num) / 15.0) * 0.5  # P/L: 0.5 (mínimo — distorce)
-        score += max(0, (3 - div_ebitda_num) / 3.0) * 2.0 # Dívida: 2.0
-        score += min(cagr_num / 20.0, 1.0) * 1.0         # CAGR: 1.0
+        # QUALIDADE 65%: ROE (3.0) + Dívida (2.0) + CAGR (1.5) = 6.5
+        score += min(roe_num / 20.0, 1.0) * 3.0
+        score += max(0, (3 - div_ebitda_num) / 3.0) * 2.0
+        score += min(cagr_num / 20.0, 1.0) * 1.5
+        # VALUATION 35%: DY projetado (1.5) + P/VP (1.0) + P/L (1.0) = 3.5
+        # DY projetado com peso menor — cíclicas têm DY volátil e não estrutural
+        score += min(dy_num / 10.0, 1.0) * 1.5
         if pvp_num > 0:
-            score += max(0, (2.0 - pvp_num) / 2.0) * 1.0 # P/VP: 1.0
+            score += max(0, (2.0 - pvp_num) / 2.0) * 1.0
+        if pl_num > 0:
+            score += max(0, (15 - pl_num) / 15.0) * 1.0
 
     else:
-        # Geral: pesos balanceados
-        score += min(dy_num / 10.0, 1.0) * 2.5           # DY: 2.5
-        score += min(roe_num / 20.0, 1.0) * 2.0          # ROE: 2.0 (acima do CAGR)
+        # GERAL
+        # QUALIDADE 65%: ROE (2.5) + CAGR (2.5) + Dívida (1.5) = 6.5
+        score += min(roe_num / 20.0, 1.0) * 2.5
+        score += min(cagr_num / 20.0, 1.0) * 2.5
+        score += max(0, (5 - div_ebitda_num) / 5.0) * 1.5
+        # VALUATION 35%: DY projetado (1.5) + P/L (1.5) + P/VP (0.5) = 3.5
+        score += min(dy_num / 10.0, 1.0) * 1.5
         if pl_num > 0:
-            score += max(0, (20 - pl_num) / 20.0) * 1.5  # P/L: 1.5
-        score += max(0, (5 - div_ebitda_num) / 5.0) * 1.5 # Dívida: 1.5
-        score += min(cagr_num / 20.0, 1.0) * 1.5         # CAGR: 1.5
+            score += max(0, (20 - pl_num) / 20.0) * 1.5
         if pvp_num > 0:
-            score += max(0, (3 - pvp_num) / 3.0) * 1.0   # P/VP: 1.0
+            score += max(0, (3 - pvp_num) / 3.0) * 0.5
 
     # Penalização de governança
     pen = penalizacao_governanca(GOVERNANCA.get(ticker, {}).get('nota', 7.0))
@@ -993,7 +1004,8 @@ else:
 
         pvp_num_raw = limpar_valor(pvp_str.replace('x','')) if pvp_str != '-' else 0
         score = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw,
-                               pvp_num=pvp_num_raw, setor=row.get('SETOR', ''), ticker=row.get('CÓDIGO', ''))
+                               pvp_num=pvp_num_raw, setor=row.get('SETOR', ''),
+                               ticker=row.get('CÓDIGO', ''))
 
         ativos_com_score.append({
             'row': row, 'score': score,
