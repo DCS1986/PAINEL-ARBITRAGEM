@@ -29,16 +29,26 @@ page_bg_img = f"""
     background: rgba(0, 0, 0, 0.7);
 }}
 
-/* Remover espaço do topo */
+/* Reduzir espaço do topo sem esconder o header */
 [data-testid="stHeader"] {{
-    display: none !important;
+    background: transparent !important;
+    height: 0px !important;
+    min-height: 0px !important;
 }}
 [data-testid="stAppViewContainer"] > .main {{
-    padding-top: 0px !important;
+    padding-top: 8px !important;
 }}
 .block-container {{
-    padding-top: 16px !important;
+    padding-top: 12px !important;
     padding-bottom: 0px !important;
+}}
+/* Sidebar sempre visível com toggle */
+[data-testid="stSidebar"] {{
+    background: rgba(10, 12, 18, 0.92) !important;
+    border-right: 1px solid rgba(255,255,255,0.08) !important;
+}}
+[data-testid="stSidebarNav"] {{
+    display: none;
 }}
 
 /* ---- ESTILOS DO GRÁFICO DE DY ---- */
@@ -807,22 +817,28 @@ def carregar_dados():
 df = carregar_dados()
 
 # --- SIDEBAR ---
-st.sidebar.header("🎯 Filtros Quantitativos")
-ativar_filtros    = st.sidebar.checkbox("✅ Ativar Filtros Quantitativos", value=False)
-busca_ticker      = st.sidebar.text_input("🔍 Buscar por Ticker:").strip().upper()
-setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
-filtro_setor      = st.sidebar.multiselect("🏢 Filtrar por Setor:", setores_disponiveis)
+st.sidebar.markdown("""
+<div style="padding:4px 0 12px 0; border-bottom:1px solid rgba(255,255,255,0.08);
+            margin-bottom:16px;">
+    <span style="font-size:1.1em; font-weight:800; color:#fff; letter-spacing:1px;">
+        🎯 Filtros
+    </span>
+</div>
+""", unsafe_allow_html=True)
 
-max_pl   = st.sidebar.slider("P/L abaixo de:",              0.0, 50.0, 20.0)
-min_dy   = st.sidebar.slider("Dividend Yield acima de (%)", 0.0, 20.0,  6.0)
-max_div  = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
-min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)",    0.0, 50.0, 10.0)
-min_score = st.sidebar.slider("⭐ Score mínimo (0–10):",     0.0, 10.0,  0.0, step=0.5)
+# Busca rápida sempre visível
+busca_ticker = st.sidebar.text_input("🔍 Buscar ticker:", placeholder="ex: BBSE3").strip().upper()
+
+# Filtro por setor
+setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
+filtro_setor = st.sidebar.multiselect("🏢 Setor:", setores_disponiveis)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("**💰 Filtrar por Status de Preço:**")
+
+# Status de preço
+st.sidebar.markdown("**💰 Status de Preço**")
 status_opcoes = {
-    "Todos": None,
+    "Todos":                 None,
     "🟢 Forte oportunidade": "oportunidade",
     "🔵 Zona de compra":     "compra",
     "🟠 Acima do teto":      "acima_teto",
@@ -834,6 +850,17 @@ filtro_status = st.sidebar.radio(
     index=0, label_visibility="collapsed"
 )
 filtro_status_val = status_opcoes[filtro_status]
+
+st.sidebar.markdown("---")
+
+# Filtros quantitativos em expander (oculto por padrão)
+with st.sidebar.expander("⚙️ Filtros Quantitativos", expanded=False):
+    ativar_filtros = st.checkbox("Ativar filtros", value=False)
+    min_score  = st.slider("⭐ Score mínimo:",            0.0, 10.0,  0.0, step=0.5)
+    max_pl     = st.slider("P/L abaixo de:",              0.0, 50.0, 20.0)
+    min_dy     = st.slider("DY acima de (%):",            0.0, 20.0,  6.0)
+    max_div    = st.slider("Dívida/EBITDA abaixo de:",    0.0, 10.0,  3.0)
+    min_cagr   = st.slider("CAGR Lucros acima de (%):",  0.0, 50.0, 10.0)
 
 # --- FILTROS ---
 df_f = df.copy()
