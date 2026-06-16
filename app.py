@@ -709,14 +709,14 @@ else:
                         f"Status: {porcentagem}% do resultado projetado</span>",
                         unsafe_allow_html=True
                     )
-                    if historico_pl:
+                    if historico_lucro:
                         st.markdown(
                             "<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>"
-                            "📈 P/L Histórico (5 anos)</span>",
+                            "📈 Lucro Líquido (5 anos)</span>",
                             unsafe_allow_html=True
                         )
                         st.markdown(
-                            mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"),
+                            mini_grafico_linha(historico_lucro, "#39FF14"),
                             unsafe_allow_html=True
                         )
 
@@ -767,13 +767,13 @@ else:
                     st.markdown(f"**ROE:** {roe}")
                     st.markdown(f"**Margem Líq.:** {margem}")
                     st.markdown(f"**Beta (vs IBOV):** {beta}")
-                    if historico_lucro:
+                    if historico_pl:
                         st.markdown(
                             "<span style='font-size:0.85em; color:#aaa; font-weight:bold;'>"
-                            "📈 Lucro Líquido (5 anos)</span>",
+                            "📈 P/L Histórico (5 anos)</span>",
                             unsafe_allow_html=True
                         )
                         st.markdown(
-                            mini_grafico_linha(historico_lucro, "#39FF14"),
+                            mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"),
                             unsafe_allow_html=True
                         )
