@@ -130,38 +130,36 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # ---- Página de entrada ----
 if not st.session_state.autenticado:
-    st.markdown("""
-<div style="display:flex; flex-direction:column; align-items:center; justify-content:center;
-            min-height:70vh; text-align:center; padding:40px 20px;">
 
-    <h1 style="font-size:3em; font-weight:900; letter-spacing:3px; text-transform:uppercase;
-               color:#fff; margin:0 0 8px 0;
-               text-shadow: 0 0 40px rgba(57,255,20,0.25);">
-        Radar Fundamentalista
-    </h1>
-    <p style="font-size:1.0em; color:rgba(255,255,255,0.45); letter-spacing:2px;
-              text-transform:uppercase; margin:0 0 40px 0;">
-        Diego Castro
-    </p>
+    # Espaço superior
+    st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
 
-    <div style="max-width:580px; margin-bottom:40px;">
-        <p style="font-size:0.9em; color:#bbb; line-height:1.75; margin:0 0 12px 0;">
-            Ferramenta de análise quantitativa e qualitativa de ações brasileiras desenvolvida
-            para apoiar o processo de tomada de decisão em investimentos de longo prazo.
-            O score combina critérios de qualidade operacional (ROE, CAGR, consistência de
-            resultados), governança corporativa e valuation, com pesos diferenciados por setor.
-        </p>
-        <p style="font-size:0.78em; color:#666; line-height:1.6; margin:0;">
-            ⚠️ As informações aqui contidas têm caráter exclusivamente educacional e não
-            constituem recomendação de compra ou venda de ativos. Invista com responsabilidade.
-        </p>
-    </div>
-
-</div>
-""", unsafe_allow_html=True)
-
-    col_l, col_c, col_r = st.columns([2, 1, 2])
+    # Título centralizado
+    col_l, col_c, col_r = st.columns([1, 2, 1])
     with col_c:
+        st.markdown(
+            "<h1 style='text-align:center; font-size:2.8em; font-weight:900; "
+            "letter-spacing:3px; text-transform:uppercase; color:#ffffff; "
+            "margin:0 0 6px 0;'>Radar Fundamentalista</h1>"
+            "<p style='text-align:center; font-size:0.85em; color:rgba(255,255,255,0.4); "
+            "letter-spacing:3px; text-transform:uppercase; margin:0 0 36px 0;'>Diego Castro</p>",
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            "<p style='text-align:center; font-size:0.88em; color:#bbb; "
+            "line-height:1.75; margin:0 0 14px 0;'>"
+            "Ferramenta de análise quantitativa e qualitativa de ações brasileiras "
+            "desenvolvida para apoiar o processo de tomada de decisão em investimentos "
+            "de longo prazo. O score combina critérios de qualidade operacional "
+            "(ROE, CAGR, consistência de resultados), governança corporativa e valuation, "
+            "com pesos diferenciados por setor.</p>"
+            "<p style='text-align:center; font-size:0.75em; color:#555; "
+            "line-height:1.6; margin:0 0 36px 0;'>"
+            "⚠️ As informações aqui contidas têm caráter exclusivamente educacional "
+            "e não constituem recomendação de compra ou venda de ativos. "
+            "Invista com responsabilidade.</p>",
+            unsafe_allow_html=True
+        )
         senha = st.text_input("", placeholder="senha de acesso",
                               type="password", label_visibility="collapsed")
         if st.button("Acessar →", use_container_width=True, type="primary"):
