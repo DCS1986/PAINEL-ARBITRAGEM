@@ -9,28 +9,9 @@ st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
 # ---- Controle de acesso ----
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
-if 'modo_tema' not in st.session_state:
-    st.session_state.modo_tema = 'dark'
 
 # --- CONFIGURAÇÃO DO FUNDO ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.PNG"
-
-# Tema claro ou escuro
-_tema = st.session_state.get('modo_tema', 'dark')
-if _tema == 'light':
-    _overlay     = "rgba(240, 242, 246, 0.92)"
-    _txt_primary = "#111111"
-    _txt_sec     = "#444444"
-    _card_bg     = "rgba(255,255,255,0.85)"
-    _card_border = "rgba(0,0,0,0.12)"
-    _top_card_bg = "rgba(255,255,255,0.80)"
-else:
-    _overlay     = "rgba(0, 0, 0, 0.70)"
-    _txt_primary = "#ffffff"
-    _txt_sec     = "#bbbbbb"
-    _card_bg     = "rgba(255,255,255,0.05)"
-    _card_border = "rgba(255,255,255,0.10)"
-    _top_card_bg = "rgba(255,255,255,0.04)"
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
 
 page_bg_img = f"""
 <style>
@@ -45,7 +26,7 @@ page_bg_img = f"""
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: {_overlay};
+    background: rgba(0, 0, 0, 0.7);
 }}
 
 /* Topo limpo mantendo botões visíveis */
@@ -107,15 +88,15 @@ page_bg_img = f"""
 
 /* ---- CARDS DO TOPO ---- */
 .top-card {{
-    background: {_top_card_bg};
-    border: 1px solid {_card_border};
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
     border-radius: 12px;
     padding: 16px 20px;
     text-align: center;
 }}
 .top-card .label {{
     font-size: 0.78em;
-    color: {_txt_sec};
+    color: #ccc;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -124,7 +105,7 @@ page_bg_img = f"""
 .top-card .value {{
     font-size: 1.9em;
     font-weight: 800;
-    color: {_txt_primary};
+    color: #fff;
     line-height: 1.1;
 }}
 
@@ -142,8 +123,8 @@ page_bg_img = f"""
     margin: 4px 0;
 }}
 .asset-card {{
-    background: {_card_bg};
-    border: 1px solid {_card_border};
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
     border-radius: 12px;
     padding: 12px 10px 10px 10px;
     text-align: center;
@@ -151,8 +132,8 @@ page_bg_img = f"""
 }}
 .asset-card:hover {{ background: rgba(255,255,255,0.09); border-color: rgba(57,255,20,0.4); }}
 .asset-card .ac-logo {{ width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;padding:2px;margin:0 auto 7px auto;display:block; }}
-.asset-card .ac-ticker {{ font-size:0.95em;font-weight:800;color:{_txt_primary};letter-spacing:1px; }}
-.asset-card .ac-cot {{ font-size:0.9em;color:{_txt_primary};font-weight:bold;margin-top:2px; }}
+.asset-card .ac-ticker {{ font-size:0.95em;font-weight:800;color:#ffffff;letter-spacing:1px; }}
+.asset-card .ac-cot {{ font-size:0.9em;color:#fff;font-weight:bold;margin-top:2px; }}
 .asset-card .ac-var-pos {{ color:#39FF14;font-size:0.78em;font-weight:bold; }}
 .asset-card .ac-var-neg {{ color:#FF4444;font-size:0.78em;font-weight:bold; }}
 .asset-card .ac-var-neu {{ color:#FFD700;font-size:0.78em;font-weight:bold; }}
@@ -1119,29 +1100,18 @@ def pagina_ativo(ticker, row, ativo_data):
 
 
 # --- DASHBOARD ---
-h_col1, h_col2 = st.columns([8, 1])
-with h_col1:
-    tema_atual = st.session_state.modo_tema
-    txt_cor = "#fff" if tema_atual == 'dark' else "#111"
-    st.markdown(
-        f"<div style='position:relative; margin-bottom:16px; padding:8px 0 14px 0;"
-        f"border-bottom:1px solid rgba(128,128,128,0.2);'>"
-        f"<h1 style='margin:0; font-size:2.4em; font-weight:900; letter-spacing:2px;"
-        f"text-transform:uppercase; color:{txt_cor}; line-height:1.1;'>"
-        f"Radar Fundamentalista</h1>"
-        f"<span style='position:absolute; top:12px; right:0; font-size:0.85em;"
-        f"letter-spacing:3px; text-transform:uppercase; font-weight:700;"
-        f"color:rgba(128,128,128,0.6);'>Diego Castro</span>"
-        f"</div>",
-        unsafe_allow_html=True
-    )
-with h_col2:
-    st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
-    tema_atual = st.session_state.modo_tema
-    btn_label  = "☀️" if tema_atual == 'dark' else "🌙"
-    if st.button(btn_label, help="Alternar Dark/Light", use_container_width=True):
-        st.session_state.modo_tema = 'light' if tema_atual == 'dark' else 'dark'
-        st.rerun()
+st.markdown("""
+<div style="position:relative; margin-bottom:20px; padding:10px 0 16px 0;
+            border-bottom:1px solid rgba(255,255,255,0.08);">
+    <h1 style="margin:0; font-size:2.4em; font-weight:900; letter-spacing:2px;
+               text-transform:uppercase; color:#fff; line-height:1.1;">
+        Radar Fundamentalista
+    </h1>
+    <span style="position:absolute; top:14px; right:0; font-size:0.85em;
+                 letter-spacing:3px; text-transform:uppercase; font-weight:700;
+                 color:rgba(255,255,255,0.55);">Diego Castro</span>
+</div>
+""", unsafe_allow_html=True)
 
 if not df_f.empty:
     idx_max_dy    = df_f['dy_num'].idxmax()
