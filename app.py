@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 import requests
+import plotly.graph_objects as go
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -103,6 +104,23 @@ page_bg_img = f"""
     background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
     margin: 4px 0;
 }}
+.asset-card {{
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 18px 14px 14px 14px;
+    text-align: center;
+    margin-bottom: 4px;
+}}
+.asset-card:hover {{ background: rgba(255,255,255,0.09); border-color: rgba(57,255,20,0.4); }}
+.asset-card .ac-logo {{ width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;padding:3px;margin:0 auto 8px auto;display:block; }}
+.asset-card .ac-ticker {{ font-size:1.05em;font-weight:800;color:#FFD700;letter-spacing:1px; }}
+.asset-card .ac-cot {{ font-size:0.95em;color:#fff;margin-top:2px; }}
+.asset-card .ac-var-pos {{ color:#39FF14;font-size:0.85em;font-weight:bold; }}
+.asset-card .ac-var-neg {{ color:#FF4444;font-size:0.85em;font-weight:bold; }}
+.asset-card .ac-var-neu {{ color:#FFD700;font-size:0.85em;font-weight:bold; }}
+.asset-card .ac-row {{ display:flex;justify-content:space-between;margin-top:8px;font-size:0.8em;color:#aaa;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px; }}
+.asset-card .ac-val {{ color:#fff;font-weight:bold; }}
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
@@ -492,6 +510,139 @@ if filtro_setor:
 
 _min_score_efetivo = min_score if ativar_filtros else 0.0
 
+if 'ativo_selecionado' not in st.session_state:
+    st.session_state.ativo_selecionado = None
+if 'modo_exibicao' not in st.session_state:
+    st.session_state.modo_exibicao = 'Lista'
+
+
+def pagina_ativo(ticker, row, ativo_data):
+    import plotly.graph_objects as go
+    if st.button("← Voltar para o Radar", key="btn_voltar"):
+        st.session_state.ativo_selecionado = None
+        st.rerun()
+
+    logo_url    = ativo_data.get('logo_url', '')
+    variacao_dia= ativo_data.get('variacao_dia', 0.0)
+    cot         = formatar_cotacao(row.get('Cotação atual', 0))
+    dy_clean    = ativo_data.get('dy_clean', '-')
+    dy_num      = ativo_data.get('dy_num', 0)
+    score       = ativo_data.get('score', 0)
+    porcentagem = ativo_data.get('porcentagem', 0)
+    cor         = cor_progresso(porcentagem)
+    roe         = ativo_data.get('roe', '-')
+    margem      = ativo_data.get('margem', '-')
+    beta        = ativo_data.get('beta', '-')
+    pvp_str     = ativo_data.get('pvp_str', '-')
+    historico_dy    = ativo_data.get('historico_dy', {})
+    historico_pl    = ativo_data.get('historico_pl', {})
+    historico_lucro = ativo_data.get('historico_lucro', {})
+    proximo_provento_data  = ativo_data.get('proximo_provento_data', '-')
+    proximo_provento_valor = ativo_data.get('proximo_provento_valor', '-')
+    dt  = ativo_data.get('dt', '-')
+    val = ativo_data.get('val', '-')
+
+    if variacao_dia > 0:
+        var_str = "🟢 +{:.2f}%".format(variacao_dia)
+    elif variacao_dia < 0:
+        var_str = "🔴 {:.2f}%".format(variacao_dia)
+    else:
+        var_str = "🟡 {:.2f}%".format(variacao_dia)
+
+    hcol1, hcol2 = st.columns([1, 5])
+    with hcol1:
+        if logo_url:
+            st.markdown(
+                "<img src='{}' style='height:80px;width:auto;border-radius:12px;background:#fff;padding:4px;'/>".format(logo_url),
+                unsafe_allow_html=True)
+    with hcol2:
+        st.markdown(
+            "<h1 style='margin:0;color:#FFD700;font-size:2.2em;font-weight:900;letter-spacing:2px;'>{}</h1>"
+            "<span style='color:#aaa;font-size:0.95em;'>{} &nbsp;|&nbsp; {} &nbsp; {} &nbsp;|&nbsp; ⭐ Score: {}/10</span>".format(
+                ticker, row.get('SETOR','-'), cot, var_str, score),
+            unsafe_allow_html=True)
+
+    st.markdown("<div style='margin:16px 0 8px 0;height:1px;background:rgba(255,255,255,0.1);'></div>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("#### 📊 Valuation")
+        st.markdown("**P/L Médio (10 anos):** {}x".format(row.get('P/L médio (últ. 10 anos)', '-')))
+        st.markdown("**P/VP:** {}".format(pvp_str))
+        st.markdown("**Valor de Mercado:** {}".format(row.get('VALOR DE MERCADO', '-')))
+        st.markdown("**RESULTADO PROJETADO:** {}".format(row.get('LL PROJETADO', '-')))
+        st.markdown("**⭐ RESULTADO ENTREGUE (1/4):** <span style='color:#39FF14;font-weight:bold;'>{}</span>".format(
+            row.get('RESULTADO 2026 (1/4)', '-')), unsafe_allow_html=True)
+        barra = "<div style='background:#222;border-radius:6px;height:12px;width:100%;margin:6px 0;'><div style='background:{};width:{}%;height:12px;border-radius:6px;'></div></div>".format(cor, porcentagem)
+        st.markdown(barra, unsafe_allow_html=True)
+        st.markdown("<span style='color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
+        if historico_lucro:
+            st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
+            st.markdown(mini_grafico_linha(historico_lucro, "#39FF14"), unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("#### 💰 Dividendos")
+        style_dy = "color:#39FF14;font-weight:bold;" if dy_num > 8 else ""
+        st.markdown("**Dividend Yield:** <span style='{}'>{}</span>".format(style_dy, dy_clean + "%"), unsafe_allow_html=True)
+        st.markdown("**Payout:** {}".format(row.get('PAYOUT', '-')))
+        st.markdown("**LPA Est.:** {}".format(row.get('LPA ESTIMADO', '-')))
+        st.markdown("**Div. Projetado:** {}".format(row.get('Dividendo por ação bruto projetado', '-')))
+        st.markdown("**Data Ex (último):** {}".format(dt))
+        st.markdown("**Valor Último Div.:** {}".format(val))
+        if proximo_provento_data != "-":
+            st.markdown(
+                "<div style='margin-top:10px;padding:8px 12px;border-radius:8px;background:#1a3a1a;border:1px solid #39FF14;'>"
+                "<span style='color:#39FF14;font-weight:bold;'>📅 Próximo Provento em Aberto</span><br>"
+                "<span style='color:#fff;'>Data COM: <b>{}</b> | Valor Est.: <b>{}</b></span></div>".format(
+                    proximo_provento_data, proximo_provento_valor),
+                unsafe_allow_html=True)
+        else:
+            st.markdown(
+                "<div style='margin-top:10px;padding:6px 12px;border-radius:8px;background:#2a2a2a;border:1px solid #555;color:#888;font-size:0.85em;'>📅 Nenhum provento futuro identificado</div>",
+                unsafe_allow_html=True)
+        st.markdown("**Histórico DY (5 anos):**")
+        st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("#### ⚙️ Operacional")
+        pl_proj = row.get('P/L PROJETADO', '-')
+        st.markdown("**P/L Projetado:** <span style='color:#FFD700;font-weight:bold;font-size:1.1em;'>{}x</span>".format(pl_proj), unsafe_allow_html=True)
+        st.markdown("**Dívida Líq/EBITDA:** {}".format(row.get('Dívida líquida/EBITDA', '-')))
+        st.markdown("**CAGR Lucros:** {}".format(row.get('CAGR lucros (últ. 5 anos)', '-')))
+        st.markdown("**ROE:** {}".format(roe))
+        st.markdown("**Margem Líq.:** {}".format(margem))
+        st.markdown("**Beta (vs IBOV):** {}".format(beta))
+        if historico_pl:
+            st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
+            st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("#### 📉 Preço Histórico")
+    periodo_opcoes = {"1 mês": "1mo", "3 meses": "3mo", "6 meses": "6mo", "1 ano": "1y", "2 anos": "2y", "5 anos": "5y"}
+    periodo_sel = st.selectbox("Período:", list(periodo_opcoes.keys()), index=3, key="periodo_{}".format(ticker))
+    try:
+        stock = yf.Ticker("{}.SA".format(ticker))
+        hist  = stock.history(period=periodo_opcoes[periodo_sel])
+        if not hist.empty:
+            fig = go.Figure(data=[go.Candlestick(
+                x=hist.index,
+                open=hist['Open'], high=hist['High'], low=hist['Low'], close=hist['Close'],
+                increasing_line_color='#39FF14', decreasing_line_color='#FF4444', name=ticker
+            )])
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0.3)',
+                font_color='#fff',
+                xaxis=dict(gridcolor='rgba(255,255,255,0.05)'),
+                yaxis=dict(gridcolor='rgba(255,255,255,0.05)'),
+                margin=dict(l=0, r=0, t=10, b=0), height=420,
+                xaxis_rangeslider_visible=False,
+            )
+            st.plotly_chart(fig, use_container_width=True)
+    except Exception:
+        st.warning("Não foi possível carregar o gráfico de preços.")
+
+
+
 # --- DASHBOARD ---
 st.markdown("""
 <div style="position:relative; margin-bottom:20px; padding:10px 0 16px 0;
@@ -544,6 +695,18 @@ with c4:
     </div>""", unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
+
+tcol1, tcol2, tcol3 = st.columns([1, 1, 8])
+with tcol1:
+    if st.button("☰ Lista", use_container_width=True,
+                 type="primary" if st.session_state.modo_exibicao == 'Lista' else "secondary"):
+        st.session_state.modo_exibicao = 'Lista'
+        st.rerun()
+with tcol2:
+    if st.button("⊞ Cards", use_container_width=True,
+                 type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
+        st.session_state.modo_exibicao = 'Cards'
+        st.rerun()
 
 # --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
@@ -621,6 +784,63 @@ else:
     if not ativos_com_score:
         st.warning("Nenhum ativo com score suficiente encontrado.")
     else:
+        # Página de detalhe
+        if st.session_state.ativo_selecionado:
+            ticker_sel = st.session_state.ativo_selecionado
+            ativo_sel  = next((a for a in ativos_com_score if a['row']['CÓDIGO'] == ticker_sel), None)
+            if ativo_sel:
+                pagina_ativo(ticker_sel, ativo_sel['row'], ativo_sel)
+                st.stop()
+            else:
+                st.session_state.ativo_selecionado = None
+
+        # Modo Cards
+        if st.session_state.modo_exibicao == 'Cards':
+            cols_n = 5
+            rows_c = [ativos_com_score[i:i+cols_n] for i in range(0, len(ativos_com_score), cols_n)]
+            for linha in rows_c:
+                cols = st.columns(cols_n)
+                for idx, ativo in enumerate(linha):
+                    row_c    = ativo['row']
+                    ticker_c = row_c['CÓDIGO']
+                    logo_c   = ativo.get('logo_url', '')
+                    cot_c    = formatar_cotacao(row_c.get('Cotação atual', 0))
+                    var_c    = ativo['variacao_dia']
+                    dy_c     = ativo['dy_clean']
+                    dy_num_c = ativo['dy_num']
+                    pl_c     = row_c.get('P/L PROJETADO', '-')
+                    score_c  = ativo['score']
+                    ic_c     = icone_setor(row_c['SETOR'])
+
+                    if var_c > 0:
+                        var_html = "<span class='ac-var-pos'>🟢 +{:.2f}%</span>".format(var_c)
+                    elif var_c < 0:
+                        var_html = "<span class='ac-var-neg'>🔴 {:.2f}%</span>".format(var_c)
+                    else:
+                        var_html = "<span class='ac-var-neu'>🟡 {:.2f}%</span>".format(var_c)
+
+                    dy_color = "#39FF14" if dy_num_c > 8 else "#1E90FF"
+                    logo_html = "<img src='{}' class='ac-logo'/>".format(logo_c) if logo_c else "<div style='font-size:2em;margin-bottom:8px;'>{}</div>".format(ic_c)
+
+                    with cols[idx]:
+                        st.markdown(
+                            "<div class='asset-card'>"
+                            + logo_html
+                            + "<div class='ac-ticker'>{}</div>".format(ticker_c)
+                            + "<div class='ac-cot'>{}</div>".format(cot_c)
+                            + "<div style='margin-top:4px;'>{}</div>".format(var_html)
+                            + "<div class='ac-row'><span>DY</span><span class='ac-val' style='color:{};'>{}%</span></div>".format(dy_color, dy_c)
+                            + "<div class='ac-row'><span>P/L</span><span class='ac-val'>{}x</span></div>".format(pl_c)
+                            + "<div class='ac-row'><span>Score</span><span class='ac-val' style='color:#FFD700;'>⭐ {}</span></div>".format(score_c)
+                            + "</div>",
+                            unsafe_allow_html=True
+                        )
+                        if st.button("Ver detalhes", key="card_{}".format(ticker_c), use_container_width=True):
+                            st.session_state.ativo_selecionado = ticker_c
+                            st.rerun()
+            st.stop()
+
+        # Modo Lista
         for ativo in ativos_com_score:
             row                    = ativo['row']
             score                  = ativo['score']
