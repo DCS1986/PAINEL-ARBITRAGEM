@@ -119,7 +119,7 @@ page_bg_img = f"""
 .asset-card .ac-var-neg {{ color:#FF4444;font-size:0.85em;font-weight:bold; }}
 .asset-card .ac-var-neu {{ color:#FFD700;font-size:0.85em;font-weight:bold; }}
 .asset-card .ac-row {{ display:flex;justify-content:space-between;margin-top:8px;font-size:0.88em;color:#fff;font-weight:bold;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px; }}
-.asset-card .ac-val {{ color:#fff;font-weight:bold; }}
+.asset-card .ac-val {{ color:#fff;font-weight:bold;font-size:1.08em; }}
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
@@ -701,6 +701,19 @@ with c4:
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+div[data-testid="stButton"] button[kind="primary"] {
+    background-color: #00BCD4 !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 700 !important;
+}
+div[data-testid="stButton"] button[kind="primary"]:hover {
+    background-color: #00ACC1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 tcol1, tcol2, tcol3 = st.columns([1, 1, 8])
 with tcol1:
     if st.button("☰ Lista", use_container_width=True,
