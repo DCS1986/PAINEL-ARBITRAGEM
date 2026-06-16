@@ -1361,3 +1361,9 @@ else:
                             mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"),
                             unsafe_allow_html=True
                         )
+
+        # Renderizar as duas colunas
+        for ativo in lista_col1:
+            render_lista_item(ativo, lcol1)
+        for ativo in lista_col2:
+            render_lista_item(ativo, lcol2)
