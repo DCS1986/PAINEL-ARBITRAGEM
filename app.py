@@ -805,6 +805,22 @@ max_div  = st.sidebar.slider("Dívida Líq./EBITDA abaixo de:", 0.0, 10.0, 3.0)
 min_cagr = st.sidebar.slider("CAGR Lucros acima de (%)",    0.0, 50.0, 10.0)
 min_score = st.sidebar.slider("⭐ Score mínimo (0–10):",     0.0, 10.0,  0.0, step=0.5)
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("**💰 Filtrar por Status de Preço:**")
+status_opcoes = {
+    "Todos": None,
+    "🟢 Forte oportunidade": "oportunidade",
+    "🔵 Zona de compra":     "compra",
+    "🟠 Acima do teto":      "acima_teto",
+    "🔴 Acima do target":    "acima_target",
+    "⚪ Sem dados":          "neutro",
+}
+filtro_status = st.sidebar.radio(
+    "", list(status_opcoes.keys()),
+    index=0, label_visibility="collapsed"
+)
+filtro_status_val = status_opcoes[filtro_status]
+
 # --- FILTROS ---
 df_f = df.copy()
 if ativar_filtros:
