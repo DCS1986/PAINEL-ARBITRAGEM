@@ -843,7 +843,6 @@ status_opcoes = {
     "🔵 Zona de compra":     "compra",
     "🟠 Acima do teto":      "acima_teto",
     "🔴 Acima do target":    "acima_target",
-    "⚪ Sem dados":          "neutro",
 }
 filtro_status = st.sidebar.radio(
     "", list(status_opcoes.keys()),
@@ -1261,6 +1260,11 @@ else:
         })
 
     ativos_com_score = [a for a in ativos_com_score if a['score'] >= _min_score_efetivo]
+
+    # Filtro por status de preço
+    if filtro_status_val:
+        ativos_com_score = [a for a in ativos_com_score if a.get('st_status') == filtro_status_val]
+
     ativos_com_score.sort(key=lambda x: x['score'], reverse=True)
 
     # Sem piso artificial — score honesto reflete a realidade
