@@ -9,9 +9,28 @@ st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
 # ---- Controle de acesso ----
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
+if 'modo_tema' not in st.session_state:
+    st.session_state.modo_tema = 'dark'
 
 # --- CONFIGURAÇÃO DO FUNDO ---
 link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
+
+# Tema claro ou escuro
+_tema = st.session_state.get('modo_tema', 'dark')
+if _tema == 'light':
+    _overlay     = "rgba(240, 242, 246, 0.92)"
+    _txt_primary = "#111111"
+    _txt_sec     = "#444444"
+    _card_bg     = "rgba(255,255,255,0.85)"
+    _card_border = "rgba(0,0,0,0.12)"
+    _top_card_bg = "rgba(255,255,255,0.80)"
+else:
+    _overlay     = "rgba(0, 0, 0, 0.70)"
+    _txt_primary = "#ffffff"
+    _txt_sec     = "#bbbbbb"
+    _card_bg     = "rgba(255,255,255,0.05)"
+    _card_border = "rgba(255,255,255,0.10)"
+    _top_card_bg = "rgba(255,255,255,0.04)"
 
 page_bg_img = f"""
 <style>
@@ -26,29 +45,20 @@ page_bg_img = f"""
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: {_overlay};
 }}
 
-/* Reduzir espaço do topo sem esconder o header */
+/* Topo limpo mantendo botões visíveis */
 [data-testid="stHeader"] {{
-    background: transparent !important;
-    height: 0px !important;
-    min-height: 0px !important;
-}}
-[data-testid="stAppViewContainer"] > .main {{
-    padding-top: 8px !important;
+    background: rgba(0,0,0,0.3) !important;
 }}
 .block-container {{
-    padding-top: 12px !important;
+    padding-top: 28px !important;
     padding-bottom: 0px !important;
 }}
-/* Sidebar sempre visível com toggle */
 [data-testid="stSidebar"] {{
-    background: rgba(10, 12, 18, 0.92) !important;
+    background: rgba(10, 12, 18, 0.95) !important;
     border-right: 1px solid rgba(255,255,255,0.08) !important;
-}}
-[data-testid="stSidebarNav"] {{
-    display: none;
 }}
 
 /* ---- ESTILOS DO GRÁFICO DE DY ---- */
@@ -97,15 +107,15 @@ page_bg_img = f"""
 
 /* ---- CARDS DO TOPO ---- */
 .top-card {{
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.10);
+    background: {_top_card_bg};
+    border: 1px solid {_card_border};
     border-radius: 12px;
     padding: 16px 20px;
     text-align: center;
 }}
 .top-card .label {{
     font-size: 0.78em;
-    color: #ccc;
+    color: {_txt_sec};
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -114,9 +124,10 @@ page_bg_img = f"""
 .top-card .value {{
     font-size: 1.9em;
     font-weight: 800;
-    color: #fff;
+    color: {_txt_primary};
     line-height: 1.1;
 }}
+
 .top-card .sub {{
     font-size: 0.85em;
     color: #39FF14;
@@ -131,8 +142,8 @@ page_bg_img = f"""
     margin: 4px 0;
 }}
 .asset-card {{
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.10);
+    background: {_card_bg};
+    border: 1px solid {_card_border};
     border-radius: 12px;
     padding: 12px 10px 10px 10px;
     text-align: center;
@@ -140,8 +151,8 @@ page_bg_img = f"""
 }}
 .asset-card:hover {{ background: rgba(255,255,255,0.09); border-color: rgba(57,255,20,0.4); }}
 .asset-card .ac-logo {{ width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;padding:2px;margin:0 auto 7px auto;display:block; }}
-.asset-card .ac-ticker {{ font-size:0.95em;font-weight:800;color:#ffffff;letter-spacing:1px; }}
-.asset-card .ac-cot {{ font-size:0.9em;color:#fff;font-weight:bold;margin-top:2px; }}
+.asset-card .ac-ticker {{ font-size:0.95em;font-weight:800;color:{_txt_primary};letter-spacing:1px; }}
+.asset-card .ac-cot {{ font-size:0.9em;color:{_txt_primary};font-weight:bold;margin-top:2px; }}
 .asset-card .ac-var-pos {{ color:#39FF14;font-size:0.78em;font-weight:bold; }}
 .asset-card .ac-var-neg {{ color:#FF4444;font-size:0.78em;font-weight:bold; }}
 .asset-card .ac-var-neu {{ color:#FFD700;font-size:0.78em;font-weight:bold; }}
@@ -817,6 +828,13 @@ def carregar_dados():
 df = carregar_dados()
 
 # --- SIDEBAR ---
+# Toggle Dark/Light
+tema_atual = st.session_state.modo_tema
+btn_label  = "☀️ Modo Claro" if tema_atual == 'dark' else "🌙 Modo Escuro"
+if st.sidebar.button(btn_label, use_container_width=True):
+    st.session_state.modo_tema = 'light' if tema_atual == 'dark' else 'dark'
+    st.rerun()
+
 st.sidebar.markdown("""
 <div style="padding:4px 0 12px 0; border-bottom:1px solid rgba(255,255,255,0.08);
             margin-bottom:16px;">
