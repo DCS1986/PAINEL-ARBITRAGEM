@@ -757,7 +757,11 @@ else:
                 # ── COLUNA 3: OPERACIONAL ────────────────────────────────
                 with col3:
                     st.markdown("#### ⚙️ Operacional")
-                    st.markdown(f"**Setor:** {row.get('SETOR', '-')}")
+                    pl_proj = row.get('P/L PROJETADO', '-')
+                    st.markdown(
+                        f"**P/L Projetado:** <span style='color:#FFD700; font-weight:bold; font-size:1.1em;'>{pl_proj}x</span>",
+                        unsafe_allow_html=True
+                    )
                     st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
                     st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
                     st.markdown(f"**ROE:** {roe}")
