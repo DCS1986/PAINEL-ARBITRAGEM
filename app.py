@@ -149,12 +149,13 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 
     st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
 
-    col_l, col_c, col_r = st.columns([1.5, 1, 1.5])
-    with col_c:
+    # Texto centralizado em coluna larga
+    tl, tc, tr = st.columns([1, 2, 1])
+    with tc:
         st.markdown(
             "<h1 style='text-align:center; font-size:2.8em; font-weight:900; "
             "letter-spacing:3px; text-transform:uppercase; color:#ffffff; "
-            "margin:0 0 6px 0;'>Radar Fundamentalista</h1>"
+            "white-space:nowrap; margin:0 0 6px 0;'>Radar Fundamentalista</h1>"
             "<p style='text-align:center; font-size:0.85em; color:rgba(255,255,255,0.4); "
             "letter-spacing:3px; text-transform:uppercase; margin:0 0 32px 0;'>Diego Castro</p>",
             unsafe_allow_html=True
@@ -179,6 +180,10 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
             "Invista com responsabilidade.</p>",
             unsafe_allow_html=True
         )
+
+    # Input e botão em coluna estreita
+    il, ic, ir = st.columns([1.5, 1, 1.5])
+    with ic:
         senha = st.text_input("", placeholder="senha de acesso",
                               type="password", label_visibility="collapsed")
         if st.button("Acessar →", use_container_width=True, type="primary"):
