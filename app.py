@@ -558,6 +558,44 @@ def penalizacao_governanca(nota_gov):
     else:
         return -1.5
 
+def status_aporte(cotacao_raw, preco_teto, target):
+    """
+    Retorna (status, cor, icone, descricao) com base na cotação vs teto vs target.
+    Abaixo do teto = comprar. Acima do target = reduzir/vender.
+    Quanto mais abaixo do teto, melhor a oportunidade.
+    """
+    try:
+        cot = limpar_valor(str(cotacao_raw).replace('R$',''))
+        if cot <= 0 or preco_teto <= 0 or target <= 0:
+            return ('neutro', '#888888', '⚪', 'Sem dados de preço')
+
+        if cot > target:
+            # Acima do target — zona de venda/redução
+            pct_acima = ((cot - target) / target) * 100
+            return ('acima_target', '#FF4444', '🔴',
+                    f"Acima do target (+{pct_acima:.1f}%) — considerar redução")
+
+        elif cot > preco_teto:
+            # Entre teto e target — zona de atenção
+            pct = ((cot - preco_teto) / preco_teto) * 100
+            return ('acima_teto', '#FF8C00', '🟠',
+                    f"Acima do preço teto (+{pct:.1f}%) — aguardar recuo")
+
+        else:
+            # Abaixo do teto — zona de compra
+            pct_teto   = ((preco_teto - cot) / preco_teto) * 100
+            pct_target = ((target - cot) / target) * 100
+            if pct_teto >= 15:
+                return ('oportunidade', '#39FF14', '🟢',
+                        f"Forte oportunidade — {pct_teto:.1f}% abaixo do teto / {pct_target:.1f}% abaixo do target")
+            else:
+                return ('compra', '#00BCD4', '🔵',
+                        f"Zona de compra — {pct_teto:.1f}% abaixo do teto / {pct_target:.1f}% abaixo do target")
+
+    except:
+        return ('neutro', '#888888', '⚪', 'Sem dados de preço')
+
+
 ICONES_SETOR = {
     "Bancos": "🏦",
     "Seguros": "🛡️",
@@ -745,6 +783,8 @@ def carregar_dados():
         df['div_num']     = df['Dívida líquida/EBITDA'].apply(limpar_valor)
         df['cagr_num']    = df['CAGR lucros (últ. 5 anos)'].apply(limpar_valor)
         df['res_val_num'] = df['RESULTADO 2026 (1/4)'].apply(limpar_valor_resultado)
+        df['preco_teto']  = df['PREÇO TETO'].apply(limpar_valor) if 'PREÇO TETO' in df.columns else 0
+        df['target']      = df['TARGET'].apply(limpar_valor) if 'TARGET' in df.columns else 0
 
         return df
     except:
@@ -946,6 +986,40 @@ def pagina_ativo(ticker, row, ativo_data):
                 unsafe_allow_html=True
             )
 
+    # ---- Teto / Target / Status ----
+    gov2  = GOVERNANCA.get(ticker, {})
+    pt_v  = ativo_data.get('preco_teto_val', 0) if isinstance(ativo_data, dict) else 0
+    tg_v  = ativo_data.get('target_val', 0)      if isinstance(ativo_data, dict) else 0
+    s_st  = ativo_data.get('st_status', 'neutro') if isinstance(ativo_data, dict) else 'neutro'
+    s_cor = ativo_data.get('st_cor', '#888')      if isinstance(ativo_data, dict) else '#888'
+    s_ico = ativo_data.get('st_icone', '⚪')      if isinstance(ativo_data, dict) else '⚪'
+    s_desc= ativo_data.get('st_desc', '')         if isinstance(ativo_data, dict) else ''
+    cot_v = limpar_valor(str(ativo_data.get('row', {}).get('Cotação atual', 0) if isinstance(ativo_data, dict) else 0).replace('R$',''))
+
+    if pt_v > 0 and tg_v > 0:
+        pct_teto   = ((pt_v - cot_v) / pt_v * 100) if cot_v < pt_v else -((cot_v - pt_v) / pt_v * 100)
+        pct_target = ((tg_v - cot_v) / tg_v * 100) if cot_v < tg_v else -((cot_v - tg_v) / tg_v * 100)
+
+        st.markdown(
+            f"<div style='padding:16px 20px;border-radius:12px;margin-bottom:16px;"
+            f"background:rgba(255,255,255,0.04);border:2px solid {s_cor};'>"
+            f"<div style='display:flex;align-items:center;gap:12px;margin-bottom:12px;'>"
+            f"<span style='font-size:1.6em;'>{s_ico}</span>"
+            f"<span style='font-size:1.0em;font-weight:700;color:{s_cor};'>{s_desc}</span>"
+            f"</div>"
+            f"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center;'>"
+            f"<div><div style='font-size:0.75em;color:#888;margin-bottom:4px;'>COTAÇÃO ATUAL</div>"
+            f"<div style='font-size:1.3em;font-weight:800;color:#fff;'>R$ {cot_v:.2f}</div></div>"
+            f"<div><div style='font-size:0.75em;color:#888;margin-bottom:4px;'>PREÇO TETO</div>"
+            f"<div style='font-size:1.3em;font-weight:800;color:#FFD700;'>R$ {pt_v:.2f}</div>"
+            f"<div style='font-size:0.78em;color:#aaa;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
+            f"<div><div style='font-size:0.75em;color:#888;margin-bottom:4px;'>TARGET</div>"
+            f"<div style='font-size:1.3em;font-weight:800;color:#39FF14;'>R$ {tg_v:.2f}</div>"
+            f"<div style='font-size:0.78em;color:#aaa;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
+            f"</div></div>",
+            unsafe_allow_html=True
+        )
+
     st.markdown("<div style='margin-top:32px;'></div>", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("#### 📉 Preço Histórico")
@@ -1103,6 +1177,10 @@ else:
                                pvp_num=pvp_num_raw, setor=row.get('SETOR', ''),
                                ticker=row.get('CÓDIGO', ''), historico_lucro=historico_lucro)
 
+        preco_teto_val = row.get('preco_teto', 0) if 'preco_teto' in row.index else limpar_valor(str(row.get('PREÇO TETO', 0)))
+        target_val     = row.get('target', 0) if 'target' in row.index else limpar_valor(str(row.get('TARGET', 0)))
+        st_status, st_cor, st_icone, st_desc = status_aporte(row.get('Cotação atual', 0), preco_teto_val, target_val)
+
         ativos_com_score.append({
             'row': row, 'score': score,
             'dy_num': dy_num, 'dy_clean': dy_clean, 'pl_num': pl_num,
@@ -1117,6 +1195,12 @@ else:
             'variacao_dia': variacao_dia,
             'iv_str': iv_str,
             'logo_url': logo_url,
+            'st_status': st_status,
+            'st_cor': st_cor,
+            'st_icone': st_icone,
+            'st_desc': st_desc,
+            'preco_teto_val': preco_teto_val,
+            'target_val': target_val,
         })
 
     ativos_com_score = [a for a in ativos_com_score if a['score'] >= _min_score_efetivo]
@@ -1187,8 +1271,12 @@ else:
                     logo_html = "<img src='{}' class='ac-logo'/>".format(logo_c) if logo_c else "<div style='font-size:2em;margin-bottom:8px;'>{}</div>".format(ic_c)
 
                     with cols[idx]:
+                        st_s  = ativo.get('st_status', 'neutro')
+                        st_c  = ativo.get('st_cor', '#888888')
+                        st_i  = ativo.get('st_icone', '⚪')
+                        border_color = st_c
                         st.markdown(
-                            "<div class='asset-card'>"
+                            f"<div class='asset-card' style='border-color:{border_color};'>"
                             + logo_html
                             + "<div class='ac-ticker'>{}</div>".format(ticker_c)
                             + "<div class='ac-cot'>{}</div>".format(cot_c)
@@ -1231,6 +1319,13 @@ else:
             variacao_dia           = ativo['variacao_dia']
             iv_str                 = ativo['iv_str']
             logo_url               = ativo['logo_url']
+            st_status       = ativo['st_status']
+            st_cor          = ativo['st_cor']
+            st_icone        = ativo['st_icone']
+            st_desc         = ativo['st_desc']
+            preco_teto_val  = ativo['preco_teto_val']
+            target_val      = ativo['target_val']
+
             dy_icone = "🔷" if dy_num > 8 else ""
             cot      = formatar_cotacao(row.get('Cotação atual', 0))
             pl       = f"{row.get('P/L PROJETADO', '0')}x"
@@ -1243,7 +1338,7 @@ else:
                 var_str = f"🟡 {variacao_dia:.2f}%"
             iv_label = f"IV: {iv_str}" if iv_str != "-" else ""
             titulo = (
-                f"{ic_setor} :orange[**{row['CÓDIGO']}**] | {cot} {var_str} | P/L: {pl} | "
+                f"{st_icone} {ic_setor} :orange[**{row['CÓDIGO']}**] | {cot} {var_str} | P/L: {pl} | "
                 f"DY: {dy_icone} {dy_clean}% | {iv_label} | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
             )
             st.markdown("<div class='ativo-sep'></div>", unsafe_allow_html=True)
