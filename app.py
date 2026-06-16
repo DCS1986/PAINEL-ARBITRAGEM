@@ -162,16 +162,76 @@ def cor_progresso(porcentagem):
     else:
         return "#FF4444"
 
-# ---- Score Geral (0–10) ----
-def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num):
+# ---- Score Geral por Setor (0–10) ----
+def classificar_setor(setor):
+    s = str(setor).lower()
+    if any(x in s for x in ['banco', 'financeiro', 'holding']):
+        return 'banco'
+    if any(x in s for x in ['seguro', 'segur']):
+        return 'seguradora'
+    if any(x in s for x in ['elétric', 'eletric', 'energia', 'saneamento', 'utilities']):
+        return 'capital_intensivo'
+    if any(x in s for x in ['papel', 'celulose', 'mineração', 'minera', 'petróleo', 'petro', 'óleo', 'cíclico']):
+        return 'ciclica'
+    return 'geral'
+
+def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num, pvp_num=0, setor=''):
+    categoria = classificar_setor(setor)
     score = 0.0
-    score += min(dy_num / 10.0, 1.0) * 2.5
-    if pl_num > 0:
-        score += max(0, (20 - pl_num) / 20.0) * 2.0
-    score += max(0, (5 - div_ebitda_num) / 5.0) * 1.5
-    score += min(cagr_num / 20.0, 1.0) * 2.0
-    score += min(roe_num / 20.0, 1.0) * 1.0
-    score += min(margem_num / 30.0, 1.0) * 1.0
+
+    if categoria == 'banco':
+        # Bancos: P/VP e ROE têm muito peso; dívida irrelevante; margem distorce
+        score += min(dy_num / 10.0, 1.0) * 2.0          # DY: 2.0
+        score += min(roe_num / 25.0, 1.0) * 2.5          # ROE: 2.5 (mais importante)
+        if pl_num > 0:
+            score += max(0, (12 - pl_num) / 12.0) * 1.5  # P/L: 1.5 (referência menor pra bancos)
+        if pvp_num > 0:
+            score += max(0, (2.0 - pvp_num) / 2.0) * 2.0 # P/VP: 2.0 (muito relevante)
+        score += min(cagr_num / 20.0, 1.0) * 1.0         # CAGR: 1.0
+        score += max(0, (5 - div_ebitda_num) / 5.0) * 1.0 # Dívida: 1.0 (baixo peso)
+
+    elif categoria == 'seguradora':
+        # Seguradoras: ROE e DY dominam; P/VP irrelevante; dívida irrelevante
+        score += min(dy_num / 10.0, 1.0) * 2.5           # DY: 2.5
+        score += min(roe_num / 25.0, 1.0) * 3.0          # ROE: 3.0 (mais importante)
+        if pl_num > 0:
+            score += max(0, (15 - pl_num) / 15.0) * 2.0  # P/L: 2.0
+        score += min(cagr_num / 20.0, 1.0) * 1.5         # CAGR: 1.5
+        score += max(0, (5 - div_ebitda_num) / 5.0) * 1.0 # Dívida: 1.0 (baixo)
+
+    elif categoria == 'capital_intensivo':
+        # Elétricas, saneamento: dívida pode ser alta (aceita até 4x); DY e ROE importantes
+        score += min(dy_num / 10.0, 1.0) * 2.5           # DY: 2.5
+        score += min(roe_num / 20.0, 1.0) * 2.0          # ROE: 2.0
+        if pl_num > 0:
+            score += max(0, (18 - pl_num) / 18.0) * 1.5  # P/L: 1.5
+        score += max(0, (4 - div_ebitda_num) / 4.0) * 2.0 # Dívida: 2.0 (aceita até 4x)
+        score += min(cagr_num / 15.0, 1.0) * 1.0         # CAGR: 1.0
+        if pvp_num > 0:
+            score += max(0, (2.5 - pvp_num) / 2.5) * 1.0 # P/VP: 1.0
+
+    elif categoria == 'ciclica':
+        # Cíclicas (Vale, PETR, Klabin): P/L distorce muito — menor peso; DY e ROE lideram
+        score += min(dy_num / 12.0, 1.0) * 3.0           # DY: 3.0 (proventos baseados em EBITDA)
+        score += min(roe_num / 20.0, 1.0) * 2.5          # ROE: 2.5
+        if pl_num > 0:
+            score += max(0, (15 - pl_num) / 15.0) * 0.5  # P/L: 0.5 (mínimo — distorce)
+        score += max(0, (3 - div_ebitda_num) / 3.0) * 2.0 # Dívida: 2.0
+        score += min(cagr_num / 20.0, 1.0) * 1.0         # CAGR: 1.0
+        if pvp_num > 0:
+            score += max(0, (2.0 - pvp_num) / 2.0) * 1.0 # P/VP: 1.0
+
+    else:
+        # Geral: pesos balanceados
+        score += min(dy_num / 10.0, 1.0) * 2.5           # DY: 2.5
+        score += min(roe_num / 20.0, 1.0) * 2.0          # ROE: 2.0 (acima do CAGR)
+        if pl_num > 0:
+            score += max(0, (20 - pl_num) / 20.0) * 1.5  # P/L: 1.5
+        score += max(0, (5 - div_ebitda_num) / 5.0) * 1.5 # Dívida: 1.5
+        score += min(cagr_num / 20.0, 1.0) * 1.5         # CAGR: 1.5
+        if pvp_num > 0:
+            score += max(0, (3 - pvp_num) / 3.0) * 1.0   # P/VP: 1.0
+
     return round(min(score, 10.0), 1)
 
 def badge_score(score):
@@ -668,15 +728,15 @@ if not df_f.empty:
     ticker_max_dy = df_f.loc[idx_max_dy, 'CÓDIGO']
     val_max_dy    = df_f.loc[idx_max_dy, 'Dividend Yield bruto estimado']
 
-    df_pl_valido = df_f[df_f['pl_num'] > 0]
-    if not df_pl_valido.empty:
-        idx_min_pl    = df_pl_valido['pl_num'].idxmin()
-        ticker_min_pl = df_pl_valido.loc[idx_min_pl, 'CÓDIGO']
-        val_min_pl    = formatar_pl(df_pl_valido.loc[idx_min_pl, 'P/L PROJETADO'])
-    else:
-        ticker_min_pl, val_min_pl = "-", "-"
 else:
-    ticker_max_dy = val_max_dy = ticker_min_pl = val_min_pl = "-"
+    ticker_max_dy = val_max_dy = "-"
+
+ticket_max_score = "-"
+val_max_score    = "-"
+
+# Maior score calculado após montar ativos_com_score — placeholder por enquanto
+ticker_max_score = "-"
+val_max_score    = "-"
 
 c1, c2, c3, c4 = st.columns(4)
 with c1:
@@ -693,11 +753,7 @@ with c3:
         <div class='sub'>{val_max_dy}</div>
     </div>""", unsafe_allow_html=True)
 with c4:
-    st.markdown(f"""<div class='top-card'>
-        <div class='label'>📉 Menor P/L</div>
-        <div class='value'>{ticker_min_pl}</div>
-        <div class='sub'>{val_min_pl}</div>
-    </div>""", unsafe_allow_html=True)
+    card_maior_score = st.empty()
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
@@ -773,7 +829,9 @@ else:
         div_ebitda_num = limpar_valor(row.get('Dívida líquida/EBITDA',  0))
         cagr_num       = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
 
-        score = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw)
+        pvp_num_raw = limpar_valor(pvp_str.replace('x','')) if pvp_str != '-' else 0
+        score = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw,
+                               pvp_num=pvp_num_raw, setor=row.get('SETOR', ''))
 
         ativos_com_score.append({
             'row': row, 'score': score,
@@ -798,6 +856,19 @@ else:
         <div class='label'>🔍 Ativos Filtrados</div>
         <div class='value'>{len(ativos_com_score)}</div>
     </div>""", unsafe_allow_html=True)
+
+    if ativos_com_score:
+        top = ativos_com_score[0]
+        card_maior_score.markdown(f"""<div class='top-card'>
+            <div class='label'>🏅 Maior Score</div>
+            <div class='value'>{top['row']['CÓDIGO']}</div>
+            <div class='sub'>⭐ {top['score']}/10</div>
+        </div>""", unsafe_allow_html=True)
+    else:
+        card_maior_score.markdown("""<div class='top-card'>
+            <div class='label'>🏅 Maior Score</div>
+            <div class='value'>-</div>
+        </div>""", unsafe_allow_html=True)
 
     if not ativos_com_score:
         st.warning("Nenhum ativo com score suficiente encontrado.")
