@@ -796,7 +796,8 @@ def pagina_ativo(ticker, row, ativo_data):
 
     card_style = (
         "display:flex; flex-direction:column; padding:20px 22px; border-radius:12px; "
-        "background:rgba(255,255,255,0.04); min-height:140px; "
+        "background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); "
+        "min-height:120px; box-sizing:border-box; "
     )
 
     with gcol1:
@@ -807,32 +808,34 @@ def pagina_ativo(ticker, row, ativo_data):
                 gov_cor, gov_label = "#FFD700", "Média"
             else:
                 gov_cor, gov_label = "#FF4444", "Baixa"
-            pen = penalizacao_governanca(nota_gov)
-            pen_str = "{:.1f}".format(pen) if pen < 0 else "0"
             st.markdown(
-                "<div style='{base}border:1px solid rgba(255,255,255,0.12);'>"
+                "<div style='{base}'>"
                 "<div style='font-size:0.82em;color:#888;font-weight:600;letter-spacing:0.5px;"
                 "text-transform:uppercase;margin-bottom:12px;'>🏛️ Governança Corporativa</div>"
                 "<div style='display:flex;align-items:center;gap:14px;margin-bottom:12px;'>"
                 "<span style='font-size:2.4em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
-                "<div><span style='font-size:0.95em;color:{cor};font-weight:700;display:block;'>{label}</span>"
-                "<span style='font-size:0.75em;color:#555;'>penalização: {pen} no score</span></div>"
+                "<span style='font-size:0.95em;color:{cor};font-weight:700;'>{label}</span>"
                 "</div>"
                 "<div style='font-size:0.83em;color:#bbb;line-height:1.65;'>{obs}</div>"
                 "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
-                                label=gov_label, pen=pen_str, obs=obs_gov),
+                                label=gov_label, obs=obs_gov),
                 unsafe_allow_html=True
             )
 
     with gcol2:
         if out:
+            if out['cor'] == "#39FF14":
+                out_label_cor = "#39FF14"
+            elif out['cor'] == "#FFD700":
+                out_label_cor = "#FFD700"
+            else:
+                out_label_cor = "#FF4444"
             st.markdown(
-                "<div style='{base}border:1px solid {cor};'>"
-                "<div style='font-size:0.82em;font-weight:600;color:{cor};letter-spacing:0.5px;"
+                "<div style='{base}'>"
+                "<div style='font-size:0.82em;font-weight:600;color:#888;letter-spacing:0.5px;"
                 "text-transform:uppercase;margin-bottom:12px;'>{icone} Outlook 2026</div>"
                 "<div style='font-size:0.83em;color:#ccc;line-height:1.65;'>{texto}</div>"
-                "</div>".format(base=card_style, cor=out['cor'],
-                                icone=out['icone'], texto=out['texto']),
+                "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
                 unsafe_allow_html=True
             )
 
