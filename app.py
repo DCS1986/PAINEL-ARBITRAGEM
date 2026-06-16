@@ -95,7 +95,8 @@ page_bg_img = f"""
 }}
 .top-card .label {{
     font-size: 0.78em;
-    color: #888;
+    color: #ccc;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 6px;
