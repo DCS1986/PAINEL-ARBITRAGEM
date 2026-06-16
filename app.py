@@ -131,30 +131,49 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 # ---- Página de entrada ----
 if not st.session_state.autenticado:
 
-    # Espaço superior
-    st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
+    # CSS: botão turquesa igual ao toggle Lista/Cards
+    st.markdown("""
+<style>
+div[data-testid="stButton"] button[kind="primary"] {
+    background-color: #00BCD4 !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 700 !important;
+    font-size: 1em !important;
+}
+div[data-testid="stButton"] button[kind="primary"]:hover {
+    background-color: #00ACC1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-    # Título centralizado
-    col_l, col_c, col_r = st.columns([1, 2, 1])
+    st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
+
+    col_l, col_c, col_r = st.columns([1.5, 1, 1.5])
     with col_c:
         st.markdown(
             "<h1 style='text-align:center; font-size:2.8em; font-weight:900; "
             "letter-spacing:3px; text-transform:uppercase; color:#ffffff; "
             "margin:0 0 6px 0;'>Radar Fundamentalista</h1>"
             "<p style='text-align:center; font-size:0.85em; color:rgba(255,255,255,0.4); "
-            "letter-spacing:3px; text-transform:uppercase; margin:0 0 36px 0;'>Diego Castro</p>",
+            "letter-spacing:3px; text-transform:uppercase; margin:0 0 32px 0;'>Diego Castro</p>",
             unsafe_allow_html=True
         )
         st.markdown(
-            "<p style='text-align:center; font-size:0.88em; color:#bbb; "
-            "line-height:1.75; margin:0 0 14px 0;'>"
+            "<p style='text-align:center; font-size:0.9em; color:#ccc; "
+            "line-height:1.8; margin:0 0 20px 0;'>"
             "Ferramenta de análise quantitativa e qualitativa de ações brasileiras "
             "desenvolvida para apoiar o processo de tomada de decisão em investimentos "
-            "de longo prazo. O score combina critérios de qualidade operacional "
-            "(ROE, CAGR, consistência de resultados), governança corporativa e valuation, "
-            "com pesos diferenciados por setor.</p>"
-            "<p style='text-align:center; font-size:0.75em; color:#555; "
-            "line-height:1.6; margin:0 0 36px 0;'>"
+            "de longo prazo.</p>"
+            "<p style='text-align:center; font-size:0.85em; color:#aaa; "
+            "line-height:1.8; margin:0 0 20px 0;'>"
+            "O score proprietário combina múltiplos critérios com pesos diferenciados "
+            "por setor: qualidade operacional, crescimento e consistência dos resultados, "
+            "solidez financeira, valuation relativo, retorno ao acionista e "
+            "governança corporativa — avaliada de forma qualitativa e aplicada "
+            "como penalizador.</p>"
+            "<p style='text-align:center; font-size:0.78em; color:#888; "
+            "line-height:1.7; margin:0 0 32px 0;'>"
             "⚠️ As informações aqui contidas têm caráter exclusivamente educacional "
             "e não constituem recomendação de compra ou venda de ativos. "
             "Invista com responsabilidade.</p>",
