@@ -2,7 +2,6 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 import requests
-import plotly.graph_objects as go
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -113,13 +112,13 @@ page_bg_img = f"""
     margin-bottom: 4px;
 }}
 .asset-card:hover {{ background: rgba(255,255,255,0.09); border-color: rgba(57,255,20,0.4); }}
-.asset-card .ac-logo {{ width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;padding:3px;margin:0 auto 8px auto;display:block; }}
-.asset-card .ac-ticker {{ font-size:1.05em;font-weight:800;color:#FFD700;letter-spacing:1px; }}
-.asset-card .ac-cot {{ font-size:0.95em;color:#fff;margin-top:2px; }}
+.asset-card .ac-logo {{ width:56px;height:56px;border-radius:50%;object-fit:cover;background:#fff;padding:3px;margin:0 auto 10px auto;display:block; }}
+.asset-card .ac-ticker {{ font-size:1.1em;font-weight:800;color:#ffffff;letter-spacing:1px; }}
+.asset-card .ac-cot {{ font-size:1.0em;color:#fff;font-weight:bold;margin-top:2px; }}
 .asset-card .ac-var-pos {{ color:#39FF14;font-size:0.85em;font-weight:bold; }}
 .asset-card .ac-var-neg {{ color:#FF4444;font-size:0.85em;font-weight:bold; }}
 .asset-card .ac-var-neu {{ color:#FFD700;font-size:0.85em;font-weight:bold; }}
-.asset-card .ac-row {{ display:flex;justify-content:space-between;margin-top:8px;font-size:0.8em;color:#aaa;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px; }}
+.asset-card .ac-row {{ display:flex;justify-content:space-between;margin-top:8px;font-size:0.88em;color:#fff;font-weight:bold;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px; }}
 .asset-card .ac-val {{ color:#fff;font-weight:bold; }}
 </style>
 """
@@ -517,7 +516,10 @@ if 'modo_exibicao' not in st.session_state:
 
 
 def pagina_ativo(ticker, row, ativo_data):
-    import plotly.graph_objects as go
+    try:
+        import plotly.graph_objects as go
+    except ImportError:
+        go = None
     if st.button("← Voltar para o Radar", key="btn_voltar"):
         st.session_state.ativo_selecionado = None
         st.rerun()
@@ -621,9 +623,12 @@ def pagina_ativo(ticker, row, ativo_data):
     periodo_opcoes = {"1 mês": "1mo", "3 meses": "3mo", "6 meses": "6mo", "1 ano": "1y", "2 anos": "2y", "5 anos": "5y"}
     periodo_sel = st.selectbox("Período:", list(periodo_opcoes.keys()), index=3, key="periodo_{}".format(ticker))
     try:
-        stock = yf.Ticker("{}.SA".format(ticker))
-        hist  = stock.history(period=periodo_opcoes[periodo_sel])
-        if not hist.empty:
+        if go is None:
+            st.warning("Instale plotly: adicione 'plotly' ao requirements.txt")
+        else:
+          stock = yf.Ticker("{}.SA".format(ticker))
+          hist  = stock.history(period=periodo_opcoes[periodo_sel])
+          if not hist.empty:
             fig = go.Figure(data=[go.Candlestick(
                 x=hist.index,
                 open=hist['Open'], high=hist['High'], low=hist['Low'], close=hist['Close'],
