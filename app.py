@@ -90,29 +90,29 @@ page_bg_img = f"""
 .top-card {{
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 12px;
-    padding: 16px 20px;
+    border-radius: 10px;
+    padding: 10px 12px;
     text-align: center;
 }}
 .top-card .label {{
-    font-size: 0.78em;
+    font-size: 0.68em;
     color: #ccc;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
 }}
 .top-card .value {{
-    font-size: 1.9em;
+    font-size: 1.3em;
     font-weight: 800;
     color: #fff;
     line-height: 1.1;
 }}
 
 .top-card .sub {{
-    font-size: 0.85em;
+    font-size: 0.72em;
     color: #39FF14;
-    margin-top: 4px;
+    margin-top: 2px;
     font-weight: bold;
 }}
 
@@ -1148,7 +1148,7 @@ val_max_score    = "-"
 ticker_max_score = "-"
 val_max_score    = "-"
 
-c1, c2, c3, c4 = st.columns(4)
+c1, c2, c3, c4, c5 = st.columns(5)
 with c1:
     st.markdown(f"""<div class='top-card'>
         <div class='label'>📋 Total de Ativos</div>
@@ -1164,6 +1164,8 @@ with c3:
     </div>""", unsafe_allow_html=True)
 with c4:
     card_maior_score = st.empty()
+with c5:
+    card_menor_pl = st.empty()
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
@@ -1298,6 +1300,34 @@ else:
     else:
         card_maior_score.markdown("""<div class='top-card'>
             <div class='label'>🏅 Maior Score</div>
+            <div class='value'>-</div>
+        </div>""", unsafe_allow_html=True)
+
+    # ---- Maior desconto: P/L projetado vs P/L médio histórico (10 anos) ----
+    melhor_desconto = None
+    melhor_pct = 0
+    for a in ativos_com_score:
+        row = a['row']
+        try:
+            pl_proj = float(str(row.get('P/L PROJETADO', '0')).replace(',', '.'))
+            pl_med  = float(str(row.get('P/L médio (últ. 10 anos)', '0')).replace(',', '.'))
+            if pl_proj > 0 and pl_med > 0 and pl_proj < pl_med:
+                desconto_pct = ((pl_med - pl_proj) / pl_med) * 100
+                if desconto_pct > melhor_pct:
+                    melhor_pct = desconto_pct
+                    melhor_desconto = row['CÓDIGO']
+        except:
+            continue
+
+    if melhor_desconto:
+        card_menor_pl.markdown(f"""<div class='top-card'>
+            <div class='label'>📉 Maior Desconto P/L</div>
+            <div class='value'>{melhor_desconto}</div>
+            <div class='sub'>-{melhor_pct:.0f}% vs média 10a</div>
+        </div>""", unsafe_allow_html=True)
+    else:
+        card_menor_pl.markdown("""<div class='top-card'>
+            <div class='label'>📉 Maior Desconto P/L</div>
             <div class='value'>-</div>
         </div>""", unsafe_allow_html=True)
 
