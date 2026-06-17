@@ -11,7 +11,7 @@ if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
 
 # --- CONFIGURAÇÃO DO FUNDO ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.PNG"
 
 page_bg_img = f"""
 <style>
@@ -125,20 +125,20 @@ page_bg_img = f"""
 .asset-card {{
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 12px;
-    padding: 12px 10px 10px 10px;
+    border-radius: 10px;
+    padding: 9px 7px 7px 7px;
     text-align: center;
     margin-bottom: 4px;
 }}
 .asset-card:hover {{ background: rgba(255,255,255,0.09); border-color: rgba(57,255,20,0.4); }}
-.asset-card .ac-logo {{ width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;padding:2px;margin:0 auto 7px auto;display:block; }}
-.asset-card .ac-ticker {{ font-size:0.95em;font-weight:800;color:#ffffff;letter-spacing:1px; }}
-.asset-card .ac-cot {{ font-size:0.9em;color:#fff;font-weight:bold;margin-top:2px; }}
-.asset-card .ac-var-pos {{ color:#39FF14;font-size:0.78em;font-weight:bold; }}
-.asset-card .ac-var-neg {{ color:#FF4444;font-size:0.78em;font-weight:bold; }}
-.asset-card .ac-var-neu {{ color:#FFD700;font-size:0.78em;font-weight:bold; }}
-.asset-card .ac-row {{ display:flex;justify-content:space-between;margin-top:6px;font-size:0.8em;color:#fff;font-weight:bold;border-top:1px solid rgba(255,255,255,0.07);padding-top:6px; }}
-.asset-card .ac-val {{ color:#fff;font-weight:bold;font-size:1.0em; }}
+.asset-card .ac-logo {{ width:34px;height:34px;border-radius:50%;object-fit:cover;background:#fff;padding:2px;margin:0 auto 5px auto;display:block; }}
+.asset-card .ac-ticker {{ font-size:0.82em;font-weight:800;color:#ffffff;letter-spacing:0.5px; }}
+.asset-card .ac-cot {{ font-size:0.78em;color:#fff;font-weight:bold;margin-top:1px; }}
+.asset-card .ac-var-pos {{ color:#39FF14;font-size:0.68em;font-weight:bold; }}
+.asset-card .ac-var-neg {{ color:#FF4444;font-size:0.68em;font-weight:bold; }}
+.asset-card .ac-var-neu {{ color:#FFD700;font-size:0.68em;font-weight:bold; }}
+.asset-card .ac-row {{ display:flex;justify-content:space-between;margin-top:5px;font-size:0.68em;color:#fff;font-weight:bold;border-top:1px solid rgba(255,255,255,0.07);padding-top:5px; }}
+.asset-card .ac-val {{ color:#fff;font-weight:bold;font-size:0.88em; }}
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
@@ -1316,7 +1316,7 @@ else:
 
         # Modo Cards
         if st.session_state.modo_exibicao == 'Cards':
-            cols_n = 6
+            cols_n = 8
             rows_c = [ativos_com_score[i:i+cols_n] for i in range(0, len(ativos_com_score), cols_n)]
             for linha in rows_c:
                 cols = st.columns(cols_n)
