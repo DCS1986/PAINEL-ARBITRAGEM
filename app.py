@@ -11,7 +11,7 @@ if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
 
 # --- CONFIGURAÇÃO DO FUNDO ---
-link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.PNG"
+link_da_imagem = "https://raw.githubusercontent.com/DCS1986/PAINEL-ARBITRAGEM/main/1500x500.png"
 
 page_bg_img = f"""
 <style>
@@ -90,29 +90,29 @@ page_bg_img = f"""
 .top-card {{
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 10px;
-    padding: 10px 12px;
+    border-radius: 12px;
+    padding: 16px 20px;
     text-align: center;
 }}
 .top-card .label {{
-    font-size: 0.68em;
+    font-size: 0.78em;
     color: #ccc;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
 }}
 .top-card .value {{
-    font-size: 1.3em;
+    font-size: 1.9em;
     font-weight: 800;
     color: #fff;
     line-height: 1.1;
 }}
 
 .top-card .sub {{
-    font-size: 0.72em;
+    font-size: 0.85em;
     color: #39FF14;
-    margin-top: 2px;
+    margin-top: 4px;
     font-weight: bold;
 }}
 
@@ -1304,10 +1304,14 @@ else:
         </div>""", unsafe_allow_html=True)
 
     # ---- Maior desconto: P/L projetado vs P/L médio histórico (10 anos) ----
+    # Exclui empresas cíclicas (Vale, Petrobras, Klabin etc.) pois o P/L
+    # delas é naturalmente distorcido pelo ciclo de commodities
     melhor_desconto = None
     melhor_pct = 0
     for a in ativos_com_score:
         row = a['row']
+        if classificar_setor(row.get('SETOR', '')) == 'ciclica':
+            continue
         try:
             pl_proj = float(str(row.get('P/L PROJETADO', '0')).replace(',', '.'))
             pl_med  = float(str(row.get('P/L médio (últ. 10 anos)', '0')).replace(',', '.'))
