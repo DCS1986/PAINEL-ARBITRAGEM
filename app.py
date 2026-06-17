@@ -132,8 +132,8 @@ page_bg_img = f"""
 }}
 .asset-card:hover {{ background: rgba(255,255,255,0.09); border-color: rgba(57,255,20,0.4); }}
 .asset-card .ac-logo {{ width:34px;height:34px;border-radius:50%;object-fit:cover;background:#fff;padding:2px;margin:0 auto 5px auto;display:block; }}
-.asset-card .ac-ticker {{ font-size:0.82em;font-weight:800;color:#ffffff;letter-spacing:0.5px; }}
-.asset-card .ac-cot {{ font-size:0.78em;color:#fff;font-weight:bold;margin-top:1px; }}
+.asset-card .ac-ticker {{ font-size:1.05em;font-weight:800;color:#ffffff;letter-spacing:0.5px; }}
+.asset-card .ac-cot {{ font-size:0.95em;color:#fff;font-weight:bold;margin-top:2px; }}
 .asset-card .ac-var-pos {{ color:#39FF14;font-size:0.68em;font-weight:bold; }}
 .asset-card .ac-var-neg {{ color:#FF4444;font-size:0.68em;font-weight:bold; }}
 .asset-card .ac-var-neu {{ color:#FFD700;font-size:0.68em;font-weight:bold; }}
