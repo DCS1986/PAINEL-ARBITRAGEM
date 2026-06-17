@@ -935,12 +935,12 @@ def pagina_ativo(ticker, row, ativo_data):
     with hcol1:
         if logo_url:
             st.markdown(
-                "<img src='{}' style='height:52px;width:auto;border-radius:10px;background:#fff;padding:3px;'/>".format(logo_url),
+                "<img src='{}' style='height:64px;width:auto;border-radius:11px;background:#fff;padding:4px;'/>".format(logo_url),
                 unsafe_allow_html=True)
     with hcol2:
         st.markdown(
-            "<h1 style='margin:0;color:#FFD700;font-size:1.5em;font-weight:900;letter-spacing:1px;'>{}</h1>"
-            "<span style='color:#aaa;font-size:0.8em;'>{} &nbsp;|&nbsp; {} &nbsp; {} &nbsp;|&nbsp; ⭐ Score: {}/10</span>".format(
+            "<h1 style='margin:0;color:#FFD700;font-size:1.8em;font-weight:900;letter-spacing:1.5px;'>{}</h1>"
+            "<span style='color:#ccc;font-size:0.88em;'>{} &nbsp;|&nbsp; {} &nbsp; {} &nbsp;|&nbsp; ⭐ Score: {}/10</span>".format(
                 ticker, row.get('SETOR','-'), cot, var_str, score),
             unsafe_allow_html=True)
 
@@ -949,8 +949,8 @@ def pagina_ativo(ticker, row, ativo_data):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("##### 📊 Valuation")
-        st.markdown("<div style='font-size:0.82em;line-height:1.6;'>"
+        st.markdown("#### 📊 Valuation")
+        st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
             "<b>P/L Médio (10 anos):</b> {}x<br>"
             "<b>P/VP:</b> {}<br>"
             "<b>Valor de Mercado:</b> {}<br>"
@@ -963,15 +963,15 @@ def pagina_ativo(ticker, row, ativo_data):
             unsafe_allow_html=True)
         barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
         st.markdown(barra, unsafe_allow_html=True)
-        st.markdown("<span style='font-size:0.78em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
+        st.markdown("<span style='font-size:0.85em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
         if historico_lucro:
-            st.markdown("<span style='font-size:0.74em;color:#aaa;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
             st.markdown(mini_grafico_linha(historico_lucro, "#39FF14"), unsafe_allow_html=True)
 
     with col2:
-        st.markdown("##### 💰 Dividendos")
+        st.markdown("#### 💰 Dividendos")
         style_dy = "color:#39FF14;font-weight:bold;" if dy_num > 8 else ""
-        st.markdown("<div style='font-size:0.82em;line-height:1.6;'>"
+        st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
             "<b>Dividend Yield:</b> <span style='{}'>{}</span><br>"
             "<b>Payout:</b> {}<br>"
             "<b>LPA Est.:</b> {}<br>"
@@ -985,22 +985,22 @@ def pagina_ativo(ticker, row, ativo_data):
             unsafe_allow_html=True)
         if proximo_provento_data != "-":
             st.markdown(
-                "<div style='margin-top:6px;padding:5px 8px;border-radius:6px;background:#1a3a1a;border:1px solid #39FF14;font-size:0.78em;'>"
+                "<div style='margin-top:6px;padding:5px 8px;border-radius:6px;background:#1a3a1a;border:1px solid #39FF14;font-size:0.84em;'>"
                 "<span style='color:#39FF14;font-weight:bold;'>📅 Próximo Provento em Aberto</span><br>"
                 "<span style='color:#fff;'>Data COM: <b>{}</b> | Valor Est.: <b>{}</b></span></div>".format(
                     proximo_provento_data, proximo_provento_valor),
                 unsafe_allow_html=True)
         else:
             st.markdown(
-                "<div style='margin-top:6px;padding:4px 8px;border-radius:6px;background:#2a2a2a;border:1px solid #555;color:#888;font-size:0.74em;'>📅 Nenhum provento futuro identificado</div>",
+                "<div style='margin-top:6px;padding:4px 8px;border-radius:6px;background:#2a2a2a;border:1px solid #777;color:#ccc;font-size:0.8em;'>📅 Nenhum provento futuro identificado</div>",
                 unsafe_allow_html=True)
-        st.markdown("<span style='font-size:0.78em;font-weight:bold;'>Histórico DY (5 anos):</span>", unsafe_allow_html=True)
+        st.markdown("<span style='font-size:0.85em;font-weight:bold;'>Histórico DY (5 anos):</span>", unsafe_allow_html=True)
         st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
 
     with col3:
-        st.markdown("##### ⚙️ Operacional")
+        st.markdown("#### ⚙️ Operacional")
         pl_proj = row.get('P/L PROJETADO', '-')
-        st.markdown("<div style='font-size:0.82em;line-height:1.6;'>"
+        st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
             "<b>P/L Projetado:</b> <span style='color:#FFD700;font-weight:bold;'>{}x</span><br>"
             "<b>Dívida Líq/EBITDA:</b> {}<br>"
             "<b>CAGR Lucros:</b> {}<br>"
@@ -1013,7 +1013,7 @@ def pagina_ativo(ticker, row, ativo_data):
             unsafe_allow_html=True)
 
         if historico_pl:
-            st.markdown("<span style='font-size:0.74em;color:#aaa;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
             st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
 
     # ---- Governança + Outlook lado a lado ----
@@ -1027,9 +1027,9 @@ def pagina_ativo(ticker, row, ativo_data):
     gcol1, gcol2 = st.columns(2)
 
     card_style = (
-        "display:flex; flex-direction:column; padding:12px 14px; border-radius:10px; "
+        "display:flex; flex-direction:column; padding:15px 17px; border-radius:11px; "
         "background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); "
-        "min-height:90px; box-sizing:border-box; "
+        "min-height:100px; box-sizing:border-box; "
     )
 
     with gcol1:
@@ -1042,13 +1042,13 @@ def pagina_ativo(ticker, row, ativo_data):
                 gov_cor, gov_label = "#FF4444", "Baixa"
             st.markdown(
                 "<div style='{base}'>"
-                "<div style='font-size:0.72em;color:#888;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:6px;'>🏛️ Governança Corporativa</div>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>🏛️ Governança Corporativa</div>"
                 "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
-                "<span style='font-size:1.6em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
-                "<span style='font-size:0.8em;color:{cor};font-weight:700;'>{label}</span>"
+                "<span style='font-size:1.9em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
+                "<span style='font-size:0.85em;color:{cor};font-weight:700;'>{label}</span>"
                 "</div>"
-                "<div style='font-size:0.74em;color:#bbb;line-height:1.45;'>{obs}</div>"
+                "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{obs}</div>"
                 "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
                                 label=gov_label, obs=obs_gov),
                 unsafe_allow_html=True
@@ -1064,9 +1064,9 @@ def pagina_ativo(ticker, row, ativo_data):
                 out_label_cor = "#FF4444"
             st.markdown(
                 "<div style='{base}'>"
-                "<div style='font-size:0.72em;font-weight:600;color:#888;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:6px;'>{icone} Outlook 2026</div>"
-                "<div style='font-size:0.74em;color:#ccc;line-height:1.45;'>{texto}</div>"
+                "<div style='font-size:0.78em;font-weight:600;color:#ccc;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>{icone} Outlook 2026</div>"
+                "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{texto}</div>"
                 "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
                 unsafe_allow_html=True
             )
@@ -1086,21 +1086,21 @@ def pagina_ativo(ticker, row, ativo_data):
         pct_target = ((tg_v - cot_v) / tg_v * 100) if cot_v < tg_v else -((cot_v - tg_v) / tg_v * 100)
 
         st.markdown(
-            f"<div style='padding:10px 14px;border-radius:10px;margin:10px 0 4px 0;"
+            f"<div style='padding:13px 16px;border-radius:11px;margin:12px 0 6px 0;"
             f"background:rgba(255,255,255,0.04);border:2px solid {s_cor};'>"
             f"<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px;'>"
-            f"<span style='font-size:1.1em;'>{s_ico}</span>"
-            f"<span style='font-size:0.85em;font-weight:700;color:{s_cor};'>{s_desc}</span>"
+            f"<span style='font-size:1.3em;'>{s_ico}</span>"
+            f"<span style='font-size:0.92em;font-weight:700;color:{s_cor};'>{s_desc}</span>"
             f"</div>"
             f"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;'>"
-            f"<div><div style='font-size:0.68em;color:#888;margin-bottom:2px;'>COTAÇÃO ATUAL</div>"
-            f"<div style='font-size:1.0em;font-weight:800;color:#fff;'>R$ {cot_v:.2f}</div></div>"
-            f"<div><div style='font-size:0.68em;color:#888;margin-bottom:2px;'>PREÇO TETO</div>"
-            f"<div style='font-size:1.0em;font-weight:800;color:#FFD700;'>R$ {pt_v:.2f}</div>"
-            f"<div style='font-size:0.68em;color:#aaa;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
-            f"<div><div style='font-size:0.68em;color:#888;margin-bottom:2px;'>TARGET</div>"
-            f"<div style='font-size:1.0em;font-weight:800;color:#39FF14;'>R$ {tg_v:.2f}</div>"
-            f"<div style='font-size:0.68em;color:#aaa;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
+            f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>COTAÇÃO ATUAL</div>"
+            f"<div style='font-size:1.15em;font-weight:800;color:#fff;'>R$ {cot_v:.2f}</div></div>"
+            f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>PREÇO TETO</div>"
+            f"<div style='font-size:1.15em;font-weight:800;color:#FFD700;'>R$ {pt_v:.2f}</div>"
+            f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
+            f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>TARGET</div>"
+            f"<div style='font-size:1.15em;font-weight:800;color:#39FF14;'>R$ {tg_v:.2f}</div>"
+            f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
             f"</div></div>",
             unsafe_allow_html=True
         )
