@@ -678,6 +678,57 @@ def get_logo_url(ticker):
         pass
     return ''
 
+# ---- Insiders e Recompras via Fundamentus ----
+# Páginas públicas, HTML puro, sem login. Buscamos só na página de detalhe
+# do ativo (não nos 40 cards da grade) pra não disparar 80+ requisições
+# extras a cada carregamento da tela principal.
+def _parse_tabela_fundamentus(ticker, pagina):
+    """Busca e parseia a tabela de insiders ou recompras do Fundamentus.
+    pagina: 'insiders' ou 'recompras'."""
+    try:
+        url = f"https://fundamentus.com.br/{pagina}.php?papel={ticker}"
+        r = requests.get(url, timeout=8, headers={'User-Agent': 'Mozilla/5.0'})
+        r.encoding = 'iso-8859-1'  # Fundamentus não usa UTF-8 — sem isso os acentos corrompem
+        tabelas = pd.read_html(r.text, decimal=',', thousands='.')
+        if not tabelas:
+            return pd.DataFrame()
+        df = tabelas[0]
+        if df.shape[1] < 4:
+            return pd.DataFrame()
+        df = df.iloc[:, :4]
+        df.columns = ['data', 'quantidade', 'valor', 'preco_medio']
+        df['data'] = pd.to_datetime(df['data'], format='%d/%m/%Y', errors='coerce')
+        return df.dropna(subset=['data']).reset_index(drop=True)
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_insiders_data(ticker):
+    """Histórico mensal de compras/vendas de ações por controladores,
+    diretoria, conselho — direto do Fundamentus (fonte original: CVM)."""
+    return _parse_tabela_fundamentus(ticker, 'insiders')
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_recompras_data(ticker):
+    """Histórico mensal de recompras de ações pela própria empresa
+    (tesouraria) — direto do Fundamentus (fonte original: CVM)."""
+    return _parse_tabela_fundamentus(ticker, 'recompras')
+
+
+def resumo_periodo(df, meses=6):
+    """Soma líquida (R$) das transações dos últimos N meses. None se não
+    houver dados suficientes."""
+    if df.empty:
+        return None
+    corte = pd.Timestamp.now() - pd.DateOffset(months=meses)
+    recente = df[df['data'] >= corte]
+    if recente.empty:
+        return None
+    return recente['valor'].sum()
+
+
 # ---- Busca de dados no Yahoo Finance ----
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
@@ -1074,6 +1125,85 @@ def pagina_ativo(ticker, row, ativo_data):
                 "text-transform:uppercase;margin-bottom:8px;'>{icone} Outlook 2026</div>"
                 "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{texto}</div>"
                 "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
+                unsafe_allow_html=True
+            )
+
+    # ---- Insiders + Recompras (Fundamentus) ----
+    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+    icol1, icol2 = st.columns(2)
+
+    with st.spinner("Buscando dados de insiders e recompras..."):
+        df_ins = get_insiders_data(ticker)
+        df_rec = get_recompras_data(ticker)
+
+    with icol1:
+        if not df_ins.empty:
+            net_6m = resumo_periodo(df_ins, 6)
+            if net_6m is not None:
+                cor_ins = "#39FF14" if net_6m >= 0 else "#FF4444"
+                label_ins = "Compra líquida" if net_6m >= 0 else "Venda líquida"
+                sub_ins = f"{label_ins}: R$ {abs(net_6m):,.0f}".replace(",", ".")
+            else:
+                cor_ins, sub_ins = "#888", "Sem movimentação nos últimos 6 meses"
+            st.markdown(
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders (últimos 6 meses)</div>"
+                "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
+                "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
+                "Movimentação de controladores, diretoria e conselho. Fonte: Fundamentus/CVM.</div>"
+                "</div>".format(base=card_style, cor=cor_ins, sub=sub_ins),
+                unsafe_allow_html=True
+            )
+            with st.expander("Ver histórico mensal de insiders"):
+                show_ins = df_ins.head(12).copy()
+                show_ins['data'] = show_ins['data'].dt.strftime('%m/%Y')
+                show_ins['valor'] = show_ins['valor'].apply(lambda v: f"R$ {v:,.0f}".replace(",", "."))
+                show_ins['preco_medio'] = show_ins['preco_medio'].apply(lambda v: f"R$ {v:.2f}".replace(".", ","))
+                show_ins.columns = ['Mês', 'Quantidade', 'Valor', 'Preço Médio']
+                st.dataframe(show_ins, use_container_width=True, hide_index=True)
+        else:
+            st.markdown(
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders</div>"
+                "<div style='font-size:0.85em;color:#888;'>Dados indisponíveis para este ativo.</div>"
+                "</div>".format(base=card_style),
+                unsafe_allow_html=True
+            )
+
+    with icol2:
+        if not df_rec.empty:
+            net_rec_6m = resumo_periodo(df_rec, 6)
+            if net_rec_6m is not None and net_rec_6m != 0:
+                sub_rec = f"R$ {abs(net_rec_6m):,.0f}".replace(",", ".")
+                cor_rec = "#1E90FF"
+            else:
+                sub_rec, cor_rec = "Sem recompra nos últimos 6 meses", "#888"
+            st.markdown(
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras (últimos 6 meses)</div>"
+                "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
+                "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
+                "Ações recompradas pela própria empresa (tesouraria). Fonte: Fundamentus/CVM.</div>"
+                "</div>".format(base=card_style, cor=cor_rec, sub=sub_rec),
+                unsafe_allow_html=True
+            )
+            with st.expander("Ver histórico mensal de recompras"):
+                show_rec = df_rec.head(12).copy()
+                show_rec['data'] = show_rec['data'].dt.strftime('%m/%Y')
+                show_rec['valor'] = show_rec['valor'].apply(lambda v: f"R$ {v:,.0f}".replace(",", "."))
+                show_rec['preco_medio'] = show_rec['preco_medio'].apply(lambda v: f"R$ {v:.2f}".replace(".", ","))
+                show_rec.columns = ['Mês', 'Quantidade', 'Valor', 'Preço Médio']
+                st.dataframe(show_rec, use_container_width=True, hide_index=True)
+        else:
+            st.markdown(
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras</div>"
+                "<div style='font-size:0.85em;color:#888;'>Sem programa de recompra ativo ou dados indisponíveis.</div>"
+                "</div>".format(base=card_style),
                 unsafe_allow_html=True
             )
 
