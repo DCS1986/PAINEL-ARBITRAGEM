@@ -841,8 +841,14 @@ st.sidebar.markdown("""
 # Busca rápida sempre visível
 busca_ticker = st.sidebar.text_input("🔍 Buscar ticker:", placeholder="ex: BBSE3").strip().upper()
 
-# Filtro por setor
-setores_disponiveis = sorted(df['SETOR'].unique().tolist()) if not df.empty else []
+# Filtro por setor — protegido contra NaN/células vazias na coluna SETOR
+# (uma linha com SETOR em branco vira NaN no pandas, e sorted() não consegue
+# comparar float (NaN) com str, gerando TypeError)
+if not df.empty and 'SETOR' in df.columns:
+    setores_brutos = df['SETOR'].dropna().unique().tolist()
+    setores_disponiveis = sorted([s for s in setores_brutos if str(s).strip() != ''])
+else:
+    setores_disponiveis = []
 filtro_setor = st.sidebar.multiselect("🏢 Setor:", setores_disponiveis)
 
 st.sidebar.markdown("---")
