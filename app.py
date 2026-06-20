@@ -846,6 +846,137 @@ def ultimas_apresentacoes(df):
     return ultima_resultado, ultima_institucional
 
 
+# ---- Volatilidade Implícita, IV Rank e IV Percentil via OpLab (sem login) ----
+# Portal público https://opcoes.oplab.com.br/mercado-de-opcoes — diferente da
+# plataforma/API principal da OpLab (que exige token). Busca-se a página UMA
+# VEZ (lista todos os ~150 ativos) e fica em cache de 1h — não precisa de uma
+# requisição por ticker.
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_volatilidade_oplab():
+    """Retorna (dict_por_ticker, erro). dict_por_ticker mapeia
+    TICKER -> {'vol_implicita': float|None, 'iv_rank': float|None, 'iv_percentil': float|None}."""
+    try:
+        url = "https://opcoes.oplab.com.br/mercado-de-opcoes"
+        r = requests.get(url, timeout=15, headers=_FUNDAMENTUS_HEADERS)
+        if r.status_code != 200:
+            return {}, f"HTTP {r.status_code} ao acessar OpLab"
+        html = r.text
+
+        # Cada ativo é um link <a href=".../mercado/acoes/opcoes/TICKER">...</a>
+        # contendo o ticker e, em algum lugar dentro, os 3 números (ou "-")
+        # de Vol. Implícita / IV Rank / IV Percentil, nessa ordem.
+        blocos = re.findall(
+            r'href="[^"]*?/mercado/acoes/opcoes/([A-Z0-9]+)"[^>]*>(.*?)</a>',
+            html, re.DOTALL
+        )
+        if not blocos:
+            return {}, "nenhum ativo encontrado na página (estrutura pode ter mudado)"
+
+        padrao_num = re.compile(r'(\d{1,3},\d{2}|-)')
+        resultado = {}
+        for ticker, conteudo in blocos:
+            texto = re.sub(r'<[^>]+>', '', conteudo)  # remove tags HTML internas
+            # Pega só o trecho após "Percentil" (label), que é onde os 3
+            # números aparecem — evita capturar números do preço/variação.
+            partes = texto.split('Percentil')
+            trecho_numeros = partes[-1] if len(partes) > 1 else texto
+            valores = padrao_num.findall(trecho_numeros)[:3]
+
+            def _conv(v):
+                if v == '-' or v is None:
+                    return None
+                try:
+                    return float(v.replace(',', '.'))
+                except ValueError:
+                    return None
+
+            if len(valores) == 3:
+                resultado[ticker] = {
+                    'vol_implicita': _conv(valores[0]),
+                    'iv_rank': _conv(valores[1]),
+                    'iv_percentil': _conv(valores[2]),
+                }
+        if not resultado:
+            return {}, "ativos encontrados, mas não foi possível extrair os números de volatilidade"
+        return resultado, None
+    except Exception as e:
+        return {}, f"erro: {e}"
+
+
+def get_volatilidade_ticker(ticker):
+    """Busca a volatilidade implícita/IV Rank/IV Percentil de UM ticker
+    específico, usando o cache compartilhado de get_volatilidade_oplab
+    (que busca todos os ativos de uma vez, evitando 40 requisições)."""
+    dados, erro = get_volatilidade_oplab()
+    if erro:
+        return None, erro
+    item = dados.get(ticker.upper())
+    if item is None:
+        return None, "ativo não encontrado na lista do OpLab (pode não ter opções líquidas o suficiente)"
+    return item, None
+
+
+# ---- Indicadores extras (ROIC, VPA, P/EBIT, EV/EBITDA, margens, liquidez) ----
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_indicadores_fundamentus(ticker):
+    """Busca indicadores fundamentalistas extras direto da página de
+    detalhes do Fundamentus (a mesma usada pro site mostrar P/L, P/VP etc).
+    Retorna (dict_label->valor_bruto, erro). O dict guarda os valores como
+    string crua (formato BR) — use _ind_buscar() pra extrair como float."""
+    try:
+        url = f"https://fundamentus.com.br/detalhes.php?papel={ticker}"
+        r = requests.get(url, timeout=12, headers=_FUNDAMENTUS_HEADERS)
+        if r.status_code != 200:
+            return {}, f"HTTP {r.status_code} ao acessar Fundamentus"
+        r.encoding = 'iso-8859-1'
+        tabelas = pd.read_html(io.StringIO(r.text), decimal=',', thousands='.')
+        if not tabelas:
+            return {}, "nenhuma tabela encontrada"
+
+        indicadores = {}
+        for tabela in tabelas:
+            n_cols = tabela.shape[1]
+            if n_cols < 2 or n_cols % 2 != 0:
+                continue
+            # As tabelas do Fundamentus alternam rótulo/valor nas colunas
+            # (rótulo na coluna par, valor na ímpar seguinte).
+            for _, linha in tabela.iterrows():
+                for i in range(0, n_cols, 2):
+                    rotulo = str(linha.iloc[i]).strip().lstrip('?').strip()
+                    valor = linha.iloc[i + 1] if i + 1 < n_cols else None
+                    if rotulo and rotulo.lower() not in ('nan', '') and valor is not None:
+                        indicadores[rotulo] = valor
+        return indicadores, None
+    except Exception as e:
+        return {}, f"erro: {e}"
+
+
+def _ind_buscar(indicadores, *termos):
+    """Procura um indicador cujo nome contenha qualquer um dos termos
+    (case-insensitive) e retorna como float. O pandas, com decimal=',', já
+    normaliza vírgula->ponto mesmo em colunas mistas (ex: '5,97' -> '5.97'
+    como string) — por isso tentamos float() direto primeiro, e só usamos a
+    limpeza manual de formato BR como fallback caso isso falhe."""
+    termos_lower = [t.lower() for t in termos]
+    for rotulo, valor in indicadores.items():
+        if any(t in rotulo.lower() for t in termos_lower):
+            if isinstance(valor, (int, float)):
+                return None if pd.isna(valor) else float(valor)
+            v = str(valor).strip().replace('%', '').strip()
+            if v in ('-', '', 'nan', 'None'):
+                return None
+            try:
+                return float(v)
+            except ValueError:
+                pass
+            v2 = v.replace('.', '').replace(',', '.')
+            try:
+                return float(v2)
+            except ValueError:
+                continue
+    return None
+
+
 # ---- Busca de dados no Yahoo Finance ----
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
@@ -1452,6 +1583,54 @@ def pagina_ativo(ticker, row, ativo_data):
         st.info("Nenhuma apresentação encontrada para este ativo.")
         if erro_apres:
             st.caption(f"🔧 Detalhe técnico: {erro_apres}")
+
+    # ---- Volatilidade Implícita (OpLab — sem login) ----
+    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+    with st.spinner("Buscando volatilidade implícita..."):
+        vol_info, erro_vol = get_volatilidade_ticker(ticker)
+
+    if vol_info is not None:
+        vi = vol_info['vol_implicita']
+        rank = vol_info['iv_rank']
+        pct = vol_info['iv_percentil']
+        cor_vi = "#FF4444" if (rank or 0) >= 70 else ("#FFD700" if (rank or 0) >= 30 else "#39FF14")
+        vcol1, vcol2, vcol3 = st.columns(3)
+        with vcol1:
+            st.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>Vol. Implícita</div>"
+                "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
+                "</div>".format(base=card_style, cor=cor_vi,
+                                v=f"{vi:.2f}%".replace(".", ",") if vi is not None else "—"),
+                unsafe_allow_html=True
+            )
+        with vcol2:
+            st.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Rank</div>"
+                "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
+                "</div>".format(base=card_style, cor=cor_vi,
+                                v=f"{rank:.0f}".replace(".", ",") if rank is not None else "—"),
+                unsafe_allow_html=True
+            )
+        with vcol3:
+            st.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Percentil</div>"
+                "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
+                "</div>".format(base=card_style, cor=cor_vi,
+                                v=f"{pct:.0f}".replace(".", ",") if pct is not None else "—"),
+                unsafe_allow_html=True
+            )
+        st.caption(
+            "Fonte: portal público da OpLab (sem login). IV Rank/Percentil acima de 70 "
+            "indicam volatilidade historicamente alta (opções 'caras') — acima de 30 e abaixo "
+            "de 70 é uma faixa neutra; abaixo de 30, volatilidade historicamente baixa."
+        )
+    else:
+        st.info("Volatilidade implícita indisponível para este ativo.")
+        if erro_vol:
+            st.caption(f"🔧 Detalhe técnico: {erro_vol}")
 
     # ---- Teto / Target / Status ----
     gov2  = GOVERNANCA.get(ticker, {})
