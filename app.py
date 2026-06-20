@@ -684,49 +684,70 @@ def get_logo_url(ticker):
 # extras a cada carregamento da tela principal.
 def _parse_tabela_fundamentus(ticker, pagina):
     """Busca e parseia a tabela de insiders ou recompras do Fundamentus.
-    pagina: 'insiders' ou 'recompras'."""
+    pagina: 'insiders' ou 'recompras'. Retorna (df, erro) — erro é None se
+    deu certo, ou uma string explicando o motivo da falha (útil pra
+    diagnosticar bloqueio de IP em hospedagem na nuvem, por exemplo)."""
+    headers = {
+        'User-Agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                       '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+        'Referer': 'https://fundamentus.com.br/',
+    }
     try:
         url = f"https://fundamentus.com.br/{pagina}.php?papel={ticker}"
-        r = requests.get(url, timeout=8, headers={'User-Agent': 'Mozilla/5.0'})
+        r = requests.get(url, timeout=12, headers=headers)
+        if r.status_code != 200:
+            return pd.DataFrame(), f"HTTP {r.status_code} ao acessar Fundamentus"
         r.encoding = 'iso-8859-1'  # Fundamentus não usa UTF-8 — sem isso os acentos corrompem
         tabelas = pd.read_html(r.text, decimal=',', thousands='.')
         if not tabelas:
-            return pd.DataFrame()
+            return pd.DataFrame(), "nenhuma tabela encontrada na página (possível bloqueio ou página alterada)"
         df = tabelas[0]
         if df.shape[1] < 4:
-            return pd.DataFrame()
+            return pd.DataFrame(), "estrutura da tabela inesperada"
         df = df.iloc[:, :4]
         df.columns = ['data', 'quantidade', 'valor', 'preco_medio']
         df['data'] = pd.to_datetime(df['data'], format='%d/%m/%Y', errors='coerce')
-        return df.dropna(subset=['data']).reset_index(drop=True)
-    except Exception:
-        return pd.DataFrame()
+        df = df.dropna(subset=['data']).reset_index(drop=True)
+        return df, None
+    except Exception as e:
+        return pd.DataFrame(), f"erro: {e}"
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_insiders_data(ticker):
     """Histórico mensal de compras/vendas de ações por controladores,
-    diretoria, conselho — direto do Fundamentus (fonte original: CVM)."""
+    diretoria, conselho — direto do Fundamentus (fonte original: CVM).
+    Retorna (df, erro)."""
     return _parse_tabela_fundamentus(ticker, 'insiders')
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_recompras_data(ticker):
     """Histórico mensal de recompras de ações pela própria empresa
-    (tesouraria) — direto do Fundamentus (fonte original: CVM)."""
+    (tesouraria) — direto do Fundamentus (fonte original: CVM).
+    Retorna (df, erro)."""
     return _parse_tabela_fundamentus(ticker, 'recompras')
 
 
 def resumo_periodo(df, meses=6):
-    """Soma líquida (R$) das transações dos últimos N meses. None se não
-    houver dados suficientes."""
+    """Retorna o resumo mais útil disponível:
+    - Se houver transação não-zero nos últimos `meses`: soma do período.
+    - Senão, se houver QUALQUER transação não-zero no histórico: a mais
+      recente (mesmo que tenha sido há mais tempo).
+    - Senão: None (sem nenhuma movimentação registrada)."""
     if df.empty:
         return None
     corte = pd.Timestamp.now() - pd.DateOffset(months=meses)
-    recente = df[df['data'] >= corte]
-    if recente.empty:
-        return None
-    return recente['valor'].sum()
+    recente = df[(df['data'] >= corte) & (df['valor'] != 0)]
+    if not recente.empty:
+        return {'tipo': 'periodo', 'valor': recente['valor'].sum(), 'meses': meses}
+    nao_zero = df[df['valor'] != 0]
+    if not nao_zero.empty:
+        linha = nao_zero.sort_values('data', ascending=False).iloc[0]
+        return {'tipo': 'ultima', 'valor': linha['valor'], 'data': linha['data']}
+    return None
 
 
 # ---- Busca de dados no Yahoo Finance ----
@@ -864,6 +885,15 @@ def carregar_dados():
         df.columns = [str(c).strip() for c in df.iloc[idx]]
         df = df.iloc[idx + 1:].reset_index(drop=True)
         df = df.dropna(how='all')
+        # dropna(how='all') só remove linhas 100% vazias — uma linha com
+        # algum resíduo de formatação mas sem CÓDIGO sobrevive e gera um
+        # "ativo fantasma" (tudo NaN) na listagem. Filtramos explicitamente
+        # por CÓDIGO válido.
+        if 'CÓDIGO' in df.columns:
+            df = df[df['CÓDIGO'].notna()]
+            df = df[df['CÓDIGO'].astype(str).str.strip() != '']
+            df = df[df['CÓDIGO'].astype(str).str.lower() != 'nan']
+        df = df.reset_index(drop=True)
 
         df['pl_num']      = df['P/L PROJETADO'].apply(limpar_valor)
         df['dy_num']      = df['Dividend Yield bruto estimado'].apply(limpar_valor)
@@ -1133,22 +1163,26 @@ def pagina_ativo(ticker, row, ativo_data):
     icol1, icol2 = st.columns(2)
 
     with st.spinner("Buscando dados de insiders e recompras..."):
-        df_ins = get_insiders_data(ticker)
-        df_rec = get_recompras_data(ticker)
+        df_ins, erro_ins = get_insiders_data(ticker)
+        df_rec, erro_rec = get_recompras_data(ticker)
 
     with icol1:
         if not df_ins.empty:
-            net_6m = resumo_periodo(df_ins, 6)
-            if net_6m is not None:
-                cor_ins = "#39FF14" if net_6m >= 0 else "#FF4444"
-                label_ins = "Compra líquida" if net_6m >= 0 else "Venda líquida"
-                sub_ins = f"{label_ins}: R$ {abs(net_6m):,.0f}".replace(",", ".")
+            resumo = resumo_periodo(df_ins, 6)
+            if resumo is None:
+                cor_ins, sub_ins = "#888", "Nenhuma movimentação registrada"
+            elif resumo['tipo'] == 'periodo':
+                cor_ins = "#39FF14" if resumo['valor'] >= 0 else "#FF4444"
+                label = "Compra líquida" if resumo['valor'] >= 0 else "Venda líquida"
+                sub_ins = f"{label} (6m): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
             else:
-                cor_ins, sub_ins = "#888", "Sem movimentação nos últimos 6 meses"
+                cor_ins = "#39FF14" if resumo['valor'] >= 0 else "#FF4444"
+                label = "Última compra" if resumo['valor'] >= 0 else "Última venda"
+                sub_ins = f"{label} ({resumo['data'].strftime('%m/%Y')}): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
             st.markdown(
                 "<div style='{base}'>"
                 "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders (últimos 6 meses)</div>"
+                "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders</div>"
                 "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
                 "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
                 "Movimentação de controladores, diretoria e conselho. Fonte: Fundamentus/CVM.</div>"
@@ -1171,19 +1205,24 @@ def pagina_ativo(ticker, row, ativo_data):
                 "</div>".format(base=card_style),
                 unsafe_allow_html=True
             )
+            if erro_ins:
+                st.caption(f"🔧 Detalhe técnico: {erro_ins}")
 
     with icol2:
         if not df_rec.empty:
-            net_rec_6m = resumo_periodo(df_rec, 6)
-            if net_rec_6m is not None and net_rec_6m != 0:
-                sub_rec = f"R$ {abs(net_rec_6m):,.0f}".replace(",", ".")
+            resumo = resumo_periodo(df_rec, 6)
+            if resumo is None:
+                cor_rec, sub_rec = "#888", "Nenhuma recompra registrada"
+            elif resumo['tipo'] == 'periodo':
                 cor_rec = "#1E90FF"
+                sub_rec = f"Total (6m): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
             else:
-                sub_rec, cor_rec = "Sem recompra nos últimos 6 meses", "#888"
+                cor_rec = "#1E90FF"
+                sub_rec = f"Última recompra ({resumo['data'].strftime('%m/%Y')}): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
             st.markdown(
                 "<div style='{base}'>"
                 "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras (últimos 6 meses)</div>"
+                "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras</div>"
                 "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
                 "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
                 "Ações recompradas pela própria empresa (tesouraria). Fonte: Fundamentus/CVM.</div>"
@@ -1206,6 +1245,8 @@ def pagina_ativo(ticker, row, ativo_data):
                 "</div>".format(base=card_style),
                 unsafe_allow_html=True
             )
+            if erro_rec:
+                st.caption(f"🔧 Detalhe técnico: {erro_rec}")
 
     # ---- Teto / Target / Status ----
     gov2  = GOVERNANCA.get(ticker, {})
