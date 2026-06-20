@@ -1,3 +1,4 @@
+import io
 import pandas as pd
 import streamlit as st
 import yfinance as yf
@@ -700,7 +701,7 @@ def _parse_tabela_fundamentus(ticker, pagina):
         if r.status_code != 200:
             return pd.DataFrame(), f"HTTP {r.status_code} ao acessar Fundamentus"
         r.encoding = 'iso-8859-1'  # Fundamentus não usa UTF-8 — sem isso os acentos corrompem
-        tabelas = pd.read_html(r.text, decimal=',', thousands='.')
+        tabelas = pd.read_html(io.StringIO(r.text), decimal=',', thousands='.')
         if not tabelas:
             return pd.DataFrame(), "nenhuma tabela encontrada na página (possível bloqueio ou página alterada)"
         df = tabelas[0]
