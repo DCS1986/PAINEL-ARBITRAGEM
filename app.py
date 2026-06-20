@@ -1,4 +1,5 @@
 import io
+import re
 import pandas as pd
 import streamlit as st
 import yfinance as yf
@@ -751,6 +752,100 @@ def resumo_periodo(df, meses=6):
     return None
 
 
+_FUNDAMENTUS_HEADERS = {
+    'User-Agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                   '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'),
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+    'Referer': 'https://fundamentus.com.br/',
+}
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_proventos_data(ticker):
+    """Histórico de proventos (dividendos/JCP) direto do Fundamentus.
+    Retorna (df_detalhado, df_anual, erro)."""
+    try:
+        url = f"https://fundamentus.com.br/proventos.php?papel={ticker}&tipo=2"
+        r = requests.get(url, timeout=12, headers=_FUNDAMENTUS_HEADERS)
+        if r.status_code != 200:
+            return pd.DataFrame(), pd.DataFrame(), f"HTTP {r.status_code} ao acessar Fundamentus"
+        r.encoding = 'iso-8859-1'
+        tabelas = pd.read_html(io.StringIO(r.text), decimal=',', thousands='.')
+        if not tabelas:
+            return pd.DataFrame(), pd.DataFrame(), "nenhuma tabela encontrada na página"
+
+        df_det = tabelas[0].copy()
+        n_cols = min(df_det.shape[1], 5)
+        df_det = df_det.iloc[:, :n_cols]
+        nomes = ['data', 'valor', 'tipo', 'data_pagamento', 'por_acoes'][:n_cols]
+        df_det.columns = nomes
+        df_det['data'] = pd.to_datetime(df_det['data'], format='%d/%m/%Y', errors='coerce')
+        df_det = df_det.dropna(subset=['data']).reset_index(drop=True)
+
+        df_ano = pd.DataFrame()
+        if len(tabelas) >= 2:
+            df_ano = tabelas[1].copy().iloc[:, :2]
+            df_ano.columns = ['ano', 'valor']
+            df_ano = df_ano.dropna()
+
+        return df_det, df_ano, None
+    except Exception as e:
+        return pd.DataFrame(), pd.DataFrame(), f"erro: {e}"
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_apresentacoes_data(ticker):
+    """Lista de apresentações/comunicados da empresa, com link de download
+    direto da CVM, via Fundamentus. Retorna (df, erro). df tem colunas:
+    data (texto), data_dt (datetime), descricao, link."""
+    try:
+        url = f"https://fundamentus.com.br/apresentacoes.php?papel={ticker}"
+        r = requests.get(url, timeout=12, headers=_FUNDAMENTUS_HEADERS)
+        if r.status_code != 200:
+            return pd.DataFrame(), f"HTTP {r.status_code} ao acessar Fundamentus"
+        r.encoding = 'iso-8859-1'
+        tabelas = pd.read_html(io.StringIO(r.text))
+        if not tabelas:
+            return pd.DataFrame(), "nenhuma tabela encontrada na página"
+
+        df = tabelas[0].copy()
+        n_cols = min(df.shape[1], 3)
+        df = df.iloc[:, :n_cols]
+        df.columns = ['data', 'descricao', 'download'][:n_cols]
+
+        # pd.read_html só traz o TEXTO do link ("Download"), não o href —
+        # extraímos os links reais direto do HTML, na mesma ordem das linhas.
+        links = re.findall(r'href="(https://www\.rad\.cvm\.gov\.br/ENET/[^"]+)"', r.text)
+        if len(links) == len(df):
+            df['link'] = links
+        else:
+            df['link'] = None
+
+        df['data_dt'] = pd.to_datetime(df['data'].astype(str).str.split(' ').str[0],
+                                       format='%d/%m/%Y', errors='coerce')
+        df = df.dropna(subset=['data_dt']).reset_index(drop=True)
+        return df, None
+    except Exception as e:
+        return pd.DataFrame(), f"erro: {e}"
+
+
+def ultimas_apresentacoes(df):
+    """Separa a apresentação de resultado mais recente da apresentação
+    institucional/outra mais recente. Critério: descrição contém 'resultado'
+    (não é uma categoria oficial da CVM nessa página — é heurística baseada
+    no texto, mas é consistente porque os nomes seguem um padrão)."""
+    if df.empty:
+        return None, None
+    df = df.sort_values('data_dt', ascending=False)
+    mask_resultado = df['descricao'].astype(str).str.contains('resultado', case=False, na=False)
+    df_resultado = df[mask_resultado]
+    df_institucional = df[~mask_resultado]
+    ultima_resultado = df_resultado.iloc[0].to_dict() if not df_resultado.empty else None
+    ultima_institucional = df_institucional.iloc[0].to_dict() if not df_institucional.empty else None
+    return ultima_resultado, ultima_institucional
+
+
 # ---- Busca de dados no Yahoo Finance ----
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
@@ -1248,6 +1343,115 @@ def pagina_ativo(ticker, row, ativo_data):
             )
             if erro_rec:
                 st.caption(f"🔧 Detalhe técnico: {erro_rec}")
+
+    # ---- Proventos (Fundamentus) ----
+    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+    with st.spinner("Buscando histórico de proventos..."):
+        df_prov_det, df_prov_ano, erro_prov = get_proventos_data(ticker)
+
+    if not df_prov_det.empty:
+        corte_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
+        total_12m = df_prov_det[df_prov_det['data'] >= corte_12m]['valor'].sum()
+        st.markdown(
+            "<div style='{base}'>"
+            "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+            "text-transform:uppercase;margin-bottom:8px;'>💰 Proventos — últimos 12 meses (Fundamentus)</div>"
+            "<div style='font-size:1.3em;font-weight:900;color:#39FF14;'>R$ {total:.4f} / ação</div>"
+            "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
+            "Soma de dividendos e JCP pagos nos últimos 12 meses. Fonte: Fundamentus.</div>"
+            "</div>".format(base=card_style, total=total_12m),
+            unsafe_allow_html=True
+        )
+        with st.expander("Ver histórico de proventos (detalhado e por ano)"):
+            if not df_prov_ano.empty:
+                st.markdown("**Resumo por ano:**")
+                show_ano = df_prov_ano.copy()
+                show_ano['valor'] = show_ano['valor'].apply(lambda v: f"R$ {v:.4f}".replace(".", ","))
+                show_ano.columns = ['Ano', 'Valor por Ação']
+                st.dataframe(show_ano, use_container_width=True, hide_index=True)
+            st.markdown("**Histórico detalhado (últimos 24 lançamentos):**")
+            show_det = df_prov_det.head(24).copy()
+            show_det['data'] = show_det['data'].dt.strftime('%d/%m/%Y')
+            show_det['valor'] = show_det['valor'].apply(lambda v: f"R$ {v:.4f}".replace(".", ","))
+            cols_mostrar = [c for c in ['data', 'valor', 'tipo', 'data_pagamento'] if c in show_det.columns]
+            show_det = show_det[cols_mostrar]
+            show_det.columns = ['Data', 'Valor', 'Tipo', 'Data Pagamento'][:len(cols_mostrar)]
+            st.dataframe(show_det, use_container_width=True, hide_index=True)
+    else:
+        st.markdown(
+            "<div style='{base}'>"
+            "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+            "text-transform:uppercase;margin-bottom:8px;'>💰 Proventos</div>"
+            "<div style='font-size:0.85em;color:#888;'>Dados indisponíveis para este ativo.</div>"
+            "</div>".format(base=card_style),
+            unsafe_allow_html=True
+        )
+        if erro_prov:
+            st.caption(f"🔧 Detalhe técnico: {erro_prov}")
+
+    # ---- Apresentações (Fundamentus → CVM) ----
+    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+        "text-transform:uppercase;margin-bottom:8px;'>📑 Últimas Apresentações</div>",
+        unsafe_allow_html=True
+    )
+    with st.spinner("Buscando apresentações..."):
+        df_apres, erro_apres = get_apresentacoes_data(ticker)
+
+    if not df_apres.empty:
+        ultima_resultado, ultima_inst = ultimas_apresentacoes(df_apres)
+        acol1, acol2 = st.columns(2)
+
+        def _card_apresentacao(item, titulo, cor):
+            if item is None:
+                return (
+                    "<div style='{base}'>"
+                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;'>{titulo}</div>"
+                    "<div style='font-size:0.85em;color:#888;margin-top:6px;'>Nenhuma encontrada.</div>"
+                    "</div>".format(base=card_style, titulo=titulo)
+                )
+            data_fmt = item['data_dt'].strftime('%d/%m/%Y')
+            desc = str(item['descricao'])[:90]
+            link = item.get('link')
+            link_html = (
+                f"<a href='{link}' target='_blank' style='display:inline-block;margin-top:8px;"
+                f"padding:5px 12px;border-radius:6px;background:{cor};color:#000;"
+                f"font-weight:700;font-size:0.78em;text-decoration:none;'>⬇ Abrir / Baixar</a>"
+                if link else "<span style='color:#888;font-size:0.78em;'>Link indisponível</span>"
+            )
+            return (
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;margin-bottom:6px;'>{titulo}</div>"
+                "<div style='font-size:0.85em;color:#fff;font-weight:600;'>{data}</div>"
+                "<div style='font-size:0.78em;color:#ddd;margin-top:4px;line-height:1.4;'>{desc}</div>"
+                "{link_html}"
+                "</div>".format(base=card_style, titulo=titulo, data=data_fmt, desc=desc, link_html=link_html)
+            )
+
+        with acol1:
+            st.markdown(_card_apresentacao(ultima_resultado, "📊 Última Apresentação de Resultados", "#39FF14"),
+                       unsafe_allow_html=True)
+        with acol2:
+            st.markdown(_card_apresentacao(ultima_inst, "🏢 Última Apresentação Institucional", "#1E90FF"),
+                       unsafe_allow_html=True)
+
+        with st.expander("Ver todas as apresentações e comunicados"):
+            show_apres = df_apres.head(30).copy()
+            show_apres['data'] = show_apres['data_dt'].dt.strftime('%d/%m/%Y')
+            for _, linha in show_apres.iterrows():
+                link_l = linha.get('link')
+                link_md = f"[Download]({link_l})" if link_l else "—"
+                st.markdown(f"**{linha['data']}** — {linha['descricao']} — {link_md}")
+        st.caption(
+            "⚠️ A separação entre 'Resultado' e 'Institucional' é baseada no texto da "
+            "descrição (não é uma categoria oficial da CVM nesta página) — pode ocasionalmente "
+            "classificar errado um documento com nome atípico."
+        )
+    else:
+        st.info("Nenhuma apresentação encontrada para este ativo.")
+        if erro_apres:
+            st.caption(f"🔧 Detalhe técnico: {erro_apres}")
 
     # ---- Teto / Target / Status ----
     gov2  = GOVERNANCA.get(ticker, {})
