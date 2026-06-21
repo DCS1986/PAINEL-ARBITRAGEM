@@ -383,6 +383,179 @@ def badge_score(score):
         <span style="color:{cor_txt}; font-size:0.9em; font-weight:bold;">{label}</span>
     </div>"""
 
+
+# ---- Preço Justo Multi-Método (Bazin, Graham, Gordon) ----
+def calcular_preco_justo(row, vpa_val=None, taxa_desconto=0.12, crescimento_max=0.08):
+    """Calcula o preço justo por 3 métodos clássicos de valuation:
+    - Bazin: dividendo projetado ÷ 6% (foco renda)
+    - Graham: √(22,5 × LPA × VPA) (clássico value investing)
+    - Gordon: dividendo×(1+g) ÷ (taxa_desconto−g) (crescimento de dividendos,
+      g limitado a crescimento_max pra não estourar o modelo quando o CAGR
+      reportado é muito alto/instável)
+    Retorna dict com os 3 valores (None se não computável) + a cotação atual."""
+    div_proj = limpar_valor(row.get('Dividendo por ação bruto projetado', 0))
+    lpa = limpar_valor(row.get('LPA ESTIMADO', 0))
+    cagr_pct = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+    cot = limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', ''))
+
+    pj_bazin = (div_proj / 0.06) if div_proj > 0 else None
+    pj_graham = ((22.5 * lpa * vpa_val) ** 0.5) if (lpa and lpa > 0 and vpa_val and vpa_val > 0) else None
+
+    g = min(cagr_pct / 100, crescimento_max) if cagr_pct > 0 else 0
+    pj_gordon = None
+    if div_proj > 0 and taxa_desconto > g:
+        pj_gordon = div_proj * (1 + g) / (taxa_desconto - g)
+
+    return {
+        'bazin': pj_bazin, 'graham': pj_graham, 'gordon': pj_gordon,
+        'cotacao': cot if cot > 0 else None, 'g_usado': g,
+    }
+
+
+# ---- Dividend Safety Score (0-10) — risco de corte de dividendo ----
+def calcular_dividend_safety(payout_raw, div_ebitda_num, roe_num, historico_lucro):
+    """Score 0-10 separado do Score geral, focado SÓ em sustentabilidade do
+    dividendo: Payout (35%) + Consistência de lucro (25%) + Dívida/EBITDA
+    (20%) + ROE (20%)."""
+    payout = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
+
+    if payout is None or payout <= 0:
+        score_payout = 5.0
+    elif payout <= 60:
+        score_payout = 10.0
+    elif payout <= 90:
+        score_payout = 7.0
+    elif payout <= 110:
+        score_payout = 5.0
+    else:
+        score_payout = 2.0
+
+    consist = consistencia_lucro(historico_lucro or {})
+    score_consist = consist * 10
+
+    if div_ebitda_num <= 1:
+        score_div = 10.0
+    elif div_ebitda_num <= 2:
+        score_div = 8.0
+    elif div_ebitda_num <= 3:
+        score_div = 6.0
+    elif div_ebitda_num <= 4:
+        score_div = 4.0
+    else:
+        score_div = 2.0
+
+    if roe_num >= 20:
+        score_roe = 10.0
+    elif roe_num >= 15:
+        score_roe = 8.0
+    elif roe_num >= 10:
+        score_roe = 6.0
+    elif roe_num >= 5:
+        score_roe = 4.0
+    else:
+        score_roe = 2.0
+
+    score_final = round(score_payout * 0.35 + score_consist * 0.25 +
+                        score_div * 0.20 + score_roe * 0.20, 1)
+
+    if score_final >= 7:
+        label, cor = "Segurança Alta", "#39FF14"
+    elif score_final >= 4:
+        label, cor = "Segurança Média", "#FFD700"
+    else:
+        label, cor = "Risco de Corte", "#FF4444"
+
+    return score_final, label, cor
+
+
+# ---- Percentil Setorial — compara cada ativo aos pares do MESMO setor ----
+def calcular_percentis_setoriais(ativos_com_score):
+    """Pra cada ativo, calcula em que percentil ele está dentro do mesmo
+    setor (coluna SETOR da planilha) em ROE, DY e P/L. 0 = pior do setor,
+    100 = melhor do setor. Pra P/L, 'melhor' = mais barato (invertido)."""
+    from collections import defaultdict
+    grupos = defaultdict(list)
+    for a in ativos_com_score:
+        setor = a['row'].get('SETOR', 'Outros')
+        grupos[setor].append(a)
+
+    for setor, grupo in grupos.items():
+        n = len(grupo)
+        if n <= 1:
+            for a in grupo:
+                a['percentil_roe'] = a['percentil_dy'] = a['percentil_pl'] = None
+            continue
+
+        roes = sorted(grupo, key=lambda a: a.get('roe_num_raw', 0))
+        for idx, a in enumerate(roes):
+            a['percentil_roe'] = round((idx / (n - 1)) * 100)
+
+        dys = sorted(grupo, key=lambda a: a.get('dy_num', 0))
+        for idx, a in enumerate(dys):
+            a['percentil_dy'] = round((idx / (n - 1)) * 100)
+
+        com_pl = [a for a in grupo if a.get('pl_num', 0) > 0]
+        sem_pl = [a for a in grupo if a.get('pl_num', 0) <= 0]
+        pls = sorted(com_pl, key=lambda a: -a.get('pl_num', 0))  # do mais caro pro mais barato
+        n_pl = len(pls)
+        for idx, a in enumerate(pls):
+            a['percentil_pl'] = round((idx / (n_pl - 1)) * 100) if n_pl > 1 else None
+        for a in sem_pl:
+            a['percentil_pl'] = None
+
+    return ativos_com_score
+
+
+# ---- Ranking "Fórmula Mágica" (Greenblatt) ----
+# Busca ROIC pra TODOS os ativos — usado só sob demanda (botão), não a cada
+# carregamento da tela principal, já que são até 40 requisições sequenciais
+# ao Fundamentus (mitigado pelo cache de 24h de get_indicadores_fundamentus:
+# só é lento na primeira vez do dia).
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_roic_bulk(tickers_tuple):
+    """Retorna dict ticker -> ROIC (float) ou None, pra uma lista de tickers."""
+    resultado = {}
+    for t in tickers_tuple:
+        ind, _ = get_indicadores_fundamentus(t)
+        resultado[t] = _ind_buscar(ind, 'roic') if ind else None
+    return resultado
+
+
+def calcular_ranking_formula_magica(ativos_com_score):
+    """Fórmula Mágica de Joel Greenblatt: combina Earnings Yield (1/P-L,
+    quanto maior melhor) com ROIC (quanto maior melhor). Ranqueia cada um
+    separadamente e SOMA as posições — menor soma = melhor colocado no
+    ranking combinado (ativo bom E barato ao mesmo tempo)."""
+    tickers = tuple(a['row']['CÓDIGO'] for a in ativos_com_score)
+    roics = get_roic_bulk(tickers)
+
+    candidatos = []
+    for a in ativos_com_score:
+        ticker = a['row']['CÓDIGO']
+        pl = a.get('pl_num', 0)
+        roic = roics.get(ticker)
+        if pl and pl > 0 and roic is not None:
+            candidatos.append({
+                'ticker': ticker, 'earnings_yield': 1 / pl, 'roic': roic,
+                'pl': pl, 'score_geral': a['score'],
+            })
+
+    if not candidatos:
+        return []
+
+    candidatos.sort(key=lambda c: -c['earnings_yield'])
+    for i, c in enumerate(candidatos):
+        c['rank_ey'] = i + 1
+    candidatos.sort(key=lambda c: -c['roic'])
+    for i, c in enumerate(candidatos):
+        c['rank_roic'] = i + 1
+    for c in candidatos:
+        c['rank_total'] = c['rank_ey'] + c['rank_roic']
+    candidatos.sort(key=lambda c: c['rank_total'])
+    for i, c in enumerate(candidatos):
+        c['posicao'] = i + 1
+    return candidatos
+
 # ---- Gráfico de barras — Histórico DY ----
 def mini_grafico_dy(historico_dy):
     if not historico_dy:
@@ -1441,6 +1614,75 @@ def pagina_ativo(ticker, row, ativo_data):
             if erro_ind:
                 st.caption(f"🔧 Detalhe técnico: {erro_ind}")
 
+        # ---- Percentil Setorial ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### 🎯 Percentil Setorial")
+        pct_roe = ativo_data.get('percentil_roe')
+        pct_dy = ativo_data.get('percentil_dy')
+        pct_pl = ativo_data.get('percentil_pl')
+        if pct_roe is not None or pct_dy is not None or pct_pl is not None:
+            def _cor_pct(p):
+                if p is None:
+                    return "#888"
+                return "#39FF14" if p >= 70 else ("#FFD700" if p >= 30 else "#FF4444")
+            pcol1, pcol2, pcol3 = st.columns(3)
+            for col, titulo, valor in [(pcol1, "ROE", pct_roe), (pcol2, "Dividend Yield", pct_dy), (pcol3, "P/L (mais barato)", pct_pl)]:
+                texto = f"Top {100-valor}%" if valor is not None else "—"
+                col.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>{titulo}</div>"
+                    "<div style='font-size:1.2em;font-weight:900;color:{cor};'>{texto}</div>"
+                    "</div>".format(base=card_style, titulo=titulo, texto=texto, cor=_cor_pct(valor)),
+                    unsafe_allow_html=True
+                )
+            st.caption(
+                f"Comparado aos outros ativos do setor '{row.get('SETOR', '-')}' na sua planilha. "
+                "'Top X%' = está entre os X% melhores do setor nesse quesito."
+            )
+        else:
+            st.info("Percentil setorial indisponível (setor com só este ativo, ou dado faltando).")
+
+        # ---- Preço Justo Multi-Método ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### 🎯 Preço Justo (3 Métodos)")
+        pj = calcular_preco_justo(row, vpa_val=vpa_val)
+        cot_pj = pj.get('cotacao')
+        pjcol1, pjcol2, pjcol3 = st.columns(3)
+
+        def _card_pj(col, metodo, valor):
+            if valor is None:
+                col.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>{metodo}</div>"
+                    "<div style='font-size:0.85em;color:#888;margin-top:6px;'>Não computável</div>"
+                    "</div>".format(base=card_style, metodo=metodo),
+                    unsafe_allow_html=True
+                )
+                return
+            diff_pct = ((valor - cot_pj) / cot_pj * 100) if cot_pj else None
+            cor_pj = "#39FF14" if (diff_pct or 0) > 0 else "#FF4444"
+            sub = f"{'+' if diff_pct and diff_pct>=0 else ''}{diff_pct:.1f}% vs cotação" if diff_pct is not None else ""
+            col.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>{metodo}</div>"
+                "<div style='font-size:1.3em;font-weight:900;color:#fff;'>R$ {valor:.2f}</div>"
+                "<div style='font-size:0.78em;color:{cor};font-weight:700;margin-top:4px;'>{sub}</div>"
+                "</div>".format(base=card_style, metodo=metodo, valor=valor, cor=cor_pj, sub=sub),
+                unsafe_allow_html=True
+            )
+
+        _card_pj(pjcol1, "Bazin (dividendo)", pj['bazin'])
+        _card_pj(pjcol2, "Graham (LPA × VPA)", pj['graham'])
+        _card_pj(pjcol3, "Gordon (crescimento)", pj['gordon'])
+        st.caption(
+            f"Cotação atual: R$ {cot_pj:.2f}".replace(".", ",") if cot_pj else "" +
+            " · Gordon usa taxa de desconto fixa de 12% a.a. e crescimento limitado a 8% a.a. "
+            "(evita o modelo 'explodir' com CAGRs muito altos/instáveis) — por isso costuma dar "
+            "valores mais altos que Bazin/Graham quando o crescimento reportado é forte. "
+            "Nenhum desses é uma 'verdade' — são 3 lentes diferentes; quando os 3 apontam pra "
+            "mesma direção (barato ou caro), o sinal é mais forte."
+        )
+
     # ════════════════════════════════════════════════════════════════════
     # ABA: DIVIDENDOS
     # ════════════════════════════════════════════════════════════════════
@@ -1472,6 +1714,27 @@ def pagina_ativo(ticker, row, ativo_data):
                 unsafe_allow_html=True)
         st.markdown("<span style='font-size:0.85em;font-weight:bold;'>Histórico DY (5 anos):</span>", unsafe_allow_html=True)
         st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
+
+        # ---- Dividend Safety Score ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        ds_score = ativo_data.get('div_safety_score')
+        ds_label = ativo_data.get('div_safety_label')
+        ds_cor = ativo_data.get('div_safety_cor', '#888')
+        if ds_score is not None:
+            st.markdown(
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>🛡️ Dividend Safety Score</div>"
+                "<div style='display:flex;align-items:center;gap:10px;'>"
+                "<span style='font-size:1.9em;font-weight:900;color:{cor};'>{score}/10</span>"
+                "<span style='font-size:0.9em;color:{cor};font-weight:700;'>{label}</span>"
+                "</div>"
+                "<div style='font-size:0.78em;color:#999;margin-top:8px;line-height:1.4;'>"
+                "Score separado do Score geral — foca só no risco de corte do dividendo. "
+                "Combina Payout (35%), consistência de lucro (25%), Dívida/EBITDA (20%) e ROE (20%)."
+                "</div></div>".format(base=card_style, cor=ds_cor, score=ds_score, label=ds_label),
+                unsafe_allow_html=True
+            )
 
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         st.markdown("#### 💵 Proventos (Fundamentus)")
@@ -1875,11 +2138,16 @@ else:
         target_val     = row.get('target', 0) if 'target' in row.index else limpar_valor(str(row.get('TARGET', 0)))
         st_status, st_cor, st_icone, st_desc = status_aporte(row.get('Cotação atual', 0), preco_teto_val, target_val)
 
+        div_safety_score, div_safety_label, div_safety_cor = calcular_dividend_safety(
+            row.get('PAYOUT', '-'), div_ebitda_num, roe_num_raw, historico_lucro
+        )
+
         ativos_com_score.append({
             'row': row, 'score': score,
             'dy_num': dy_num, 'dy_clean': dy_clean, 'pl_num': pl_num,
             'progresso': progresso, 'porcentagem': porcentagem,
             'dt': dt, 'val': val, 'roe': roe, 'margem': margem,
+            'roe_num_raw': roe_num_raw,
             'beta': beta, 'pvp_str': pvp_str,
             'historico_dy': historico_dy,
             'historico_pl': historico_pl,
@@ -1895,8 +2163,12 @@ else:
             'st_desc': st_desc,
             'preco_teto_val': preco_teto_val,
             'target_val': target_val,
+            'div_safety_score': div_safety_score,
+            'div_safety_label': div_safety_label,
+            'div_safety_cor': div_safety_cor,
         })
 
+    ativos_com_score = calcular_percentis_setoriais(ativos_com_score)
     ativos_com_score = [a for a in ativos_com_score if a['score'] >= _min_score_efetivo]
 
     # Filtro por status de preço
@@ -1972,6 +2244,28 @@ else:
                 st.stop()
             else:
                 st.session_state.ativo_selecionado = None
+
+        # ---- Ranking Fórmula Mágica (Greenblatt) — sob demanda ----
+        with st.expander("🪄 Ranking Fórmula Mágica (Greenblatt)"):
+            st.caption(
+                "Combina Earnings Yield (1/P-L, quanto maior melhor) com ROIC (quanto maior "
+                "melhor). Ranqueia cada métrica separadamente e soma as posições — o vencedor "
+                "não precisa ser #1 em nenhuma das duas isoladamente, só equilibrado nas duas. "
+                "Busca ROIC de todos os ativos (pode demorar uns segundos na primeira vez do dia)."
+            )
+            if st.button("Calcular Ranking", key="btn_formula_magica"):
+                with st.spinner("Buscando ROIC de todos os ativos..."):
+                    ranking_fm = calcular_ranking_formula_magica(ativos_com_score)
+                if not ranking_fm:
+                    st.warning("Não foi possível calcular o ranking (ROIC indisponível pra esses ativos).")
+                else:
+                    show_fm = pd.DataFrame(ranking_fm[:15])
+                    show_fm['earnings_yield'] = (show_fm['earnings_yield'] * 100).round(1).astype(str) + '%'
+                    show_fm['roic'] = show_fm['roic'].round(1).astype(str) + '%'
+                    show_fm['pl'] = show_fm['pl'].round(1).astype(str) + 'x'
+                    show_fm = show_fm[['posicao', 'ticker', 'earnings_yield', 'roic', 'pl', 'rank_total']]
+                    show_fm.columns = ['#', 'Ticker', 'Earnings Yield', 'ROIC', 'P/L', 'Soma dos Ranks']
+                    st.dataframe(show_fm, use_container_width=True, hide_index=True)
 
         # Modo Cards
         if st.session_state.modo_exibicao == 'Cards':
