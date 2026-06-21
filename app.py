@@ -1245,6 +1245,7 @@ def pagina_ativo(ticker, row, ativo_data):
     else:
         var_str = "🟡 {:.2f}%".format(variacao_dia)
 
+    # ---- Cabeçalho — sempre visível, fora das abas ----
     hcol1, hcol2 = st.columns([1, 5])
     with hcol1:
         if logo_url:
@@ -1260,30 +1261,191 @@ def pagina_ativo(ticker, row, ativo_data):
 
     st.markdown("<div style='margin:8px 0 4px 0;height:1px;background:rgba(255,255,255,0.1);'></div>", unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    card_style = (
+        "display:flex; flex-direction:column; padding:15px 17px; border-radius:11px; "
+        "background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); "
+        "min-height:100px; box-sizing:border-box; "
+    )
 
-    with col1:
-        st.markdown("#### 📊 Valuation")
-        st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
-            "<b>P/L Médio (10 anos):</b> {}x<br>"
-            "<b>P/VP:</b> {}<br>"
-            "<b>Valor de Mercado:</b> {}<br>"
-            "<b>RESULTADO PROJETADO:</b> {}<br>"
-            "<b>⭐ RESULTADO ENTREGUE (1/4):</b> <span style='color:#39FF14;font-weight:bold;'>{}</span>"
-            "</div>".format(
-                row.get('P/L médio (últ. 10 anos)', '-'), pvp_str,
-                row.get('VALOR DE MERCADO', '-'), row.get('LL PROJETADO', '-'),
-                row.get('RESULTADO 2026 (1/4)', '-')),
-            unsafe_allow_html=True)
-        barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
-        st.markdown(barra, unsafe_allow_html=True)
-        st.markdown("<span style='font-size:0.85em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
-        if historico_lucro:
-            st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
-            st.markdown(mini_grafico_linha(historico_lucro, "#39FF14"), unsafe_allow_html=True)
+    # ---- Indicadores extras (ROIC, VPA, PEG) — buscados uma vez, usados na aba de Valuation ----
+    with st.spinner("Buscando indicadores fundamentalistas extras..."):
+        ind_extras, erro_ind = get_indicadores_fundamentus(ticker)
 
-    with col2:
-        st.markdown("#### 💰 Dividendos")
+    roic_val = _ind_buscar(ind_extras, 'roic') if ind_extras else None
+    vpa_val = _ind_buscar(ind_extras, 'vpa') if ind_extras else None
+    p_ebit_val = _ind_buscar(ind_extras, 'p/ebit', 'p / ebit') if ind_extras else None
+    ev_ebitda_val = _ind_buscar(ind_extras, 'ev/ebitda', 'ev / ebitda') if ind_extras else None
+    marg_liq_val = _ind_buscar(ind_extras, 'marg. l', 'margem l') if ind_extras else None
+    liquidez_corr_val = _ind_buscar(ind_extras, 'liquidez corr') if ind_extras else None
+    div_liq_patrim_val = _ind_buscar(ind_extras, 'patrim') if ind_extras else None
+
+    pl_proj_num = limpar_valor(row.get('P/L PROJETADO', 0))
+    cagr_num_peg = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+    peg_val = (pl_proj_num / cagr_num_peg) if (pl_proj_num > 0 and cagr_num_peg > 0) else None
+
+    # ---- Abas ----
+    aba_geral, aba_valuation, aba_dividendos, aba_movimentacao, aba_documentos, aba_grafico = st.tabs(
+        ["📊 Visão Geral", "💰 Valuation & Fundamentos", "📈 Dividendos", "👤 Movimentação", "📑 Documentos", "📉 Gráfico"]
+    )
+
+    # ════════════════════════════════════════════════════════════════════
+    # ABA: VISÃO GERAL
+    # ════════════════════════════════════════════════════════════════════
+    with aba_geral:
+        gov = GOVERNANCA.get(ticker, {})
+        out = OUTLOOK_2026.get(ticker, {})
+        nota_gov = gov.get('nota', None)
+        obs_gov  = gov.get('obs', '')
+
+        gcol1, gcol2 = st.columns(2)
+
+        with gcol1:
+            if nota_gov is not None:
+                if nota_gov >= 8:
+                    gov_cor, gov_label = "#39FF14", "Alta"
+                elif nota_gov >= 6:
+                    gov_cor, gov_label = "#FFD700", "Média"
+                else:
+                    gov_cor, gov_label = "#FF4444", "Baixa"
+                st.markdown(
+                    "<div style='{base}'>"
+                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                    "text-transform:uppercase;margin-bottom:8px;'>🏛️ Governança Corporativa</div>"
+                    "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
+                    "<span style='font-size:1.9em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
+                    "<span style='font-size:0.85em;color:{cor};font-weight:700;'>{label}</span>"
+                    "</div>"
+                    "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{obs}</div>"
+                    "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
+                                    label=gov_label, obs=obs_gov),
+                    unsafe_allow_html=True
+                )
+
+        with gcol2:
+            if out:
+                st.markdown(
+                    "<div style='{base}'>"
+                    "<div style='font-size:0.78em;font-weight:600;color:#ccc;letter-spacing:0.5px;"
+                    "text-transform:uppercase;margin-bottom:8px;'>{icone} Outlook 2026</div>"
+                    "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{texto}</div>"
+                    "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
+                    unsafe_allow_html=True
+                )
+
+        # Teto / Target / Status
+        pt_v  = ativo_data.get('preco_teto_val', 0) if isinstance(ativo_data, dict) else 0
+        tg_v  = ativo_data.get('target_val', 0)      if isinstance(ativo_data, dict) else 0
+        s_cor = ativo_data.get('st_cor', '#888')      if isinstance(ativo_data, dict) else '#888'
+        s_ico = ativo_data.get('st_icone', '⚪')      if isinstance(ativo_data, dict) else '⚪'
+        s_desc= ativo_data.get('st_desc', '')         if isinstance(ativo_data, dict) else ''
+        cot_v = limpar_valor(str(ativo_data.get('row', {}).get('Cotação atual', 0) if isinstance(ativo_data, dict) else 0).replace('R$',''))
+
+        if pt_v > 0 and tg_v > 0:
+            pct_teto   = ((pt_v - cot_v) / pt_v * 100) if cot_v < pt_v else -((cot_v - pt_v) / pt_v * 100)
+            pct_target = ((tg_v - cot_v) / tg_v * 100) if cot_v < tg_v else -((cot_v - tg_v) / tg_v * 100)
+
+            st.markdown(
+                f"<div style='padding:13px 16px;border-radius:11px;margin:12px 0 6px 0;"
+                f"background:rgba(255,255,255,0.04);border:2px solid {s_cor};'>"
+                f"<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px;'>"
+                f"<span style='font-size:1.3em;'>{s_ico}</span>"
+                f"<span style='font-size:0.92em;font-weight:700;color:{s_cor};'>{s_desc}</span>"
+                f"</div>"
+                f"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;'>"
+                f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>COTAÇÃO ATUAL</div>"
+                f"<div style='font-size:1.15em;font-weight:800;color:#fff;'>R$ {cot_v:.2f}</div></div>"
+                f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>PREÇO TETO</div>"
+                f"<div style='font-size:1.15em;font-weight:800;color:#FFD700;'>R$ {pt_v:.2f}</div>"
+                f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
+                f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>TARGET</div>"
+                f"<div style='font-size:1.15em;font-weight:800;color:#39FF14;'>R$ {tg_v:.2f}</div>"
+                f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
+                f"</div></div>",
+                unsafe_allow_html=True
+            )
+
+    # ════════════════════════════════════════════════════════════════════
+    # ABA: VALUATION & FUNDAMENTOS
+    # ════════════════════════════════════════════════════════════════════
+    with aba_valuation:
+        col1, col3 = st.columns(2)
+
+        with col1:
+            st.markdown("#### 📊 Valuation")
+            st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
+                "<b>P/L Médio (10 anos):</b> {}x<br>"
+                "<b>P/VP:</b> {}<br>"
+                "<b>Valor de Mercado:</b> {}<br>"
+                "<b>RESULTADO PROJETADO:</b> {}<br>"
+                "<b>⭐ RESULTADO ENTREGUE (1/4):</b> <span style='color:#39FF14;font-weight:bold;'>{}</span>"
+                "</div>".format(
+                    row.get('P/L médio (últ. 10 anos)', '-'), pvp_str,
+                    row.get('VALOR DE MERCADO', '-'), row.get('LL PROJETADO', '-'),
+                    row.get('RESULTADO 2026 (1/4)', '-')),
+                unsafe_allow_html=True)
+            barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
+            st.markdown(barra, unsafe_allow_html=True)
+            st.markdown("<span style='font-size:0.85em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
+            if historico_lucro:
+                st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
+                st.markdown(mini_grafico_linha(historico_lucro, "#39FF14"), unsafe_allow_html=True)
+
+        with col3:
+            st.markdown("#### ⚙️ Operacional")
+            pl_proj = row.get('P/L PROJETADO', '-')
+            st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
+                "<b>P/L Projetado:</b> <span style='color:#FFD700;font-weight:bold;'>{}x</span><br>"
+                "<b>Dívida Líq/EBITDA:</b> {}<br>"
+                "<b>CAGR Lucros:</b> {}<br>"
+                "<b>ROE:</b> {}<br>"
+                "<b>Margem Líq.:</b> {}<br>"
+                "<b>Beta (vs IBOV):</b> {}"
+                "</div>".format(
+                    pl_proj, row.get('Dívida líquida/EBITDA', '-'),
+                    row.get('CAGR lucros (últ. 5 anos)', '-'), roe, margem, beta),
+                unsafe_allow_html=True)
+
+            if historico_pl:
+                st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
+                st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### 🔎 Indicadores Extras (Fundamentus)")
+        if ind_extras:
+            e1, e2, e3, e4 = st.columns(4)
+            def _card_ind(col, titulo, valor, sufixo="", fmt="{:.2f}"):
+                texto = (fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
+                col.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>{titulo}</div>"
+                    "<div style='font-size:1.25em;font-weight:900;color:#fff;'>{texto}</div>"
+                    "</div>".format(base=card_style, titulo=titulo, texto=texto),
+                    unsafe_allow_html=True
+                )
+            _card_ind(e1, "ROIC", roic_val, sufixo="%")
+            _card_ind(e2, "VPA", vpa_val, sufixo=" R$")
+            _card_ind(e3, "PEG Ratio", peg_val, sufixo="x")
+            _card_ind(e4, "P/EBIT", p_ebit_val, sufixo="x")
+            e5, e6, e7 = st.columns(3)
+            _card_ind(e5, "EV/EBITDA", ev_ebitda_val, sufixo="x")
+            _card_ind(e6, "Margem Líquida", marg_liq_val, sufixo="%")
+            _card_ind(e7, "Liquidez Corrente", liquidez_corr_val, sufixo="x")
+            st.caption(
+                "ROIC, VPA, P/EBIT, EV/EBITDA, Margem Líquida e Liquidez Corrente vêm direto do "
+                "Fundamentus. PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros, já presentes "
+                "na sua planilha) — abaixo de 1x geralmente indica crescimento 'baixo' em relação "
+                "ao preço pago; acima de 2x pode indicar preço esticado frente ao crescimento."
+            )
+        else:
+            st.info("Indicadores extras indisponíveis para este ativo.")
+            if erro_ind:
+                st.caption(f"🔧 Detalhe técnico: {erro_ind}")
+
+    # ════════════════════════════════════════════════════════════════════
+    # ABA: DIVIDENDOS
+    # ════════════════════════════════════════════════════════════════════
+    with aba_dividendos:
+        st.markdown("#### 💰 Dividendos (Yahoo Finance)")
         style_dy = "color:#39FF14;font-weight:bold;" if dy_num > 8 else ""
         st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
             "<b>Dividend Yield:</b> <span style='{}'>{}</span><br>"
@@ -1311,390 +1473,275 @@ def pagina_ativo(ticker, row, ativo_data):
         st.markdown("<span style='font-size:0.85em;font-weight:bold;'>Histórico DY (5 anos):</span>", unsafe_allow_html=True)
         st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
 
-    with col3:
-        st.markdown("#### ⚙️ Operacional")
-        pl_proj = row.get('P/L PROJETADO', '-')
-        st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
-            "<b>P/L Projetado:</b> <span style='color:#FFD700;font-weight:bold;'>{}x</span><br>"
-            "<b>Dívida Líq/EBITDA:</b> {}<br>"
-            "<b>CAGR Lucros:</b> {}<br>"
-            "<b>ROE:</b> {}<br>"
-            "<b>Margem Líq.:</b> {}<br>"
-            "<b>Beta (vs IBOV):</b> {}"
-            "</div>".format(
-                pl_proj, row.get('Dívida líquida/EBITDA', '-'),
-                row.get('CAGR lucros (últ. 5 anos)', '-'), roe, margem, beta),
-            unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### 💵 Proventos (Fundamentus)")
+        with st.spinner("Buscando histórico de proventos..."):
+            df_prov_det, df_prov_ano, erro_prov = get_proventos_data(ticker)
 
-        if historico_pl:
-            st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
-            st.markdown(mini_grafico_linha(historico_pl, "#1E90FF", label_suffix="x"), unsafe_allow_html=True)
-
-    # ---- Governança + Outlook lado a lado ----
-    gov = GOVERNANCA.get(ticker, {})
-    out = OUTLOOK_2026.get(ticker, {})
-    nota_gov = gov.get('nota', None)
-    obs_gov  = gov.get('obs', '')
-
-    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-
-    gcol1, gcol2 = st.columns(2)
-
-    card_style = (
-        "display:flex; flex-direction:column; padding:15px 17px; border-radius:11px; "
-        "background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); "
-        "min-height:100px; box-sizing:border-box; "
-    )
-
-    with gcol1:
-        if nota_gov is not None:
-            if nota_gov >= 8:
-                gov_cor, gov_label = "#39FF14", "Alta"
-            elif nota_gov >= 6:
-                gov_cor, gov_label = "#FFD700", "Média"
-            else:
-                gov_cor, gov_label = "#FF4444", "Baixa"
+        if not df_prov_det.empty:
+            corte_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
+            total_12m = df_prov_det[df_prov_det['data'] >= corte_12m]['valor'].sum()
             st.markdown(
                 "<div style='{base}'>"
                 "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>🏛️ Governança Corporativa</div>"
-                "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
-                "<span style='font-size:1.9em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
-                "<span style='font-size:0.85em;color:{cor};font-weight:700;'>{label}</span>"
-                "</div>"
-                "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{obs}</div>"
-                "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
-                                label=gov_label, obs=obs_gov),
-                unsafe_allow_html=True
-            )
-
-    with gcol2:
-        if out:
-            if out['cor'] == "#39FF14":
-                out_label_cor = "#39FF14"
-            elif out['cor'] == "#FFD700":
-                out_label_cor = "#FFD700"
-            else:
-                out_label_cor = "#FF4444"
-            st.markdown(
-                "<div style='{base}'>"
-                "<div style='font-size:0.78em;font-weight:600;color:#ccc;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>{icone} Outlook 2026</div>"
-                "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{texto}</div>"
-                "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
-                unsafe_allow_html=True
-            )
-
-    # ---- Insiders + Recompras (Fundamentus) ----
-    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-    icol1, icol2 = st.columns(2)
-
-    with st.spinner("Buscando dados de insiders e recompras..."):
-        df_ins, erro_ins = get_insiders_data(ticker)
-        df_rec, erro_rec = get_recompras_data(ticker)
-
-    with icol1:
-        if not df_ins.empty:
-            resumo = resumo_periodo(df_ins, 6)
-            if resumo is None:
-                cor_ins, sub_ins = "#888", "Nenhuma movimentação registrada"
-            elif resumo['tipo'] == 'periodo':
-                cor_ins = "#39FF14" if resumo['valor'] >= 0 else "#FF4444"
-                label = "Compra líquida" if resumo['valor'] >= 0 else "Venda líquida"
-                sub_ins = f"{label} (6m): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
-            else:
-                cor_ins = "#39FF14" if resumo['valor'] >= 0 else "#FF4444"
-                label = "Última compra" if resumo['valor'] >= 0 else "Última venda"
-                sub_ins = f"{label} ({resumo['data'].strftime('%m/%Y')}): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
-            st.markdown(
-                "<div style='{base}'>"
-                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders</div>"
-                "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
+                "text-transform:uppercase;margin-bottom:8px;'>Últimos 12 meses</div>"
+                "<div style='font-size:1.3em;font-weight:900;color:#39FF14;'>R$ {total:.4f} / ação</div>"
                 "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
-                "Movimentação de controladores, diretoria e conselho. Fonte: Fundamentus/CVM.</div>"
-                "</div>".format(base=card_style, cor=cor_ins, sub=sub_ins),
+                "Soma de dividendos e JCP pagos nos últimos 12 meses. Fonte: Fundamentus.</div>"
+                "</div>".format(base=card_style, total=total_12m),
                 unsafe_allow_html=True
             )
-            with st.expander("Ver histórico mensal de insiders"):
-                show_ins = df_ins.head(12).copy()
-                show_ins['data'] = show_ins['data'].dt.strftime('%m/%Y')
-                show_ins['valor'] = show_ins['valor'].apply(lambda v: f"R$ {v:,.0f}".replace(",", "."))
-                show_ins['preco_medio'] = show_ins['preco_medio'].apply(lambda v: f"R$ {v:.2f}".replace(".", ","))
-                show_ins.columns = ['Mês', 'Quantidade', 'Valor', 'Preço Médio']
-                st.dataframe(show_ins, use_container_width=True, hide_index=True)
+            with st.expander("Ver histórico de proventos (detalhado e por ano)"):
+                if not df_prov_ano.empty:
+                    st.markdown("**Resumo por ano:**")
+                    show_ano = df_prov_ano.copy()
+                    show_ano['valor'] = show_ano['valor'].apply(lambda v: f"R$ {v:.4f}".replace(".", ","))
+                    show_ano.columns = ['Ano', 'Valor por Ação']
+                    st.dataframe(show_ano, use_container_width=True, hide_index=True)
+                st.markdown("**Histórico detalhado (últimos 24 lançamentos):**")
+                show_det = df_prov_det.head(24).copy()
+                show_det['data'] = show_det['data'].dt.strftime('%d/%m/%Y')
+                show_det['valor'] = show_det['valor'].apply(lambda v: f"R$ {v:.4f}".replace(".", ","))
+                cols_mostrar = [c for c in ['data', 'valor', 'tipo', 'data_pagamento'] if c in show_det.columns]
+                show_det = show_det[cols_mostrar]
+                show_det.columns = ['Data', 'Valor', 'Tipo', 'Data Pagamento'][:len(cols_mostrar)]
+                st.dataframe(show_det, use_container_width=True, hide_index=True)
         else:
-            st.markdown(
-                "<div style='{base}'>"
-                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders</div>"
-                "<div style='font-size:0.85em;color:#888;'>Dados indisponíveis para este ativo.</div>"
-                "</div>".format(base=card_style),
-                unsafe_allow_html=True
-            )
-            if erro_ins:
-                st.caption(f"🔧 Detalhe técnico: {erro_ins}")
+            st.info("Dados de proventos (Fundamentus) indisponíveis para este ativo.")
+            if erro_prov:
+                st.caption(f"🔧 Detalhe técnico: {erro_prov}")
 
-    with icol2:
-        if not df_rec.empty:
-            resumo = resumo_periodo(df_rec, 6)
-            if resumo is None:
-                cor_rec, sub_rec = "#888", "Nenhuma recompra registrada"
-            elif resumo['tipo'] == 'periodo':
-                cor_rec = "#1E90FF"
-                sub_rec = f"Total (6m): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
+    # ════════════════════════════════════════════════════════════════════
+    # ABA: MOVIMENTAÇÃO (Insiders + Recompras)
+    # ════════════════════════════════════════════════════════════════════
+    with aba_movimentacao:
+        icol1, icol2 = st.columns(2)
+
+        with st.spinner("Buscando dados de insiders e recompras..."):
+            df_ins, erro_ins = get_insiders_data(ticker)
+            df_rec, erro_rec = get_recompras_data(ticker)
+
+        with icol1:
+            if not df_ins.empty:
+                resumo = resumo_periodo(df_ins, 6)
+                if resumo is None:
+                    cor_ins, sub_ins = "#888", "Nenhuma movimentação registrada"
+                elif resumo['tipo'] == 'periodo':
+                    cor_ins = "#39FF14" if resumo['valor'] >= 0 else "#FF4444"
+                    label = "Compra líquida" if resumo['valor'] >= 0 else "Venda líquida"
+                    sub_ins = f"{label} (6m): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
+                else:
+                    cor_ins = "#39FF14" if resumo['valor'] >= 0 else "#FF4444"
+                    label = "Última compra" if resumo['valor'] >= 0 else "Última venda"
+                    sub_ins = f"{label} ({resumo['data'].strftime('%m/%Y')}): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
+                st.markdown(
+                    "<div style='{base}'>"
+                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                    "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders</div>"
+                    "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
+                    "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
+                    "Movimentação de controladores, diretoria e conselho. Fonte: Fundamentus/CVM.</div>"
+                    "</div>".format(base=card_style, cor=cor_ins, sub=sub_ins),
+                    unsafe_allow_html=True
+                )
+                with st.expander("Ver histórico mensal de insiders"):
+                    show_ins = df_ins.head(12).copy()
+                    show_ins['data'] = show_ins['data'].dt.strftime('%m/%Y')
+                    show_ins['valor'] = show_ins['valor'].apply(lambda v: f"R$ {v:,.0f}".replace(",", "."))
+                    show_ins['preco_medio'] = show_ins['preco_medio'].apply(lambda v: f"R$ {v:.2f}".replace(".", ","))
+                    show_ins.columns = ['Mês', 'Quantidade', 'Valor', 'Preço Médio']
+                    st.dataframe(show_ins, use_container_width=True, hide_index=True)
             else:
-                cor_rec = "#1E90FF"
-                sub_rec = f"Última recompra ({resumo['data'].strftime('%m/%Y')}): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
-            st.markdown(
-                "<div style='{base}'>"
-                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras</div>"
-                "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
-                "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
-                "Ações recompradas pela própria empresa (tesouraria). Fonte: Fundamentus/CVM.</div>"
-                "</div>".format(base=card_style, cor=cor_rec, sub=sub_rec),
-                unsafe_allow_html=True
-            )
-            with st.expander("Ver histórico mensal de recompras"):
-                show_rec = df_rec.head(12).copy()
-                show_rec['data'] = show_rec['data'].dt.strftime('%m/%Y')
-                show_rec['valor'] = show_rec['valor'].apply(lambda v: f"R$ {v:,.0f}".replace(",", "."))
-                show_rec['preco_medio'] = show_rec['preco_medio'].apply(lambda v: f"R$ {v:.2f}".replace(".", ","))
-                show_rec.columns = ['Mês', 'Quantidade', 'Valor', 'Preço Médio']
-                st.dataframe(show_rec, use_container_width=True, hide_index=True)
-        else:
-            st.markdown(
-                "<div style='{base}'>"
-                "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras</div>"
-                "<div style='font-size:0.85em;color:#888;'>Sem programa de recompra ativo ou dados indisponíveis.</div>"
-                "</div>".format(base=card_style),
-                unsafe_allow_html=True
-            )
-            if erro_rec:
-                st.caption(f"🔧 Detalhe técnico: {erro_rec}")
+                st.markdown(
+                    "<div style='{base}'>"
+                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                    "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders</div>"
+                    "<div style='font-size:0.85em;color:#888;'>Dados indisponíveis para este ativo.</div>"
+                    "</div>".format(base=card_style),
+                    unsafe_allow_html=True
+                )
+                if erro_ins:
+                    st.caption(f"🔧 Detalhe técnico: {erro_ins}")
 
-    # ---- Proventos (Fundamentus) ----
-    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-    with st.spinner("Buscando histórico de proventos..."):
-        df_prov_det, df_prov_ano, erro_prov = get_proventos_data(ticker)
+        with icol2:
+            if not df_rec.empty:
+                resumo = resumo_periodo(df_rec, 6)
+                if resumo is None:
+                    cor_rec, sub_rec = "#888", "Nenhuma recompra registrada"
+                elif resumo['tipo'] == 'periodo':
+                    cor_rec = "#1E90FF"
+                    sub_rec = f"Total (6m): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
+                else:
+                    cor_rec = "#1E90FF"
+                    sub_rec = f"Última recompra ({resumo['data'].strftime('%m/%Y')}): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
+                st.markdown(
+                    "<div style='{base}'>"
+                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                    "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras</div>"
+                    "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
+                    "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
+                    "Ações recompradas pela própria empresa (tesouraria). Fonte: Fundamentus/CVM.</div>"
+                    "</div>".format(base=card_style, cor=cor_rec, sub=sub_rec),
+                    unsafe_allow_html=True
+                )
+                with st.expander("Ver histórico mensal de recompras"):
+                    show_rec = df_rec.head(12).copy()
+                    show_rec['data'] = show_rec['data'].dt.strftime('%m/%Y')
+                    show_rec['valor'] = show_rec['valor'].apply(lambda v: f"R$ {v:,.0f}".replace(",", "."))
+                    show_rec['preco_medio'] = show_rec['preco_medio'].apply(lambda v: f"R$ {v:.2f}".replace(".", ","))
+                    show_rec.columns = ['Mês', 'Quantidade', 'Valor', 'Preço Médio']
+                    st.dataframe(show_rec, use_container_width=True, hide_index=True)
+            else:
+                st.markdown(
+                    "<div style='{base}'>"
+                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                    "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras</div>"
+                    "<div style='font-size:0.85em;color:#888;'>Sem programa de recompra ativo ou dados indisponíveis.</div>"
+                    "</div>".format(base=card_style),
+                    unsafe_allow_html=True
+                )
+                if erro_rec:
+                    st.caption(f"🔧 Detalhe técnico: {erro_rec}")
 
-    if not df_prov_det.empty:
-        corte_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
-        total_12m = df_prov_det[df_prov_det['data'] >= corte_12m]['valor'].sum()
-        st.markdown(
-            "<div style='{base}'>"
-            "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-            "text-transform:uppercase;margin-bottom:8px;'>💰 Proventos — últimos 12 meses (Fundamentus)</div>"
-            "<div style='font-size:1.3em;font-weight:900;color:#39FF14;'>R$ {total:.4f} / ação</div>"
-            "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
-            "Soma de dividendos e JCP pagos nos últimos 12 meses. Fonte: Fundamentus.</div>"
-            "</div>".format(base=card_style, total=total_12m),
-            unsafe_allow_html=True
-        )
-        with st.expander("Ver histórico de proventos (detalhado e por ano)"):
-            if not df_prov_ano.empty:
-                st.markdown("**Resumo por ano:**")
-                show_ano = df_prov_ano.copy()
-                show_ano['valor'] = show_ano['valor'].apply(lambda v: f"R$ {v:.4f}".replace(".", ","))
-                show_ano.columns = ['Ano', 'Valor por Ação']
-                st.dataframe(show_ano, use_container_width=True, hide_index=True)
-            st.markdown("**Histórico detalhado (últimos 24 lançamentos):**")
-            show_det = df_prov_det.head(24).copy()
-            show_det['data'] = show_det['data'].dt.strftime('%d/%m/%Y')
-            show_det['valor'] = show_det['valor'].apply(lambda v: f"R$ {v:.4f}".replace(".", ","))
-            cols_mostrar = [c for c in ['data', 'valor', 'tipo', 'data_pagamento'] if c in show_det.columns]
-            show_det = show_det[cols_mostrar]
-            show_det.columns = ['Data', 'Valor', 'Tipo', 'Data Pagamento'][:len(cols_mostrar)]
-            st.dataframe(show_det, use_container_width=True, hide_index=True)
-    else:
-        st.markdown(
-            "<div style='{base}'>"
-            "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-            "text-transform:uppercase;margin-bottom:8px;'>💰 Proventos</div>"
-            "<div style='font-size:0.85em;color:#888;'>Dados indisponíveis para este ativo.</div>"
-            "</div>".format(base=card_style),
-            unsafe_allow_html=True
-        )
-        if erro_prov:
-            st.caption(f"🔧 Detalhe técnico: {erro_prov}")
+    # ════════════════════════════════════════════════════════════════════
+    # ABA: DOCUMENTOS (Apresentações)
+    # ════════════════════════════════════════════════════════════════════
+    with aba_documentos:
+        with st.spinner("Buscando apresentações..."):
+            df_apres, erro_apres = get_apresentacoes_data(ticker)
 
-    # ---- Apresentações (Fundamentus → CVM) ----
-    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-        "text-transform:uppercase;margin-bottom:8px;'>📑 Últimas Apresentações</div>",
-        unsafe_allow_html=True
-    )
-    with st.spinner("Buscando apresentações..."):
-        df_apres, erro_apres = get_apresentacoes_data(ticker)
+        if not df_apres.empty:
+            ultima_resultado, ultima_inst = ultimas_apresentacoes(df_apres)
+            acol1, acol2 = st.columns(2)
 
-    if not df_apres.empty:
-        ultima_resultado, ultima_inst = ultimas_apresentacoes(df_apres)
-        acol1, acol2 = st.columns(2)
-
-        def _card_apresentacao(item, titulo, cor):
-            if item is None:
+            def _card_apresentacao(item, titulo, cor):
+                if item is None:
+                    return (
+                        "<div style='{base}'>"
+                        "<div style='font-size:0.78em;color:#ccc;font-weight:600;'>{titulo}</div>"
+                        "<div style='font-size:0.85em;color:#888;margin-top:6px;'>Nenhuma encontrada.</div>"
+                        "</div>".format(base=card_style, titulo=titulo)
+                    )
+                data_fmt = item['data_dt'].strftime('%d/%m/%Y')
+                desc = str(item['descricao'])[:90]
+                link = item.get('link')
+                link_html = (
+                    f"<a href='{link}' target='_blank' style='display:inline-block;margin-top:8px;"
+                    f"padding:5px 12px;border-radius:6px;background:{cor};color:#000;"
+                    f"font-weight:700;font-size:0.78em;text-decoration:none;'>⬇ Abrir / Baixar</a>"
+                    if link else "<span style='color:#888;font-size:0.78em;'>Link indisponível</span>"
+                )
                 return (
                     "<div style='{base}'>"
-                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;'>{titulo}</div>"
-                    "<div style='font-size:0.85em;color:#888;margin-top:6px;'>Nenhuma encontrada.</div>"
-                    "</div>".format(base=card_style, titulo=titulo)
+                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;margin-bottom:6px;'>{titulo}</div>"
+                    "<div style='font-size:0.85em;color:#fff;font-weight:600;'>{data}</div>"
+                    "<div style='font-size:0.78em;color:#ddd;margin-top:4px;line-height:1.4;'>{desc}</div>"
+                    "{link_html}"
+                    "</div>".format(base=card_style, titulo=titulo, data=data_fmt, desc=desc, link_html=link_html)
                 )
-            data_fmt = item['data_dt'].strftime('%d/%m/%Y')
-            desc = str(item['descricao'])[:90]
-            link = item.get('link')
-            link_html = (
-                f"<a href='{link}' target='_blank' style='display:inline-block;margin-top:8px;"
-                f"padding:5px 12px;border-radius:6px;background:{cor};color:#000;"
-                f"font-weight:700;font-size:0.78em;text-decoration:none;'>⬇ Abrir / Baixar</a>"
-                if link else "<span style='color:#888;font-size:0.78em;'>Link indisponível</span>"
+
+            with acol1:
+                st.markdown(_card_apresentacao(ultima_resultado, "📊 Última Apresentação de Resultados", "#39FF14"),
+                           unsafe_allow_html=True)
+            with acol2:
+                st.markdown(_card_apresentacao(ultima_inst, "🏢 Última Apresentação Institucional", "#1E90FF"),
+                           unsafe_allow_html=True)
+
+            with st.expander("Ver todas as apresentações e comunicados"):
+                show_apres = df_apres.head(30).copy()
+                show_apres['data'] = show_apres['data_dt'].dt.strftime('%d/%m/%Y')
+                for _, linha in show_apres.iterrows():
+                    link_l = linha.get('link')
+                    link_md = f"[Download]({link_l})" if link_l else "—"
+                    st.markdown(f"**{linha['data']}** — {linha['descricao']} — {link_md}")
+            st.caption(
+                "⚠️ A separação entre 'Resultado' e 'Institucional' é baseada no texto da "
+                "descrição (não é uma categoria oficial da CVM nesta página) — pode ocasionalmente "
+                "classificar errado um documento com nome atípico."
             )
-            return (
-                "<div style='{base}'>"
-                "<div style='font-size:0.78em;color:#ccc;font-weight:600;margin-bottom:6px;'>{titulo}</div>"
-                "<div style='font-size:0.85em;color:#fff;font-weight:600;'>{data}</div>"
-                "<div style='font-size:0.78em;color:#ddd;margin-top:4px;line-height:1.4;'>{desc}</div>"
-                "{link_html}"
-                "</div>".format(base=card_style, titulo=titulo, data=data_fmt, desc=desc, link_html=link_html)
-            )
-
-        with acol1:
-            st.markdown(_card_apresentacao(ultima_resultado, "📊 Última Apresentação de Resultados", "#39FF14"),
-                       unsafe_allow_html=True)
-        with acol2:
-            st.markdown(_card_apresentacao(ultima_inst, "🏢 Última Apresentação Institucional", "#1E90FF"),
-                       unsafe_allow_html=True)
-
-        with st.expander("Ver todas as apresentações e comunicados"):
-            show_apres = df_apres.head(30).copy()
-            show_apres['data'] = show_apres['data_dt'].dt.strftime('%d/%m/%Y')
-            for _, linha in show_apres.iterrows():
-                link_l = linha.get('link')
-                link_md = f"[Download]({link_l})" if link_l else "—"
-                st.markdown(f"**{linha['data']}** — {linha['descricao']} — {link_md}")
-        st.caption(
-            "⚠️ A separação entre 'Resultado' e 'Institucional' é baseada no texto da "
-            "descrição (não é uma categoria oficial da CVM nesta página) — pode ocasionalmente "
-            "classificar errado um documento com nome atípico."
-        )
-    else:
-        st.info("Nenhuma apresentação encontrada para este ativo.")
-        if erro_apres:
-            st.caption(f"🔧 Detalhe técnico: {erro_apres}")
-
-    # ---- Volatilidade Implícita (OpLab — sem login) ----
-    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-    with st.spinner("Buscando volatilidade implícita..."):
-        vol_info, erro_vol = get_volatilidade_ticker(ticker)
-
-    if vol_info is not None:
-        vi = vol_info['vol_implicita']
-        rank = vol_info['iv_rank']
-        pct = vol_info['iv_percentil']
-        cor_vi = "#FF4444" if (rank or 0) >= 70 else ("#FFD700" if (rank or 0) >= 30 else "#39FF14")
-        vcol1, vcol2, vcol3 = st.columns(3)
-        with vcol1:
-            st.markdown(
-                "<div style='{base}text-align:center;'>"
-                "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>Vol. Implícita</div>"
-                "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
-                "</div>".format(base=card_style, cor=cor_vi,
-                                v=f"{vi:.2f}%".replace(".", ",") if vi is not None else "—"),
-                unsafe_allow_html=True
-            )
-        with vcol2:
-            st.markdown(
-                "<div style='{base}text-align:center;'>"
-                "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Rank</div>"
-                "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
-                "</div>".format(base=card_style, cor=cor_vi,
-                                v=f"{rank:.0f}".replace(".", ",") if rank is not None else "—"),
-                unsafe_allow_html=True
-            )
-        with vcol3:
-            st.markdown(
-                "<div style='{base}text-align:center;'>"
-                "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Percentil</div>"
-                "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
-                "</div>".format(base=card_style, cor=cor_vi,
-                                v=f"{pct:.0f}".replace(".", ",") if pct is not None else "—"),
-                unsafe_allow_html=True
-            )
-        st.caption(
-            "Fonte: portal público da OpLab (sem login). IV Rank/Percentil acima de 70 "
-            "indicam volatilidade historicamente alta (opções 'caras') — acima de 30 e abaixo "
-            "de 70 é uma faixa neutra; abaixo de 30, volatilidade historicamente baixa."
-        )
-    else:
-        st.info("Volatilidade implícita indisponível para este ativo.")
-        if erro_vol:
-            st.caption(f"🔧 Detalhe técnico: {erro_vol}")
-
-    # ---- Teto / Target / Status ----
-    gov2  = GOVERNANCA.get(ticker, {})
-    pt_v  = ativo_data.get('preco_teto_val', 0) if isinstance(ativo_data, dict) else 0
-    tg_v  = ativo_data.get('target_val', 0)      if isinstance(ativo_data, dict) else 0
-    s_st  = ativo_data.get('st_status', 'neutro') if isinstance(ativo_data, dict) else 'neutro'
-    s_cor = ativo_data.get('st_cor', '#888')      if isinstance(ativo_data, dict) else '#888'
-    s_ico = ativo_data.get('st_icone', '⚪')      if isinstance(ativo_data, dict) else '⚪'
-    s_desc= ativo_data.get('st_desc', '')         if isinstance(ativo_data, dict) else ''
-    cot_v = limpar_valor(str(ativo_data.get('row', {}).get('Cotação atual', 0) if isinstance(ativo_data, dict) else 0).replace('R$',''))
-
-    if pt_v > 0 and tg_v > 0:
-        pct_teto   = ((pt_v - cot_v) / pt_v * 100) if cot_v < pt_v else -((cot_v - pt_v) / pt_v * 100)
-        pct_target = ((tg_v - cot_v) / tg_v * 100) if cot_v < tg_v else -((cot_v - tg_v) / tg_v * 100)
-
-        st.markdown(
-            f"<div style='padding:13px 16px;border-radius:11px;margin:12px 0 6px 0;"
-            f"background:rgba(255,255,255,0.04);border:2px solid {s_cor};'>"
-            f"<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px;'>"
-            f"<span style='font-size:1.3em;'>{s_ico}</span>"
-            f"<span style='font-size:0.92em;font-weight:700;color:{s_cor};'>{s_desc}</span>"
-            f"</div>"
-            f"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;'>"
-            f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>COTAÇÃO ATUAL</div>"
-            f"<div style='font-size:1.15em;font-weight:800;color:#fff;'>R$ {cot_v:.2f}</div></div>"
-            f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>PREÇO TETO</div>"
-            f"<div style='font-size:1.15em;font-weight:800;color:#FFD700;'>R$ {pt_v:.2f}</div>"
-            f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
-            f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>TARGET</div>"
-            f"<div style='font-size:1.15em;font-weight:800;color:#39FF14;'>R$ {tg_v:.2f}</div>"
-            f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
-            f"</div></div>",
-            unsafe_allow_html=True
-        )
-
-    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-    st.markdown("---")
-    st.markdown("##### 📉 Preço Histórico")
-    periodo_opcoes = {"1 mês": "1mo", "3 meses": "3mo", "6 meses": "6mo", "1 ano": "1y", "2 anos": "2y", "5 anos": "5y"}
-    periodo_sel = st.selectbox("Período:", list(periodo_opcoes.keys()), index=3, key="periodo_{}".format(ticker))
-    try:
-        if go is None:
-            st.warning("Instale plotly: adicione 'plotly' ao requirements.txt")
         else:
-          stock = yf.Ticker("{}.SA".format(ticker))
-          hist  = stock.history(period=periodo_opcoes[periodo_sel])
-          if not hist.empty:
-            fig = go.Figure(data=[go.Candlestick(
-                x=hist.index,
-                open=hist['Open'], high=hist['High'], low=hist['Low'], close=hist['Close'],
-                increasing_line_color='#39FF14', decreasing_line_color='#FF4444', name=ticker
-            )])
-            fig.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0.3)',
-                font_color='#fff',
-                xaxis=dict(gridcolor='rgba(255,255,255,0.05)'),
-                yaxis=dict(gridcolor='rgba(255,255,255,0.05)'),
-                margin=dict(l=0, r=0, t=10, b=0), height=420,
-                xaxis_rangeslider_visible=False,
-            )
-            st.plotly_chart(fig, use_container_width=True)
-    except Exception:
-        st.warning("Não foi possível carregar o gráfico de preços.")
+            st.info("Nenhuma apresentação encontrada para este ativo.")
+            if erro_apres:
+                st.caption(f"🔧 Detalhe técnico: {erro_apres}")
 
+    # ════════════════════════════════════════════════════════════════════
+    # ABA: GRÁFICO (candlestick + volatilidade implícita)
+    # ════════════════════════════════════════════════════════════════════
+    with aba_grafico:
+        with st.spinner("Buscando volatilidade implícita..."):
+            vol_info, erro_vol = get_volatilidade_ticker(ticker)
+
+        if vol_info is not None:
+            vi = vol_info['vol_implicita']
+            rank = vol_info['iv_rank']
+            pct = vol_info['iv_percentil']
+            cor_vi = "#FF4444" if (rank or 0) >= 70 else ("#FFD700" if (rank or 0) >= 30 else "#39FF14")
+            vcol1, vcol2, vcol3 = st.columns(3)
+            with vcol1:
+                st.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>Vol. Implícita</div>"
+                    "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
+                    "</div>".format(base=card_style, cor=cor_vi,
+                                    v=f"{vi:.2f}%".replace(".", ",") if vi is not None else "—"),
+                    unsafe_allow_html=True
+                )
+            with vcol2:
+                st.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Rank</div>"
+                    "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
+                    "</div>".format(base=card_style, cor=cor_vi,
+                                    v=f"{rank:.0f}".replace(".", ",") if rank is not None else "—"),
+                    unsafe_allow_html=True
+                )
+            with vcol3:
+                st.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Percentil</div>"
+                    "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
+                    "</div>".format(base=card_style, cor=cor_vi,
+                                    v=f"{pct:.0f}".replace(".", ",") if pct is not None else "—"),
+                    unsafe_allow_html=True
+                )
+            st.caption(
+                "Fonte: portal público da OpLab (sem login). IV Rank/Percentil acima de 70 "
+                "indicam volatilidade historicamente alta (opções 'caras') — acima de 30 e abaixo "
+                "de 70 é uma faixa neutra; abaixo de 30, volatilidade historicamente baixa."
+            )
+        else:
+            st.info("Volatilidade implícita indisponível para este ativo.")
+            if erro_vol:
+                st.caption(f"🔧 Detalhe técnico: {erro_vol}")
+
+        st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+        st.markdown("---")
+        st.markdown("##### 📉 Preço Histórico")
+        periodo_opcoes = {"1 mês": "1mo", "3 meses": "3mo", "6 meses": "6mo", "1 ano": "1y", "2 anos": "2y", "5 anos": "5y"}
+        periodo_sel = st.selectbox("Período:", list(periodo_opcoes.keys()), index=3, key="periodo_{}".format(ticker))
+        try:
+            if go is None:
+                st.warning("Instale plotly: adicione 'plotly' ao requirements.txt")
+            else:
+              stock = yf.Ticker("{}.SA".format(ticker))
+              hist  = stock.history(period=periodo_opcoes[periodo_sel])
+              if not hist.empty:
+                fig = go.Figure(data=[go.Candlestick(
+                    x=hist.index,
+                    open=hist['Open'], high=hist['High'], low=hist['Low'], close=hist['Close'],
+                    increasing_line_color='#39FF14', decreasing_line_color='#FF4444', name=ticker
+                )])
+                fig.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0.3)',
+                    font_color='#fff',
+                    xaxis=dict(gridcolor='rgba(255,255,255,0.05)'),
+                    yaxis=dict(gridcolor='rgba(255,255,255,0.05)'),
+                    margin=dict(l=0, r=0, t=10, b=0), height=420,
+                    xaxis_rangeslider_visible=False,
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        except Exception:
+            st.warning("Não foi possível carregar o gráfico de preços.")
 
 
 # --- DASHBOARD ---
