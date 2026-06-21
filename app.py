@@ -481,6 +481,8 @@ def calcular_percentis_setoriais(ativos_com_score):
 
     for setor, grupo in grupos.items():
         n = len(grupo)
+        for a in grupo:
+            a['n_setor'] = n
         if n <= 1:
             for a in grupo:
                 a['percentil_roe'] = a['percentil_dy'] = a['percentil_pl'] = None
@@ -489,10 +491,12 @@ def calcular_percentis_setoriais(ativos_com_score):
         roes = sorted(grupo, key=lambda a: a.get('roe_num_raw', 0))
         for idx, a in enumerate(roes):
             a['percentil_roe'] = round((idx / (n - 1)) * 100)
+            a['rank_roe'] = n - idx  # 1 = melhor ROE do setor
 
         dys = sorted(grupo, key=lambda a: a.get('dy_num', 0))
         for idx, a in enumerate(dys):
             a['percentil_dy'] = round((idx / (n - 1)) * 100)
+            a['rank_dy'] = n - idx  # 1 = melhor DY do setor
 
         com_pl = [a for a in grupo if a.get('pl_num', 0) > 0]
         sem_pl = [a for a in grupo if a.get('pl_num', 0) <= 0]
@@ -500,8 +504,12 @@ def calcular_percentis_setoriais(ativos_com_score):
         n_pl = len(pls)
         for idx, a in enumerate(pls):
             a['percentil_pl'] = round((idx / (n_pl - 1)) * 100) if n_pl > 1 else None
+            a['rank_pl'] = n_pl - idx  # 1 = mais barato (melhor P/L) do setor
+            a['n_pl'] = n_pl
         for a in sem_pl:
             a['percentil_pl'] = None
+            a['rank_pl'] = None
+            a['n_pl'] = n_pl
 
     return ativos_com_score
 
@@ -1616,31 +1624,56 @@ def pagina_ativo(ticker, row, ativo_data):
 
         # ---- Percentil Setorial ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### 🎯 Percentil Setorial")
-        pct_roe = ativo_data.get('percentil_roe')
-        pct_dy = ativo_data.get('percentil_dy')
-        pct_pl = ativo_data.get('percentil_pl')
-        if pct_roe is not None or pct_dy is not None or pct_pl is not None:
-            def _cor_pct(p):
-                if p is None:
+        st.markdown("#### 🎯 Posição no Setor")
+        n_setor = ativo_data.get('n_setor')
+        rank_roe = ativo_data.get('rank_roe')
+        rank_dy = ativo_data.get('rank_dy')
+        rank_pl = ativo_data.get('rank_pl')
+        n_pl_setor = ativo_data.get('n_pl')
+        if n_setor and n_setor > 1:
+            def _cor_rank(rank, n):
+                if rank is None or not n:
                     return "#888"
-                return "#39FF14" if p >= 70 else ("#FFD700" if p >= 30 else "#FF4444")
+                pct_topo = (n - rank) / (n - 1) if n > 1 else 0
+                return "#39FF14" if pct_topo >= 0.7 else ("#FFD700" if pct_topo >= 0.3 else "#FF4444")
+            def _texto_rank(rank, n):
+                if rank is None or not n:
+                    return "—"
+                if rank == 1:
+                    return "🥇 Melhor do setor"
+                if rank == n:
+                    return "Último do setor"
+                return f"{rank}º de {n}"
             pcol1, pcol2, pcol3 = st.columns(3)
-            for col, titulo, valor in [(pcol1, "ROE", pct_roe), (pcol2, "Dividend Yield", pct_dy), (pcol3, "P/L (mais barato)", pct_pl)]:
-                texto = f"Top {100-valor}%" if valor is not None else "—"
-                col.markdown(
-                    "<div style='{base}text-align:center;'>"
-                    "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>{titulo}</div>"
-                    "<div style='font-size:1.2em;font-weight:900;color:{cor};'>{texto}</div>"
-                    "</div>".format(base=card_style, titulo=titulo, texto=texto, cor=_cor_pct(valor)),
-                    unsafe_allow_html=True
-                )
+            pcol1.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>ROE</div>"
+                "<div style='font-size:1.15em;font-weight:900;color:{cor};'>{texto}</div>"
+                "</div>".format(base=card_style, texto=_texto_rank(rank_roe, n_setor), cor=_cor_rank(rank_roe, n_setor)),
+                unsafe_allow_html=True
+            )
+            pcol2.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>Dividend Yield</div>"
+                "<div style='font-size:1.15em;font-weight:900;color:{cor};'>{texto}</div>"
+                "</div>".format(base=card_style, texto=_texto_rank(rank_dy, n_setor), cor=_cor_rank(rank_dy, n_setor)),
+                unsafe_allow_html=True
+            )
+            pcol3.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>P/L (mais barato)</div>"
+                "<div style='font-size:1.15em;font-weight:900;color:{cor};'>{texto}</div>"
+                "</div>".format(base=card_style, texto=_texto_rank(rank_pl, n_pl_setor), cor=_cor_rank(rank_pl, n_pl_setor)),
+                unsafe_allow_html=True
+            )
             st.caption(
-                f"Comparado aos outros ativos do setor '{row.get('SETOR', '-')}' na sua planilha. "
-                "'Top X%' = está entre os X% melhores do setor nesse quesito."
+                f"Comparado a {n_setor} ativo(s) com SETOR = '{row.get('SETOR', '-')}' na sua planilha "
+                f"(P/L compara só com {n_pl_setor or 0}, já que ativos com P/L negativo/zero ficam de fora). "
+                "Com poucos ativos no setor, é normal o resultado ser bem extremo (1º ou último) — "
+                "isso não é erro, é só uma amostra pequena."
             )
         else:
-            st.info("Percentil setorial indisponível (setor com só este ativo, ou dado faltando).")
+            st.info("Posição setorial indisponível (setor com só este ativo na sua planilha, ou dado faltando).")
 
         # ---- Preço Justo Multi-Método ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
