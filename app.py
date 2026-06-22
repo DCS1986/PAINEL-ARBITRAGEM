@@ -1317,6 +1317,73 @@ def carregar_dados():
 
 df = carregar_dados()
 
+
+# ---- Tese de Investimento + Alerta de Divergência ----
+# GID_TESE: PLACEHOLDER — Diego, troque pelo GID real depois de criar a aba
+# TESE na mesma planilha do RADAR, com colunas: TICKER | TESE | ROE_MIN |
+# PL_MAX | DIV_EBITDA_MAX | DATA_REGISTRO
+GID_TESE = "0000000002"
+
+@st.cache_data(ttl=60, show_spinner=False)
+def load_tese():
+    """Lê a aba TESE: a tese de investimento escrita pelo usuário pra cada
+    ativo, com limites numéricos opcionais (ROE mínimo, P/L máximo, Dívida
+    máxima). Usado pra alertar quando a realidade diverge da tese original —
+    combate o viés de continuar confiando numa tese que já não é mais
+    verdade. Retorna dict ticker -> {tese, roe_min, pl_max, div_max, data}."""
+    try:
+        spreadsheet_id = "1QM3xaaiZHleTJb8MEChy95LJSX3j3hLs8-ecQydMHYM"
+        url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv&gid={GID_TESE}"
+        df_tese = pd.read_csv(url, header=None)
+
+        idx = 0
+        for i, row in df_tese.iterrows():
+            if "TICKER" in [str(x).upper().strip() for x in row.values]:
+                idx = i
+                break
+        df_tese.columns = [str(c).strip().upper() for c in df_tese.iloc[idx]]
+        df_tese = df_tese.iloc[idx + 1:].reset_index(drop=True)
+        df_tese = df_tese[df_tese['TICKER'].notna()]
+        df_tese = df_tese[df_tese['TICKER'].astype(str).str.strip() != '']
+
+        resultado = {}
+        for _, r in df_tese.iterrows():
+            ticker = str(r.get('TICKER', '')).strip().upper()
+            if not ticker:
+                continue
+            resultado[ticker] = {
+                'tese': str(r.get('TESE', '')).strip(),
+                'roe_min': limpar_valor(r.get('ROE_MIN', 0)) or None,
+                'pl_max': limpar_valor(r.get('PL_MAX', 0)) or None,
+                'div_max': limpar_valor(r.get('DIV_EBITDA_MAX', 0)) or None,
+                'data': str(r.get('DATA_REGISTRO', '-')).strip(),
+            }
+        return resultado
+    except Exception:
+        return {}
+
+tese_dict = load_tese()
+
+
+def checar_divergencia_tese(ticker, tese_info, roe_atual, pl_atual, div_atual):
+    """Compara os limites definidos na tese com os valores atuais.
+    Retorna lista de strings descrevendo cada divergência encontrada
+    (lista vazia = tese ainda válida, nada divergiu)."""
+    divergencias = []
+    if tese_info.get('roe_min') and roe_atual and roe_atual < tese_info['roe_min']:
+        divergencias.append(
+            f"ROE: sua tese assumia mínimo de {tese_info['roe_min']:.1f}% — atual é {roe_atual:.1f}%"
+        )
+    if tese_info.get('pl_max') and pl_atual and pl_atual > tese_info['pl_max']:
+        divergencias.append(
+            f"P/L: sua tese assumia máximo de {tese_info['pl_max']:.1f}x — atual é {pl_atual:.1f}x"
+        )
+    if tese_info.get('div_max') and div_atual and div_atual > tese_info['div_max']:
+        divergencias.append(
+            f"Dívida/EBITDA: sua tese assumia máximo de {tese_info['div_max']:.1f}x — atual é {div_atual:.1f}x"
+        )
+    return divergencias
+
 # --- SIDEBAR ---
 st.sidebar.markdown("""
 <div style="padding:4px 0 12px 0; border-bottom:1px solid rgba(255,255,255,0.08);
@@ -1463,6 +1530,32 @@ def pagina_ativo(ticker, row, ativo_data):
     pl_proj_num = limpar_valor(row.get('P/L PROJETADO', 0))
     cagr_num_peg = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
     peg_val = (pl_proj_num / cagr_num_peg) if (pl_proj_num > 0 and cagr_num_peg > 0) else None
+
+    # ---- Tese de Investimento + Alerta de Divergência ----
+    tese_info = tese_dict.get(ticker.upper())
+    if tese_info and tese_info.get('tese'):
+        roe_atual = ativo_data.get('roe_num_raw', 0)
+        div_atual = limpar_valor(row.get('Dívida líquida/EBITDA', 0))
+        divergencias = checar_divergencia_tese(ticker, tese_info, roe_atual, pl_proj_num, div_atual)
+
+        cor_tese = "#FF4444" if divergencias else "#39FF14"
+        st.markdown(
+            "<div style='background:rgba(255,255,255,0.04);border:1px solid {cor}66;"
+            "border-radius:11px;padding:14px 18px;margin-bottom:14px;'>"
+            "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+            "text-transform:uppercase;margin-bottom:6px;'>📝 Sua Tese de Investimento "
+            "<span style='color:#888;font-weight:400;'>({data})</span></div>"
+            "<div style='font-size:0.92em;color:#fff;line-height:1.5;'>{tese}</div>"
+            "</div>".format(cor=cor_tese, data=tese_info.get('data', '-'), tese=tese_info['tese']),
+            unsafe_allow_html=True
+        )
+        if divergencias:
+            st.warning(
+                "⚠️ **Sua tese pode estar desatualizada — a realidade mudou:**\n\n" +
+                "\n".join(f"- {d}" for d in divergencias)
+            )
+        else:
+            st.success("✅ Os limites da sua tese ainda estão sendo respeitados pelos números atuais.")
 
     # ---- Abas ----
     aba_geral, aba_valuation, aba_dividendos, aba_movimentacao, aba_documentos, aba_grafico = st.tabs(
@@ -2103,7 +2196,7 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 }
 </style>
 """, unsafe_allow_html=True)
-tcol1, tcol2, tcol3 = st.columns([1, 1, 8])
+tcol1, tcol2, tcol3, tcol4 = st.columns([1, 1, 1, 7])
 with tcol1:
     if st.button("☰ Lista", use_container_width=True,
                  type="primary" if st.session_state.modo_exibicao == 'Lista' else "secondary"):
@@ -2113,6 +2206,11 @@ with tcol2:
     if st.button("⊞ Cards", use_container_width=True,
                  type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
         st.session_state.modo_exibicao = 'Cards'
+        st.rerun()
+with tcol3:
+    if st.button("⚖ Comparar", use_container_width=True,
+                 type="primary" if st.session_state.modo_exibicao == 'Comparar' else "secondary"):
+        st.session_state.modo_exibicao = 'Comparar'
         st.rerun()
 
 # --- LISTAGEM DE ATIVOS ---
@@ -2371,6 +2469,61 @@ else:
                         if st.button("Ver detalhes", key="card_{}".format(ticker_c), use_container_width=True):
                             st.session_state.ativo_selecionado = ticker_c
                             st.rerun()
+            st.stop()
+
+        # Modo Comparar — tabela lado a lado de 2 a 4 ativos
+        if st.session_state.modo_exibicao == 'Comparar':
+            st.markdown("#### ⚖ Comparador Par-a-Par")
+            st.caption(
+                "Escolha de 2 a 4 ativos pra comparar todos os indicadores numa tabela só — "
+                "a decisão mais comum não é 'olhar o ativo X', é 'X ou Y, qual eu compro?'."
+            )
+            tickers_disponiveis = sorted([a['row']['CÓDIGO'] for a in ativos_com_score])
+            selecionados = st.multiselect(
+                "Ativos para comparar:", tickers_disponiveis, max_selections=4,
+                key="comparador_multiselect"
+            )
+
+            if len(selecionados) < 2:
+                st.info("Selecione pelo menos 2 ativos.")
+            else:
+                with st.spinner("Buscando ROIC/VPA dos ativos selecionados..."):
+                    linhas_comp = {}
+                    for tk in selecionados:
+                        a = next((x for x in ativos_com_score if x['row']['CÓDIGO'] == tk), None)
+                        if a is None:
+                            continue
+                        r = a['row']
+                        ind_extra, _ = get_indicadores_fundamentus(tk)
+                        roic_c = _ind_buscar(ind_extra, 'roic') if ind_extra else None
+                        vpa_c = _ind_buscar(ind_extra, 'vpa') if ind_extra else None
+                        pl_c = a.get('pl_num', 0)
+                        cagr_c = limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0))
+                        peg_c = (pl_c / cagr_c) if (pl_c > 0 and cagr_c > 0) else None
+
+                        linhas_comp[tk] = {
+                            "Cotação": formatar_cotacao(r.get('Cotação atual', 0)),
+                            "Variação (dia)": f"{a.get('variacao_dia', 0):+.2f}%",
+                            "Score": f"⭐ {a['score']}/10",
+                            "Status": a.get('st_desc', '-'),
+                            "P/L Projetado": f"{pl_c:.1f}x" if pl_c else "-",
+                            "P/VP": a.get('pvp_str', '-'),
+                            "PEG Ratio": f"{peg_c:.2f}x" if peg_c is not None else "-",
+                            "ROIC": f"{roic_c:.1f}%" if roic_c is not None else "-",
+                            "VPA": f"R$ {vpa_c:.2f}" if vpa_c is not None else "-",
+                            "Dividend Yield": f"{a.get('dy_clean', '-')}%",
+                            "ROE": a.get('roe', '-'),
+                            "Margem Líquida": a.get('margem', '-'),
+                            "CAGR Lucros": r.get('CAGR lucros (últ. 5 anos)', '-'),
+                            "Dívida Líq/EBITDA": r.get('Dívida líquida/EBITDA', '-'),
+                            "Beta": a.get('beta', '-'),
+                            "Dividend Safety": f"{a.get('div_safety_score','-')}/10 ({a.get('div_safety_label','-')})",
+                        }
+
+                if linhas_comp:
+                    df_comp = pd.DataFrame(linhas_comp)
+                    st.dataframe(df_comp, use_container_width=True)
+                    st.caption("ROIC e VPA buscados em tempo real pra esses ativos (Fundamentus) — não vêm do cache dos 40 da grade.")
             st.stop()
 
         # Modo Lista — duas colunas para ver mais ativos na tela
