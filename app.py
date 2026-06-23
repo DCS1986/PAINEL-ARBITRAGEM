@@ -1551,6 +1551,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
 
     roic_val = _ind_buscar(ind_extras, 'roic') if ind_extras else None
     vpa_val = _ind_buscar(ind_extras, 'vpa') if ind_extras else None
+    pl_atual_val = _ind_buscar(ind_extras, 'p/l', 'p / l') if ind_extras else None
     p_ebit_val = _ind_buscar(ind_extras, 'p/ebit', 'p / ebit') if ind_extras else None
     ev_ebitda_val = _ind_buscar(ind_extras, 'ev/ebitda', 'ev / ebitda') if ind_extras else None
     marg_liq_val = _ind_buscar(ind_extras, 'marg. l', 'margem l') if ind_extras else None
@@ -1681,54 +1682,74 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
+        def _grafico_largura_controlada(html_grafico):
+            # Os graficos (SVG width:100%) esticam pra largura do container pai.
+            # Como essa aba agora usa secoes de largura cheia (sem mais o
+            # col1/col3 de antes), sem isso eles ficam enormes -- por isso
+            # toda chamada de mini_grafico_linha/dy nesta aba passa por aqui,
+            # que limita a 640px e mantem o grafico em tamanho de leitura.
+            st.markdown(f"<div style='max-width:640px;'>{html_grafico}</div>", unsafe_allow_html=True)
+
         st.markdown("#### 📊 Valuation")
-        v1, v2, v3, v4 = st.columns(4)
-        _card_metric(v1, "P/L Médio (10 anos)", f"{row.get('P/L médio (últ. 10 anos)', '-')}x")
-        _card_metric(v2, "P/VP", pvp_str)
-        _card_metric(v3, "Valor de Mercado", row.get('VALOR DE MERCADO', '-'))
-        _card_metric(v4, "Resultado Projetado", row.get('LL PROJETADO', '-'))
-        v5, v6 = st.columns([1, 3])
-        _card_metric(v5, "⭐ Resultado Entregue (1/4)", row.get('RESULTADO 2026 (1/4)', '-'), cor_valor="#4CAF6D")
-        with v6:
-            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-            barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
-            st.markdown(barra, unsafe_allow_html=True)
-            st.markdown("<span style='font-size:0.85em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
+        v1, v2 = st.columns([1, 1])
+        _card_metric(v1, "Resultado Projetado", row.get('LL PROJETADO', '-'))
+        _card_metric(v2, "⭐ Resultado Último Tri (1/4)", row.get('RESULTADO 2026 (1/4)', '-'), cor_valor="#4CAF6D")
+        st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+        barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
+        st.markdown(barra, unsafe_allow_html=True)
+        st.markdown("<span style='font-size:0.85em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
         if historico_lucro:
             st.markdown("<div style='margin-top:10px;'></div><span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
-            st.markdown(mini_grafico_linha(historico_lucro, "#4CAF6D"), unsafe_allow_html=True)
+            _grafico_largura_controlada(mini_grafico_linha(historico_lucro, "#4CAF6D"))
 
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### ⚙️ Operacional")
-        pl_proj = row.get('P/L PROJETADO', '-')
-        o1, o2, o3 = st.columns(3)
-        _card_metric(o1, "P/L Projetado", f"{pl_proj}x", cor_valor="#D4AF37")
-        _card_metric(o2, "Dívida Líq/EBITDA", row.get('Dívida líquida/EBITDA', '-'))
-        _card_metric(o3, "CAGR Lucros", row.get('CAGR lucros (últ. 5 anos)', '-'))
-        o4, o5, o6 = st.columns(3)
-        _card_metric(o4, "ROE", roe)
-        _card_metric(o5, "Margem Líq.", margem)
-        _card_metric(o6, "Beta (vs IBOV)", beta)
+        st.markdown("#### 🔎 Indicadores")
 
+        # ---- Trio de P/L, junto do grafico de P/L Historico ----
+        # P/L Atual  = Fundamentus (trailing, igual Status Invest/Investidor10)
+        # P/L Médio  = planilha do Diego (coluna "P/L médio (últ. 10 anos)")
+        # P/L Projetado = planilha do Diego (cenário próprio, normalmente
+        #                  conservador/pessimista -- por isso tende a vir
+        #                  mais alto que o atual quando ele projeta queda de lucro)
+        pl_proj = row.get('P/L PROJETADO', '-')
+        pl_atual_str = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "-"
+        pl1, pl2, pl3 = st.columns(3)
+        _card_metric(pl1, "P/L Atual", pl_atual_str, cor_valor="#D4AF37")
+        _card_metric(pl2, "P/L Médio (10 anos)", f"{row.get('P/L médio (últ. 10 anos)', '-')}x")
+        _card_metric(pl3, "P/L Projetado", f"{pl_proj}x")
+        st.caption(
+            "P/L Atual vem do Fundamentus (mesmo número que Status Invest/Investidor10 mostram). "
+            "P/L Médio (10 anos) e P/L Projetado vêm da sua planilha — o Projetado reflete o "
+            "cenário que você mesmo define (geralmente conservador), por isso pode ficar acima "
+            "do atual quando você projeta queda de lucro."
+        )
         if historico_pl:
             st.markdown("<div style='margin-top:10px;'></div><span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
-            st.markdown(mini_grafico_linha(historico_pl, "#5B8DB8", label_suffix="x"), unsafe_allow_html=True)
+            _grafico_largura_controlada(mini_grafico_linha(historico_pl, "#5B8DB8", label_suffix="x"))
 
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### 🔎 Indicadores")
+
+        # ---- Demais indicadores (Operacional + Fundamentus, unificados) ----
+        def _card_ind(col, titulo, valor, sufixo="", fmt="{:.2f}"):
+            texto = (fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
+            _card_metric(col, titulo, texto)
+
+        i1, i2, i3, i4 = st.columns(4)
+        _card_metric(i1, "Dívida Líq/EBITDA", row.get('Dívida líquida/EBITDA', '-'))
+        _card_metric(i2, "CAGR Lucros", row.get('CAGR lucros (últ. 5 anos)', '-'))
+        _card_metric(i3, "ROE", roe)
+        _card_metric(i4, "Margem Líq.", margem)
+        i5, i6, i7, i8 = st.columns(4)
+        _card_metric(i5, "Beta (vs IBOV)", beta)
         if ind_extras:
-            e1, e2, e3, e4 = st.columns(4)
-            def _card_ind(col, titulo, valor, sufixo="", fmt="{:.2f}"):
-                texto = (fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
-                _card_metric(col, titulo, texto)
-            _card_ind(e1, "ROIC", roic_val, sufixo="%")
-            _card_ind(e2, "VPA", vpa_val, sufixo=" R$")
-            _card_ind(e3, "PEG Ratio", peg_val, sufixo="x")
-            _card_ind(e4, "P/EBIT", p_ebit_val, sufixo="x")
-            e5, e6, e7 = st.columns(3)
-            _card_ind(e5, "EV/EBITDA", ev_ebitda_val, sufixo="x")
-            _card_ind(e6, "Margem Líquida", marg_liq_val, sufixo="%")
-            _card_ind(e7, "Liquidez Corrente", liquidez_corr_val, sufixo="x")
+            _card_ind(i6, "ROIC", roic_val, sufixo="%")
+            _card_ind(i7, "VPA", vpa_val, sufixo=" R$")
+            _card_ind(i8, "PEG Ratio", peg_val, sufixo="x")
+            i9, i10, i11, i12 = st.columns(4)
+            _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
+            _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
+            _card_ind(i11, "Margem Líquida", marg_liq_val, sufixo="%")
+            _card_ind(i12, "Liquidez Corrente", liquidez_corr_val, sufixo="x")
             st.caption(
                 "ROIC, VPA, P/EBIT, EV/EBITDA, Margem Líquida e Liquidez Corrente vêm direto do "
                 "Fundamentus. PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros, já presentes "
@@ -2663,7 +2684,7 @@ else:
                     st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
                     st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
                     st.markdown(
-                        f"**⭐ RESULTADO ENTREGUE (1/4):** "
+                        f"**⭐ RESULTADO ÚLTIMO TRI (1/4):** "
                         f"<span style='color:#4CAF6D;font-weight:bold;'>{row.get('RESULTADO 2026 (1/4)', '-')}</span>",
                         unsafe_allow_html=True)
                     cor = cor_progresso(porcentagem)
