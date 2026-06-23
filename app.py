@@ -1995,7 +1995,7 @@ def pagina_ativo(ticker, row, ativo_data):
                     st.caption(f"🔧 Detalhe técnico: {erro_rec}")
 
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-        render_confluencia_card(st, ticker)
+        render_confluencia_card(st, ticker, tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist())
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: DOCUMENTOS (Apresentações)
@@ -2222,10 +2222,6 @@ with tcol4:
                  type="primary" if st.session_state.modo_exibicao == 'Confluência' else "secondary"):
         st.session_state.modo_exibicao = 'Confluência'
         st.rerun()
-
-if st.session_state.modo_exibicao == 'Confluência':
-    render_confluencia(st)
-    st.stop()
 
 # --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
@@ -2538,6 +2534,14 @@ else:
                     df_comp = pd.DataFrame(linhas_comp)
                     st.dataframe(df_comp, use_container_width=True)
                     st.caption("ROIC e VPA buscados em tempo real pra esses ativos (Fundamentus) — não vêm do cache dos 40 da grade.")
+            st.stop()
+
+        # Modo Confluência — ranking de Score de Confluência (CVM) de todos
+        # os ativos. Fica DEPOIS da checagem de ativo_selecionado (igual
+        # Cards/Comparar) para nunca "sequestrar" a navegação de quem está
+        # vendo o detalhe de um ativo.
+        if st.session_state.modo_exibicao == 'Confluência':
+            render_confluencia(st, tickers=df['CÓDIGO'].dropna().astype(str).tolist())
             st.stop()
 
         # Modo Lista — duas colunas para ver mais ativos na tela
