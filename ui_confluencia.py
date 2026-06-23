@@ -136,7 +136,11 @@ def render_confluencia(st, tickers: list[str]):
             "- **Concordância** X/N: quantos sinais apontam no mesmo sentido. "
             "X/N iguais = todos concordam (mais confiável); X menor que N = sinais em conflito.\n"
             "- **0/0**: nenhuma movimentação de insider/controlador/recompra no período "
-            "(não é erro — é ausência real de dado)."
+            "(não é erro — é ausência real de dado).\n"
+            "- **Recompra negativa**: significa que a empresa *vendeu* ações de tesouraria de "
+            "volta ao mercado — **não** é cancelamento de ações. Cancelamento é um evento "
+            "corporativo diferente, reportado em outro lugar (Fato Relevante/Assembleia), e "
+            "este informe da CVM não o captura."
         )
         st.write("Pesos:", PESOS)
         st.dataframe(sinais_cvm(df, mapa, tickers, meses=int(meses)),
