@@ -1682,35 +1682,24 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        def _grafico_largura_controlada(html_grafico):
-            # Os graficos (SVG width:100%) esticam pra largura do container pai.
-            # Como essa aba agora usa secoes de largura cheia (sem mais o
-            # col1/col3 de antes), sem isso eles ficam enormes -- por isso
-            # toda chamada de mini_grafico_linha/dy nesta aba passa por aqui,
-            # que limita a 640px e mantem o grafico em tamanho de leitura.
-            st.markdown(f"<div style='max-width:640px;'>{html_grafico}</div>", unsafe_allow_html=True)
-
         st.markdown("#### 📊 Valuation")
+
+        # ---- Linha 1: Resultado Projetado + Resultado Último Tri ----
         v1, v2 = st.columns([1, 1])
-        _card_metric(v1, "Resultado Projetado", row.get('LL PROJETADO', '-'))
+        _card_metric(v1, "Resultado Projetado 2026", row.get('LL PROJETADO', '-'))
         _card_metric(v2, "⭐ Resultado Último Tri (1/4)", row.get('RESULTADO 2026 (1/4)', '-'), cor_valor="#4CAF6D")
         st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
         barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
         st.markdown(barra, unsafe_allow_html=True)
         st.markdown("<span style='font-size:0.85em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
-        if historico_lucro:
-            st.markdown("<div style='margin-top:10px;'></div><span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
-            _grafico_largura_controlada(mini_grafico_linha(historico_lucro, "#4CAF6D"))
 
-        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### 🔎 Indicadores")
-
-        # ---- Trio de P/L, junto do grafico de P/L Historico ----
+        # ---- Linha 2: trio de P/L ----
         # P/L Atual  = Fundamentus (trailing, igual Status Invest/Investidor10)
         # P/L Médio  = planilha do Diego (coluna "P/L médio (últ. 10 anos)")
         # P/L Projetado = planilha do Diego (cenário próprio, normalmente
         #                  conservador/pessimista -- por isso tende a vir
         #                  mais alto que o atual quando ele projeta queda de lucro)
+        st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
         pl_proj = row.get('P/L PROJETADO', '-')
         pl_atual_str = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "-"
         pl1, pl2, pl3 = st.columns(3)
@@ -1723,11 +1712,21 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "cenário que você mesmo define (geralmente conservador), por isso pode ficar acima "
             "do atual quando você projeta queda de lucro."
         )
-        if historico_pl:
-            st.markdown("<div style='margin-top:10px;'></div><span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
-            _grafico_largura_controlada(mini_grafico_linha(historico_pl, "#5B8DB8", label_suffix="x"))
 
-        st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+        # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        g1, g2 = st.columns(2)
+        with g1:
+            if historico_lucro:
+                st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
+                st.markdown(mini_grafico_linha(historico_lucro, "#4CAF6D"), unsafe_allow_html=True)
+        with g2:
+            if historico_pl:
+                st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
+                st.markdown(mini_grafico_linha(historico_pl, "#5B8DB8", label_suffix="x"), unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### 🔎 Indicadores")
 
         # ---- Demais indicadores (Operacional + Fundamentus, unificados) ----
         def _card_ind(col, titulo, valor, sufixo="", fmt="{:.2f}"):
