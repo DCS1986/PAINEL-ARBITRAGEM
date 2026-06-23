@@ -109,7 +109,7 @@ def explicar(row: pd.Series) -> str:
         elif p.startswith("recompra+"):
             frases.append("a empresa está recomprando suas próprias ações")
         elif p.startswith("recompra-"):
-            frases.append("a empresa está reduzindo ações em tesouraria")
+            frases.append("a empresa vendeu ações de tesouraria de volta ao mercado (não é cancelamento)")
         elif p.startswith("controlador+"):
             frases.append("o controlador está comprando (peso pequeno no score)")
         elif p.startswith("controlador-"):
