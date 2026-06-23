@@ -7,14 +7,20 @@ Funciona para QUALQUER lista de tickers (nao ha universo fixo de 13 nem de
 40 -- a lista vem de fora, normalmente da coluna CODIGO do RADAR do Diego).
 
 Duas formas de uso:
-  1) render_confluencia(st, tickers)            -> tela cheia (ranking de todos)
-  2) render_confluencia_card(st, ticker, tickers_universo) -> card compacto
-     pra dentro da pagina de detalhe de UM ativo (aba Movimentacao).
+  1) render_confluencia(st, tickers, extras=None)            -> tela cheia
+  2) render_confluencia_card(st, ticker, tickers_universo, extras=None) ->
+     card compacto pra dentro da pagina de detalhe de UM ativo (aba
+     Movimentacao).
 
 `tickers_universo` em render_confluencia_card precisa ser a MESMA lista
 completa usada na tela cheia, porque a normalizacao do score e relativa ao
 universo (o maior valor em R$ do grupo) -- passar so 1 ticker quebraria essa
 normalizacao.
+
+`extras` (opcional, em ambas): DataFrame com colunas ['ticker','valuation',
+'dividend_safety'] vindo do RADAR -- quando passado, o Score de Confluencia
+passa a usar 5 sinais (insider/recompra/controlador/valuation/dividend
+safety) em vez de so os 3 da CVM.
 """
 
 import datetime
@@ -36,9 +42,9 @@ def _cor_score(v):
     except (TypeError, ValueError):
         return ""
     if v > 5:
-        return "background-color: #1b5e20; color: #ffffff; font-weight: 700"
+        return "background-color: #1b5e20; color: #F1EFE8; font-weight: 700"
     if v < -5:
-        return "background-color: #7f1d1d; color: #ffffff; font-weight: 700"
+        return "background-color: #7f1d1d; color: #F1EFE8; font-weight: 700"
     return "background-color: #3a3a3a; color: #dddddd"
 
 
@@ -71,13 +77,15 @@ def _aviso_defasagem(st, df):
     )
 
 
-def render_confluencia(st, tickers: list[str]):
+def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = None):
     """Tela cheia: ranking de Score de Confluência de todos os `tickers`."""
     st.markdown("#### 🎯 Score de Confluência")
+    n_sinais = "5 sinais (CVM + valuation + dividend safety)" if extras is not None else "3 sinais (CVM)"
     st.caption(
-        "Sinais oficiais cruzados num só número: insiders (diretoria + conselho), "
-        "controlador (peso pequeno) e recompra da própria empresa — com grau de "
-        "concordância. Cobre qualquer ativo listado na B3. Fonte: CVM — Dados Abertos."
+        f"Sinais cruzados num só número — hoje rodando com {n_sinais}: insiders "
+        "(diretoria + conselho), controlador (peso pequeno), recompra da própria "
+        "empresa" + (", valuation e dividend safety do RADAR" if extras is not None else "") +
+        " — com grau de concordância. Fonte: CVM — Dados Abertos."
     )
 
     if not _DEPS_OK:
@@ -110,7 +118,7 @@ def render_confluencia(st, tickers: list[str]):
         )
 
     try:
-        res = score_confluencia(df, mapa, tickers, meses=int(meses))
+        res = score_confluencia(df, mapa, tickers, meses=int(meses), extras=extras)
     except Exception as e:
         st.error(f"Erro ao calcular o score: {e}")
         return
@@ -147,7 +155,11 @@ def render_confluencia(st, tickers: list[str]):
                     use_container_width=True, hide_index=True)
 
 
-def render_confluencia_card(st, ticker: str, tickers_universo: list[str], meses: int = 6, ano: int | None = None):
+def render_confluencia_card(
+    st, ticker: str, tickers_universo: list[str],
+    meses: int = 6, ano: int | None = None,
+    extras: pd.DataFrame | None = None,
+):
     """
     Card compacto pra dentro da pagina de detalhe de UM ativo.
 
@@ -161,7 +173,7 @@ def render_confluencia_card(st, ticker: str, tickers_universo: list[str], meses:
     ano = ano or datetime.date.today().year
     try:
         df, mapa = _carregar_cache(st, int(ano))
-        res = score_confluencia(df, mapa, tickers_universo, meses=int(meses))
+        res = score_confluencia(df, mapa, tickers_universo, meses=int(meses), extras=extras)
     except Exception as e:
         st.caption(f"🔧 Não consegui calcular o Score de Confluência: {e}")
         return
@@ -195,14 +207,15 @@ def render_confluencia_card(st, ticker: str, tickers_universo: list[str], meses:
 
     row = linha.iloc[0]
     score = row["score"]
-    cor = "#39FF14" if score > 5 else ("#FF4444" if score < -5 else "#aaaaaa")
+    cor = "#4CAF6D" if score > 5 else ("#D9534F" if score < -5 else "#aaaaaa")
     resumo = explicar(row)
+    n_sinais_txt = " (com valuation + dividend safety)" if extras is not None else ""
 
     st.markdown(
         "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
         "border-radius:10px;padding:14px 16px;'>"
-        "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
-        "margin-bottom:8px;'>🎯 Score de Confluência (CVM)</div>"
+        f"<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
+        f"margin-bottom:8px;'>🎯 Score de Confluência (CVM){n_sinais_txt}</div>"
         f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
         f"<span style='font-size:1.5em;font-weight:900;color:{cor};'>{score:.1f}</span>"
         f"<span style='font-size:0.85em;color:#ccc;'>Concordância: {row['concordancia']}</span>"
