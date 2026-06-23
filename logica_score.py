@@ -132,12 +132,15 @@ def explicar(row: pd.Series) -> str:
     except ValueError:
         usados, total = 0, 0
 
+    score_val = row.get("score", 0) or 0
+    direcao_txt = "venda" if score_val < 0 else "compra"
+
     if total == 0:
         forca = ""
     elif usados == total and total >= 2:
-        forca = " — sinal de confiança forte, todos os sinais concordam."
+        forca = f" — sinal de {direcao_txt} forte: todos os sinais apontam na mesma direção."
     elif usados == total:
-        forca = " — sinal consistente."
+        forca = f" — sinal de {direcao_txt} consistente."
     else:
         forca = f" — leitura ambígua, os sinais não concordam entre si ({conc})."
 
