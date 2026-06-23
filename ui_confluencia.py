@@ -1,205 +1,172 @@
 """
-logica_score.py
-===============
-Score de Confluencia do RADAR.
+ui_confluencia.py
+=================
+Camada visual (Streamlit) do Score de Confluencia.
 
-Ideia central (o diferencial): em vez de um numero so, produz DOIS:
-  1) SCORE        -> soma ponderada dos sinais, em [-100, +100] (direcao+forca)
-  2) CONCORDANCIA -> quantos sinais independentes apontam no mesmo sentido (robustez)
-
-Um score +60 com 4/4 sinais concordando vale muito mais que um +60 puxado por
-um unico sinal extremo. Nenhum concorrente mostra a concordancia.
-
-Sinais que vem REAIS do arquivo da CVM (via cvm_insiders):
-  - insider_pessoas  (Diretoria + Conselho de Administracao)   peso alto
-  - recompra         (a propria Companhia comprando/vendendo)  peso medio
-  - controlador      (estrutural)                              peso PEQUENO
-
-Sinais que entram quando voce plugar o RADAR (opcionais):
-  - valuation        (desconto vs preco justo; +=barato)
-  - dividend_safety  (0-10 do RADAR)
+Duas formas de uso:
+  1) render_confluencia(st)        -> tela cheia (ranking de todos os ativos)
+  2) render_confluencia_card(st, ticker, meses=6) -> card compacto pra dentro
+     da pagina de detalhe de UM ativo (aba Movimentacao, junto com Insiders
+     e Recompras que ja existem la).
 """
 
+import datetime
 import pandas as pd
 
-from cvm_insiders import (
-    carregar_local, baixar_vlmo, MAPA_TICKER_CNPJ,
-    CARGOS_PESSOAS_CHAVE, CARGO_CONTROLADOR, MOV_COMPRA, MOV_VENDA, ATIVOS_ACAO,
-)
-
-PESOS = {
-    "insider_pessoas": 0.35,
-    "recompra":        0.25,
-    "valuation":       0.20,
-    "dividend_safety": 0.15,
-    "controlador":     0.05,   # peso pequeno, conforme decidido
-}
+try:
+    from logica_score import score_confluencia, sinais_cvm, PESOS, data_atualizacao, explicar
+    from cvm_insiders import baixar_vlmo
+    _DEPS_OK = True
+    _ERRO_IMPORT = ""
+except Exception as e:
+    _DEPS_OK = False
+    _ERRO_IMPORT = str(e)
 
 
-def _liq(sub):
-    compra = sub["vol"].where(sub["Tipo_Movimentacao"] == MOV_COMPRA, 0).sum()
-    venda = sub["vol"].where(sub["Tipo_Movimentacao"] == MOV_VENDA, 0).sum()
-    return compra - venda
-
-
-def sinais_cvm(df: pd.DataFrame, meses: int = 6) -> pd.DataFrame:
-    """Extrai os 3 sinais (em R$) do arquivo da CVM, por ticker."""
-    inv = {v: k for k, v in MAPA_TICKER_CNPJ.items()}
-    d = df[df["CNPJ_Companhia"].isin(MAPA_TICKER_CNPJ.values())].copy()
-    d["ticker"] = d["CNPJ_Companhia"].map(inv)
-    d["vol"] = pd.to_numeric(d["Volume"], errors="coerce")
-    d["dt"] = pd.to_datetime(d["Data_Movimentacao"], errors="coerce", format="%Y-%m-%d")
-    corte = pd.Timestamp.today() - pd.DateOffset(months=meses)
-    d = d[(d["dt"] >= corte) & (d["Tipo_Movimentacao"].isin([MOV_COMPRA, MOV_VENDA]))
-          & (d["Tipo_Ativo"].isin(ATIVOS_ACAO))]
-
-    linhas = []
-    for tk in MAPA_TICKER_CNPJ:
-        sub = d[d["ticker"] == tk]
-        linhas.append({
-            "ticker": tk,
-            "insider_pessoas": _liq(sub[sub["Tipo_Cargo"].isin(CARGOS_PESSOAS_CHAVE)]),
-            "controlador":     _liq(sub[sub["Tipo_Cargo"] == CARGO_CONTROLADOR]),
-            "recompra":        _liq(sub[sub["Tipo_Empresa"] == "Companhia"]),
-        })
-    return pd.DataFrame(linhas)
-
-
-def _norm_simetrica(serie: pd.Series) -> pd.Series:
-    """Normaliza para [-1,+1] dividindo pelo maior valor absoluto do universo."""
-    m = serie.abs().max()
-    return serie / m if m and m > 0 else serie * 0.0
-
-
-def data_atualizacao(df_cvm: pd.DataFrame) -> pd.Timestamp | None:
-    """
-    Data mais recente de movimentação efetivamente presente no arquivo da CVM.
-    Mostrar isso na tela é essencial: o arquivo e atualizado semanalmente, mas
-    os INFORMES sao mensais e chegam com algumas semanas de atraso -> a data
-    mais recente quase nunca e "hoje".
-    """
-    dt = pd.to_datetime(df_cvm["Data_Movimentacao"], errors="coerce", format="%Y-%m-%d")
-    return dt.max() if dt.notna().any() else None
-
-
-def explicar(row: pd.Series) -> str:
-    """
-    Traduz uma linha do resultado de score_confluencia() para uma frase em
-    portugues simples, sem siglas nem numeros tecnicos. E a "tradução" que
-    precisa aparecer DENTRO da tela, nao so explicada em conversa.
-    """
-    detalhe = str(row.get("detalhe", "") or "")
-    if not detalhe:
-        return "Nenhuma movimentação de insider, controlador ou recompra registrada no período."
-
-    partes = [p.strip() for p in detalhe.split(",")]
-    frases = []
-    for p in partes:
-        if p.startswith("insider+"):
-            frases.append("a diretoria/conselho está comprando")
-        elif p.startswith("insider-"):
-            frases.append("a diretoria/conselho está vendendo")
-        elif p.startswith("recompra+"):
-            frases.append("a empresa está recomprando suas próprias ações")
-        elif p.startswith("recompra-"):
-            frases.append("a empresa está reduzindo ações em tesouraria")
-        elif p.startswith("controlador+"):
-            frases.append("o controlador está comprando (peso pequeno no score)")
-        elif p.startswith("controlador-"):
-            frases.append("o controlador está vendendo (peso pequeno no score)")
-        elif p.startswith("valuation+"):
-            frases.append("está com desconto no valuation")
-        elif p.startswith("valuation-"):
-            frases.append("está caro no valuation")
-        elif p.startswith("dividend+"):
-            frases.append("tem dividendo seguro")
-
-    if len(frases) == 1:
-        corpo = frases[0]
-    else:
-        corpo = ", ".join(frases[:-1]) + " e " + frases[-1]
-
-    conc = str(row.get("concordancia", "0/0"))
+def _cor_score(v):
     try:
-        usados, total = (int(x) for x in conc.split("/"))
-    except ValueError:
-        usados, total = 0, 0
-
-    if total == 0:
-        forca = ""
-    elif usados == total and total >= 2:
-        forca = " — sinal de confiança forte, todos os sinais concordam."
-    elif usados == total:
-        forca = " — sinal consistente."
-    else:
-        forca = f" — leitura ambígua, os sinais não concordam entre si ({conc})."
-
-    return f"Resumo: {corpo}{forca}"
+        v = float(v)
+    except (TypeError, ValueError):
+        return ""
+    if v > 5:
+        return "background-color: #1b5e20; color: #ffffff; font-weight: 700"
+    if v < -5:
+        return "background-color: #7f1d1d; color: #ffffff; font-weight: 700"
+    return "background-color: #3a3a3a; color: #dddddd"
 
 
-def score_confluencia(
-    df_cvm: pd.DataFrame,
-    meses: int = 6,
-    extras: pd.DataFrame | None = None,
-) -> pd.DataFrame:
-    """
-    Calcula Score de Confluencia + Concordancia por ticker.
+def _carregar_cvm_cache(st, ano: int):
+    @st.cache_data(ttl=60 * 60 * 12, show_spinner="Baixando dados da CVM...")
+    def _inner(ano_ref):
+        return baixar_vlmo(int(ano_ref))
+    return _inner(ano)
 
-    extras: DataFrame opcional do RADAR com colunas ['ticker','valuation',
-            'dividend_safety']. valuation ja em [-1,+1] (+=desconto);
-            dividend_safety em 0-10. Sinais ausentes sao ignorados e os pesos
-            renormalizados entre os presentes.
-    """
-    base = sinais_cvm(df_cvm, meses=meses)
 
-    # normaliza os 3 sinais monetarios para [-1,+1]
-    comp = pd.DataFrame({"ticker": base["ticker"]})
-    comp["insider_pessoas"] = _norm_simetrica(base["insider_pessoas"])
-    comp["controlador"] = _norm_simetrica(base["controlador"])
-    comp["recompra"] = _norm_simetrica(base["recompra"])
+def _aviso_defasagem(st, df):
+    """Mostra, em destaque, a data real do dado mais recente da CVM."""
+    dt_max = data_atualizacao(df)
+    if dt_max is None:
+        st.warning("Não foi possível determinar a data de atualização dos dados.")
+        return
+    dias = (pd.Timestamp.today().normalize() - dt_max.normalize()).days
+    st.info(
+        f"📅 **Dados da CVM atualizados até {dt_max.strftime('%d/%m/%Y')}** "
+        f"({dias} dias atrás). As empresas reportam mensalmente e com atraso — "
+        f"isso é normal, não é falha do app."
+    )
 
-    # sinais do RADAR (se vierem)
-    if extras is not None:
-        comp = comp.merge(extras, on="ticker", how="left")
-        if "dividend_safety" in comp:
-            comp["dividend_safety"] = comp["dividend_safety"] / 10 * 2 - 1  # 0-10 -> [-1,1]
-        if "valuation" in comp:
-            comp["valuation"] = comp["valuation"].clip(-1, 1)
 
-    sinais_presentes = [s for s in PESOS if s in comp.columns]
+def render_confluencia(st):
+    """Tela cheia: ranking de Score de Confluência de todos os ativos."""
+    st.markdown("#### 🎯 Score de Confluência")
+    st.caption(
+        "Sinais oficiais cruzados num só número: insiders (diretoria + conselho), "
+        "controlador (peso pequeno) e recompra da própria empresa — com grau de "
+        "concordância. Fonte: CVM — Dados Abertos."
+    )
 
-    def _linha(row):
-        usados = {s: row[s] for s in sinais_presentes if pd.notna(row[s]) and row[s] != 0}
-        if not usados:
-            return pd.Series({"score": 0.0, "concordancia": "0/0", "detalhe": ""})
-        peso_total = sum(PESOS[s] for s in usados)
-        score = sum(PESOS[s] * row[s] for s in usados) / peso_total  # [-1,+1]
-        direcao = 1 if score > 0 else -1
-        concordam = sum(1 for s, v in usados.items() if (v > 0) == (direcao > 0))
-        det = ", ".join(
-            f"{s.split('_')[0]}{'+' if row[s] > 0 else '-'}" for s in usados
+    if not _DEPS_OK:
+        st.error("Não consegui carregar os módulos do Score (cvm_insiders.py / logica_score.py).")
+        st.caption(f"🔧 Detalhe técnico: {_ERRO_IMPORT}")
+        return
+
+    ano_atual = datetime.date.today().year
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        ano = st.number_input("Ano de referência", min_value=2021,
+                              max_value=ano_atual + 1, value=ano_atual, step=1)
+    with c2:
+        meses = st.select_slider("Janela (meses)", options=[3, 6, 12], value=6)
+
+    try:
+        df = _carregar_cvm_cache(st, int(ano))
+    except Exception as e:
+        st.error(f"Não consegui baixar o arquivo da CVM para {int(ano)}: {e}")
+        return
+
+    _aviso_defasagem(st, df)
+
+    try:
+        res = score_confluencia(df, meses=int(meses))
+    except Exception as e:
+        st.error(f"Erro ao calcular o score: {e}")
+        return
+
+    if res.empty:
+        st.info("Sem dados para o período selecionado.")
+        return
+
+    res = res.copy()
+    res["Resumo em português"] = res.apply(explicar, axis=1)
+    res_show = res.rename(columns={
+        "ticker": "Ticker", "score": "Score", "concordancia": "Concordância",
+    })[["Ticker", "Score", "Concordância", "Resumo em português"]]
+
+    st.dataframe(
+        res_show.style.map(_cor_score, subset=["Score"]),
+        use_container_width=True, hide_index=True,
+    )
+
+    with st.expander("Como ler / valores brutos por papel (R$)"):
+        st.markdown(
+            "- **Score** (−100 a +100): soma ponderada dos sinais.\n"
+            "- **Concordância** X/N: quantos sinais apontam no mesmo sentido. "
+            "X/N iguais = todos concordam (mais confiável); X menor que N = sinais em conflito.\n"
         )
-        return pd.Series({
-            "score": round(score * 100, 1),
-            "concordancia": f"{concordam}/{len(usados)}",
-            "detalhe": det,
-        })
-
-    res = comp.join(comp.apply(_linha, axis=1))
-    return res[["ticker", "score", "concordancia", "detalhe"]].sort_values(
-        "score", ascending=False
-    ).reset_index(drop=True)
+        st.write("Pesos:", PESOS)
+        st.dataframe(sinais_cvm(df, meses=int(meses)),
+                    use_container_width=True, hide_index=True)
 
 
-if __name__ == "__main__":
-    df = carregar_local("/mnt/user-data/uploads/vlmo_cia_aberta_2026.zip")
-    print("=== SCORE DE CONFLUENCIA (so sinais reais da CVM, 6 meses) ===\n")
-    print(score_confluencia(df, meses=6).to_string(index=False))
+def render_confluencia_card(st, ticker: str, meses: int = 6, ano: int | None = None):
+    """
+    Card compacto pra dentro da pagina de detalhe de UM ativo — pensado pra
+    entrar na aba Movimentacao, ao lado dos cards de Insiders e Recompras
+    que ja existem la (mesmo lugar, mesma logica visual).
+    """
+    if not _DEPS_OK:
+        st.caption(f"🔧 Score de Confluência indisponível: {_ERRO_IMPORT}")
+        return
 
-    extras = pd.DataFrame({
-        "ticker": ["PETR4", "VALE3", "BBAS3", "ITUB4", "BBDC4"],
-        "valuation": [0.30, 0.10, 0.45, -0.20, 0.05],
-        "dividend_safety": [7, 6, 9, 8, 7],
-    })
-    print("\n\n=== COM 2 SINAIS DO RADAR PLUGADOS (exemplo p/ 5 papeis) ===\n")
-    print(score_confluencia(df, meses=6, extras=extras).to_string(index=False))
+    ano = ano or datetime.date.today().year
+    try:
+        df = _carregar_cvm_cache(st, int(ano))
+        res = score_confluencia(df, meses=int(meses))
+    except Exception as e:
+        st.caption(f"🔧 Não consegui calcular o Score de Confluência: {e}")
+        return
+
+    linha = res[res["ticker"] == ticker.upper()]
+    dt_max = data_atualizacao(df)
+    data_str = dt_max.strftime("%d/%m/%Y") if dt_max is not None else "—"
+
+    if linha.empty:
+        st.markdown(
+            "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
+            "border-radius:10px;padding:14px 16px;'>"
+            "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
+            "margin-bottom:6px;'>🎯 Score de Confluência (CVM)</div>"
+            "<div style='font-size:0.85em;color:#888;'>Sem dados para este ativo no período.</div>"
+            "</div>", unsafe_allow_html=True
+        )
+        return
+
+    row = linha.iloc[0]
+    score = row["score"]
+    cor = "#39FF14" if score > 5 else ("#FF4444" if score < -5 else "#aaaaaa")
+    resumo = explicar(row)
+
+    st.markdown(
+        "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
+        "border-radius:10px;padding:14px 16px;'>"
+        "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
+        "margin-bottom:8px;'>🎯 Score de Confluência (CVM)</div>"
+        f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
+        f"<span style='font-size:1.5em;font-weight:900;color:{cor};'>{score:.1f}</span>"
+        f"<span style='font-size:0.85em;color:#ccc;'>Concordância: {row['concordancia']}</span>"
+        "</div>"
+        f"<div style='font-size:0.85em;color:#ddd;line-height:1.5;'>{resumo}</div>"
+        f"<div style='font-size:0.72em;color:#888;margin-top:8px;'>📅 Dados da CVM até {data_str} "
+        f"(insiders reportam mensalmente, com atraso de algumas semanas)</div>"
+        "</div>", unsafe_allow_html=True
+    )
