@@ -71,6 +71,73 @@ def _norm_simetrica(serie: pd.Series) -> pd.Series:
     return serie / m if m and m > 0 else serie * 0.0
 
 
+def data_atualizacao(df_cvm: pd.DataFrame) -> pd.Timestamp | None:
+    """
+    Data mais recente de movimentação efetivamente presente no arquivo da CVM.
+    Mostrar isso na tela é essencial: o arquivo e atualizado semanalmente, mas
+    os INFORMES sao mensais e chegam com algumas semanas de atraso -> a data
+    mais recente quase nunca e "hoje".
+    """
+    dt = pd.to_datetime(df_cvm["Data_Movimentacao"], errors="coerce", format="%Y-%m-%d")
+    return dt.max() if dt.notna().any() else None
+
+
+def explicar(row: pd.Series) -> str:
+    """
+    Traduz uma linha do resultado de score_confluencia() para uma frase em
+    portugues simples, sem siglas nem numeros tecnicos. E a "tradução" que
+    precisa aparecer DENTRO da tela, nao so explicada em conversa.
+    """
+    detalhe = str(row.get("detalhe", "") or "")
+    if not detalhe:
+        return "Nenhuma movimentação de insider, controlador ou recompra registrada no período."
+
+    partes = [p.strip() for p in detalhe.split(",")]
+    frases = []
+    for p in partes:
+        if p.startswith("insider+"):
+            frases.append("a diretoria/conselho está comprando")
+        elif p.startswith("insider-"):
+            frases.append("a diretoria/conselho está vendendo")
+        elif p.startswith("recompra+"):
+            frases.append("a empresa está recomprando suas próprias ações")
+        elif p.startswith("recompra-"):
+            frases.append("a empresa está reduzindo ações em tesouraria")
+        elif p.startswith("controlador+"):
+            frases.append("o controlador está comprando (peso pequeno no score)")
+        elif p.startswith("controlador-"):
+            frases.append("o controlador está vendendo (peso pequeno no score)")
+        elif p.startswith("valuation+"):
+            frases.append("está com desconto no valuation")
+        elif p.startswith("valuation-"):
+            frases.append("está caro no valuation")
+        elif p.startswith("dividend+"):
+            frases.append("tem dividendo seguro")
+
+    if len(frases) == 1:
+        corpo = frases[0]
+    else:
+        corpo = ", ".join(frases[:-1]) + " e " + frases[-1]
+
+    conc = str(row.get("concordancia", "0/0"))
+    try:
+        usados, total = (int(x) for x in conc.split("/"))
+    except ValueError:
+        usados, total = 0, 0
+
+    if total == 0:
+        forca = ""
+    elif usados == total and total >= 2:
+        forca = " — sinal de confiança forte, todos os sinais concordam."
+    elif usados == total:
+        forca = " — sinal consistente."
+    else:
+        forca = f" — leitura ambígua, os sinais não concordam entre si ({conc})."
+
+    return f"Resumo: {corpo}{forca}"
+
+
+
 def score_confluencia(
     df_cvm: pd.DataFrame,
     meses: int = 6,
