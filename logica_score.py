@@ -23,7 +23,7 @@ Sinais que entram quando voce plugar o RADAR (opcionais):
 import pandas as pd
 
 from cvm_insiders import (
-    carregar_local, baixar_vlmo, MAPA_TICKER_CNPJ,
+    carregar_local, baixar_vlmo, carregar_mapa_tickers_local, baixar_mapa_tickers,
     CARGOS_PESSOAS_CHAVE, CARGO_CONTROLADOR, MOV_COMPRA, MOV_VENDA, ATIVOS_ACAO,
 )
 
@@ -42,10 +42,17 @@ def _liq(sub):
     return compra - venda
 
 
-def sinais_cvm(df: pd.DataFrame, meses: int = 6) -> pd.DataFrame:
-    """Extrai os 3 sinais (em R$) do arquivo da CVM, por ticker."""
-    inv = {v: k for k, v in MAPA_TICKER_CNPJ.items()}
-    d = df[df["CNPJ_Companhia"].isin(MAPA_TICKER_CNPJ.values())].copy()
+def sinais_cvm(df: pd.DataFrame, mapa_tickers: dict, tickers: list[str], meses: int = 6) -> pd.DataFrame:
+    """
+    Extrai os 3 sinais (em R$) do arquivo da CVM, por ticker.
+
+    mapa_tickers: dict {TICKER: CNPJ}, normalmente de baixar_mapa_tickers().
+    tickers     : lista de tickers a calcular (ex: os do RADAR do Diego --
+                  QUALQUER lista funciona, nao ha universo fixo).
+    """
+    mapa_filtrado = {t: mapa_tickers[t] for t in tickers if t in mapa_tickers}
+    inv = {v: k for k, v in mapa_filtrado.items()}
+    d = df[df["CNPJ_Companhia"].isin(mapa_filtrado.values())].copy()
     d["ticker"] = d["CNPJ_Companhia"].map(inv)
     d["vol"] = pd.to_numeric(d["Volume"], errors="coerce")
     d["dt"] = pd.to_datetime(d["Data_Movimentacao"], errors="coerce", format="%Y-%m-%d")
@@ -54,13 +61,13 @@ def sinais_cvm(df: pd.DataFrame, meses: int = 6) -> pd.DataFrame:
           & (d["Tipo_Ativo"].isin(ATIVOS_ACAO))]
 
     linhas = []
-    for tk in MAPA_TICKER_CNPJ:
+    for tk in tickers:
         sub = d[d["ticker"] == tk]
         linhas.append({
             "ticker": tk,
-            "insider_pessoas": _liq(sub[sub["Tipo_Cargo"].isin(CARGOS_PESSOAS_CHAVE)]),
-            "controlador":     _liq(sub[sub["Tipo_Cargo"] == CARGO_CONTROLADOR]),
-            "recompra":        _liq(sub[sub["Tipo_Empresa"] == "Companhia"]),
+            "insider_pessoas": _liq(sub[sub["Tipo_Cargo"].isin(CARGOS_PESSOAS_CHAVE)]) if tk in mapa_filtrado else 0.0,
+            "controlador":     _liq(sub[sub["Tipo_Cargo"] == CARGO_CONTROLADOR]) if tk in mapa_filtrado else 0.0,
+            "recompra":        _liq(sub[sub["Tipo_Empresa"] == "Companhia"]) if tk in mapa_filtrado else 0.0,
         })
     return pd.DataFrame(linhas)
 
@@ -140,18 +147,24 @@ def explicar(row: pd.Series) -> str:
 
 def score_confluencia(
     df_cvm: pd.DataFrame,
+    mapa_tickers: dict,
+    tickers: list[str],
     meses: int = 6,
     extras: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """
     Calcula Score de Confluencia + Concordancia por ticker.
 
+    mapa_tickers: dict {TICKER: CNPJ}, de baixar_mapa_tickers(). Cobre
+                  qualquer ticker da B3 -- nao ha lista fixa.
+    tickers     : lista de tickers a calcular (ex: os ~40 do RADAR do Diego,
+                  vindos direto da planilha dele -- sempre em sincronia).
     extras: DataFrame opcional do RADAR com colunas ['ticker','valuation',
             'dividend_safety']. valuation ja em [-1,+1] (+=desconto);
             dividend_safety em 0-10. Sinais ausentes sao ignorados e os pesos
             renormalizados entre os presentes.
     """
-    base = sinais_cvm(df_cvm, meses=meses)
+    base = sinais_cvm(df_cvm, mapa_tickers, tickers, meses=meses)
 
     # normaliza os 3 sinais monetarios para [-1,+1]
     comp = pd.DataFrame({"ticker": base["ticker"]})
@@ -193,15 +206,29 @@ def score_confluencia(
 
 
 if __name__ == "__main__":
+    TICKERS_RADAR = [
+        'BBSE3','ITUB4','BBAS3','BBDC3','ABCB4','BRSR6','SANB3','BMGB4','BPAC11','IRBR3',
+        'PSSA3','CXSE3','ITSA4','PETR4','VALE3','BRAP4','CMIN3','GGBR3','KLBN4','UNIP6',
+        'LEVE3','SHUL4','VULC3','TIMS3','ALOS3','KEPL3','SLCE3','RANI3','CMIG4','CPLE3',
+        'EGIE3','TAEE11','ISAE4','CPFE3','SBSP3','SAPR4','CSMG3','AXIA3','B3SA3','BRBI11',
+    ]
+    mapa = carregar_mapa_tickers_local("/mnt/user-data/uploads/fca_cia_aberta_2026.zip")
     df = carregar_local("/mnt/user-data/uploads/vlmo_cia_aberta_2026.zip")
-    print("=== SCORE DE CONFLUENCIA (so sinais reais da CVM, 6 meses) ===\n")
-    print(score_confluencia(df, meses=6).to_string(index=False))
+
+    print("=== SCORE DE CONFLUENCIA — 40 ATIVOS DO RADAR (so sinais da CVM, 6 meses) ===\n")
+    res = score_confluencia(df, mapa, TICKERS_RADAR, meses=6)
+    print(res.to_string(index=False))
+    print(f"\nData de atualização do dado: {data_atualizacao(df)}")
+
+    print("\n\n=== COM EXPLICAÇÃO EM PORTUGUÊS (5 primeiras linhas) ===\n")
+    for _, row in res.head(5).iterrows():
+        print(f"{row['ticker']:8} | score={row['score']:>6} | {row['concordancia']:>4} | {explicar(row)}")
 
     # exemplo de como ficaria PLUGANDO 2 sinais do RADAR (valuation + DY):
     extras = pd.DataFrame({
-        "ticker": ["PETR4", "VALE3", "BBAS3", "ITUB4", "BBDC4"],
+        "ticker": ["PETR4", "VALE3", "BBAS3", "ITUB4", "BBDC3"],
         "valuation": [0.30, 0.10, 0.45, -0.20, 0.05],     # +=desconto vs preco justo
         "dividend_safety": [7, 6, 9, 8, 7],                # 0-10 do RADAR
     })
     print("\n\n=== COM 2 SINAIS DO RADAR PLUGADOS (exemplo p/ 5 papeis) ===\n")
-    print(score_confluencia(df, meses=6, extras=extras).to_string(index=False))
+    print(score_confluencia(df, mapa, TICKERS_RADAR, meses=6, extras=extras).head(10).to_string(index=False))
