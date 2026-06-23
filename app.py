@@ -1707,7 +1707,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         _card_metric(pl2, "P/L Médio (10 anos)", f"{row.get('P/L médio (últ. 10 anos)', '-')}x")
         _card_metric(pl3, "P/L Projetado", f"{pl_proj}x")
         st.caption(
-            "P/L Atual vem do Fundamentus (mesmo número que Status Invest/Investidor10 mostram). "
             "P/L Médio (10 anos) e P/L Projetado vêm da sua planilha — o Projetado reflete o "
             "cenário que você mesmo define (geralmente conservador), por isso pode ficar acima "
             "do atual quando você projeta queda de lucro."
@@ -1750,8 +1749,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             _card_ind(i11, "Margem Líquida", marg_liq_val, sufixo="%")
             _card_ind(i12, "Liquidez Corrente", liquidez_corr_val, sufixo="x")
             st.caption(
-                "ROIC, VPA, P/EBIT, EV/EBITDA, Margem Líquida e Liquidez Corrente vêm direto do "
-                "Fundamentus. PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros, já presentes "
+                "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros, já presentes "
                 "na sua planilha) — abaixo de 1x geralmente indica crescimento 'baixo' em relação "
                 "ao preço pago; acima de 2x pode indicar preço esticado frente ao crescimento."
             )
@@ -1858,7 +1856,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ABA: DIVIDENDOS
     # ════════════════════════════════════════════════════════════════════
     with aba_dividendos:
-        st.markdown("#### 💰 Dividendos (Yahoo Finance)")
+        st.markdown("#### 💰 Dividendos")
         style_dy = "color:#4CAF6D;font-weight:bold;" if dy_num > 8 else ""
         st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
             "<b>Dividend Yield:</b> <span style='{}'>{}</span><br>"
@@ -1908,7 +1906,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             )
 
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### 💵 Proventos (Fundamentus)")
+        st.markdown("#### 💵 Proventos")
         with st.spinner("Buscando histórico de proventos..."):
             df_prov_det, df_prov_ano, erro_prov = get_proventos_data(ticker)
 
@@ -1921,7 +1919,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "text-transform:uppercase;margin-bottom:8px;'>Últimos 12 meses</div>"
                 "<div style='font-size:1.3em;font-weight:900;color:#4CAF6D;'>R$ {total:.4f} / ação</div>"
                 "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
-                "Soma de dividendos e JCP pagos nos últimos 12 meses. Fonte: Fundamentus.</div>"
+                "Soma de dividendos e JCP pagos nos últimos 12 meses.</div>"
                 "</div>".format(base=card_style, total=total_12m),
                 unsafe_allow_html=True
             )
@@ -1941,7 +1939,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 show_det.columns = ['Data', 'Valor', 'Tipo', 'Data Pagamento'][:len(cols_mostrar)]
                 st.dataframe(show_det, use_container_width=True, hide_index=True)
         else:
-            st.info("Dados de proventos (Fundamentus) indisponíveis para este ativo.")
+            st.info("Dados de proventos indisponíveis para este ativo.")
             if erro_prov:
                 st.caption(f"🔧 Detalhe técnico: {erro_prov}")
 
@@ -1968,7 +1966,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.markdown("<div style='margin:20px 0 4px 0;height:1px;background:rgba(255,255,255,0.08);'></div>", unsafe_allow_html=True)
         st.markdown(
             "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-            "text-transform:uppercase;margin:14px 0 4px 0;'>📋 Histórico Detalhado (Fundamentus)</div>"
+            "text-transform:uppercase;margin:14px 0 4px 0;'>📋 Histórico Detalhado</div>"
             "<div style='font-size:0.78em;color:#94A3B8;margin-bottom:12px;'>"
             "Ledger mês a mês, com histórico de múltiplos anos — mais longo que a janela "
             "da síntese acima, mas sem separar diretoria/conselho de controlador.</div>",
@@ -2000,7 +1998,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "text-transform:uppercase;margin-bottom:8px;'>👤 Insiders</div>"
                     "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
                     "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
-                    "Movimentação de controladores, diretoria e conselho. Fonte: Fundamentus/CVM.</div>"
+                    "Movimentação de controladores, diretoria e conselho.</div>"
                     "</div>".format(base=card_style, cor=cor_ins, sub=sub_ins),
                     unsafe_allow_html=True
                 )
@@ -2040,7 +2038,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "text-transform:uppercase;margin-bottom:8px;'>🏢 Recompras</div>"
                     "<div style='font-size:1.3em;font-weight:900;color:{cor};'>{sub}</div>"
                     "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
-                    "Ações recompradas pela própria empresa (tesouraria). Fonte: Fundamentus/CVM.</div>"
+                    "Ações recompradas pela própria empresa (tesouraria).</div>"
                     "</div>".format(base=card_style, cor=cor_rec, sub=sub_rec),
                     unsafe_allow_html=True
                 )
@@ -2165,7 +2163,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     unsafe_allow_html=True
                 )
             st.caption(
-                "Fonte: portal público da OpLab (sem login). IV Rank/Percentil acima de 70 "
+                "IV Rank/Percentil acima de 70 "
                 "indicam volatilidade historicamente alta (opções 'caras') — acima de 30 e abaixo "
                 "de 70 é uma faixa neutra; abaixo de 30, volatilidade historicamente baixa."
             )
@@ -2599,7 +2597,7 @@ else:
                 if linhas_comp:
                     df_comp = pd.DataFrame(linhas_comp)
                     st.dataframe(df_comp, use_container_width=True)
-                    st.caption("ROIC e VPA buscados em tempo real pra esses ativos (Fundamentus) — não vêm do cache dos 40 da grade.")
+                    st.caption("ROIC e VPA buscados em tempo real pra esses ativos — não vêm do cache dos 40 da grade.")
             st.stop()
 
         # Modo Confluência — ranking de Score de Confluência (CVM) de todos
