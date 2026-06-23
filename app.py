@@ -1457,7 +1457,37 @@ if 'modo_exibicao' not in st.session_state:
     st.session_state.modo_exibicao = 'Lista'
 
 
-def pagina_ativo(ticker, row, ativo_data):
+def montar_extras_confluencia(lista_ativos_com_score):
+    """
+    Converte os dados que o RADAR já calcula (preço teto/target, dividend
+    safety) para o formato que score_confluencia() espera em `extras`:
+    ['ticker', 'valuation', 'dividend_safety'].
+
+    valuation: desconto fracionário vs preço teto -- (teto - cotação) / teto.
+    Positivo = abaixo do teto (barato); negativo = acima do teto (caro).
+    Mesma conta já usada no card de Teto/Target da Visão Geral, então a
+    leitura é consistente com o que o Diego já vê em outro lugar da tela.
+    score_confluencia() já faz o clip para [-1, 1] internamente.
+
+    dividend_safety: repassa direto o score 0-10 que o RADAR já calcula
+    (calcular_dividend_safety) -- score_confluencia() já normaliza pra
+    [-1, 1] internamente.
+    """
+    linhas = []
+    for a in lista_ativos_com_score:
+        ticker = a['row'].get('CÓDIGO')
+        preco_teto = a.get('preco_teto_val', 0) or 0
+        cot = limpar_valor(str(a['row'].get('Cotação atual', 0)).replace('R$', ''))
+        valuation = ((preco_teto - cot) / preco_teto) if (preco_teto > 0 and cot > 0) else None
+        linhas.append({
+            'ticker': ticker,
+            'valuation': valuation,
+            'dividend_safety': a.get('div_safety_score'),
+        })
+    return pd.DataFrame(linhas)
+
+
+def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     try:
         import plotly.graph_objects as go
     except ImportError:
@@ -1914,7 +1944,11 @@ def pagina_ativo(ticker, row, ativo_data):
             "</div>",
             unsafe_allow_html=True
         )
-        render_confluencia_card(st, ticker, tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist())
+        render_confluencia_card(
+            st, ticker,
+            tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist(),
+            extras=montar_extras_confluencia(lista_ativos_com_score) if lista_ativos_com_score else None,
+        )
 
         st.markdown("<div style='margin:20px 0 4px 0;height:1px;background:rgba(255,255,255,0.08);'></div>", unsafe_allow_html=True)
         st.markdown(
@@ -2398,7 +2432,7 @@ else:
             ticker_sel = st.session_state.ativo_selecionado
             ativo_sel  = next((a for a in ativos_com_score if a['row']['CÓDIGO'] == ticker_sel), None)
             if ativo_sel:
-                pagina_ativo(ticker_sel, ativo_sel['row'], ativo_sel)
+                pagina_ativo(ticker_sel, ativo_sel['row'], ativo_sel, ativos_com_score)
                 st.stop()
             else:
                 st.session_state.ativo_selecionado = None
@@ -2558,7 +2592,10 @@ else:
         # Cards/Comparar) para nunca "sequestrar" a navegação de quem está
         # vendo o detalhe de um ativo.
         if st.session_state.modo_exibicao == 'Confluência':
-            render_confluencia(st, tickers=df['CÓDIGO'].dropna().astype(str).tolist())
+            render_confluencia(
+                st, tickers=df['CÓDIGO'].dropna().astype(str).tolist(),
+                extras=montar_extras_confluencia(ativos_com_score),
+            )
             st.stop()
 
         # Modo Lista — duas colunas para ver mais ativos na tela
