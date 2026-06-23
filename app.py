@@ -1672,60 +1672,55 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ABA: VALUATION & FUNDAMENTOS
     # ════════════════════════════════════════════════════════════════════
     with aba_valuation:
-        col1, col3 = st.columns(2)
+        def _card_metric(col, titulo, texto, cor_valor="#F1EFE8"):
+            col.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>{titulo}</div>"
+                "<div style='font-size:1.25em;font-weight:900;color:{cor};'>{texto}</div>"
+                "</div>".format(base=card_style, titulo=titulo, texto=texto, cor=cor_valor),
+                unsafe_allow_html=True
+            )
 
-        with col1:
-            st.markdown("#### 📊 Valuation")
-            st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
-                "<b>P/L Médio (10 anos):</b> {}x<br>"
-                "<b>P/VP:</b> {}<br>"
-                "<b>Valor de Mercado:</b> {}<br>"
-                "<b>RESULTADO PROJETADO:</b> {}<br>"
-                "<b>⭐ RESULTADO ENTREGUE (1/4):</b> <span style='color:#4CAF6D;font-weight:bold;'>{}</span>"
-                "</div>".format(
-                    row.get('P/L médio (últ. 10 anos)', '-'), pvp_str,
-                    row.get('VALOR DE MERCADO', '-'), row.get('LL PROJETADO', '-'),
-                    row.get('RESULTADO 2026 (1/4)', '-')),
-                unsafe_allow_html=True)
+        st.markdown("#### 📊 Valuation")
+        v1, v2, v3, v4 = st.columns(4)
+        _card_metric(v1, "P/L Médio (10 anos)", f"{row.get('P/L médio (últ. 10 anos)', '-')}x")
+        _card_metric(v2, "P/VP", pvp_str)
+        _card_metric(v3, "Valor de Mercado", row.get('VALOR DE MERCADO', '-'))
+        _card_metric(v4, "Resultado Projetado", row.get('LL PROJETADO', '-'))
+        v5, v6 = st.columns([1, 3])
+        _card_metric(v5, "⭐ Resultado Entregue (1/4)", row.get('RESULTADO 2026 (1/4)', '-'), cor_valor="#4CAF6D")
+        with v6:
+            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
             barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
             st.markdown(barra, unsafe_allow_html=True)
             st.markdown("<span style='font-size:0.85em;color:{};font-weight:bold;'>Status: {}% do resultado projetado</span>".format(cor, porcentagem), unsafe_allow_html=True)
-            if historico_lucro:
-                st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
-                st.markdown(mini_grafico_linha(historico_lucro, "#4CAF6D"), unsafe_allow_html=True)
+        if historico_lucro:
+            st.markdown("<div style='margin-top:10px;'></div><span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
+            st.markdown(mini_grafico_linha(historico_lucro, "#4CAF6D"), unsafe_allow_html=True)
 
-        with col3:
-            st.markdown("#### ⚙️ Operacional")
-            pl_proj = row.get('P/L PROJETADO', '-')
-            st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
-                "<b>P/L Projetado:</b> <span style='color:#D4AF37;font-weight:bold;'>{}x</span><br>"
-                "<b>Dívida Líq/EBITDA:</b> {}<br>"
-                "<b>CAGR Lucros:</b> {}<br>"
-                "<b>ROE:</b> {}<br>"
-                "<b>Margem Líq.:</b> {}<br>"
-                "<b>Beta (vs IBOV):</b> {}"
-                "</div>".format(
-                    pl_proj, row.get('Dívida líquida/EBITDA', '-'),
-                    row.get('CAGR lucros (últ. 5 anos)', '-'), roe, margem, beta),
-                unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### ⚙️ Operacional")
+        pl_proj = row.get('P/L PROJETADO', '-')
+        o1, o2, o3 = st.columns(3)
+        _card_metric(o1, "P/L Projetado", f"{pl_proj}x", cor_valor="#D4AF37")
+        _card_metric(o2, "Dívida Líq/EBITDA", row.get('Dívida líquida/EBITDA', '-'))
+        _card_metric(o3, "CAGR Lucros", row.get('CAGR lucros (últ. 5 anos)', '-'))
+        o4, o5, o6 = st.columns(3)
+        _card_metric(o4, "ROE", roe)
+        _card_metric(o5, "Margem Líq.", margem)
+        _card_metric(o6, "Beta (vs IBOV)", beta)
 
-            if historico_pl:
-                st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
-                st.markdown(mini_grafico_linha(historico_pl, "#5B8DB8", label_suffix="x"), unsafe_allow_html=True)
+        if historico_pl:
+            st.markdown("<div style='margin-top:10px;'></div><span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
+            st.markdown(mini_grafico_linha(historico_pl, "#5B8DB8", label_suffix="x"), unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### 🔎 Indicadores Extras (Fundamentus)")
+        st.markdown("#### 🔎 Indicadores")
         if ind_extras:
             e1, e2, e3, e4 = st.columns(4)
             def _card_ind(col, titulo, valor, sufixo="", fmt="{:.2f}"):
                 texto = (fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
-                col.markdown(
-                    "<div style='{base}text-align:center;'>"
-                    "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>{titulo}</div>"
-                    "<div style='font-size:1.25em;font-weight:900;color:#F1EFE8;'>{texto}</div>"
-                    "</div>".format(base=card_style, titulo=titulo, texto=texto),
-                    unsafe_allow_html=True
-                )
+                _card_metric(col, titulo, texto)
             _card_ind(e1, "ROIC", roic_val, sufixo="%")
             _card_ind(e2, "VPA", vpa_val, sufixo=" R$")
             _card_ind(e3, "PEG Ratio", peg_val, sufixo="x")
