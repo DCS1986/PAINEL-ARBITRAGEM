@@ -1904,6 +1904,28 @@ def pagina_ativo(ticker, row, ativo_data):
     # ABA: MOVIMENTAÇÃO (Insiders + Recompras)
     # ════════════════════════════════════════════════════════════════════
     with aba_movimentacao:
+        # ---- Síntese (CVM) — vem primeiro: é a leitura interpretada ----
+        st.markdown(
+            "<div style='font-size:0.78em;color:#94A3B8;margin-bottom:10px;line-height:1.5;'>"
+            f"ℹ️ O número abaixo (Score de Confluência) é <b>diferente</b> do Score "
+            f"Fundamentalista (⭐ {score}/10) mostrado no topo da página. Aqui medimos "
+            "só sinais de insider/recompra/controlador via CVM — não fundamentos, "
+            "valuation ou dividendos."
+            "</div>",
+            unsafe_allow_html=True
+        )
+        render_confluencia_card(st, ticker, tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist())
+
+        st.markdown("<div style='margin:20px 0 4px 0;height:1px;background:rgba(255,255,255,0.08);'></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+            "text-transform:uppercase;margin:14px 0 4px 0;'>📋 Histórico Detalhado (Fundamentus)</div>"
+            "<div style='font-size:0.78em;color:#94A3B8;margin-bottom:12px;'>"
+            "Ledger mês a mês, com histórico de múltiplos anos — mais longo que a janela "
+            "da síntese acima, mas sem separar diretoria/conselho de controlador.</div>",
+            unsafe_allow_html=True
+        )
+
         icol1, icol2 = st.columns(2)
 
         with st.spinner("Buscando dados de insiders e recompras..."):
@@ -1991,9 +2013,6 @@ def pagina_ativo(ticker, row, ativo_data):
                 )
                 if erro_rec:
                     st.caption(f"🔧 Detalhe técnico: {erro_rec}")
-
-        st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
-        render_confluencia_card(st, ticker, tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist())
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: DOCUMENTOS (Apresentações)
