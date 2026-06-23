@@ -26,6 +26,7 @@ E um sinal de CONVICCAO de medio prazo, nao gatilho de curto prazo.
 """
 
 import io
+import re
 import zipfile
 import unicodedata
 from datetime import date
@@ -35,23 +36,67 @@ import requests
 
 URL_BASE = "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/VLMO/DADOS/vlmo_cia_aberta_{ano}.zip"
 
-# CNPJs travados e confirmados contra o arquivo de 2026 (a empresa LISTADA de
-# cada ticker; subsidiarias e holdings homonimas foram descartadas).
-MAPA_TICKER_CNPJ = {
-    "PETR4":  "33.000.167/0001-01",  # Petroleo Brasileiro - Petrobras
-    "VALE3":  "33.592.510/0001-54",  # Vale
-    "BPAC11": "30.306.294/0001-45",  # Banco BTG Pactual
-    "BBAS3":  "00.000.000/0001-91",  # Banco do Brasil
-    "BBSE3":  "17.344.597/0001-94",  # BB Seguridade
-    "B3SA3":  "09.346.601/0001-25",  # B3
-    "KLBN11": "89.637.490/0001-45",  # Klabin
-    "BRAP4":  "03.847.461/0001-92",  # Bradespar
-    "SUZB3":  "16.404.287/0001-55",  # Suzano
-    "PSSA3":  "02.149.205/0001-69",  # Porto Seguro
-    "ITUB4":  "60.872.504/0001-23",  # Itau Unibanco Holding
-    "BBDC4":  "60.746.948/0001-12",  # Banco Bradesco
-    "AXIA3":  "00.001.180/0001-26",  # Axia Energia (ex-Eletrobras)
+URL_FCA = "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/FCA/DADOS/fca_cia_aberta_{ano}.zip"
+
+# Pequenas correções manuais pra inconsistências CONHECIDAS de cadastro na
+# propria CVM, onde a coluna Codigo_Negociacao vem com lixo (ex: "000000" ou
+# um codigo numerico interno) em vez do ticker real. Confirmado por
+# CNPJ/Nome_Empresarial no arquivo fca_cia_aberta_valor_mobiliario.
+_CORRECOES_CADASTRO_CVM = {
+    "BPAC11": "30.306.294/0001-45",  # Banco BTG Pactual (Codigo_Negociacao vem "000000")
+    "CMIN3":  "08.902.291/0001-15",  # CSN Mineração (Codigo_Negociacao vem codigo interno)
 }
+
+# Aliases de classe de ação: o ticker da planilha do Diego nao e o mesmo
+# registrado na CVM, mas e a MESMA empresa (mesmo CNPJ) -- so uma classe de
+# acao diferente (ex: preferencial vs unit). Insider, recompra e fatos
+# relevantes sao da empresa como um todo, entao vale usar o CNPJ da classe
+# que de fato consta no cadastro. Confirmado a pedido do Diego: KLBN4 nao
+# negocia mais separadamente, so existe KLBN11 (units) hoje -- mesmo CNPJ.
+_ALIASES_CLASSE_ACAO = {
+    "KLBN4": "89.637.490/0001-45",  # Klabin -- so negocia via KLBN11 hoje, mesma empresa
+}
+
+_PADRAO_TICKER = re.compile(r"^(?=.*[A-Z])[A-Z0-9]{4}\d{1,2}$")
+
+
+def baixar_mapa_tickers(ano: int | None = None, timeout: int = 60) -> dict:
+    """
+    Baixa o Formulario Cadastral (FCA) da CVM e devolve {TICKER: CNPJ} pra
+    TODAS as empresas listadas na B3 (458+ tickers) -- nao so um universo
+    fixo. Fonte: fca_cia_aberta_valor_mobiliario_AAAA.csv (Codigo_Negociacao
+    x CNPJ_Companhia). Mesma licenca ODbL do restante dos dados da CVM.
+    """
+    ano = ano or date.today().year
+    url = URL_FCA.format(ano=ano)
+    resp = requests.get(url, timeout=timeout, headers={"User-Agent": "RADAR/1.0"})
+    resp.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+        nome = next(n for n in zf.namelist() if "valor_mobiliario" in n.lower())
+        with zf.open(nome) as f:
+            df = pd.read_csv(f, sep=";", encoding="latin-1", dtype=str, low_memory=False)
+    return _construir_mapa_tickers(df)
+
+
+def carregar_mapa_tickers_local(caminho_zip: str) -> dict:
+    """Mesma coisa que baixar_mapa_tickers(), mas a partir de um ZIP local
+    (uso offline/teste, sem precisar de rede)."""
+    with zipfile.ZipFile(caminho_zip) as zf:
+        nome = next(n for n in zf.namelist() if "valor_mobiliario" in n.lower())
+        with zf.open(nome) as f:
+            df = pd.read_csv(f, sep=";", encoding="latin-1", dtype=str, low_memory=False)
+    return _construir_mapa_tickers(df)
+
+
+def _construir_mapa_tickers(df: pd.DataFrame) -> dict:
+    validos = df[df["Codigo_Negociacao"].str.match(_PADRAO_TICKER, na=False)]
+    mapa = dict(zip(validos["Codigo_Negociacao"], validos["CNPJ_Companhia"]))
+    mapa.update(_CORRECOES_CADASTRO_CVM)
+    mapa.update(_ALIASES_CLASSE_ACAO)
+    return mapa
+
+
+
 
 # Quem e "pessoa-chave" (convicao de quem opera a empresa) vs estrutural.
 CARGOS_PESSOAS_CHAVE = [
@@ -99,6 +144,7 @@ def carregar_local(caminho_zip: str) -> pd.DataFrame:
 
 def insider_liquido(
     df: pd.DataFrame,
+    mapa_tickers: dict,
     tickers: list[str] | None = None,
     meses: int = 6,
     cargos: list[str] | None = None,
@@ -108,20 +154,26 @@ def insider_liquido(
     Fluxo liquido de insiders (compras - vendas, em R$) por ticker nos ultimos
     N meses, considerando apenas Compra/Venda a vista de Acoes/Units.
 
-    cargos              : lista de Tipo_Cargo a considerar (default: pessoas-chave
+    mapa_tickers         : dict {TICKER: CNPJ}, normalmente vindo de
+                          baixar_mapa_tickers()/carregar_mapa_tickers_local().
+                          Cobre QUALQUER ticker listado na B3, nao um universo
+                          fixo -- passe os tickers do seu screener (ex: os 40
+                          do RADAR) via o parametro `tickers`.
+    tickers              : lista de tickers a calcular (default: todos os
+                          presentes em mapa_tickers).
+    cargos               : lista de Tipo_Cargo a considerar (default: pessoas-chave
                           = Diretoria + Conselho de Administracao).
-    incluir_controlador : se True, adiciona uma coluna separada com o liquido do
+    incluir_controlador  : se True, adiciona uma coluna separada com o liquido do
                           controlador (que costuma ser estrutural, nao convicao).
 
     Retorna: ticker, compras_rs, vendas_rs, liquido_rs, n_ops, sinal
              (+ controlador_rs se incluir_controlador=True).
     """
     cargos = cargos or CARGOS_PESSOAS_CHAVE
-    inv = {v: k for k, v in MAPA_TICKER_CNPJ.items()}
-    alvo = (
-        [MAPA_TICKER_CNPJ[t] for t in tickers]
-        if tickers else list(MAPA_TICKER_CNPJ.values())
-    )
+    tickers = tickers or list(mapa_tickers.keys())
+    mapa_filtrado = {t: mapa_tickers[t] for t in tickers if t in mapa_tickers}
+    inv = {v: k for k, v in mapa_filtrado.items()}
+    alvo = list(mapa_filtrado.values())
 
     d = df[df["CNPJ_Companhia"].isin(alvo)].copy()
     d["ticker"] = d["CNPJ_Companhia"].map(inv)
@@ -141,7 +193,14 @@ def insider_liquido(
         return compra, venda
 
     linhas = []
-    for tk in (tickers or MAPA_TICKER_CNPJ.keys()):
+    for tk in tickers:
+        if tk not in mapa_filtrado:
+            linhas.append({
+                "ticker": tk, "compras_rs": 0.0, "vendas_rs": 0.0,
+                "liquido_rs": 0.0, "n_ops": 0,
+                **({"controlador_rs": 0.0} if incluir_controlador else {}),
+            })
+            continue
         sub = base[base["ticker"] == tk]
         pessoas = sub[sub["Tipo_Cargo"].isin(cargos)]
         compra, venda = _liq(pessoas)
@@ -164,9 +223,18 @@ def insider_liquido(
 
 
 if __name__ == "__main__":
-    # Producao (Streamlit Cloud): df = baixar_vlmo(2026)
-    # Aqui, teste contra o arquivo local:
+    TICKERS_RADAR = [
+        'BBSE3','ITUB4','BBAS3','BBDC3','ABCB4','BRSR6','SANB3','BMGB4','BPAC11','IRBR3',
+        'PSSA3','CXSE3','ITSA4','PETR4','VALE3','BRAP4','CMIN3','GGBR3','KLBN4','UNIP6',
+        'LEVE3','SHUL4','VULC3','TIMS3','ALOS3','KEPL3','SLCE3','RANI3','CMIG4','CPLE3',
+        'EGIE3','TAEE11','ISAE4','CPFE3','SBSP3','SAPR4','CSMG3','AXIA3','B3SA3','BRBI11',
+    ]
+    mapa = carregar_mapa_tickers_local("/mnt/user-data/uploads/fca_cia_aberta_2026.zip")
+    print(f"Mapa ticker->CNPJ: {len(mapa)} tickers cobertos no total")
+    faltando = [t for t in TICKERS_RADAR if t not in mapa]
+    print(f"Dos 40 do RADAR, faltando: {faltando}")
+
     df = carregar_local("/mnt/user-data/uploads/vlmo_cia_aberta_2026.zip")
-    res = insider_liquido(df, meses=6, incluir_controlador=True)
+    res = insider_liquido(df, mapa_tickers=mapa, tickers=TICKERS_RADAR, meses=6, incluir_controlador=True)
     pd.options.display.float_format = lambda x: f"{x:,.0f}"
     print(res.to_string(index=False))
