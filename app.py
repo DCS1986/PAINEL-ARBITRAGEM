@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 import requests
+from ui_confluencia import render_confluencia
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -2196,7 +2197,12 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 }
 </style>
 """, unsafe_allow_html=True)
-tcol1, tcol2, tcol3, tcol4 = st.columns([1, 1, 1, 7])
+tcol1, tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1, 1.4, 6])
+with tcol4:
+    if st.button("🎯 Confluência", use_container_width=True,
+                 type="primary" if st.session_state.modo_exibicao == 'Confluência' else "secondary"):
+        st.session_state.modo_exibicao = 'Confluência'
+        st.rerun()
 with tcol1:
     if st.button("☰ Lista", use_container_width=True,
                  type="primary" if st.session_state.modo_exibicao == 'Lista' else "secondary"):
@@ -2212,7 +2218,9 @@ with tcol3:
                  type="primary" if st.session_state.modo_exibicao == 'Comparar' else "secondary"):
         st.session_state.modo_exibicao = 'Comparar'
         st.rerun()
-
+if st.session_state.modo_exibicao == 'Confluência':
+    render_confluencia(st)
+    st.stop()
 # --- LISTAGEM DE ATIVOS ---
 if df_f.empty:
     card_filtrados.markdown("""<div class='top-card'>
