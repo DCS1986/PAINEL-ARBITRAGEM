@@ -155,6 +155,31 @@ def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = Non
                     use_container_width=True, hide_index=True)
 
 
+def obter_score_resumido(st, ticker: str, tickers_universo: list[str], meses: int = 6,
+                          ano: int | None = None, extras: pd.DataFrame | None = None):
+    """
+    Versão "sem desenho" do Score de Confluência -- devolve só os números,
+    pra usar em resumos/cards compactos (ex: aba Visão Geral) sem duplicar
+    o card cheio. Retorna dict {'score', 'concordancia', 'resumo'} ou None
+    se não houver dados/erro.
+    """
+    if not _DEPS_OK:
+        return None
+    ano = ano or datetime.date.today().year
+    try:
+        df, mapa = _carregar_cache(st, int(ano))
+        if ticker.upper() not in mapa:
+            return None
+        res = score_confluencia(df, mapa, tickers_universo, meses=int(meses), extras=extras)
+    except Exception:
+        return None
+    linha = res[res["ticker"] == ticker.upper()]
+    if linha.empty:
+        return None
+    row = linha.iloc[0]
+    return {"score": row["score"], "concordancia": row["concordancia"], "resumo": explicar(row)}
+
+
 def render_confluencia_card(
     st, ticker: str, tickers_universo: list[str],
     meses: int = 6, ano: int | None = None,
