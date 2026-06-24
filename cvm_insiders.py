@@ -142,6 +142,80 @@ def carregar_local(caminho_zip: str) -> pd.DataFrame:
             return pd.read_csv(f, sep=";", encoding="latin-1", dtype=str, low_memory=False)
 
 
+# ---- Recompra REAL (verificacao por documento individual) -----------------
+# O CSV "_con_" (insiders) e o dataset "Programa de Recompra" (autorizacao)
+# NAO contem a execucao real de recompra -- confirmado exaustivamente em
+# sessao de depuracao com o Diego. A execucao real (data/quantidade/preco/
+# intermediario) so existe no FORMULARIO INDIVIDUAL de cada empresa/mes,
+# que e um documento (provavelmente PDF) -- nao um CSV estruturado. O outro
+# CSV dentro do MESMO zip do VLMO (sem o "_con_") e um INDICE desses
+# documentos, com a coluna Link_Download apontando pro documento real.
+#
+# IMPORTANTE: a verificacao de "tem recompra real" por PDF abaixo foi
+# escrita mas NUNCA TESTADA contra o documento de verdade (as ferramentas
+# usadas para construir isso nao tem acesso a internet) -- precisa ser
+# validada rodando no Streamlit Cloud antes de confiar no resultado.
+
+def baixar_indice_documentos(ano: int | None = None, timeout: int = 60) -> pd.DataFrame:
+    """Baixa o indice de documentos individuais (formularios) do mesmo ZIP do
+    VLMO -- o CSV sem '_con_', que tem a coluna Link_Download apontando pro
+    formulario individual de cada empresa/mes (onde mora a recompra real)."""
+    ano = ano or date.today().year
+    url = URL_BASE.format(ano=ano)
+    resp = requests.get(url, timeout=timeout, headers={"User-Agent": "RADAR/1.0"})
+    resp.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+        nome_idx = next(n for n in zf.namelist() if "_con_" not in n.lower())
+        with zf.open(nome_idx) as f:
+            return pd.read_csv(f, sep=";", encoding="latin-1", dtype=str, low_memory=False)
+
+
+def carregar_indice_documentos_local(caminho_zip: str) -> pd.DataFrame:
+    """Mesma coisa que baixar_indice_documentos(), a partir de um ZIP local."""
+    with zipfile.ZipFile(caminho_zip) as zf:
+        nome_idx = next(n for n in zf.namelist() if "_con_" not in n.lower())
+        with zf.open(nome_idx) as f:
+            return pd.read_csv(f, sep=";", encoding="latin-1", dtype=str, low_memory=False)
+
+
+def link_documento_mais_recente(indice: pd.DataFrame, cnpj: str, meses: int = 6) -> list[str]:
+    """Retorna os links de download dos formularios individuais de um CNPJ
+    nos ultimos `meses` meses (mais recente primeiro)."""
+    sub = indice[indice["CNPJ_Companhia"] == cnpj].copy()
+    sub["dt"] = pd.to_datetime(sub["Data_Referencia"], errors="coerce")
+    corte = pd.Timestamp.today() - pd.DateOffset(months=meses)
+    sub = sub[sub["dt"] >= corte].sort_values("dt", ascending=False)
+    return sub["Link_Download"].dropna().tolist()
+
+
+_MARCADORES_MOVIMENTACAO_REAL = ["compra à vista", "venda à vista", "compra a vista", "venda a vista"]
+
+
+def verificar_movimentacao_real(url: str, timeout: int = 20) -> bool | None:
+    """
+    Baixa o formulario individual (PDF) e verifica se a tabela "Movimentacoes
+    no Mes" tem pelo menos UMA linha real de compra/venda -- nao so o cabecalho
+    da tabela vazio (que e o que aconteceu com a AXIA3 em fev/2026, mostrado
+    pelo Diego). Procura pelos textos literais "Compra à vista"/"Venda à
+    vista", que SO aparecem como valor de uma linha de operacao real, nunca
+    como cabecalho de coluna -- diferente de "Intermediário", que aparece
+    como cabecalho mesmo em tabela vazia.
+
+    Retorna True (tem movimentacao real), False (tabela vazia/sem operacao),
+    ou None se nao foi possivel baixar/ler o documento.
+    """
+    try:
+        resp = requests.get(url, timeout=timeout, headers={"User-Agent": "RADAR/1.0"})
+        resp.raise_for_status()
+        from pypdf import PdfReader
+        leitor = PdfReader(io.BytesIO(resp.content))
+        texto = " ".join(pagina.extract_text() or "" for pagina in leitor.pages)
+        texto_norm = _sem_acento(texto).lower()
+        return any(marcador in texto_norm for marcador in _MARCADORES_MOVIMENTACAO_REAL)
+    except Exception:
+        return None
+
+
 def insider_liquido(
     df: pd.DataFrame,
     mapa_tickers: dict,
