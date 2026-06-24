@@ -139,7 +139,7 @@ page_bg_img = f"""
     padding: 9px 7px 7px 7px;
     text-align: center;
     margin-bottom: 4px;
-    height: 230px;
+    min-height: 230px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
