@@ -707,6 +707,10 @@ GOVERNANCA = {
     "AXIA3":  {"nota": 8.0, "obs": "Holding de fibra — nova no mercado, mas estrutura de governança bem desenhada."},
     "B3SA3":  {"nota": 9.0, "obs": "B3 — autolistada, padrão máximo de governança no Brasil. Referência para o mercado."},
     "BRBI11": {"nota": 7.5, "obs": "BR Partners — gestão alinhada, transparência adequada para o porte."},
+    "CYRE3":  {"nota": 8.3, "obs": "Controle da família Schahin, listada no Novo Mercado com tag along 100%. Criação recente de classe de ações preferenciais especiais (pra distribuir reservas antes da tributação de dividendos em 2026) gerou reação negativa do mercado, mas a estrutura de governança permanece sólida."},
+    "DIRR3":  {"nota": 8.5, "obs": "Controle da família fundadora (Gontijo), reforçado por acordo de voto de 10 anos após reorganização societária em 2026 (sem mudança de controle). Novo Mercado, tag along 100%, histórico limpo com minoritários."},
+    "MDNE3":  {"nota": 7.0, "obs": "Estrutura anterior da joint venture com a Direcional na marca Ún1ca (controladores/executivos detinham 30% pessoalmente, diluindo o resultado capturado pela companhia) gerou desconforto entre minoritários — resolvida em abr/2026 com a Moura Dubeux assumindo 100%. Sinal positivo de resposta à pressão do mercado, mas o episódio pesa na nota."},
+    "CURY3":  {"nota": 8.5, "obs": "Joint venture entre a família Cury (fundadora) e a Cyrela (50% cada). Novo Mercado, comitê de ESG ativo, sem polêmicas relevantes com minoritários."},
 }
 
 OUTLOOK_2026 = {
@@ -750,6 +754,10 @@ OUTLOOK_2026 = {
     "AXIA3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Fibra óptica em expansão acelerada. Demanda por conectividade crescente e estrutural. Perspectiva positiva para 2026."},
     "B3SA3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Dependente do volume de negociação. Juros altos reduzem fluxo para renda variável. Melhora depende de queda de juros e volta do PF — perspectiva neutra para 2026."},
     "BRBI11": {"icone": "✅", "cor": "#4CAF6D", "texto": "Banco de investimento em crescimento. Perspectiva positiva dependente do ambiente de M&A e mercado de capitais em 2026."},
+    "CYRE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Bonificação em PN especiais (criada pra antecipar valor antes da tributação de dividendos a partir de 2026) provocou queda nos papéis na virada do ano. Negócio segue sólido e diversificado, mas atenção à diluição e à reação do mercado à nova estrutura de capital."},
+    "DIRR3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Foco em habitação popular (MCMV Faixas 1-3) torna o negócio mais resiliente ao ciclo de juros. Geração de caixa forte, baixo endividamento e dividendos elevados. Início de 2026 com fundamentos sólidos e ROIC bem acima do custo de capital."},
+    "MDNE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Maior construtora do Nordeste. Follow-on de R$500 milhões em jan/2026 dobrou a liquidez do papel. Marca Única (baixa renda/MCMV) é o principal vetor de crescimento, com parceria com a Direcional. Dividend yield esperado de ~7% para 2026."},
+    "CURY3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Foco em SP e RJ, MCMV + médio padrão. ROE de ~78% e múltiplos baratos (P/L 2026E entre 7x-8,5x). Riscos: pressão de custos de construção, cancelamentos e sensibilidade a mudanças no financiamento do MCMV/FGTS."},
 }
 
 # ---- Estudos Específicos ----
