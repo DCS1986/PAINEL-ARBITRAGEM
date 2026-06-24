@@ -2401,7 +2401,7 @@ ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
 
 # ---- Linha 1: Total/Filtrados (estreitos) + Ibovespa/Selic (largos) ----
-c1, c2, c3, c4 = st.columns([0.8, 0.8, 1.2, 1.2])
+c1, c2, c_espaco, c3, c4 = st.columns([0.8, 0.8, 0.15, 1.15, 1.15])
 with c1:
     st.markdown(f"""<div class='top-card'>
         <div class='label'>📋 Total de Ativos</div>
