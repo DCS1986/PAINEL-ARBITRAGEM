@@ -175,9 +175,9 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
     tl, tc, tr = st.columns([1, 2, 1])
     with tc:
         st.markdown(
-            "<h1 style='text-align:center; font-size:2.8em; font-weight:900; "
+            "<h1 style='text-align:center; font-size:clamp(1.5em, 7vw, 2.8em); font-weight:900; "
             "letter-spacing:3px; text-transform:uppercase; color:#F1EFE8; "
-            "white-space:nowrap; margin:0 0 6px 0;'>Radar Fundamentalista</h1>"
+            "margin:0 0 6px 0; word-wrap:break-word;'>Radar Fundamentalista</h1>"
             "<p style='text-align:center; font-size:0.85em; color:rgba(255,255,255,0.4); "
             "letter-spacing:3px; text-transform:uppercase; margin:0 0 32px 0;'>Diego Castro</p>",
             unsafe_allow_html=True
@@ -2341,8 +2341,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
 st.markdown("""
 <div style="position:relative; margin-bottom:20px; padding:10px 0 16px 0;
             border-bottom:1px solid rgba(255,255,255,0.08);">
-    <h1 style="margin:0; font-size:2.4em; font-weight:900; letter-spacing:2px;
-               text-transform:uppercase; color:#F1EFE8; line-height:1.1;">
+    <h1 style="margin:0; font-size:clamp(1.4em, 6vw, 2.4em); font-weight:900; letter-spacing:2px;
+               text-transform:uppercase; color:#F1EFE8; line-height:1.1; word-wrap:break-word;">
         Radar Fundamentalista
     </h1>
     <span style="position:absolute; top:14px; right:0; font-size:0.85em;
