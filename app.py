@@ -719,6 +719,9 @@ GOVERNANCA = {
     "DIRR3":  {"nota": 8.5, "obs": "Controle da família fundadora (Gontijo), reforçado por acordo de voto de 10 anos após reorganização societária em 2026 (sem mudança de controle). Novo Mercado, tag along 100%, histórico limpo com minoritários."},
     "MDNE3":  {"nota": 7.0, "obs": "Estrutura anterior da joint venture com a Direcional na marca Ún1ca (controladores/executivos detinham 30% pessoalmente, diluindo o resultado capturado pela companhia) gerou desconforto entre minoritários — resolvida em abr/2026 com a Moura Dubeux assumindo 100%. Sinal positivo de resposta à pressão do mercado, mas o episódio pesa na nota."},
     "CURY3":  {"nota": 8.5, "obs": "Joint venture entre a família Cury (fundadora) e a Cyrela (50% cada). Novo Mercado, comitê de ESG ativo, sem polêmicas relevantes com minoritários."},
+    "LREN3":  {"nota": 8.8, "obs": "Capital pulverizado desde 2005 (sem controlador definido), listada no Novo Mercado, maioria independente no Conselho de Administração. Forte reputação ESG e de transparência."},
+    "GRND3":  {"nota": 8.0, "obs": "Controle da família fundadora (Grendene Bartelle), com reorganização societária recente (transferência de participação para fundo exclusivo, sem mudança de controle ou regras de governança). Política financeira conservadora, praticamente sem dívida líquida."},
+    "CGRA4":  {"nota": 6.5, "obs": "Classificada como 'Governança Tradicional' (não é Novo Mercado) — nível mais básico de exigências da B3. Baixa liquidez (small cap familiar do varejo gaúcho). Aumento de capital recente (abr/2026) via subscrição privada."},
 }
 
 OUTLOOK_2026 = {
@@ -766,6 +769,9 @@ OUTLOOK_2026 = {
     "DIRR3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Foco em habitação popular (MCMV Faixas 1-3) torna o negócio mais resiliente ao ciclo de juros. Geração de caixa forte, baixo endividamento e dividendos elevados. Início de 2026 com fundamentos sólidos e ROIC bem acima do custo de capital."},
     "MDNE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Maior construtora do Nordeste. Follow-on de R$500 milhões em jan/2026 dobrou a liquidez do papel. Marca Única (baixa renda/MCMV) é o principal vetor de crescimento, com parceria com a Direcional. Dividend yield esperado de ~7% para 2026."},
     "CURY3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Foco em SP e RJ, MCMV + médio padrão. ROE de ~78% e múltiplos baratos (P/L 2026E entre 7x-8,5x). Riscos: pressão de custos de construção, cancelamentos e sensibilidade a mudanças no financiamento do MCMV/FGTS."},
+    "LREN3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Setor de varejo de moda pressionado por alta alavancagem das famílias, juros altos e concorrência de plataformas cross-border (Shein, AliExpress). Em contrapartida, P/VPA perto de mínimas históricas (~1,5x) e analistas (Citi, Santander, BTG) seguem recomendando compra, com plano estratégico 2026-2030 prevendo aceleração de aberturas de loja."},
+    "GRND3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Lucro recuou em 2025 e o dividendo extraordinário recente (~R$1 bi) não deve se repetir no mesmo nível — payout acima de 170% é insustentável estruturalmente. Caixa líquido robusto (~R$1,1 bi) e baixa alavancagem sustentam a tese de renda, mas crescimento operacional é fraco; 2026 deve trazer normalização dos proventos."},
+    "CGRA4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Varejo regional tradicional (tecidos/vestuário, RS), baixa cobertura de analistas e liquidez reduzida. Aumento de capital recente dilui a base acionária. Distribuição de JCP retomada em mai/2026, mas sem garantia de regularidade dado o histórico de proventos irregulares."},
 }
 
 # ---- Estudos Específicos ----
@@ -1349,6 +1355,15 @@ def carregar_dados():
             df = df[df['CÓDIGO'].astype(str).str.lower() != 'nan']
         df = df.reset_index(drop=True)
 
+        # Blindagem: ticker duplicado na planilha (ex: adicionado 2x por
+        # engano) gera 2 cards com a MESMA chave interna no Streamlit e
+        # derruba o app inteiro (StreamlitDuplicateElementKey). Mantém só a
+        # primeira ocorrência -- silenciosamente resolve o crash, mas o
+        # aviso abaixo (lido no app principal) avisa que tem duplicata.
+        duplicados = df['CÓDIGO'][df['CÓDIGO'].duplicated()].unique().tolist() if 'CÓDIGO' in df.columns else []
+        if duplicados:
+            df = df.drop_duplicates(subset='CÓDIGO', keep='first').reset_index(drop=True)
+
         df['pl_num']      = df['P/L PROJETADO'].apply(limpar_valor)
         df['dy_num']      = df['Dividend Yield bruto estimado'].apply(limpar_valor)
         df['div_num']     = df['Dívida líquida/EBITDA'].apply(limpar_valor)
@@ -1357,11 +1372,17 @@ def carregar_dados():
         df['preco_teto']  = df['PREÇO TETO'].apply(limpar_valor) if 'PREÇO TETO' in df.columns else 0
         df['target']      = df['TARGET'].apply(limpar_valor) if 'TARGET' in df.columns else 0
 
-        return df
+        return df, duplicados
     except:
-        return pd.DataFrame()
+        return pd.DataFrame(), []
 
-df = carregar_dados()
+df, _tickers_duplicados = carregar_dados()
+if _tickers_duplicados:
+    st.warning(
+        f"⚠️ Ticker(s) duplicado(s) na planilha (mantive só a primeira linha de cada): "
+        f"{', '.join(_tickers_duplicados)}. Verifique e remova a linha repetida pra "
+        f"evitar inconsistência nos dados."
+    )
 
 
 # ---- Tese de Investimento + Alerta de Divergência ----
