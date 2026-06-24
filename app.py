@@ -1555,7 +1555,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     p_ebit_val = _ind_buscar(ind_extras, 'p/ebit', 'p / ebit') if ind_extras else None
     ev_ebitda_val = _ind_buscar(ind_extras, 'ev/ebitda', 'ev / ebitda') if ind_extras else None
     marg_liq_val = _ind_buscar(ind_extras, 'marg. l', 'margem l') if ind_extras else None
-    liquidez_corr_val = _ind_buscar(ind_extras, 'liquidez corr') if ind_extras else None
+    roa_val = _ind_buscar(ind_extras, 'roa') if ind_extras else None
     div_liq_patrim_val = _ind_buscar(ind_extras, 'patrim') if ind_extras else None
 
     pl_proj_num = limpar_valor(row.get('P/L PROJETADO', 0))
@@ -1707,9 +1707,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         _card_metric(pl2, "P/L Médio (10 anos)", f"{row.get('P/L médio (últ. 10 anos)', '-')}x")
         _card_metric(pl3, "P/L Projetado", f"{pl_proj}x")
         st.caption(
-            "P/L Médio (10 anos) e P/L Projetado vêm da sua planilha — o Projetado reflete o "
-            "cenário que você mesmo define (geralmente conservador), por isso pode ficar acima "
-            "do atual quando você projeta queda de lucro."
+            "P/L Médio (10 anos) é uma referência histórica. P/L Projetado reflete o cenário "
+            "de resultado adotado na modelagem — quando esse cenário é conservador, o P/L "
+            "Projetado tende a ficar acima do P/L Atual."
         )
 
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
@@ -1728,8 +1728,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.markdown("#### 🔎 Indicadores")
 
         # ---- Demais indicadores (Operacional + Fundamentus, unificados) ----
-        def _card_ind(col, titulo, valor, sufixo="", fmt="{:.2f}"):
-            texto = (fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
+        def _card_ind(col, titulo, valor, sufixo="", prefixo="", fmt="{:.2f}"):
+            texto = (prefixo + fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
             _card_metric(col, titulo, texto)
 
         i1, i2, i3, i4 = st.columns(4)
@@ -1741,13 +1741,13 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         _card_metric(i5, "Beta (vs IBOV)", beta)
         if ind_extras:
             _card_ind(i6, "ROIC", roic_val, sufixo="%")
-            _card_ind(i7, "VPA", vpa_val, sufixo=" R$")
+            _card_ind(i7, "VPA", vpa_val, prefixo="R$ ")
             _card_ind(i8, "PEG Ratio", peg_val, sufixo="x")
             i9, i10, i11, i12 = st.columns(4)
             _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
             _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
             _card_ind(i11, "Margem Líquida", marg_liq_val, sufixo="%")
-            _card_ind(i12, "Liquidez Corrente", liquidez_corr_val, sufixo="x")
+            _card_ind(i12, "ROA", roa_val, sufixo="%")
             st.caption(
                 "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros, já presentes "
                 "na sua planilha) — abaixo de 1x geralmente indica crescimento 'baixo' em relação "
@@ -2162,11 +2162,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                                     v=f"{pct:.0f}".replace(".", ",") if pct is not None else "—"),
                     unsafe_allow_html=True
                 )
-            st.caption(
-                "IV Rank/Percentil acima de 70 "
-                "indicam volatilidade historicamente alta (opções 'caras') — acima de 30 e abaixo "
-                "de 70 é uma faixa neutra; abaixo de 30, volatilidade historicamente baixa."
-            )
         else:
             st.info("Volatilidade implícita indisponível para este ativo.")
             if erro_vol:
