@@ -203,6 +203,14 @@ def verificar_movimentacao_real(url: str, timeout: int = 20) -> bool | None:
 
     Retorna True (tem movimentacao real), False (tabela vazia/sem operacao),
     ou None se nao foi possivel baixar/ler o documento.
+
+    DESCARTADO em 24/06: testado contra AXIA3 (deu False, correto) e B3SA3
+    (deu True, mas o documento linkado pelo indice e "Negociacao de
+    Administradores e Pessoas Ligadas" -- ou seja, esse link aponta pro
+    formulario de INSIDERS, nao pro de recompra da propria companhia. O
+    "True" da B3SA3 e real, mas e negociacao de insider misturada no mesmo
+    documento consolidado, nao recompra. Mantido no codigo so por
+    referencia -- nao usar pra recompra.
     """
     try:
         resp = requests.get(url, timeout=timeout, headers={"User-Agent": "RADAR/1.0"})
@@ -214,6 +222,55 @@ def verificar_movimentacao_real(url: str, timeout: int = 20) -> bool | None:
         return any(marcador in texto_norm for marcador in _MARCADORES_MOVIMENTACAO_REAL)
     except Exception:
         return None
+
+
+# ---- Programa de Recompra de Ações (autorização -- não execução) ----------
+# Dataset SEPARADO, dedicado, atualizado diariamente pela CVM desde nov/2025.
+# Diferente do que tentamos antes, esse e 100% confiavel pro que ele se
+# propoe a medir: NAO diz quanto foi comprado, diz SE existe autorizacao do
+# conselho em vigor pra comprar até X ações até tal data. Fato verificável,
+# sem ambiguidade -- por isso e o unico sinal de "recompra" que o RADAR usa.
+URL_RECOMPRA_PROGRAMA = "https://dados.cvm.gov.br/dados/CIA_ABERTA/EVENTOS/RECOMPRA_ACOES/DADOS/cia_aberta_recompra_acoes.zip"
+
+
+def baixar_programa_recompra(timeout: int = 60) -> pd.DataFrame:
+    """Baixa o dataset de Programas de Recompra de Ações (autorização do
+    conselho, não execução) -- atualizado diariamente pela CVM."""
+    resp = requests.get(URL_RECOMPRA_PROGRAMA, timeout=timeout, headers={"User-Agent": "RADAR/1.0"})
+    resp.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+        nome = next(n for n in zf.namelist() if n.lower() == "cia_aberta_recompra_acoes.csv")
+        with zf.open(nome) as f:
+            return pd.read_csv(f, sep=";", encoding="latin-1", dtype=str, low_memory=False)
+
+
+def carregar_programa_recompra_local(caminho_zip: str) -> pd.DataFrame:
+    """Mesma coisa que baixar_programa_recompra(), a partir de um ZIP local."""
+    with zipfile.ZipFile(caminho_zip) as zf:
+        nome = next(n for n in zf.namelist() if n.lower() == "cia_aberta_recompra_acoes.csv")
+        with zf.open(nome) as f:
+            return pd.read_csv(f, sep=";", encoding="latin-1", dtype=str, low_memory=False)
+
+
+def programa_recompra_ativo(df_programas: pd.DataFrame, cnpj: str) -> dict | None:
+    """Retorna o programa de recompra EM ANDAMENTO pra esse CNPJ, com data
+    final e quantidades autorizadas. None se não houver programa ativo."""
+    sub = df_programas[
+        (df_programas["CNPJ_Companhia"] == cnpj) & (df_programas["Situacao"] == "Em Andamento")
+    ].copy()
+    if sub.empty:
+        return None
+    sub["dt_final"] = pd.to_datetime(sub["Data_Final_Prazo"], errors="coerce")
+    hoje = pd.Timestamp.today()
+    sub = sub[sub["dt_final"] >= hoje].sort_values("dt_final", ascending=False)
+    if sub.empty:
+        return None
+    row = sub.iloc[0]
+    return {
+        "data_final": row["dt_final"],
+        "qtd_on": row.get("Quantidade_Acoes_Ordinarias"),
+        "qtd_pn": row.get("Quantidade_Acoes_Preferenciais"),
+    }
 
 
 def insider_liquido(
