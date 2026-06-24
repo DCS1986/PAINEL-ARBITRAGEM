@@ -1673,43 +1673,52 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         st.markdown("#### 📌 Resumo das Demais Abas")
 
-        def _card_resumo(col, titulo, linha1, linha2=""):
+        def _card_resumo(col, titulo, itens):
+            linhas = "".join(
+                "<div style='display:flex;justify-content:space-between;font-size:0.82em;"
+                "margin-top:4px;'>"
+                f"<span style='color:#94A3B8;'>{label}</span>"
+                f"<span style='color:#F1EFE8;font-weight:700;'>{valor}</span></div>"
+                for label, valor in itens
+            )
             col.markdown(
-                "<div style='{base}text-align:center;'>"
-                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;margin-bottom:4px;'>{titulo}</div>"
-                "<div style='font-size:1.1em;font-weight:900;color:#F1EFE8;'>{l1}</div>"
-                "<div style='font-size:0.85em;color:#94A3B8;margin-top:2px;'>{l2}</div>"
-                "</div>".format(base=card_style, titulo=titulo, l1=linha1, l2=linha2),
+                "<div style='{base}'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;"
+                "margin-bottom:6px;text-align:center;'>{titulo}</div>"
+                "{linhas}"
+                "</div>".format(base=card_style, titulo=titulo, linhas=linhas),
                 unsafe_allow_html=True
             )
 
         r1, r2, r3, r4, r5 = st.columns(5)
 
         pl_atual_resumo = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "—"
-        _card_resumo(r1, "💰 Valuation", pl_atual_resumo, f"ROE {roe}")
+        _card_resumo(r1, "💰 Valuation", [("P/L Atual", pl_atual_resumo), ("ROE", roe)])
 
         ds_score_resumo = ativo_data.get('div_safety_score')
-        ds_label_resumo = ativo_data.get('div_safety_label', '')
-        _card_resumo(r2, "📈 Dividendos", f"DY {dy_clean}%", f"Safety {ds_score_resumo}/10" if ds_score_resumo is not None else "")
+        _card_resumo(r2, "📈 Dividendos", [
+            ("Dividend Yield", f"{dy_clean}%"),
+            ("Dividend Safety", f"{ds_score_resumo}/10" if ds_score_resumo is not None else "—"),
+        ])
 
         score_resumo = obter_score_resumido(
             st, ticker, tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist(),
             extras=montar_extras_confluencia(lista_ativos_com_score) if lista_ativos_com_score else None,
         )
-        if score_resumo:
-            _card_resumo(r3, "👤 Movimentação", f"{score_resumo['score']:.1f}", f"Concordância {score_resumo['concordancia']}")
-        else:
-            _card_resumo(r3, "👤 Movimentação", "—", "sem dados")
+        _card_resumo(r3, "👤 Movimentação", [
+            ("Score Confluência", f"{score_resumo['score']:.1f}" if score_resumo else "—"),
+            ("Concordância", score_resumo['concordancia'] if score_resumo else "sem dados"),
+        ])
 
         with st.spinner(" "):
             df_apres_resumo, _ = get_apresentacoes_data(ticker)
         ultima_res_resumo, _ = ultimas_apresentacoes(df_apres_resumo) if not df_apres_resumo.empty else (None, None)
         data_apres_resumo = ultima_res_resumo['data_dt'].strftime('%d/%m/%Y') if ultima_res_resumo else "—"
-        _card_resumo(r4, "📑 Documentos", data_apres_resumo, "última apresentação")
+        _card_resumo(r4, "📑 Documentos", [("Última apresentação", data_apres_resumo)])
 
         vol_resumo, _ = get_volatilidade_ticker(ticker)
         iv_rank_resumo = f"{vol_resumo['iv_rank']:.0f}" if vol_resumo and vol_resumo.get('iv_rank') is not None else "—"
-        _card_resumo(r5, "📉 Gráfico", iv_rank_resumo, "IV Rank")
+        _card_resumo(r5, "📉 Gráfico", [("IV Rank", iv_rank_resumo)])
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
@@ -1791,9 +1800,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             _card_ind(i11, "Margem Líquida", marg_liq_val, sufixo="%")
             _card_ind(i12, "ROA", roa_val, sufixo="%")
             st.caption(
-                "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros, já presentes "
-                "na sua planilha) — abaixo de 1x geralmente indica crescimento 'baixo' em relação "
-                "ao preço pago; acima de 2x pode indicar preço esticado frente ao crescimento."
+                "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros) — abaixo de 1x "
+                "geralmente indica crescimento 'baixo' em relação ao preço pago; acima de "
+                "2x pode indicar preço esticado frente ao crescimento."
             )
         else:
             st.info("Indicadores extras indisponíveis para este ativo.")
@@ -1845,13 +1854,13 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
             st.caption(
-                f"Comparado a {n_setor} ativo(s) com SETOR = '{row.get('SETOR', '-')}' na sua planilha "
+                f"Comparado a {n_setor} ativo(s) do setor '{row.get('SETOR', '-')}' no RADAR "
                 f"(P/L compara só com {n_pl_setor or 0}, já que ativos com P/L negativo/zero ficam de fora). "
                 "Com poucos ativos no setor, é normal o resultado ser bem extremo (1º ou último) — "
                 "isso não é erro, é só uma amostra pequena."
             )
         else:
-            st.info("Posição setorial indisponível (setor com só este ativo na sua planilha, ou dado faltando).")
+            st.info("Posição setorial indisponível (setor com só este ativo no RADAR, ou dado faltando).")
 
         # ---- Preço Justo Multi-Método ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
@@ -2237,6 +2246,10 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 st.plotly_chart(fig, use_container_width=True)
         except Exception:
             st.warning("Não foi possível carregar o gráfico de preços.")
+
+    # Respiro no final da página -- sem isso o último conteúdo (seja qual
+    # for a aba aberta) fica colado na borda inferior da tela.
+    st.markdown("<div style='margin-bottom:70px;'></div>", unsafe_allow_html=True)
 
 
 # --- DASHBOARD ---
