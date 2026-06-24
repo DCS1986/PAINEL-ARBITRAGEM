@@ -747,6 +747,28 @@ OUTLOOK_2026 = {
     "BRBI11": {"icone": "✅", "cor": "#4CAF6D", "texto": "Banco de investimento em crescimento. Perspectiva positiva dependente do ambiente de M&A e mercado de capitais em 2026."},
 }
 
+# ---- Estudos Específicos ----
+# Diferente de GOVERNANCA/OUTLOOK_2026 (que tentam cobrir os 40), este
+# dicionario e DELIBERADAMENTE ESPARSO: so entra ticker que tenha um estudo
+# de verdade, especifico, que agregue algo que nao se acha pronto por ai.
+# Sem entrada = sem card (nao aparece "N/A" pra ninguem, simplesmente nao
+# mostra nada -- igual GOVERNANCA/OUTLOOK_2026 quando faltam).
+#
+# 'metrica': (label, valor) opcional -- numero computado pelo proprio RADAR
+# (ex: pvp_str) que ancora o estudo num dado ATUAL, nao so historico.
+ESTUDOS_ESPECIFICOS = {
+    "BBAS3": {
+        "titulo": "P/VP raramente abaixo de 0,50x",
+        "texto": (
+            "Historicamente, o Banco do Brasil raríssimas vezes negociou com P/VP "
+            "abaixo de 0,50x — mesmo em períodos de estresse (crise de crédito rural, "
+            "revisões de guidance). Esse piso histórico é uma referência relevante "
+            "pra avaliar se o desconto atual já é extremo ou ainda tem espaço."
+        ),
+        "metrica": "pvp_str",
+    },
+}
+
 def penalizacao_outlook(ticker):
     """
     Aplica multiplicador no score baseado no outlook 2026.
@@ -1642,6 +1664,26 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
                     unsafe_allow_html=True
                 )
+
+        # ---- Estudo Específico (so aparece se existir entrada pro ticker) ----
+        estudo = ESTUDOS_ESPECIFICOS.get(ticker)
+        if estudo:
+            metrica_valor = locals().get(estudo.get('metrica', ''), None)
+            metrica_html = (
+                f"<div style='margin-top:10px;font-size:0.95em;color:#D4AF37;font-weight:800;'>"
+                f"P/VP atual: {metrica_valor}</div>"
+                if metrica_valor and metrica_valor != '-' else ""
+            )
+            st.markdown(
+                "<div style='{base}margin-top:14px;border:1px solid rgba(212,175,55,0.35);'>"
+                "<div style='font-size:0.78em;font-weight:600;color:#D4AF37;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>🔬 Estudo Específico — {titulo}</div>"
+                "<div style='font-size:0.85em;color:#ddd;line-height:1.55;'>{texto}</div>"
+                "{metrica_html}"
+                "</div>".format(base=card_style, titulo=estudo['titulo'], texto=estudo['texto'],
+                                metrica_html=metrica_html),
+                unsafe_allow_html=True
+            )
 
         # Teto / Target / Status
         pt_v  = ativo_data.get('preco_teto_val', 0) if isinstance(ativo_data, dict) else 0
