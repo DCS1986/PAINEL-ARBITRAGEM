@@ -5,7 +5,7 @@ import streamlit as st
 import yfinance as yf
 import requests
 
-from ui_confluencia import render_confluencia, render_confluencia_card, obter_score_resumido
+from ui_confluencia import render_confluencia, render_confluencia_card
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -1204,8 +1204,8 @@ def get_dados_yahoo(ticker):
 
         low52  = info.get('fiftyTwoWeekLow',  0)
         high52 = info.get('fiftyTwoWeekHigh', 0)
-        low_str  = f"R$ {low52:.2f}"  if low52  else "-"
-        high_str = f"R$ {high52:.2f}" if high52 else "-"
+        low_str  = f"R$ {low52:.2f}".replace(".", ",")  if low52  else "-"
+        high_str = f"R$ {high52:.2f}".replace(".", ",") if high52 else "-"
 
         historico_dy = {}
         try:
@@ -1675,18 +1675,19 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        # ---- Resumo Executivo: 1-2 destaques de cada outra aba ----
+        # ---- Caixas-resumo: cotação/variação/score + valuation + dividendos ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### 📌 Resumo das Demais Abas")
 
         def _card_resumo(col, titulo, itens):
-            linhas = "".join(
-                "<div style='display:flex;justify-content:space-between;font-size:0.82em;"
-                "margin-top:4px;'>"
-                f"<span style='color:#94A3B8;'>{label}</span>"
-                f"<span style='color:#F1EFE8;font-weight:700;'>{valor}</span></div>"
-                for label, valor in itens
-            )
+            linhas = ""
+            for item in itens:
+                label, valor, cor = (item + ("#F1EFE8",))[:3] if len(item) == 2 else item
+                linhas += (
+                    "<div style='display:flex;justify-content:space-between;font-size:0.82em;"
+                    "margin-top:4px;'>"
+                    f"<span style='color:#94A3B8;'>{label}</span>"
+                    f"<span style='color:{cor};font-weight:700;'>{valor}</span></div>"
+                )
             col.markdown(
                 "<div style='{base}'>"
                 "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;"
@@ -1696,13 +1697,16 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        r0, r1, r2, r3, r4, r5 = st.columns(6)
+        r0, r1, r2 = st.columns(3)
 
         var_resumo_str = f"{variacao_dia:+.2f}%".replace(".", ",")
-        _card_resumo(r0, "📊 Geral", [
+        cor_var = "#4CAF6D" if variacao_dia > 0 else ("#D9534F" if variacao_dia < 0 else "#D4AF37")
+        _card_resumo(r0, "💹 Mercado", [
             ("Cotação Atual", cot),
-            ("Variação (dia)", var_resumo_str),
+            ("Variação (dia)", var_resumo_str, cor_var),
             ("Score Fundamentalista", f"{score}/10"),
+            ("Mínima (12m)", ativo_data.get('low', '-')),
+            ("Máxima (12m)", ativo_data.get('high', '-')),
         ])
 
         pl_atual_resumo = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "—"
@@ -1713,25 +1717,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             ("Dividend Yield", f"{dy_clean}%"),
             ("Dividend Safety", f"{ds_score_resumo}/10" if ds_score_resumo is not None else "—"),
         ])
-
-        score_resumo = obter_score_resumido(
-            st, ticker, tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist(),
-            extras=montar_extras_confluencia(lista_ativos_com_score) if lista_ativos_com_score else None,
-        )
-        _card_resumo(r3, "👤 Movimentação", [
-            ("Score Confluência", f"{score_resumo['score']:.1f}" if score_resumo else "—"),
-            ("Concordância", score_resumo['concordancia'] if score_resumo else "sem dados"),
-        ])
-
-        with st.spinner(" "):
-            df_apres_resumo, _ = get_apresentacoes_data(ticker)
-        ultima_res_resumo, _ = ultimas_apresentacoes(df_apres_resumo) if not df_apres_resumo.empty else (None, None)
-        data_apres_resumo = ultima_res_resumo['data_dt'].strftime('%d/%m/%Y') if ultima_res_resumo else "—"
-        _card_resumo(r4, "📑 Documentos", [("Última apresentação", data_apres_resumo)])
-
-        vol_resumo, _ = get_volatilidade_ticker(ticker)
-        iv_rank_resumo = f"{vol_resumo['iv_rank']:.0f}" if vol_resumo and vol_resumo.get('iv_rank') is not None else "—"
-        _card_resumo(r5, "📉 Gráfico", [("IV Rank", iv_rank_resumo)])
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
@@ -2415,6 +2400,7 @@ else:
             'dy_num': dy_num, 'dy_clean': dy_clean, 'pl_num': pl_num,
             'progresso': progresso, 'porcentagem': porcentagem,
             'dt': dt, 'val': val, 'roe': roe, 'margem': margem,
+            'low': low, 'high': high,
             'roe_num_raw': roe_num_raw,
             'beta': beta, 'pvp_str': pvp_str,
             'historico_dy': historico_dy,
