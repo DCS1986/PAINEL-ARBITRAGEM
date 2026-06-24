@@ -2353,7 +2353,7 @@ val_max_score    = "-"
 ticker_max_score = "-"
 val_max_score    = "-"
 
-c1, c2, c3, c4, c5 = st.columns(5)
+c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.markdown(f"""<div class='top-card'>
         <div class='label'>📋 Total de Ativos</div>
@@ -2369,8 +2369,6 @@ with c3:
     </div>""", unsafe_allow_html=True)
 with c4:
     card_maior_score = st.empty()
-with c5:
-    card_menor_pl = st.empty()
 
 st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
 
@@ -2398,7 +2396,7 @@ def get_ibov():
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_selic():
-    """Retorna a Meta Selic atual (% a.a.) via API do Banco Central (série
+    """Retorna a Selic atual (% a.a.) via API do Banco Central (série
     432 do SGS), ou None em erro."""
     try:
         url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json"
@@ -2417,8 +2415,10 @@ def get_selic():
 ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
 
-cm1, cm2 = st.columns(2)
-with cm1:
+c5, c6, c7 = st.columns(3)
+with c5:
+    card_menor_pl = st.empty()
+with c6:
     if ibov_val is not None:
         cor_ibov = "#4CAF6D" if ibov_var > 0 else ("#D9534F" if ibov_var < 0 else "#D4AF37")
         ibov_fmt = f"{ibov_val:,.0f}".replace(",", ".")
@@ -2432,16 +2432,16 @@ with cm1:
             <div class='label'>📊 Ibovespa</div>
             <div class='value'>—</div>
         </div>""", unsafe_allow_html=True)
-with cm2:
+with c7:
     if selic_val is not None:
         selic_fmt = f"{selic_val:.2f}".replace(".", ",")
         st.markdown(f"""<div class='top-card'>
-            <div class='label'>🏦 Selic (meta)</div>
+            <div class='label'>🏦 Selic</div>
             <div class='value'>{selic_fmt}% a.a.</div>
         </div>""", unsafe_allow_html=True)
     else:
         st.markdown("""<div class='top-card'>
-            <div class='label'>🏦 Selic (meta)</div>
+            <div class='label'>🏦 Selic</div>
             <div class='value'>—</div>
         </div>""", unsafe_allow_html=True)
 
