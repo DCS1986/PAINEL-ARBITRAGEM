@@ -169,7 +169,7 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-    st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:15px;'></div>", unsafe_allow_html=True)
 
     # Texto centralizado em coluna larga
     tl, tc, tr = st.columns([1, 2, 1])
@@ -179,24 +179,24 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
             "letter-spacing:3px; text-transform:uppercase; color:#F1EFE8; "
             "margin:0 0 6px 0; word-wrap:break-word;'>Radar Fundamentalista</h1>"
             "<p style='text-align:center; font-size:0.85em; color:rgba(255,255,255,0.4); "
-            "letter-spacing:3px; text-transform:uppercase; margin:0 0 32px 0;'>Diego Castro</p>",
+            "letter-spacing:3px; text-transform:uppercase; margin:0 0 18px 0;'>Diego Castro</p>",
             unsafe_allow_html=True
         )
         st.markdown(
             "<p style='text-align:center; font-size:0.9em; color:#ccc; "
-            "line-height:1.8; margin:0 0 20px 0;'>"
+            "line-height:1.6; margin:0 0 12px 0;'>"
             "Ferramenta de análise quantitativa e qualitativa de ações brasileiras "
             "desenvolvida para apoiar o processo de tomada de decisão em investimentos "
             "de longo prazo.</p>"
             "<p style='text-align:center; font-size:0.85em; color:#aaa; "
-            "line-height:1.8; margin:0 0 20px 0;'>"
+            "line-height:1.6; margin:0 0 12px 0;'>"
             "O score proprietário combina múltiplos critérios com pesos diferenciados "
             "por setor: qualidade operacional, crescimento e consistência dos resultados, "
             "solidez financeira, valuation relativo, retorno ao acionista e "
             "governança corporativa — avaliada de forma qualitativa e aplicada "
             "como penalizador.</p>"
             "<p style='text-align:center; font-size:0.78em; color:#888; "
-            "line-height:1.7; margin:0 0 32px 0;'>"
+            "line-height:1.5; margin:0 0 16px 0;'>"
             "⚠️ As informações aqui contidas têm caráter exclusivamente educacional "
             "e não constituem recomendação de compra ou venda de ativos. "
             "Invista com responsabilidade.</p>",
