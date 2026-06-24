@@ -1533,8 +1533,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     with hcol2:
         st.markdown(
             "<h1 style='margin:0;color:#D4AF37;font-size:1.8em;font-weight:900;letter-spacing:1.5px;'>{}</h1>"
-            "<span style='color:#ccc;font-size:0.88em;'>{} &nbsp;|&nbsp; {} &nbsp; {} &nbsp;|&nbsp; ⭐ Score: {}/10</span>".format(
-                ticker, row.get('SETOR','-'), cot, var_str, score),
+            "<span style='color:#ccc;font-size:0.88em;'>{}</span>".format(
+                ticker, row.get('SETOR','-')),
             unsafe_allow_html=True)
 
     st.markdown("<div style='margin:8px 0 4px 0;height:1px;background:rgba(255,255,255,0.1);'></div>", unsafe_allow_html=True)
@@ -1552,6 +1552,12 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     roic_val = _ind_buscar(ind_extras, 'roic') if ind_extras else None
     vpa_val = _ind_buscar(ind_extras, 'vpa') if ind_extras else None
     pl_atual_val = _ind_buscar(ind_extras, 'p/l', 'p / l') if ind_extras else None
+    # Blindagem: P/L real de empresa nao passa de algumas centenas. Se vier
+    # um numero absurdo (ex: 2720x), e sinal de erro de leitura na pagina do
+    # Fundamentus (celula deslocada) -- melhor mostrar "-" do que um numero
+    # errado.
+    if pl_atual_val is not None and (pl_atual_val <= 0 or pl_atual_val > 300):
+        pl_atual_val = None
     p_ebit_val = _ind_buscar(ind_extras, 'p/ebit', 'p / ebit') if ind_extras else None
     ev_ebitda_val = _ind_buscar(ind_extras, 'ev/ebitda', 'ev / ebitda') if ind_extras else None
     marg_liq_val = _ind_buscar(ind_extras, 'marg. l', 'margem l') if ind_extras else None
@@ -1690,7 +1696,14 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        r1, r2, r3, r4, r5 = st.columns(5)
+        r0, r1, r2, r3, r4, r5 = st.columns(6)
+
+        var_resumo_str = f"{variacao_dia:+.2f}%".replace(".", ",")
+        _card_resumo(r0, "📊 Geral", [
+            ("Cotação Atual", cot),
+            ("Variação (dia)", var_resumo_str),
+            ("Score Fundamentalista", f"{score}/10"),
+        ])
 
         pl_atual_resumo = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "—"
         _card_resumo(r1, "💰 Valuation", [("P/L Atual", pl_atual_resumo), ("ROE", roe)])
