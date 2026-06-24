@@ -1492,11 +1492,23 @@ if 'modo_exibicao' not in st.session_state:
     st.session_state.modo_exibicao = 'Lista'
 
 
-def montar_extras_confluencia(lista_ativos_com_score):
+def montar_extras_confluencia(lista_ativos_com_score, meses=6):
     """
     Converte os dados que o RADAR já calcula (preço teto/target, dividend
-    safety) para o formato que score_confluencia() espera em `extras`:
-    ['ticker', 'valuation', 'dividend_safety'].
+    safety) + recompra do Fundamentus para o formato que score_confluencia()
+    espera em `extras`: ['ticker', 'recompra', 'valuation', 'dividend_safety'].
+
+    recompra: líquido (R$) de recompra de ações pela própria empresa, na
+    mesma janela (`meses`) usada pro resto do Score -- vem do Fundamentus
+    (get_recompras_data, já usado na aba Movimentação), e NÃO da CVM. O
+    arquivo da CVM (Art. 11) só cobre negociação de PESSOAS (insiders);
+    recompra de tesouraria não aparece lá -- confirmado depois de um
+    ticker (AXIA3) mostrar "recompra" idêntica ao "insider" no Score, o
+    que era a mesma linha sendo contada duas vezes, não dois sinais reais.
+
+    Atenção de performance: assim como o Ranking Fórmula Mágica, isso busca
+    Fundamentus pra cada ticker do universo -- lento só na primeira carga do
+    dia (depois fica em cache de 24h via get_recompras_data).
 
     valuation: desconto fracionário vs preço teto -- (teto - cotação) / teto.
     Positivo = abaixo do teto (barato); negativo = acima do teto (caro).
@@ -1514,8 +1526,19 @@ def montar_extras_confluencia(lista_ativos_com_score):
         preco_teto = a.get('preco_teto_val', 0) or 0
         cot = limpar_valor(str(a['row'].get('Cotação atual', 0)).replace('R$', ''))
         valuation = ((preco_teto - cot) / preco_teto) if (preco_teto > 0 and cot > 0) else None
+
+        recompra_val = 0.0
+        try:
+            df_rec, _ = get_recompras_data(ticker)
+            resumo_rec = resumo_periodo(df_rec, meses=meses)
+            if resumo_rec and resumo_rec.get('tipo') == 'periodo':
+                recompra_val = resumo_rec['valor']
+        except Exception:
+            recompra_val = 0.0
+
         linhas.append({
             'ticker': ticker,
+            'recompra': recompra_val,
             'valuation': valuation,
             'dividend_safety': a.get('div_safety_score'),
         })
