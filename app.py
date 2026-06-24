@@ -1675,25 +1675,39 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        # ---- Caixas-resumo: Mercado | Valuation & Dividendos | Posição no Setor ----
+        # ---- Caixas-resumo: 4 caixas do MESMO tamanho (altura fixa) ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
 
-        def _card_resumo(col, titulo, itens):
+        ALTURA_RESUMO = "180px"
+
+        def _card_resumo(col, titulo, itens, tamanho_linha="0.82em"):
             linhas = ""
             for item in itens:
                 label, valor, cor = (item + ("#F1EFE8",))[:3] if len(item) == 2 else item
                 linhas += (
-                    "<div style='display:flex;justify-content:space-between;font-size:0.82em;"
-                    "margin-top:4px;'>"
+                    f"<div style='display:flex;justify-content:space-between;font-size:{tamanho_linha};"
+                    "margin-top:6px;'>"
                     f"<span style='color:#94A3B8;'>{label}</span>"
                     f"<span style='color:{cor};font-weight:700;'>{valor}</span></div>"
                 )
             col.markdown(
-                "<div style='{base}'>"
+                "<div style='{base}height:{altura};display:flex;flex-direction:column;"
+                "justify-content:flex-start;box-sizing:border-box;'>"
                 "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;"
-                "margin-bottom:6px;text-align:center;'>{titulo}</div>"
+                "margin-bottom:4px;text-align:center;'>{titulo}</div>"
                 "{linhas}"
-                "</div>".format(base=card_style, titulo=titulo, linhas=linhas),
+                "</div>".format(base=card_style, altura=ALTURA_RESUMO, titulo=titulo, linhas=linhas),
+                unsafe_allow_html=True
+            )
+
+        def _card_score_hero(col, valor):
+            col.markdown(
+                "<div style='{base}height:{altura};display:flex;flex-direction:column;"
+                "justify-content:center;align-items:center;text-align:center;box-sizing:border-box;'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;margin-bottom:8px;'>"
+                "⭐ Score Fundamentalista</div>"
+                "<div style='font-size:2.6em;font-weight:900;color:#D4AF37;line-height:1;'>{valor}/10</div>"
+                "</div>".format(base=card_style, altura=ALTURA_RESUMO, valor=valor),
                 unsafe_allow_html=True
             )
 
@@ -1706,14 +1720,13 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 return "Último do setor"
             return f"{rank}º de {n}"
 
-        r0, r1, r2 = st.columns(3)
+        r0, r1, r2, r3 = st.columns(4)
 
         var_resumo_str = f"{variacao_dia:+.2f}%".replace(".", ",")
         cor_var = "#4CAF6D" if variacao_dia > 0 else ("#D9534F" if variacao_dia < 0 else "#D4AF37")
         _card_resumo(r0, "💹 Mercado", [
             ("Cotação Atual", cot),
             ("Variação (dia)", var_resumo_str, cor_var),
-            ("Score Fundamentalista", f"{score}/10"),
             ("Mínima (12m)", ativo_data.get('low', '-')),
             ("Máxima (12m)", ativo_data.get('high', '-')),
         ])
@@ -1733,7 +1746,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             ("ROE", _texto_rank_resumo(ativo_data.get('rank_roe'), n_setor_resumo)),
             ("Dividend Yield", _texto_rank_resumo(ativo_data.get('rank_dy'), n_setor_resumo)),
             ("P/L (mais barato)", _texto_rank_resumo(ativo_data.get('rank_pl'), n_pl_setor_resumo)),
-        ])
+        ], tamanho_linha="0.95em")
+
+        _card_score_hero(r3, score)
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
