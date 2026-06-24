@@ -5,7 +5,7 @@ import streamlit as st
 import yfinance as yf
 import requests
 
-from ui_confluencia import render_confluencia, render_confluencia_card
+from ui_confluencia import render_confluencia, render_confluencia_card, obter_score_resumido
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -1668,6 +1668,48 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 f"</div></div>",
                 unsafe_allow_html=True
             )
+
+        # ---- Resumo Executivo: 1-2 destaques de cada outra aba ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### 📌 Resumo das Demais Abas")
+
+        def _card_resumo(col, titulo, linha1, linha2=""):
+            col.markdown(
+                "<div style='{base}text-align:center;'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;margin-bottom:4px;'>{titulo}</div>"
+                "<div style='font-size:1.1em;font-weight:900;color:#F1EFE8;'>{l1}</div>"
+                "<div style='font-size:0.85em;color:#94A3B8;margin-top:2px;'>{l2}</div>"
+                "</div>".format(base=card_style, titulo=titulo, l1=linha1, l2=linha2),
+                unsafe_allow_html=True
+            )
+
+        r1, r2, r3, r4, r5 = st.columns(5)
+
+        pl_atual_resumo = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "—"
+        _card_resumo(r1, "💰 Valuation", pl_atual_resumo, f"ROE {roe}")
+
+        ds_score_resumo = ativo_data.get('div_safety_score')
+        ds_label_resumo = ativo_data.get('div_safety_label', '')
+        _card_resumo(r2, "📈 Dividendos", f"DY {dy_clean}%", f"Safety {ds_score_resumo}/10" if ds_score_resumo is not None else "")
+
+        score_resumo = obter_score_resumido(
+            st, ticker, tickers_universo=df['CÓDIGO'].dropna().astype(str).tolist(),
+            extras=montar_extras_confluencia(lista_ativos_com_score) if lista_ativos_com_score else None,
+        )
+        if score_resumo:
+            _card_resumo(r3, "👤 Movimentação", f"{score_resumo['score']:.1f}", f"Concordância {score_resumo['concordancia']}")
+        else:
+            _card_resumo(r3, "👤 Movimentação", "—", "sem dados")
+
+        with st.spinner(" "):
+            df_apres_resumo, _ = get_apresentacoes_data(ticker)
+        ultima_res_resumo, _ = ultimas_apresentacoes(df_apres_resumo) if not df_apres_resumo.empty else (None, None)
+        data_apres_resumo = ultima_res_resumo['data_dt'].strftime('%d/%m/%Y') if ultima_res_resumo else "—"
+        _card_resumo(r4, "📑 Documentos", data_apres_resumo, "última apresentação")
+
+        vol_resumo, _ = get_volatilidade_ticker(ticker)
+        iv_rank_resumo = f"{vol_resumo['iv_rank']:.0f}" if vol_resumo and vol_resumo.get('iv_rank') is not None else "—"
+        _card_resumo(r5, "📉 Gráfico", iv_rank_resumo, "IV Rank")
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
