@@ -2272,7 +2272,11 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "</div>", unsafe_allow_html=True
             )
         else:
-            st.caption("📋 Nenhum programa de recompra em andamento encontrado pra este ativo.")
+            st.caption(
+                "📋 Nenhum programa de recompra em andamento no cadastro atual da CVM "
+                "(esse dataset é novo, de nov/2025, e pode ter atraso pra refletir "
+                "renovações recentes — confirme no site da própria empresa se tiver dúvida)."
+            )
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: DOCUMENTOS (Apresentações)
