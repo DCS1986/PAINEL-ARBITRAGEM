@@ -2353,26 +2353,6 @@ val_max_score    = "-"
 ticker_max_score = "-"
 val_max_score    = "-"
 
-c1, c2, c3, c4 = st.columns(4)
-with c1:
-    st.markdown(f"""<div class='top-card'>
-        <div class='label'>📋 Total de Ativos</div>
-        <div class='value'>{len(df)}</div>
-    </div>""", unsafe_allow_html=True)
-with c2:
-    card_filtrados = st.empty()
-with c3:
-    st.markdown(f"""<div class='top-card'>
-        <div class='label'>🏆 Maior DY</div>
-        <div class='value'>{ticker_max_dy}</div>
-        <div class='sub'>{val_max_dy}</div>
-    </div>""", unsafe_allow_html=True)
-with c4:
-    card_maior_score = st.empty()
-
-st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-
-
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_ibov():
     """Retorna (valor_atual, variacao_dia_pct) do Ibovespa via Yahoo Finance,
@@ -2415,10 +2395,16 @@ def get_selic():
 ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
 
-c5, c6, c7 = st.columns(3)
-with c5:
-    card_menor_pl = st.empty()
-with c6:
+# ---- Linha 1: Total/Filtrados (estreitos) + Ibovespa/Selic (largos) ----
+c1, c2, c3, c4 = st.columns([0.8, 0.8, 1.2, 1.2])
+with c1:
+    st.markdown(f"""<div class='top-card'>
+        <div class='label'>📋 Total de Ativos</div>
+        <div class='value'>{len(df)}</div>
+    </div>""", unsafe_allow_html=True)
+with c2:
+    card_filtrados = st.empty()
+with c3:
     if ibov_val is not None:
         cor_ibov = "#4CAF6D" if ibov_var > 0 else ("#D9534F" if ibov_var < 0 else "#D4AF37")
         ibov_fmt = f"{ibov_val:,.0f}".replace(",", ".")
@@ -2432,7 +2418,7 @@ with c6:
             <div class='label'>📊 Ibovespa</div>
             <div class='value'>—</div>
         </div>""", unsafe_allow_html=True)
-with c7:
+with c4:
     if selic_val is not None:
         selic_fmt = f"{selic_val:.2f}".replace(".", ",")
         st.markdown(f"""<div class='top-card'>
@@ -2444,6 +2430,22 @@ with c7:
             <div class='label'>🏦 Selic</div>
             <div class='value'>—</div>
         </div>""", unsafe_allow_html=True)
+
+st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+
+# ---- Linha 2: Maior Desconto P/L, Maior DY, Maior Score -- 3 cards iguais ----
+c5, c6, c7 = st.columns(3)
+with c5:
+    card_menor_pl = st.empty()
+with c6:
+    st.markdown(f"""<div class='top-card'>
+        <div class='label'>🏆 Maior DY</div>
+        <div class='value'>{ticker_max_dy}</div>
+        <div class='sub'>{val_max_dy}</div>
+    </div>""", unsafe_allow_html=True)
+with c7:
+    card_maior_score = st.empty()
+
 
 
 st.markdown("""
