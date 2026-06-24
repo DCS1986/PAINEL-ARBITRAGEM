@@ -6,6 +6,10 @@ import yfinance as yf
 import requests
 
 from ui_confluencia import render_confluencia, render_confluencia_card
+from cvm_insiders import (
+    baixar_indice_documentos, baixar_mapa_tickers,
+    link_documento_mais_recente, verificar_movimentacao_real,
+)
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -2219,6 +2223,46 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 )
                 if erro_rec:
                     st.caption(f"🔧 Detalhe técnico: {erro_rec}")
+
+        # ---- Verificação experimental: recompra REAL via documento CVM ----
+        # NUNCA TESTADO contra o documento de verdade (sem acesso à internet
+        # na hora de escrever isso) -- só pra você validar antes de eu plugar
+        # no Score de Confluência.
+        st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
+        with st.expander("🔬 Verificar recompra REAL via documento individual da CVM (experimental)"):
+            st.caption(
+                "Abre o formulário individual mais recente da própria empresa na CVM e procura "
+                "por uma linha de operação real (\"Compra à vista\"/\"Venda à vista\") na tabela "
+                "de Movimentações no Mês -- não confia só no número que o Fundamentus mostra."
+            )
+            if st.button("Verificar agora", key=f"btn_verif_recompra_{ticker}"):
+                with st.spinner("Baixando índice de documentos da CVM..."):
+                    try:
+                        indice_docs = baixar_indice_documentos(int(pd.Timestamp.now().year))
+                    except Exception as e:
+                        indice_docs = None
+                        st.error(f"Não consegui baixar o índice de documentos: {e}")
+
+                if indice_docs is not None:
+                    mapa_idx = baixar_mapa_tickers(int(pd.Timestamp.now().year))
+                    cnpj_ticker = mapa_idx.get(ticker.upper())
+                    if not cnpj_ticker:
+                        st.warning(f"CNPJ de {ticker} não encontrado no cadastro da CVM.")
+                    else:
+                        links = link_documento_mais_recente(indice_docs, cnpj_ticker, meses=6)
+                        if not links:
+                            st.info("Nenhum documento encontrado nos últimos 6 meses.")
+                        else:
+                            url_doc = links[0]
+                            with st.spinner("Baixando e lendo o formulário individual (PDF)..."):
+                                resultado = verificar_movimentacao_real(url_doc)
+                            if resultado is True:
+                                st.success("✅ Encontrei uma operação real de compra/venda na tabela do mês mais recente.")
+                            elif resultado is False:
+                                st.warning("⚪ A tabela de movimentações do mês mais recente está vazia — sem recompra real nesse período.")
+                            else:
+                                st.error("🔧 Não consegui baixar ou ler esse documento (pode ser formato inesperado).")
+                            st.caption(f"Documento verificado: [{url_doc}]({url_doc})")
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: DOCUMENTOS (Apresentações)
