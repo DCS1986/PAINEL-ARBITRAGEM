@@ -7,8 +7,7 @@ import requests
 
 from ui_confluencia import render_confluencia, render_confluencia_card
 from cvm_insiders import (
-    baixar_indice_documentos, baixar_mapa_tickers,
-    link_documento_mais_recente, verificar_movimentacao_real,
+    baixar_mapa_tickers, baixar_programa_recompra, programa_recompra_ativo,
 )
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
@@ -140,9 +139,14 @@ page_bg_img = f"""
     padding: 9px 7px 7px 7px;
     text-align: center;
     margin-bottom: 4px;
+    height: 230px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }}
 .asset-card:hover {{ background: rgba(255,255,255,0.09); border-color: rgba(212,175,55,0.4); }}
-.asset-card .ac-logo {{ width:34px;height:34px;border-radius:50%;object-fit:cover;background:#F1EFE8;padding:2px;margin:0 auto 5px auto;display:block; }}
+.asset-card .ac-logo-area {{ height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:4px; }}
+.asset-card .ac-logo {{ width:34px;height:34px;border-radius:50%;object-fit:cover;background:#F1EFE8;padding:2px;display:block; }}
 .asset-card .ac-ticker {{ font-size:1.05em;font-weight:800;color:#F1EFE8;letter-spacing:0.5px; }}
 .asset-card .ac-cot {{ font-size:0.95em;color:#F1EFE8;font-weight:bold;margin-top:2px; }}
 .asset-card .ac-var-pos {{ color:#4CAF6D;font-size:0.68em;font-weight:bold; }}
@@ -891,13 +895,16 @@ def icone_setor(setor):
 # ---- Logo via brapi ----
 @st.cache_data(ttl=86400)
 def get_logo_url(ticker):
-    try:
-        url = f"https://brapi.dev/api/quote/{ticker}?token=qX942ePxQaNWzSEs9gphZi"
-        r = requests.get(url, timeout=8).json()
-        if r.get('results'):
-            return r['results'][0].get('logourl', '') or ''
-    except:
-        pass
+    for _ in range(2):  # 1 retry simples -- defesa contra falha transitória da API
+        try:
+            url = f"https://brapi.dev/api/quote/{ticker}?token=qX942ePxQaNWzSEs9gphZi"
+            r = requests.get(url, timeout=8).json()
+            if r.get('results'):
+                logo = r['results'][0].get('logourl', '') or ''
+                if logo:
+                    return logo
+        except Exception:
+            pass
     return ''
 
 # ---- Insiders e Recompras via Fundamentus ----
@@ -2224,45 +2231,48 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 if erro_rec:
                     st.caption(f"🔧 Detalhe técnico: {erro_rec}")
 
-        # ---- Verificação experimental: recompra REAL via documento CVM ----
-        # NUNCA TESTADO contra o documento de verdade (sem acesso à internet
-        # na hora de escrever isso) -- só pra você validar antes de eu plugar
-        # no Score de Confluência.
-        st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
-        with st.expander("🔬 Verificar recompra REAL via documento individual da CVM (experimental)"):
-            st.caption(
-                "Abre o formulário individual mais recente da própria empresa na CVM e procura "
-                "por uma linha de operação real (\"Compra à vista\"/\"Venda à vista\") na tabela "
-                "de Movimentações no Mês -- não confia só no número que o Fundamentus mostra."
-            )
-            if st.button("Verificar agora", key=f"btn_verif_recompra_{ticker}"):
-                with st.spinner("Baixando índice de documentos da CVM..."):
-                    try:
-                        indice_docs = baixar_indice_documentos(int(pd.Timestamp.now().year))
-                    except Exception as e:
-                        indice_docs = None
-                        st.error(f"Não consegui baixar o índice de documentos: {e}")
+        # ---- Programa de Recompra ativo (fato verificável, sem ambiguidade) ----
+        # Dataset separado e dedicado da CVM (atualizado diariamente). Diz SE
+        # existe autorização do conselho em vigor pra recomprar -- não diz
+        # quanto foi efetivamente comprado (essa informação não tem fonte
+        # estruturada confiável -- já tentamos 3 vezes e nenhuma se sustentou).
+        @st.cache_data(ttl=60 * 60 * 6, show_spinner=False)
+        def _programa_recompra_cache():
+            return baixar_programa_recompra()
 
-                if indice_docs is not None:
-                    mapa_idx = baixar_mapa_tickers(int(pd.Timestamp.now().year))
-                    cnpj_ticker = mapa_idx.get(ticker.upper())
-                    if not cnpj_ticker:
-                        st.warning(f"CNPJ de {ticker} não encontrado no cadastro da CVM.")
-                    else:
-                        links = link_documento_mais_recente(indice_docs, cnpj_ticker, meses=6)
-                        if not links:
-                            st.info("Nenhum documento encontrado nos últimos 6 meses.")
-                        else:
-                            url_doc = links[0]
-                            with st.spinner("Baixando e lendo o formulário individual (PDF)..."):
-                                resultado = verificar_movimentacao_real(url_doc)
-                            if resultado is True:
-                                st.success("✅ Encontrei uma operação real de compra/venda na tabela do mês mais recente.")
-                            elif resultado is False:
-                                st.warning("⚪ A tabela de movimentações do mês mais recente está vazia — sem recompra real nesse período.")
-                            else:
-                                st.error("🔧 Não consegui baixar ou ler esse documento (pode ser formato inesperado).")
-                            st.caption(f"Documento verificado: [{url_doc}]({url_doc})")
+        @st.cache_data(ttl=60 * 60 * 24, show_spinner=False)
+        def _mapa_tickers_cache(ano_ref):
+            return baixar_mapa_tickers(int(ano_ref))
+
+        st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
+        with st.spinner(" "):
+            try:
+                df_programas = _programa_recompra_cache()
+                mapa_prog = _mapa_tickers_cache(pd.Timestamp.now().year)
+                cnpj_ticker = mapa_prog.get(ticker.upper())
+                programa = programa_recompra_ativo(df_programas, cnpj_ticker) if cnpj_ticker else None
+            except Exception:
+                programa = None
+
+        if programa:
+            data_final_str = programa["data_final"].strftime("%d/%m/%Y")
+            qtds = []
+            if programa.get("qtd_on") and str(programa["qtd_on"]) not in ("0", "nan", "None"):
+                qtds.append(f"{int(float(programa['qtd_on'])):,} ON".replace(",", "."))
+            if programa.get("qtd_pn") and str(programa["qtd_pn"]) not in ("0", "nan", "None"):
+                qtds.append(f"{int(float(programa['qtd_pn'])):,} PN".replace(",", "."))
+            qtd_str = " + ".join(qtds) if qtds else "quantidade não informada"
+            st.markdown(
+                "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(212,175,55,0.35);"
+                "border-radius:10px;padding:12px 16px;'>"
+                "<div style='font-size:0.78em;color:#D4AF37;font-weight:600;text-transform:uppercase;"
+                "margin-bottom:4px;'>📋 Programa de Recompra Ativo</div>"
+                f"<div style='font-size:0.88em;color:#ddd;'>Autorizado até <b>{data_final_str}</b> — "
+                f"até {qtd_str} (máximo autorizado, não é o que já foi comprado).</div>"
+                "</div>", unsafe_allow_html=True
+            )
+        else:
+            st.caption("📋 Nenhum programa de recompra em andamento encontrado pra este ativo.")
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: DOCUMENTOS (Apresentações)
@@ -2436,17 +2446,22 @@ val_max_score    = "-"
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_ibov():
     """Retorna (valor_atual, variacao_dia_pct) do Ibovespa via Yahoo Finance,
-    ou (None, None) em erro."""
+    ou (None, None) em erro. Tenta o histórico primeiro (mais estável que o
+    endpoint .info, que falha com mais frequência)."""
     try:
         ibov = yf.Ticker("^BVSP")
-        info = ibov.info
-        atual = info.get('regularMarketPrice') or info.get('currentPrice')
-        anterior = info.get('previousClose')
-        if not atual or not anterior:
+        atual = anterior = None
+        try:
             hist = ibov.history(period="5d")
             if len(hist) >= 2:
                 atual = hist['Close'].iloc[-1]
                 anterior = hist['Close'].iloc[-2]
+        except Exception:
+            pass
+        if not atual or not anterior:
+            info = ibov.info
+            atual = info.get('regularMarketPrice') or info.get('currentPrice')
+            anterior = info.get('previousClose')
         if atual and anterior:
             return atual, ((atual - anterior) / anterior) * 100
         return None, None
@@ -2779,7 +2794,7 @@ else:
                         var_html = "<span class='ac-var-neu'>🟡 {:.2f}%</span>".format(var_c)
 
                     dy_color = "#4CAF6D" if dy_num_c > 8 else "#5B8DB8"
-                    logo_html = "<img src='{}' class='ac-logo'/>".format(logo_c) if logo_c else "<div style='font-size:2em;margin-bottom:8px;'>{}</div>".format(ic_c)
+                    logo_html = "<div class='ac-logo-area'><img src='{}' class='ac-logo'/></div>".format(logo_c) if logo_c else "<div class='ac-logo-area' style='font-size:1.8em;'>{}</div>".format(ic_c)
 
                     with cols[idx]:
                         st_s   = ativo.get('st_status', 'neutro')
