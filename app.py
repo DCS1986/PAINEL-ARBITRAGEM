@@ -95,6 +95,11 @@ page_bg_img = f"""
     border-radius: 12px;
     padding: 16px 20px;
     text-align: center;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
 }}
 .top-card .label {{
     font-size: 0.78em;
