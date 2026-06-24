@@ -2400,8 +2400,9 @@ def get_selic():
 ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
 
-# ---- Linha 1: Total/Filtrados (estreitos) + Ibovespa/Selic (largos) ----
-c1, c2, c_espaco, c3, c4 = st.columns([0.8, 0.8, 0.15, 1.15, 1.15])
+# ---- Linha 1: Total+Filtrados (juntas = largura de 1 caixa de baixo);
+# Ibovespa+Selic (juntas = largura de 2 caixas de baixo, centralizadas) ----
+c1, c2, c3, c4 = st.columns([0.5, 0.5, 1, 1])
 with c1:
     st.markdown(f"""<div class='top-card'>
         <div class='label'>📋 Total de Ativos</div>
@@ -2436,7 +2437,10 @@ with c4:
             <div class='value'>—</div>
         </div>""", unsafe_allow_html=True)
 
-st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+st.markdown(
+    "<div style='margin:14px 0 14px 0;border-bottom:1px solid rgba(255,255,255,0.08);'></div>",
+    unsafe_allow_html=True
+)
 
 # ---- Linha 2: Maior Desconto P/L, Maior DY, Maior Score -- 3 cards iguais ----
 c5, c6, c7 = st.columns(3)
