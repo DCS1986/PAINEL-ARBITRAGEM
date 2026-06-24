@@ -1222,7 +1222,7 @@ def get_dados_yahoo(ticker):
         roe_str    = f"{roe_num:.1f}%"    if roe    else "-"
         margem_str = f"{margem_num:.1f}%" if margem else "-"
         beta_str   = f"{beta:.2f}"        if beta   else "N/A"
-        pvp_str    = f"{pvp:.2f}x"        if pvp    else "-"
+        pvp_str    = f"{pvp:.2f}x".replace(".", ",") if pvp    else "-"
 
         low52  = info.get('fiftyTwoWeekLow',  0)
         high52 = info.get('fiftyTwoWeekHigh', 0)
@@ -1869,7 +1869,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             i9, i10, i11, i12 = st.columns(4)
             _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
             _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
-            _card_ind(i11, "Margem Líquida", marg_liq_val, sufixo="%")
+            _card_metric(i11, "P/VP", pvp_str if pvp_str != "-" else "—")
             _card_ind(i12, "ROA", roa_val, sufixo="%")
             st.caption(
                 "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros) — abaixo de 1x "
