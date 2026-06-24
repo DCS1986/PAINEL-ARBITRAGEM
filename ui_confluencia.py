@@ -17,10 +17,10 @@ completa usada na tela cheia, porque a normalizacao do score e relativa ao
 universo (o maior valor em R$ do grupo) -- passar so 1 ticker quebraria essa
 normalizacao.
 
-`extras` (opcional, em ambas): DataFrame com colunas ['ticker','valuation',
-'dividend_safety'] vindo do RADAR -- quando passado, o Score de Confluencia
-passa a usar 5 sinais (insider/recompra/controlador/valuation/dividend
-safety) em vez de so os 3 da CVM.
+`extras` (opcional, em ambas): DataFrame com colunas ['ticker','recompra',
+'valuation','dividend_safety'] vindo do RADAR -- quando passado, o Score de
+Confluencia passa a usar 5 sinais (insider/controlador da CVM + recompra do
+Fundamentus + valuation/dividend safety do RADAR) em vez de so os 2 da CVM.
 """
 
 import datetime
@@ -80,12 +80,14 @@ def _aviso_defasagem(st, df):
 def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = None):
     """Tela cheia: ranking de Score de Confluência de todos os `tickers`."""
     st.markdown("#### 🎯 Score de Confluência")
-    n_sinais = "5 sinais (CVM + valuation + dividend safety)" if extras is not None else "3 sinais (CVM)"
+    n_sinais = "5 sinais (CVM + Fundamentus + RADAR)" if extras is not None else "2 sinais (CVM)"
     st.caption(
         f"Sinais cruzados num só número — hoje rodando com {n_sinais}: insiders "
-        "(diretoria + conselho), controlador (peso pequeno), recompra da própria "
-        "empresa" + (", valuation e dividend safety do RADAR" if extras is not None else "") +
-        " — com grau de concordância. Fonte: CVM — Dados Abertos."
+        "(diretoria + conselho, via CVM) e controlador (peso pequeno, via CVM)"
+        + (", recompra da própria empresa (via Fundamentus), valuation e dividend "
+           "safety (do RADAR)" if extras is not None else "") +
+        " — com grau de concordância entre fontes independentes. "
+        "Fonte: CVM — Dados Abertos."
     )
 
     if not _DEPS_OK:
@@ -145,10 +147,12 @@ def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = Non
             "X/N iguais = todos concordam (mais confiável); X menor que N = sinais em conflito.\n"
             "- **0/0**: nenhuma movimentação de insider/controlador/recompra no período "
             "(não é erro — é ausência real de dado).\n"
+            "- **Insider e controlador** vêm da CVM (Dados Abertos). **Recompra** vem do "
+            "Fundamentus — o arquivo aberto da CVM usado aqui só cobre negociação de "
+            "pessoas (Art. 11), não recompra de tesouraria.\n"
             "- **Recompra negativa**: significa que a empresa *vendeu* ações de tesouraria de "
             "volta ao mercado — **não** é cancelamento de ações. Cancelamento é um evento "
-            "corporativo diferente, reportado em outro lugar (Fato Relevante/Assembleia), e "
-            "este informe da CVM não o captura."
+            "corporativo diferente, reportado em outro lugar (Fato Relevante/Assembleia)."
         )
         st.write("Pesos:", PESOS)
         st.dataframe(sinais_cvm(df, mapa, tickers, meses=int(meses)),
@@ -212,7 +216,7 @@ def render_confluencia_card(
             "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
             "border-radius:10px;padding:14px 16px;'>"
             "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
-            "margin-bottom:6px;'>🎯 Score de Confluência (CVM)</div>"
+            "margin-bottom:6px;'>🎯 Score de Confluência</div>"
             f"<div style='font-size:0.85em;color:#888;'>Ticker '{ticker}' não encontrado no "
             "cadastro atual da CVM (pode ter mudado de código).</div>"
             "</div>", unsafe_allow_html=True
@@ -224,7 +228,7 @@ def render_confluencia_card(
             "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
             "border-radius:10px;padding:14px 16px;'>"
             "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
-            "margin-bottom:6px;'>🎯 Score de Confluência (CVM)</div>"
+            "margin-bottom:6px;'>🎯 Score de Confluência</div>"
             "<div style='font-size:0.85em;color:#888;'>Sem dados para este ativo no período.</div>"
             "</div>", unsafe_allow_html=True
         )
@@ -234,13 +238,13 @@ def render_confluencia_card(
     score = row["score"]
     cor = "#4CAF6D" if score > 5 else ("#D9534F" if score < -5 else "#aaaaaa")
     resumo = explicar(row)
-    n_sinais_txt = " (com valuation + dividend safety)" if extras is not None else ""
+    n_sinais_txt = " (com recompra, valuation e dividend safety)" if extras is not None else ""
 
     st.markdown(
         "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
         "border-radius:10px;padding:14px 16px;'>"
         f"<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
-        f"margin-bottom:8px;'>🎯 Score de Confluência (CVM){n_sinais_txt}</div>"
+        f"margin-bottom:8px;'>🎯 Score de Confluência{n_sinais_txt}</div>"
         f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
         f"<span style='font-size:1.5em;font-weight:900;color:{cor};'>{score:.1f}</span>"
         f"<span style='font-size:0.85em;color:#ccc;'>Concordância: {row['concordancia']}</span>"
