@@ -255,17 +255,25 @@ def render_confluencia_card(
     else:
         pos_txt = f"score neutro entre {total_ativos} ativos do RADAR hoje"
 
-    # Barra visual: -100 a +100, com marcador na posicao do score.
-    pct_pos = (score + 100) / 200 * 100  # 0-100% pra posicionar o marcador
-    pct_pos = max(2, min(98, pct_pos))   # nunca cola na borda
+    # Barra visual: posição RELATIVA aos ativos de hoje (0% = pior score do
+    # dia, 100% = melhor) -- não uma escala fixa -100/+100, que na prática
+    # quase nunca é alcançada nos dois extremos ao mesmo tempo (precisaria
+    # de um ativo no máximo absoluto em TODOS os sinais simultaneamente).
+    # Assim os dois extremos da barra são sempre alcançáveis, porque são
+    # definidos pelos próprios dados de hoje, não por um teto teórico.
+    if total_ativos > 1:
+        pct_pos = (total_ativos - posicao) / (total_ativos - 1) * 100
+    else:
+        pct_pos = 50
+    pct_pos = max(2, min(98, pct_pos))   # nunca cola na borda visualmente
     barra_html = (
         "<div style='position:relative;height:8px;background:linear-gradient(to right,"
-        "#D9534F 0%,#3a3a3a 50%,#4CAF6D 100%);border-radius:4px;margin:8px 0 4px 0;'>"
+        "#3a3a3a 0%,#5B8DB8 50%,#D4AF37 100%);border-radius:4px;margin:8px 0 4px 0;'>"
         f"<div style='position:absolute;left:{pct_pos}%;top:-3px;width:3px;height:14px;"
         f"background:#F1EFE8;border-radius:1px;transform:translateX(-50%);'></div>"
         "</div>"
         "<div style='display:flex;justify-content:space-between;font-size:0.65em;color:#888;'>"
-        "<span>-100</span><span>0</span><span>+100</span></div>"
+        f"<span>Pior do dia</span><span>Melhor do dia</span></div>"
     )
 
     st.markdown(
