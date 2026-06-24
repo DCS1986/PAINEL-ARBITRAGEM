@@ -1648,7 +1648,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "<span style='font-size:1.9em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
                     "<span style='font-size:0.85em;color:{cor};font-weight:700;'>{label}</span>"
                     "</div>"
-                    "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{obs}</div>"
+                    "<div style='font-size:0.92em;color:#ddd;line-height:1.6;'>{obs}</div>"
                     "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
                                     label=gov_label, obs=obs_gov),
                     unsafe_allow_html=True
@@ -1660,7 +1660,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "<div style='{base}'>"
                     "<div style='font-size:0.78em;font-weight:600;color:#ccc;letter-spacing:0.5px;"
                     "text-transform:uppercase;margin-bottom:8px;'>{icone} Outlook 2026</div>"
-                    "<div style='font-size:0.8em;color:#ddd;line-height:1.55;'>{texto}</div>"
+                    "<div style='font-size:0.92em;color:#ddd;line-height:1.6;'>{texto}</div>"
                     "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
                     unsafe_allow_html=True
                 )
@@ -1698,21 +1698,21 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             pct_target = ((tg_v - cot_v) / tg_v * 100) if cot_v < tg_v else -((cot_v - tg_v) / tg_v * 100)
 
             st.markdown(
-                f"<div style='padding:13px 16px;border-radius:11px;margin:12px 0 6px 0;"
+                f"<div style='padding:18px 20px;border-radius:11px;margin:12px 0 6px 0;"
                 f"background:rgba(255,255,255,0.04);border:2px solid {s_cor};'>"
-                f"<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px;'>"
-                f"<span style='font-size:1.3em;'>{s_ico}</span>"
-                f"<span style='font-size:0.92em;font-weight:700;color:{s_cor};'>{s_desc}</span>"
+                f"<div style='display:flex;align-items:center;gap:8px;margin-bottom:12px;'>"
+                f"<span style='font-size:1.5em;'>{s_ico}</span>"
+                f"<span style='font-size:1.05em;font-weight:700;color:{s_cor};'>{s_desc}</span>"
                 f"</div>"
                 f"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;'>"
-                f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>COTAÇÃO ATUAL</div>"
-                f"<div style='font-size:1.15em;font-weight:800;color:#F1EFE8;'>R$ {cot_v:.2f}</div></div>"
-                f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>PREÇO TETO</div>"
-                f"<div style='font-size:1.15em;font-weight:800;color:#D4AF37;'>R$ {pt_v:.2f}</div>"
-                f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
-                f"<div><div style='font-size:0.74em;color:#ccc;margin-bottom:3px;'>TARGET</div>"
-                f"<div style='font-size:1.15em;font-weight:800;color:#4CAF6D;'>R$ {tg_v:.2f}</div>"
-                f"<div style='font-size:0.74em;color:#ccc;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
+                f"<div><div style='font-size:0.85em;color:#ccc;margin-bottom:5px;'>COTAÇÃO ATUAL</div>"
+                f"<div style='font-size:1.5em;font-weight:800;color:#F1EFE8;'>R$ {cot_v:.2f}</div></div>"
+                f"<div><div style='font-size:0.85em;color:#ccc;margin-bottom:5px;'>PREÇO TETO</div>"
+                f"<div style='font-size:1.5em;font-weight:800;color:#D4AF37;'>R$ {pt_v:.2f}</div>"
+                f"<div style='font-size:0.85em;color:#ccc;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
+                f"<div><div style='font-size:0.85em;color:#ccc;margin-bottom:5px;'>TARGET</div>"
+                f"<div style='font-size:1.5em;font-weight:800;color:#4CAF6D;'>R$ {tg_v:.2f}</div>"
+                f"<div style='font-size:0.85em;color:#ccc;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
                 f"</div></div>",
                 unsafe_allow_html=True
             )
@@ -1720,22 +1720,22 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         # ---- Caixas-resumo: 4 caixas do MESMO tamanho (altura fixa) ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
 
-        ALTURA_RESUMO = "180px"
+        ALTURA_RESUMO = "200px"
 
-        def _card_resumo(col, titulo, itens, tamanho_linha="0.82em"):
+        def _card_resumo(col, titulo, itens, tamanho_linha="0.95em"):
             linhas = ""
             for item in itens:
                 label, valor, cor = (item + ("#F1EFE8",))[:3] if len(item) == 2 else item
                 linhas += (
                     f"<div style='display:flex;justify-content:space-between;font-size:{tamanho_linha};"
-                    "margin-top:6px;'>"
+                    "margin-top:7px;'>"
                     f"<span style='color:#94A3B8;'>{label}</span>"
                     f"<span style='color:{cor};font-weight:700;'>{valor}</span></div>"
                 )
             col.markdown(
                 "<div style='{base}height:{altura};display:flex;flex-direction:column;"
                 "justify-content:flex-start;box-sizing:border-box;'>"
-                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;"
+                "<div style='font-size:0.82em;color:#ccc;text-transform:uppercase;"
                 "margin-bottom:4px;text-align:center;'>{titulo}</div>"
                 "{linhas}"
                 "</div>".format(base=card_style, altura=ALTURA_RESUMO, titulo=titulo, linhas=linhas),
@@ -2372,7 +2372,79 @@ with c4:
 with c5:
     card_menor_pl = st.empty()
 
-st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_ibov():
+    """Retorna (valor_atual, variacao_dia_pct) do Ibovespa via Yahoo Finance,
+    ou (None, None) em erro."""
+    try:
+        ibov = yf.Ticker("^BVSP")
+        info = ibov.info
+        atual = info.get('regularMarketPrice') or info.get('currentPrice')
+        anterior = info.get('previousClose')
+        if not atual or not anterior:
+            hist = ibov.history(period="5d")
+            if len(hist) >= 2:
+                atual = hist['Close'].iloc[-1]
+                anterior = hist['Close'].iloc[-2]
+        if atual and anterior:
+            return atual, ((atual - anterior) / anterior) * 100
+        return None, None
+    except Exception:
+        return None, None
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_selic():
+    """Retorna a Meta Selic atual (% a.a.) via API do Banco Central (série
+    432 do SGS), ou None em erro."""
+    try:
+        url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json"
+        r = requests.get(url, timeout=10)
+        if r.status_code != 200:
+            return None
+        dados = r.json()
+        if not dados:
+            return None
+        valor = dados[-1]['valor']
+        return float(valor.replace(',', '.')) if isinstance(valor, str) else float(valor)
+    except Exception:
+        return None
+
+
+ibov_val, ibov_var = get_ibov()
+selic_val = get_selic()
+
+cm1, cm2 = st.columns(2)
+with cm1:
+    if ibov_val is not None:
+        cor_ibov = "#4CAF6D" if ibov_var > 0 else ("#D9534F" if ibov_var < 0 else "#D4AF37")
+        ibov_fmt = f"{ibov_val:,.0f}".replace(",", ".")
+        st.markdown(f"""<div class='top-card'>
+            <div class='label'>📊 Ibovespa</div>
+            <div class='value'>{ibov_fmt}</div>
+            <div class='sub' style='color:{cor_ibov};'>{ibov_var:+.2f}%</div>
+        </div>""", unsafe_allow_html=True)
+    else:
+        st.markdown("""<div class='top-card'>
+            <div class='label'>📊 Ibovespa</div>
+            <div class='value'>—</div>
+        </div>""", unsafe_allow_html=True)
+with cm2:
+    if selic_val is not None:
+        selic_fmt = f"{selic_val:.2f}".replace(".", ",")
+        st.markdown(f"""<div class='top-card'>
+            <div class='label'>🏦 Selic (meta)</div>
+            <div class='value'>{selic_fmt}% a.a.</div>
+        </div>""", unsafe_allow_html=True)
+    else:
+        st.markdown("""<div class='top-card'>
+            <div class='label'>🏦 Selic (meta)</div>
+            <div class='value'>—</div>
+        </div>""", unsafe_allow_html=True)
+
 
 st.markdown("""
 <style>
