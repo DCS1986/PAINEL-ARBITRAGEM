@@ -1675,7 +1675,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        # ---- Caixas-resumo: cotação/variação/score + valuation + dividendos ----
+        # ---- Caixas-resumo: Mercado | Valuation & Dividendos | Posição no Setor ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
 
         def _card_resumo(col, titulo, itens):
@@ -1697,6 +1697,15 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
+        def _texto_rank_resumo(rank, n):
+            if rank is None or not n or n <= 1:
+                return "—"
+            if rank == 1:
+                return "🥇 Melhor do setor"
+            if rank == n:
+                return "Último do setor"
+            return f"{rank}º de {n}"
+
         r0, r1, r2 = st.columns(3)
 
         var_resumo_str = f"{variacao_dia:+.2f}%".replace(".", ",")
@@ -1710,12 +1719,20 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         ])
 
         pl_atual_resumo = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "—"
-        _card_resumo(r1, "💰 Valuation", [("P/L Atual", pl_atual_resumo), ("ROE", roe)])
-
         ds_score_resumo = ativo_data.get('div_safety_score')
-        _card_resumo(r2, "📈 Dividendos", [
+        _card_resumo(r1, "💰 Valuation & Dividendos", [
+            ("P/L Atual", pl_atual_resumo),
+            ("ROE", roe),
             ("Dividend Yield", f"{dy_clean}%"),
             ("Dividend Safety", f"{ds_score_resumo}/10" if ds_score_resumo is not None else "—"),
+        ])
+
+        n_setor_resumo = ativo_data.get('n_setor')
+        n_pl_setor_resumo = ativo_data.get('n_pl')
+        _card_resumo(r2, "🎯 Posição no Setor", [
+            ("ROE", _texto_rank_resumo(ativo_data.get('rank_roe'), n_setor_resumo)),
+            ("Dividend Yield", _texto_rank_resumo(ativo_data.get('rank_dy'), n_setor_resumo)),
+            ("P/L (mais barato)", _texto_rank_resumo(ativo_data.get('rank_pl'), n_pl_setor_resumo)),
         ])
 
     # ════════════════════════════════════════════════════════════════════
