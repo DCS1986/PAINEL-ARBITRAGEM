@@ -110,37 +110,35 @@ def explicar(row: pd.Series) -> str:
     Traduz uma linha do resultado de score_confluencia() para uma frase em
     portugues simples, sem siglas nem numeros tecnicos. E a "tradução" que
     precisa aparecer DENTRO da tela, nao so explicada em conversa.
+
+    Quando os sinais NAO concordam, agrupa explicitamente quem aponta pra
+    cada lado -- listar so os fatos em sequencia (sem dizer qual e otimista
+    e qual e pessimista) obriga quem le a decifrar a direcao de cada um por
+    conta propria, o que gerou confusao real.
     """
     detalhe = str(row.get("detalhe", "") or "")
     if not detalhe:
         return "Nenhuma movimentação de insider, controlador ou recompra registrada no período."
 
-    partes = [p.strip() for p in detalhe.split(",")]
-    frases = []
-    for p in partes:
-        if p.startswith("insider+"):
-            frases.append("a diretoria/conselho está comprando")
-        elif p.startswith("insider-"):
-            frases.append("a diretoria/conselho está vendendo")
-        elif p.startswith("recompra+"):
-            frases.append("a empresa está recomprando suas próprias ações")
-        elif p.startswith("recompra-"):
-            frases.append("a empresa vendeu ações de tesouraria de volta ao mercado (não é cancelamento)")
-        elif p.startswith("controlador+"):
-            frases.append("o controlador está comprando (peso pequeno no score)")
-        elif p.startswith("controlador-"):
-            frases.append("o controlador está vendendo (peso pequeno no score)")
-        elif p.startswith("valuation+"):
-            frases.append("está com desconto no valuation")
-        elif p.startswith("valuation-"):
-            frases.append("está caro no valuation")
-        elif p.startswith("dividend+"):
-            frases.append("tem dividendo seguro")
+    _FRASES = {
+        "insider+": "diretoria/conselho comprando",
+        "insider-": "diretoria/conselho vendendo",
+        "recompra+": "empresa recomprando ações",
+        "recompra-": "empresa vendeu ações de tesouraria de volta ao mercado (não é cancelamento)",
+        "controlador+": "controlador comprando (peso pequeno)",
+        "controlador-": "controlador vendendo (peso pequeno)",
+        "valuation+": "desconto no valuation",
+        "valuation-": "caro no valuation",
+        "dividend+": "dividendo seguro",
+    }
 
-    if len(frases) == 1:
-        corpo = frases[0]
-    else:
-        corpo = ", ".join(frases[:-1]) + " e " + frases[-1]
+    partes = [p.strip() for p in detalhe.split(",")]
+    alta, baixa = [], []
+    for p in partes:
+        texto = _FRASES.get(p)
+        if texto is None:
+            continue
+        (baixa if p.endswith("-") else alta).append(texto)
 
     conc = str(row.get("concordancia", "0/0"))
     try:
@@ -151,16 +149,25 @@ def explicar(row: pd.Series) -> str:
     score_val = row.get("score", 0) or 0
     direcao_txt = "venda" if score_val < 0 else "compra"
 
-    if total == 0:
-        forca = ""
-    elif usados == total and total >= 2:
-        forca = f" — sinal de {direcao_txt} forte: todos os sinais apontam na mesma direção."
-    elif usados == total:
-        forca = f" — sinal de {direcao_txt} consistente."
-    else:
-        forca = f" — leitura ambígua, os sinais não concordam entre si ({conc})."
+    # Todos os sinais concordam -> frase unica, sem precisar separar grupos
+    if total >= 1 and usados == total:
+        todos = alta + baixa
+        corpo = todos[0] if len(todos) == 1 else ", ".join(todos[:-1]) + " e " + todos[-1]
+        if total >= 2:
+            return f"Resumo: {corpo} — sinal de {direcao_txt} forte: todos os sinais apontam na mesma direção."
+        return f"Resumo: {corpo} — sinal de {direcao_txt} consistente."
 
-    return f"Resumo: {corpo}{forca}"
+    # Sinais em conflito -> agrupa explicitamente quem aponta pra cada lado
+    if alta and baixa:
+        txt_alta = alta[0] if len(alta) == 1 else ", ".join(alta[:-1]) + " e " + alta[-1]
+        txt_baixa = baixa[0] if len(baixa) == 1 else ", ".join(baixa[:-1]) + " e " + baixa[-1]
+        return (
+            f"Sinais de alta ({len(alta)}): {txt_alta}. "
+            f"Sinais de baixa ({len(baixa)}): {txt_baixa}. "
+            f"Como não concordam entre si ({conc}), a leitura é ambígua."
+        )
+
+    return "Nenhuma movimentação de insider, controlador ou recompra registrada no período."
 
 
 
