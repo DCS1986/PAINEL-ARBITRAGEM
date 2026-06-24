@@ -240,6 +240,34 @@ def render_confluencia_card(
     resumo = explicar(row)
     n_sinais_txt = " (com recompra, valuation e dividend safety)" if extras is not None else ""
 
+    # ---- Contexto de posição: "32,4" sozinho nao diz nada pra ninguem,
+    # nem pra quem usa o app todo dia. Mostra onde esse score fica relativo
+    # aos outros ativos do RADAR HOJE (a escala -100/+100 e relativa ao
+    # universo, nao um teto fixo -- por isso a posicao importa mais que o
+    # numero absoluto).
+    total_ativos = len(res)
+    posicao = int((res["score"] > score).sum()) + 1
+    if score > 0:
+        pos_txt = f"{posicao}º maior score de {total_ativos} ativos do RADAR hoje"
+    elif score < 0:
+        posicao_neg = int((res["score"] < score).sum()) + 1
+        pos_txt = f"{posicao_neg}º menor score de {total_ativos} ativos do RADAR hoje"
+    else:
+        pos_txt = f"score neutro entre {total_ativos} ativos do RADAR hoje"
+
+    # Barra visual: -100 a +100, com marcador na posicao do score.
+    pct_pos = (score + 100) / 200 * 100  # 0-100% pra posicionar o marcador
+    pct_pos = max(2, min(98, pct_pos))   # nunca cola na borda
+    barra_html = (
+        "<div style='position:relative;height:8px;background:linear-gradient(to right,"
+        "#D9534F 0%,#3a3a3a 50%,#4CAF6D 100%);border-radius:4px;margin:8px 0 4px 0;'>"
+        f"<div style='position:absolute;left:{pct_pos}%;top:-3px;width:3px;height:14px;"
+        f"background:#F1EFE8;border-radius:1px;transform:translateX(-50%);'></div>"
+        "</div>"
+        "<div style='display:flex;justify-content:space-between;font-size:0.65em;color:#888;'>"
+        "<span>-100</span><span>0</span><span>+100</span></div>"
+    )
+
     st.markdown(
         "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
         "border-radius:10px;padding:14px 16px;'>"
@@ -249,6 +277,8 @@ def render_confluencia_card(
         f"<span style='font-size:1.5em;font-weight:900;color:{cor};'>{score:.1f}</span>"
         f"<span style='font-size:0.85em;color:#ccc;'>Concordância: {row['concordancia']}</span>"
         "</div>"
+        f"{barra_html}"
+        f"<div style='font-size:0.78em;color:{cor};font-weight:700;margin:6px 0 8px 0;'>{pos_txt}</div>"
         f"<div style='font-size:0.85em;color:#ddd;line-height:1.5;'>{resumo}</div>"
         f"<div style='font-size:0.72em;color:#888;margin-top:8px;'>📅 Dados da CVM até {data_str} "
         f"(insiders reportam mensalmente, com atraso de algumas semanas)</div>"
