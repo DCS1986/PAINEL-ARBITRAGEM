@@ -899,6 +899,61 @@ ANALISE_RESULTADO = {
 }
 
 
+# ---- Panorama da Empresa ----
+# Resumo de orientação: o que a empresa faz, de onde vem a receita, como
+# está a saude do setor -- pra quem entra num ativo que ainda nao conhece
+# bem (ex: achou um yield alto ou um score bom e quer se situar rapido).
+# Mesmo espirito de GOVERNANCA/OUTLOOK_2026: pesquisado por mim, atualizado
+# raramente (isso muda pouco, diferente de ANALISE_RESULTADO).
+PANORAMA_EMPRESA = {
+    "WEGE3": "A WEG é uma multinacional brasileira de motores elétricos, geração/transmissão/"
+             "distribuição de energia (GTD), automação industrial e tintas. Atua em mais de "
+             "135 países, com a receita externa já maior que a doméstica. Ganha dinheiro "
+             "vendendo equipamentos elétricos (motores, transformadores, geradores) pra "
+             "indústria e pra projetos de energia (solar, eólica), além de serviços de "
+             "automação. Setor de bens de capital/industrial — sensível ao ciclo de "
+             "investimento industrial e à demanda por energia renovável, mas com "
+             "diversificação geográfica que reduz a dependência só do Brasil.",
+    "PRIO3": "A PetroRio (antiga HRT) é a maior petroleira privada do Brasil. O modelo de "
+             "negócio é comprar campos de petróleo maduros — já em produção, com "
+             "infraestrutura existente — de grandes petroleiras como a Petrobras, e "
+             "revitalizá-los com mais eficiência. Ganha dinheiro vendendo o petróleo "
+             "extraído, com preço ligado ao Brent internacional. Principais ativos: Polvo, "
+             "Frade, Albacora Leste, Peregrino e o novo campo de Wahoo. Setor de petróleo e "
+             "gás — resultado extremamente sensível ao preço do petróleo e ao câmbio "
+             "(receita em dólar, parte dos custos em real).",
+    "EQTL3": "A Equatorial é uma holding de energia elétrica e saneamento. O modelo de "
+             "negócio é comprar concessões de distribuição de energia em situação "
+             "financeira/operacional ruim (geralmente de estados como Maranhão, Pará, "
+             "Piauí, Alagoas) e fazer um 'turnaround' — reduzir perdas, melhorar cobrança, "
+             "modernizar a rede — até virarem lucrativas. Também tem braços de transmissão, "
+             "geração renovável e saneamento (incluindo participação relevante na Sabesp). "
+             "Ganha dinheiro pelas tarifas reguladas cobradas dos consumidores, mais a "
+             "eficiência que consegue capturar em cada concessão. Setor de utilities — "
+             "regulado e previsível no longo prazo, mas sensível ao custo de capital (juros) "
+             "e à qualidade da execução de cada turnaround.",
+    "JHSF3": "A JHSF é uma holding de negócios de alta renda/luxo, fundada e ainda liderada "
+             "pela família Auriemo. Opera em 4 frentes: shopping centers (Shopping Cidade "
+             "Jardim), hospitalidade (rede de hotéis e restaurantes Fasano, com expansão "
+             "internacional), incorporação residencial de alto padrão (imóveis de luxo pra "
+             "locação) e aviação executiva (aeroporto Catarina). Ganha dinheiro com aluguéis "
+             "de loja/shopping, diárias de hotel, locação/venda de imóveis de luxo e serviços "
+             "de aviação. Setor de consumo de alta renda — menos sensível a crise econômica "
+             "geral (público-alvo mais resiliente), mas com risco de execução na expansão "
+             "internacional.",
+    "POMO4": "A Marcopolo é uma das maiores fabricantes de carrocerias de ônibus do mundo, "
+             "fundada em Caxias do Sul (RS) em 1949. Fabrica desde ônibus urbanos e "
+             "rodoviários até micro-ônibus, vendendo pra empresas de transporte público e "
+             "privado no Brasil e no exterior (Argentina, México, Austrália, África do Sul, "
+             "entre outros), além de ter participação relevante na canadense NFI (ônibus "
+             "elétricos/GNV na América do Norte). Ganha dinheiro vendendo carrocerias/"
+             "veículos completos — fortemente ligado a programas governamentais de renovação "
+             "de frota (como Caminho da Escola e Move Brasil) e à saúde financeira das "
+             "empresas de transporte público. Setor de bens de capital/transporte — cíclico, "
+             "dependente de crédito e de decisões de compra de governos/frotistas.",
+}
+
+
 ESTUDOS_ESPECIFICOS = {
     "BBAS3": {
         "titulo": "P/VP raramente abaixo de 0,50x",
@@ -1179,35 +1234,44 @@ def get_apresentacoes_data(ticker):
         return pd.DataFrame(), f"erro: {e}"
 
 
-def ultimas_apresentacoes(df):
-    """Separa o Release de Resultados mais recente da apresentação
-    institucional/outra mais recente. Critério: NÃO é uma categoria oficial
-    da CVM nessa página — é heurística baseada no texto da descrição.
+def ultimo_release_resultado(df, data_referencia=None):
+    """Acha o documento de resultado mais recente. NÃO é uma categoria
+    oficial da CVM nessa página -- é heurística baseada no texto da
+    descrição, então pode ocasionalmente errar.
 
-    Prioriza "release" explicitamente (o documento de resultado de verdade,
-    com números) sobre qualquer coisa com "resultado" no texto -- um convite
-    de videoconferência/webcast também contém a palavra "resultado" no
-    título, mas não é o release."""
+    Se `data_referencia` (string 'DD/MM/AAAA', a data de divulgação que eu
+    já pesquisei em ANALISE_RESULTADO) for passada, prioriza match EXATO de
+    data -- muito mais confiável que tentar adivinhar pelo texto, que já
+    pegou "Call de resultados" (um convite, não o release) por engano.
+
+    Sem data de referência, cai pro texto: "release" > "resultado", sempre
+    excluindo "call"/"video"/"webcast"/"teleconferência" (que são convites
+    pra ouvir o resultado, não o documento do resultado em si)."""
     if df.empty:
-        return None, None
+        return None
     df = df.sort_values('data_dt', ascending=False)
-    desc = df['descricao'].astype(str)
 
-    mask_video = desc.str.contains('video|webcast|teleconfer|conference call', case=False, na=False, regex=True)
-    mask_release = desc.str.contains('release', case=False, na=False) & ~mask_video
-    mask_resultado_generico = desc.str.contains('resultado', case=False, na=False) & ~mask_video
+    if data_referencia:
+        try:
+            dt_ref = pd.to_datetime(data_referencia, format='%d/%m/%Y')
+            match_data = df[df['data_dt'] == dt_ref]
+            if not match_data.empty:
+                return match_data.iloc[0].to_dict()
+        except Exception:
+            pass
+
+    desc = df['descricao'].astype(str)
+    mask_excluir = desc.str.contains('video|webcast|teleconfer|conference call|^call ', case=False, na=False, regex=True)
+    mask_release = desc.str.contains('release', case=False, na=False) & ~mask_excluir
+    mask_resultado = desc.str.contains('resultado', case=False, na=False) & ~mask_excluir
 
     if mask_release.any():
-        df_resultado = df[mask_release]
+        df_filtrado = df[mask_release]
+    elif mask_resultado.any():
+        df_filtrado = df[mask_resultado]
     else:
-        # Sem "release" explícito: usa qualquer coisa com "resultado" que
-        # não seja convite de video/webcast (melhor aproximação disponível).
-        df_resultado = df[mask_resultado_generico]
-
-    df_institucional = df[~mask_resultado_generico] if not df_resultado.empty else df[~mask_release]
-    ultima_resultado = df_resultado.iloc[0].to_dict() if not df_resultado.empty else None
-    ultima_institucional = df_institucional.iloc[0].to_dict() if not df_institucional.empty else None
-    return ultima_resultado, ultima_institucional
+        return None
+    return df_filtrado.iloc[0].to_dict()
 
 
 # ---- Volatilidade Implícita, IV Rank e IV Percentil via OpLab (sem login) ----
@@ -1826,7 +1890,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.session_state.aba_ativa = "📊 Visão Geral"
         st.session_state.aba_ativa_ticker = ticker
 
-    _NOMES_ABAS = ["📊 Visão Geral", "💰 Valuation & Fundamentos", "📈 Dividendos",
+    _NOMES_ABAS = ["📊 Visão Geral", "🧭 Panorama", "💰 Valuation & Fundamentos", "📈 Dividendos",
                    "👤 Movimentação", "📑 Resultado", "📉 Gráfico"]
     _cols_abas = st.columns(len(_NOMES_ABAS))
     for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
@@ -2008,6 +2072,31 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         ], tamanho_linha="0.95em")
 
         _card_score_hero(r3, score)
+
+    # ════════════════════════════════════════════════════════════════════
+    # ABA: PANORAMA (orientação pra quem não conhece a empresa)
+    # ════════════════════════════════════════════════════════════════════
+    if aba_ativa == "🧭 Panorama":
+        panorama = PANORAMA_EMPRESA.get(ticker)
+        if panorama:
+            st.markdown(
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
+                "letter-spacing:0.5px;margin-bottom:10px;'>🧭 O que é a {ticker}</div>"
+                "<div style='font-size:0.92em;color:#F1EFE8;line-height:1.7;'>{texto}</div>"
+                "</div>".format(base=card_style, ticker=ticker, texto=panorama),
+                unsafe_allow_html=True
+            )
+            st.caption(
+                "Resumo de orientação — o que a empresa faz e de onde vem a receita. "
+                "Pesquisado por mim, não muda com frequência (diferente da Análise de "
+                "Resultado, que é por trimestre)."
+            )
+        else:
+            st.info(
+                "Ainda não temos um panorama escrito pra esta empresa. "
+                "Peça pra eu pesquisar e escrever quando quiser."
+            )
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
@@ -2486,8 +2575,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             df_apres, erro_apres = get_apresentacoes_data(ticker)
 
         if not df_apres.empty:
-            ultima_resultado, ultima_inst = ultimas_apresentacoes(df_apres)
-            acol1, acol2 = st.columns(2)
+            data_ref = analise["data"] if analise else None
+            ultimo_release = ultimo_release_resultado(df_apres, data_referencia=data_ref)
 
             def _card_apresentacao(item, titulo, cor):
                 if item is None:
@@ -2515,12 +2604,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "</div>".format(base=card_style, titulo=titulo, data=data_fmt, desc=desc, link_html=link_html)
                 )
 
-            with acol1:
-                st.markdown(_card_apresentacao(ultima_resultado, "📊 Release de Resultados", "#4CAF6D"),
-                           unsafe_allow_html=True)
-            with acol2:
-                st.markdown(_card_apresentacao(ultima_inst, "🏢 Última Apresentação Institucional", "#5B8DB8"),
-                           unsafe_allow_html=True)
+            st.markdown(_card_apresentacao(ultimo_release, "📊 Release/Apresentação de Resultados mais recente", "#4CAF6D"),
+                       unsafe_allow_html=True)
 
             with st.expander("Ver todas as apresentações e comunicados"):
                 show_apres = df_apres.head(30).copy()
@@ -2530,9 +2615,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     link_md = f"[Download]({link_l})" if link_l else "—"
                     st.markdown(f"**{linha['data']}** — {linha['descricao']} — {link_md}")
             st.caption(
-                "⚠️ A separação entre 'Resultado' e 'Institucional' é baseada no texto da "
-                "descrição (não é uma categoria oficial da CVM nesta página) — pode ocasionalmente "
-                "classificar errado um documento com nome atípico."
+                "⚠️ A identificação do documento é baseada no texto da descrição (não é uma "
+                "categoria oficial da CVM nesta página) — pode ocasionalmente pegar um "
+                "documento com nome atípico. Confira a data antes de considerar definitivo."
             )
         else:
             st.info("Nenhuma apresentação encontrada para este ativo.")
