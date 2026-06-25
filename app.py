@@ -1692,7 +1692,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # pras 6 abas de uma vez so, sempre, mesmo so querendo ver "Visao Geral".
     # Com botoes + session_state, só a aba selecionada de fato executa.
     if 'aba_ativa' not in st.session_state or st.session_state.get('aba_ativa_ticker') != ticker:
-        st.session_state.aba_ativa = "Visão Geral"
+        st.session_state.aba_ativa = "📊 Visão Geral"
         st.session_state.aba_ativa_ticker = ticker
 
     _NOMES_ABAS = ["📊 Visão Geral", "💰 Valuation & Fundamentos", "📈 Dividendos",
