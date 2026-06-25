@@ -1819,7 +1819,7 @@ _min_score_efetivo = min_score if ativar_filtros else 0.0
 if 'ativo_selecionado' not in st.session_state:
     st.session_state.ativo_selecionado = None
 if 'modo_exibicao' not in st.session_state:
-    st.session_state.modo_exibicao = 'Lista'
+    st.session_state.modo_exibicao = 'Cards'
 
 
 @st.cache_data(ttl=60 * 60 * 6, show_spinner=False)
@@ -2183,11 +2183,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         panorama = PANORAMA_EMPRESA.get(ticker)
         if panorama:
             st.markdown(
-                "<div style='{base}'>"
-                "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
-                "letter-spacing:0.5px;margin-bottom:8px;'>🧭 O que é a {ticker}</div>"
-                "<div style='font-size:0.92em;color:#F1EFE8;line-height:1.6;'>{texto}</div>"
-                "</div>".format(base=card_style, ticker=ticker, texto=panorama["o_que_faz"]),
+                "<div style='font-size:1.05em;color:#F1EFE8;line-height:1.65;"
+                "padding:4px 2px 18px 2px;border-bottom:1px solid rgba(255,255,255,0.10);"
+                "margin-bottom:18px;'>{texto}</div>".format(texto=panorama["o_que_faz"]),
                 unsafe_allow_html=True
             )
 
@@ -2228,15 +2226,11 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             )
 
             st.caption(
-                "Pesquisado por mim com base em apresentações institucionais, releases e "
-                "demonstrações financeiras — não muda com frequência (diferente da Análise "
-                "de Resultado, que é por trimestre). Peça uma revisão quando quiser."
+                "Fonte: apresentações institucionais, releases e demonstrações financeiras "
+                "da própria empresa. Atualizado periodicamente."
             )
         else:
-            st.info(
-                "Ainda não temos um panorama escrito pra esta empresa. "
-                "Peça pra eu pesquisar e escrever quando quiser."
-            )
+            st.info("Panorama ainda não disponível para este ativo.")
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
@@ -2699,16 +2693,12 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
             st.caption(
-                "Pesquisado e escrito com base em releases e casas de análise (XP, BTG, Genial, "
-                "Nord e outras) — fica congelado até o próximo resultado trimestral, não é "
-                "atualizado automaticamente. Peça uma atualização quando quiser."
+                "Fonte: release de resultados e casas de análise (XP, BTG, Genial, Nord e "
+                "outras). Referente ao trimestre indicado acima."
             )
             st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         else:
-            st.info(
-                "Ainda não temos uma análise do último resultado pra este ativo. "
-                "Peça pra eu pesquisar e escrever quando quiser."
-            )
+            st.info("Análise do último resultado ainda não disponível para este ativo.")
             st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
 
         with st.spinner("Buscando apresentações..."):
@@ -2989,12 +2979,7 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 }
 </style>
 """, unsafe_allow_html=True)
-tcol1, tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1, 1.4, 6])
-with tcol1:
-    if st.button("☰ Lista", use_container_width=True,
-                 type="primary" if st.session_state.modo_exibicao == 'Lista' else "secondary"):
-        st.session_state.modo_exibicao = 'Lista'
-        st.rerun()
+tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
 with tcol2:
     if st.button("⊞ Cards", use_container_width=True,
                  type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
@@ -3341,130 +3326,4 @@ else:
                 df_programas=df_programas_completo,
             )
             st.stop()
-
-        # Modo Lista — duas colunas para ver mais ativos na tela
-        metade     = len(ativos_com_score) // 2 + len(ativos_com_score) % 2
-        lista_col1 = ativos_com_score[:metade]
-        lista_col2 = ativos_com_score[metade:]
-        lcol1, lcol2 = st.columns(2)
-
-        def render_ativo(ativo):
-            row                    = ativo['row']
-            score                  = ativo['score']
-            dy_num                 = ativo['dy_num']
-            dy_clean               = ativo['dy_clean']
-            porcentagem            = ativo['porcentagem']
-            progresso              = ativo['progresso']
-            dt                     = ativo['dt']
-            val                    = ativo['val']
-            roe                    = ativo['roe']
-            margem                 = ativo['margem']
-            beta                   = ativo['beta']
-            pvp_str                = ativo['pvp_str']
-            historico_dy           = ativo['historico_dy']
-            historico_pl           = ativo['historico_pl']
-            historico_lucro        = ativo['historico_lucro']
-            proximo_provento_data  = ativo['proximo_provento_data']
-            proximo_provento_valor = ativo['proximo_provento_valor']
-            variacao_dia           = ativo['variacao_dia']
-            iv_str                 = ativo['iv_str']
-            logo_url               = ativo['logo_url']
-            st_status       = ativo['st_status']
-            st_cor          = ativo['st_cor']
-            st_icone        = ativo['st_icone']
-            st_desc         = ativo['st_desc']
-            preco_teto_val  = ativo['preco_teto_val']
-            target_val      = ativo['target_val']
-
-            dy_icone = "🔷" if dy_num > 8 else ""
-            cot      = formatar_cotacao(row.get('Cotação atual', 0))
-            pl       = f"{row.get('P/L PROJETADO', '0')}x"
-            ic_setor = icone_setor(row['SETOR'])
-            if variacao_dia > 0:
-                var_str = f"🟢 +{variacao_dia:.2f}%"
-            elif variacao_dia < 0:
-                var_str = f"🔴 {variacao_dia:.2f}%"
-            else:
-                var_str = f"🟡 {variacao_dia:.2f}%"
-            iv_label = f"IV: {iv_str}" if iv_str != "-" else ""
-            titulo = (
-                f"{st_icone} {ic_setor} :orange[**{row['CÓDIGO']}**] | {cot} {var_str} | P/L: {pl} | "
-                f"DY: {dy_icone} {dy_clean}% | {iv_label} | ⭐ Score: {score}/10 | Setor: {row['SETOR']}"
-            )
-            st.markdown("<div class='ativo-sep'></div>", unsafe_allow_html=True)
-            with st.expander(titulo):
-                if logo_url:
-                    st.markdown(
-                        f"<div style='display:flex;align-items:center;gap:12px;"
-                        f"margin-bottom:14px;padding-bottom:10px;"
-                        f"border-bottom:1px solid rgba(255,255,255,0.07);'>"
-                        f"<img src='{logo_url}' style='height:36px;width:auto;"
-                        f"border-radius:6px;background:#F1EFE8;padding:3px;'/>"
-                        f"<span style='font-size:1.1em;font-weight:700;color:#D4AF37;"
-                        f"letter-spacing:1px;'>{row['CÓDIGO']}</span>"
-                        f"<span style='font-size:0.85em;color:#888;'>{row.get('SETOR','-')}</span>"
-                        f"</div>", unsafe_allow_html=True)
-                c1, c2, c3 = st.columns(3)
-                with c1:
-                    st.markdown("#### 📊 Valuation")
-                    st.markdown(f"**P/L Médio (10 anos):** {row.get('P/L médio (últ. 10 anos)', '-')}x")
-                    st.markdown(f"**P/VP:** {pvp_str}")
-                    st.markdown(f"**Valor de Mercado:** {row.get('VALOR DE MERCADO', '-')}")
-                    st.markdown(f"**RESULTADO PROJETADO:** {row.get('LL PROJETADO', '-')}")
-                    st.markdown(
-                        f"**⭐ RESULTADO ÚLTIMO TRI (1/4):** "
-                        f"<span style='color:#4CAF6D;font-weight:bold;'>{row.get('RESULTADO 2026 (1/4)', '-')}</span>",
-                        unsafe_allow_html=True)
-                    cor = cor_progresso(porcentagem)
-                    st.markdown(
-                        f"<div style='background:#222;border-radius:6px;height:12px;width:100%;margin:6px 0;'>"
-                        f"<div style='background:{cor};width:{porcentagem}%;height:12px;border-radius:6px;'></div></div>",
-                        unsafe_allow_html=True)
-                    st.markdown(f"<span style='color:{cor};font-weight:bold;'>Status: {porcentagem}% do resultado projetado</span>", unsafe_allow_html=True)
-                    if historico_lucro:
-                        st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
-                        st.markdown(mini_grafico_linha(historico_lucro, "#4CAF6D"), unsafe_allow_html=True)
-                with c2:
-                    st.markdown("#### 💰 Dividendos")
-                    style_dy = "color:#4CAF6D;font-weight:bold;" if dy_num > 8 else ""
-                    st.markdown(f"**Dividend Yield:** <span style='{style_dy}'>{dy_clean}%</span>", unsafe_allow_html=True)
-                    st.markdown(f"**Payout:** {row.get('PAYOUT', '-')}")
-                    st.markdown(f"**LPA Est.:** {row.get('LPA ESTIMADO', '-')}")
-                    st.markdown(f"**Div. Projetado:** {row.get('Dividendo por ação bruto projetado', '-')}")
-                    st.markdown(f"**Data Ex (último):** {dt}")
-                    st.markdown(f"**Valor Último Div.:** {val}")
-                    if proximo_provento_data != "-":
-                        st.markdown(
-                            f"<div style='margin-top:10px;padding:8px 12px;border-radius:8px;"
-                            f"background:#1a3a1a;border:1px solid #4CAF6D;'>"
-                            f"<span style='color:#4CAF6D;font-weight:bold;'>📅 Próximo Provento em Aberto</span><br>"
-                            f"<span style='color:#F1EFE8;'>Data COM: <b>{proximo_provento_data}</b>"
-                            f" | Valor Est.: <b>{proximo_provento_valor}</b></span></div>",
-                            unsafe_allow_html=True)
-                    else:
-                        st.markdown(
-                            "<div style='margin-top:10px;padding:6px 12px;border-radius:8px;"
-                            "background:#2a2a2a;border:1px solid #555;color:#888;font-size:0.85em;'>"
-                            "📅 Nenhum provento futuro identificado</div>",
-                            unsafe_allow_html=True)
-                    st.markdown("**Histórico DY (5 anos):**")
-                    st.markdown(mini_grafico_dy(historico_dy), unsafe_allow_html=True)
-                with c3:
-                    st.markdown("#### ⚙️ Operacional")
-                    pl_proj = row.get('P/L PROJETADO', '-')
-                    st.markdown(f"**P/L Projetado:** <span style='color:#D4AF37;font-weight:bold;font-size:1.1em;'>{pl_proj}x</span>", unsafe_allow_html=True)
-                    st.markdown(f"**Dívida Líq/EBITDA:** {row.get('Dívida líquida/EBITDA', '-')}")
-                    st.markdown(f"**CAGR Lucros:** {row.get('CAGR lucros (últ. 5 anos)', '-')}")
-                    st.markdown(f"**ROE:** {roe}")
-                    st.markdown(f"**Margem Líq.:** {margem}")
-                    st.markdown(f"**Beta (vs IBOV):** {beta}")
-                    if historico_pl:
-                        st.markdown("<span style='font-size:0.85em;color:#aaa;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
-                        st.markdown(mini_grafico_linha(historico_pl, "#5B8DB8", label_suffix="x"), unsafe_allow_html=True)
-
-        with lcol1:
-            for ativo in lista_col1:
-                render_ativo(ativo)
-        with lcol2:
-            for ativo in lista_col2:
-                render_ativo(ativo)
+        st.stop()  # blindagem -- nunca deveria chegar aqui (Cards/Comparar/Confluência sempre stopam antes)
