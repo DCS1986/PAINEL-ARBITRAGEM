@@ -1382,6 +1382,47 @@ def ultimo_release_resultado(df, data_referencia=None):
 # plataforma/API principal da OpLab (que exige token). Busca-se a página UMA
 # VEZ (lista todos os ~150 ativos) e fica em cache de 1h — não precisa de uma
 # requisição por ticker.
+# ---- Grade de opções via OpLab (página pública, sem login) ----------------
+# NUNCA TESTADO contra o HTML de verdade (minhas ferramentas de pesquisa só
+# leem o texto da página, não a tabela HTML brura que o requests vai ver) --
+# usa pd.read_html() como estratégia mais robusta (lida com tabelas HTML bem
+# formadas de forma generica, sem depender de eu adivinhar a estrutura exata
+# por regex). Precisa ser validado rodando de verdade antes de confiar.
+_MESES_PT = {
+    1: "janeiro", 2: "fevereiro", 3: "março", 4: "abril", 5: "maio", 6: "junho",
+    7: "julho", 8: "agosto", 9: "setembro", 10: "outubro", 11: "novembro", 12: "dezembro",
+}
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def get_grade_opcoes_oplab(ticker, mes=None, ano=None):
+    """Busca a grade de opções (CALL/PUT, strikes, delta, bid/ask) de um
+    ticker na página pública da OpLab, sem precisar de login/token.
+    Retorna (df_ou_None, erro_ou_None)."""
+    hoje = pd.Timestamp.today()
+    mes = mes or hoje.month
+    ano = ano or hoje.year
+    mes_nome = _MESES_PT.get(mes, "junho")
+    url = f"https://opcoes.oplab.com.br/mercado/acoes/opcoes/{ticker}/{mes_nome}/{ano}"
+    try:
+        r = requests.get(url, timeout=15, headers=_FUNDAMENTUS_HEADERS)
+        if r.status_code != 200:
+            return None, f"HTTP {r.status_code} ao acessar OpLab"
+        try:
+            tabelas = pd.read_html(io.StringIO(r.text))
+        except Exception as e:
+            return None, f"não consegui ler tabelas da página: {e}"
+        if not tabelas:
+            return None, "nenhuma tabela encontrada na página"
+        # A grade de opções deve ser a maior tabela (mais linhas) da página.
+        tabela_opcoes = max(tabelas, key=lambda t: len(t))
+        if len(tabela_opcoes) < 2:
+            return None, "tabela encontrada parece vazia (sem opções pra esse vencimento)"
+        return tabela_opcoes, None
+    except Exception as e:
+        return None, str(e)
+
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_volatilidade_oplab():
     """Retorna (dict_por_ticker, erro). dict_por_ticker mapeia
@@ -1994,7 +2035,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.session_state.aba_ativa_ticker = ticker
 
     _NOMES_ABAS = ["📊 Visão Geral", "🧭 Panorama", "💰 Valuation", "📈 Dividendos",
-                   "👤 Movimentação", "📑 Resultado", "📉 Gráfico"]
+                   "👤 Movimentação", "📑 Resultado", "📐 Volatilidade"]
     _cols_abas = st.columns(len(_NOMES_ABAS))
     for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
         with _col:
@@ -2757,7 +2798,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: GRÁFICO (candlestick + volatilidade implícita)
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "📉 Gráfico":
+    if aba_ativa == "📐 Volatilidade":
         with st.spinner("Buscando volatilidade implícita..."):
             vol_info, erro_vol = get_volatilidade_ticker(ticker)
 
@@ -2798,6 +2839,31 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             st.info("Volatilidade implícita indisponível para este ativo.")
             if erro_vol:
                 st.caption(f"🔧 Detalhe técnico: {erro_vol}")
+
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown("---")
+        st.markdown("##### 📋 Grade de Opções")
+        st.caption(
+            "Fonte: OpLab (cotações com ~15 minutos de atraso). NOVO — testando a "
+            "confiabilidade dessa fonte; se a tabela vier estranha ou vazia, me avisa."
+        )
+        hoje_opc = pd.Timestamp.today()
+        opcoes_mes = []
+        for _i in range(4):
+            _dt = hoje_opc + pd.DateOffset(months=_i)
+            opcoes_mes.append((_dt.month, _dt.year, f"{_MESES_PT[_dt.month].capitalize()}/{_dt.year}"))
+        mes_escolhido = st.selectbox(
+            "Vencimento (mês):", options=opcoes_mes, format_func=lambda x: x[2],
+            key=f"venc_opcoes_{ticker}"
+        )
+        with st.spinner("Buscando grade de opções na OpLab..."):
+            df_opcoes, erro_opcoes = get_grade_opcoes_oplab(ticker, mes=mes_escolhido[0], ano=mes_escolhido[1])
+        if df_opcoes is not None:
+            st.dataframe(df_opcoes, use_container_width=True, hide_index=True)
+        else:
+            st.info(f"Sem grade de opções disponível pra {ticker} nesse vencimento.")
+            if erro_opcoes:
+                st.caption(f"🔧 Detalhe técnico: {erro_opcoes}")
 
         st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
         st.markdown("---")
