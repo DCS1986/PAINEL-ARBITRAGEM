@@ -1686,15 +1686,31 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         else:
             st.success("✅ Os limites da sua tese ainda estão sendo respeitados pelos números atuais.")
 
-    # ---- Abas ----
-    aba_geral, aba_valuation, aba_dividendos, aba_movimentacao, aba_documentos, aba_grafico = st.tabs(
-        ["📊 Visão Geral", "💰 Valuation & Fundamentos", "📈 Dividendos", "👤 Movimentação", "📑 Documentos", "📉 Gráfico"]
-    )
+    # ---- Abas (botões com estado, não st.tabs) ----
+    # st.tabs() executa o codigo de TODAS as abas a cada rerun, mesmo as que
+    # nao estao visiveis -- isso significa buscar Fundamentus/CVM/OpLab/Yahoo
+    # pras 6 abas de uma vez so, sempre, mesmo so querendo ver "Visao Geral".
+    # Com botoes + session_state, só a aba selecionada de fato executa.
+    if 'aba_ativa' not in st.session_state or st.session_state.get('aba_ativa_ticker') != ticker:
+        st.session_state.aba_ativa = "Visão Geral"
+        st.session_state.aba_ativa_ticker = ticker
+
+    _NOMES_ABAS = ["📊 Visão Geral", "💰 Valuation & Fundamentos", "📈 Dividendos",
+                   "👤 Movimentação", "📑 Documentos", "📉 Gráfico"]
+    _cols_abas = st.columns(len(_NOMES_ABAS))
+    for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
+        with _col:
+            if st.button(_nome, key=f"aba_btn_{ticker}_{_nome}", use_container_width=True,
+                        type="primary" if st.session_state.aba_ativa == _nome else "secondary"):
+                st.session_state.aba_ativa = _nome
+                st.rerun()
+    st.markdown("<div style='margin-bottom:14px;'></div>", unsafe_allow_html=True)
+    aba_ativa = st.session_state.aba_ativa
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: VISÃO GERAL
     # ════════════════════════════════════════════════════════════════════
-    with aba_geral:
+    if aba_ativa == "📊 Visão Geral":
         gov = GOVERNANCA.get(ticker, {})
         out = OUTLOOK_2026.get(ticker, {})
         nota_gov = gov.get('nota', None)
@@ -1865,7 +1881,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
     # ════════════════════════════════════════════════════════════════════
-    with aba_valuation:
+    if aba_ativa == "💰 Valuation & Fundamentos":
         def _card_metric(col, titulo, texto, cor_valor="#F1EFE8"):
             col.markdown(
                 "<div style='{base}text-align:center;'>"
@@ -2048,7 +2064,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: DIVIDENDOS
     # ════════════════════════════════════════════════════════════════════
-    with aba_dividendos:
+    if aba_ativa == "📈 Dividendos":
         st.markdown("#### 💰 Dividendos")
         style_dy = "color:#4CAF6D;font-weight:bold;" if dy_num > 8 else ""
         st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
@@ -2139,7 +2155,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: MOVIMENTAÇÃO (Insiders + Recompras)
     # ════════════════════════════════════════════════════════════════════
-    with aba_movimentacao:
+    if aba_ativa == "👤 Movimentação":
         # ---- Síntese (CVM) — vem primeiro: é a leitura interpretada ----
         st.markdown(
             "<div style='font-size:0.78em;color:#94A3B8;margin-bottom:10px;line-height:1.5;'>"
@@ -2296,7 +2312,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: DOCUMENTOS (Apresentações)
     # ════════════════════════════════════════════════════════════════════
-    with aba_documentos:
+    if aba_ativa == "📑 Documentos":
         with st.spinner("Buscando apresentações..."):
             df_apres, erro_apres = get_apresentacoes_data(ticker)
 
@@ -2357,7 +2373,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: GRÁFICO (candlestick + volatilidade implícita)
     # ════════════════════════════════════════════════════════════════════
-    with aba_grafico:
+    if aba_ativa == "📉 Gráfico":
         with st.spinner("Buscando volatilidade implícita..."):
             vol_info, erro_vol = get_volatilidade_ticker(ticker)
 
