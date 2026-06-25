@@ -47,6 +47,18 @@ page_bg_img = f"""
     border-right: 1px solid rgba(255,255,255,0.08) !important;
 }}
 
+/* ---- Altura fixa em todos os botões -- evita que um label mais longo
+   quebre linha e fique mais alto que os vizinhos na mesma fileira ---- */
+div[data-testid="stButton"] button {{
+    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}}
+
 /* ---- ESTILOS DO GRÁFICO DE DY ---- */
 .dy-bar-container {{
     display: flex;
@@ -900,57 +912,148 @@ ANALISE_RESULTADO = {
 
 
 # ---- Panorama da Empresa ----
-# Resumo de orientação: o que a empresa faz, de onde vem a receita, como
-# está a saude do setor -- pra quem entra num ativo que ainda nao conhece
-# bem (ex: achou um yield alto ou um score bom e quer se situar rapido).
+# Resumo de orientação: o que a empresa faz, de onde vem a receita (por
+# segmento), e um detalhe que REALMENTE diferencia essa empresa dos pares
+# do setor -- do tipo que só aparece numa apresentação institucional de
+# 40 páginas, não numa descrição genérica de "o que a empresa faz".
+# Exemplos do tipo de detalhe que vale ouro (a pedido do Diego): a Irani
+# não é afetada pelo preço da celulose porque só produz pra uso próprio;
+# a Klabin tem ~40% da receita exposta a celulose; a Suzano, quase 100%.
 # Mesmo espirito de GOVERNANCA/OUTLOOK_2026: pesquisado por mim, atualizado
 # raramente (isso muda pouco, diferente de ANALISE_RESULTADO).
 PANORAMA_EMPRESA = {
-    "WEGE3": "A WEG é uma multinacional brasileira de motores elétricos, geração/transmissão/"
-             "distribuição de energia (GTD), automação industrial e tintas. Atua em mais de "
-             "135 países, com a receita externa já maior que a doméstica. Ganha dinheiro "
-             "vendendo equipamentos elétricos (motores, transformadores, geradores) pra "
-             "indústria e pra projetos de energia (solar, eólica), além de serviços de "
-             "automação. Setor de bens de capital/industrial — sensível ao ciclo de "
-             "investimento industrial e à demanda por energia renovável, mas com "
-             "diversificação geográfica que reduz a dependência só do Brasil.",
-    "PRIO3": "A PetroRio (antiga HRT) é a maior petroleira privada do Brasil. O modelo de "
-             "negócio é comprar campos de petróleo maduros — já em produção, com "
-             "infraestrutura existente — de grandes petroleiras como a Petrobras, e "
-             "revitalizá-los com mais eficiência. Ganha dinheiro vendendo o petróleo "
-             "extraído, com preço ligado ao Brent internacional. Principais ativos: Polvo, "
-             "Frade, Albacora Leste, Peregrino e o novo campo de Wahoo. Setor de petróleo e "
-             "gás — resultado extremamente sensível ao preço do petróleo e ao câmbio "
-             "(receita em dólar, parte dos custos em real).",
-    "EQTL3": "A Equatorial é uma holding de energia elétrica e saneamento. O modelo de "
-             "negócio é comprar concessões de distribuição de energia em situação "
-             "financeira/operacional ruim (geralmente de estados como Maranhão, Pará, "
-             "Piauí, Alagoas) e fazer um 'turnaround' — reduzir perdas, melhorar cobrança, "
-             "modernizar a rede — até virarem lucrativas. Também tem braços de transmissão, "
-             "geração renovável e saneamento (incluindo participação relevante na Sabesp). "
-             "Ganha dinheiro pelas tarifas reguladas cobradas dos consumidores, mais a "
-             "eficiência que consegue capturar em cada concessão. Setor de utilities — "
-             "regulado e previsível no longo prazo, mas sensível ao custo de capital (juros) "
-             "e à qualidade da execução de cada turnaround.",
-    "JHSF3": "A JHSF é uma holding de negócios de alta renda/luxo, fundada e ainda liderada "
-             "pela família Auriemo. Opera em 4 frentes: shopping centers (Shopping Cidade "
-             "Jardim), hospitalidade (rede de hotéis e restaurantes Fasano, com expansão "
-             "internacional), incorporação residencial de alto padrão (imóveis de luxo pra "
-             "locação) e aviação executiva (aeroporto Catarina). Ganha dinheiro com aluguéis "
-             "de loja/shopping, diárias de hotel, locação/venda de imóveis de luxo e serviços "
-             "de aviação. Setor de consumo de alta renda — menos sensível a crise econômica "
-             "geral (público-alvo mais resiliente), mas com risco de execução na expansão "
-             "internacional.",
-    "POMO4": "A Marcopolo é uma das maiores fabricantes de carrocerias de ônibus do mundo, "
-             "fundada em Caxias do Sul (RS) em 1949. Fabrica desde ônibus urbanos e "
-             "rodoviários até micro-ônibus, vendendo pra empresas de transporte público e "
-             "privado no Brasil e no exterior (Argentina, México, Austrália, África do Sul, "
-             "entre outros), além de ter participação relevante na canadense NFI (ônibus "
-             "elétricos/GNV na América do Norte). Ganha dinheiro vendendo carrocerias/"
-             "veículos completos — fortemente ligado a programas governamentais de renovação "
-             "de frota (como Caminho da Escola e Move Brasil) e à saúde financeira das "
-             "empresas de transporte público. Setor de bens de capital/transporte — cíclico, "
-             "dependente de crédito e de decisões de compra de governos/frotistas.",
+    "WEGE3": {
+        "o_que_faz": "Fabricante global de equipamentos elétricos: motores, geradores, "
+                     "transformadores, automação industrial e tintas/vernizes. Sede em "
+                     "Jaraguá do Sul (SC), fábricas em 17 países, vendas para mais de 135 "
+                     "países.",
+        "segmentos": [
+            ("Equipamentos Eletroeletrônicos Industriais", "motores de baixa/alta tensão, "
+             "redutores, automação — vendidos pra praticamente todo tipo de indústria."),
+            ("GTD — Geração, Transmissão e Distribuição", "transformadores, geração solar/"
+             "eólica/hidrelétrica/biomassa — maior motor de crescimento recente, mas também "
+             "o mais cíclico."),
+            ("Motores Comerciais e Appliance", "motores de menor porte pra uso comercial/"
+             "residencial."),
+            ("Tintas e Vernizes", "menor participação na receita total."),
+        ],
+        "insight_chave": "Receita externa já é maior que a doméstica (57% em 2024) — e "
+                     "dentro do Brasil, a WEG vende motores pra praticamente todo setor "
+                     "industrial (mineração, papel e celulose, óleo e gás, saneamento, "
+                     "agro). Isso significa que a WEG não depende da saúde de um setor "
+                     "específico — diferente de uma empresa de celulose ou mineração, que "
+                     "sofre inteira quando o preço da commodity cai. A fragilidade recente "
+                     "(1T26) não veio de um setor só: foi uma queda pontual em geração "
+                     "solar doméstica (-36%) somada ao câmbio mais valorizado.",
+        "setor_dinamica": "Bens de capital industrial — o crescimento segue ciclos de "
+                     "investimento industrial (motores/automação, mais estável) e ciclos "
+                     "de energia renovável (GTD, mais volátil mês a mês).",
+    },
+    "PRIO3": {
+        "o_que_faz": "Maior petroleira privada do Brasil. Compra campos de petróleo "
+                     "maduros — que grandes petroleiras como a Petrobras já exploraram e "
+                     "querem vender — e os torna mais eficientes e rentáveis.",
+        "segmentos": [
+            ("Peregrino", "maior ativo atual, adquirido da Equinor/Statoil — produção em "
+             "ramp-up."),
+            ("Albacora Leste", "comprado da Petrobras, eficiência operacional recorde "
+             "(~95-99%)."),
+            ("Wahoo", "campo novo, entrou em produção em 2026 — principal vetor de "
+             "crescimento de produção daqui pra frente."),
+            ("Polvo e Frade", "ativos mais antigos, já maduros na carteira da PRIO."),
+        ],
+        "insight_chave": "A receita da PRIO é 100% ligada ao preço do petróleo Brent "
+                     "(cotado em dólar) — diferente de uma empresa industrial que define "
+                     "seu próprio preço, a PRIO 'recebe' o preço que o mercado mundial de "
+                     "petróleo determinar. Por isso, mesmo com a empresa operando "
+                     "PERFEITAMENTE (produção +42% e custo em queda no 1T26), a ação pode "
+                     "cair só porque o petróleo caiu por um motivo geopolítico que nada tem "
+                     "a ver com a empresa — foi o que aconteceu em mai/2026 com a tensão no "
+                     "Oriente Médio.",
+        "setor_dinamica": "Petróleo e gás (E&P) — pense nela como uma 'gestora de ativos "
+                     "maduros de petróleo': quanto mais eficiente em reduzir o custo de "
+                     "extração (lifting cost), maior a margem em qualquer cenário de preço. "
+                     "Mas o TAMANHO do lucro segue extremamente ligado ao Brent e ao câmbio.",
+    },
+    "EQTL3": {
+        "o_que_faz": "Holding de energia elétrica e saneamento. O modelo é comprar "
+                     "concessões de distribuição de energia mal cuidadas/endividadas e "
+                     "fazer um turnaround — reduzir perdas, melhorar a cobrança, modernizar "
+                     "a rede.",
+        "segmentos": [
+            ("Distribuição (principal)", "energia elétrica em Maranhão, Pará, Piauí, "
+             "Alagoas, Goiás — cada estado é uma concessão separada, em estágio diferente "
+             "de turnaround."),
+            ("Transmissão", "linhas de transmissão com receita contratada e previsível."),
+            ("Geração Renovável", "eólica, atualmente pressionada por restrições de "
+             "geração (curtailment) impostas pelo regulador."),
+            ("Saneamento", "água/esgoto no Amapá, além de participação relevante na Sabesp "
+             "(contabilizada por equivalência patrimonial)."),
+        ],
+        "insight_chave": "Cada estado onde a Equatorial atua está numa fase diferente de "
+                     "'maturidade' do turnaround — Maranhão e Pará (mais antigos na "
+                     "carteira) já entregam resultado consistente, enquanto concessões mais "
+                     "recentes ainda estão corrigindo perdas e inadimplência. O resultado "
+                     "consolidado é uma MÉDIA de várias reformas em estágios diferentes — "
+                     "entender qual concessão está 'pesando' no trimestre é mais informativo "
+                     "do que só olhar o número final.",
+        "setor_dinamica": "Utilities (serviço regulado) — receita previsível no longo prazo "
+                     "(tarifas reguladas), mas o LUCRO sofre no curto prazo com juros altos "
+                     "(mais dívida pra financiar aquisições/turnarounds) e com a qualidade "
+                     "da execução em cada concessão.",
+    },
+    "JHSF3": {
+        "o_que_faz": "Holding de negócios de alta renda/luxo, fundada e ainda liderada "
+                     "pela família Auriemo.",
+        "segmentos": [
+            ("Shoppings", "Shopping Cidade Jardim e outros — aluguel + % das vendas das "
+             "lojas (R$92mi no 1T26, +11,4% A/A)."),
+            ("Hospitalidade (Fasano)", "hotéis e restaurantes, com expansão internacional "
+             "recente (Miami, Punta del Este, Milão) — R$104,8mi no 1T26."),
+            ("Residências e Clubs", "imóveis de alto padrão pra locação + clubes (São Paulo "
+             "Surf Club, Fasano Tennis Club) — segmento de maior crescimento, +45% A/A."),
+            ("Aviação Executiva", "aeroporto Catarina (SP) + FBO recém-adquirido em Miami "
+             "— crescimento de 18,3% nos movimentos."),
+        ],
+        "insight_chave": "A JHSF vendeu TODO o estoque de imóveis residenciais 'pronto pra "
+                     "vender' em dez/2025 (operação de R$5,2bi com um fundo estruturado pela "
+                     "própria JHSF Capital) — ou seja, deixou de ser uma incorporadora "
+                     "tradicional (constrói e vende) e está virando uma holding de RENDA "
+                     "RECORRENTE (aluguel, hotelaria, clubes, aviação). Isso muda o tipo de "
+                     "risco: menos exposição a ciclo de venda de imóveis, mais exposição à "
+                     "capacidade de manter ocupação/demanda nos ativos de luxo no longo prazo.",
+        "setor_dinamica": "Consumo de alta renda — o público-alvo é mais resiliente a "
+                     "crises econômicas gerais, mas a empresa carrega risco de execução real "
+                     "na expansão internacional (administrar hotel em Milão é "
+                     "operacionalmente diferente de administrar em SP).",
+    },
+    "POMO4": {
+        "o_que_faz": "Uma das maiores fabricantes de carrocerias de ônibus do mundo, "
+                     "fundada em Caxias do Sul (RS) em 1949.",
+        "segmentos": [
+            ("Mercado doméstico", "ônibus urbanos, rodoviários e micro-ônibus pra empresas "
+             "de transporte público/privado no Brasil — maior parte da receita, mas "
+             "sensível a programas governamentais."),
+            ("Exportação direta do Brasil", "vendas pra Argentina e outros países da "
+             "América Latina."),
+            ("Operações no exterior", "fábricas próprias no México (Polomex), Austrália "
+             "(Volgren) e África do Sul — produção local pra mercados específicos."),
+            ("Participação na NFI (Canadá)", "fabricante norte-americana de ônibus "
+             "elétricos/GNV — contabilizada por equivalência patrimonial, contribuição "
+             "não-operacional relevante e crescente."),
+        ],
+        "insight_chave": "Parte relevante do lucro da Marcopolo no 1T26 não veio da venda "
+                     "de ônibus no Brasil — veio da equivalência patrimonial da NFI "
+                     "(Canadá), que saltou de R$16mi pra R$76mi por um efeito não-recorrente "
+                     "(reversão de provisão de recall de bateria). Sem esse efeito, o "
+                     "resultado operacional do trimestre foi praticamente neutro — separar "
+                     "'o que veio da operação de ônibus' do 'que veio da participação no "
+                     "Canadá' evita achar o resultado melhor do que realmente foi.",
+        "setor_dinamica": "Bens de capital / transporte — extremamente ligado a programas "
+                     "governamentais de renovação de frota (Caminho da Escola, Move Brasil, "
+                     "compras do Ministério da Saúde) e à saúde de crédito das empresas de "
+                     "transporte público, que são os clientes finais.",
+    },
 }
 
 
@@ -1890,7 +1993,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.session_state.aba_ativa = "📊 Visão Geral"
         st.session_state.aba_ativa_ticker = ticker
 
-    _NOMES_ABAS = ["📊 Visão Geral", "🧭 Panorama", "💰 Valuation & Fundamentos", "📈 Dividendos",
+    _NOMES_ABAS = ["📊 Visão Geral", "🧭 Panorama", "💰 Valuation", "📈 Dividendos",
                    "👤 Movimentação", "📑 Resultado", "📉 Gráfico"]
     _cols_abas = st.columns(len(_NOMES_ABAS))
     for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
@@ -2082,15 +2185,52 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             st.markdown(
                 "<div style='{base}'>"
                 "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
-                "letter-spacing:0.5px;margin-bottom:10px;'>🧭 O que é a {ticker}</div>"
-                "<div style='font-size:0.92em;color:#F1EFE8;line-height:1.7;'>{texto}</div>"
-                "</div>".format(base=card_style, ticker=ticker, texto=panorama),
+                "letter-spacing:0.5px;margin-bottom:8px;'>🧭 O que é a {ticker}</div>"
+                "<div style='font-size:0.92em;color:#F1EFE8;line-height:1.6;'>{texto}</div>"
+                "</div>".format(base=card_style, ticker=ticker, texto=panorama["o_que_faz"]),
                 unsafe_allow_html=True
             )
+
+            st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+            st.markdown(
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
+                "letter-spacing:0.5px;margin-bottom:8px;'>💵 De onde vem a receita</div>",
+                unsafe_allow_html=True
+            )
+            seg_cols = st.columns(2)
+            for i, (nome_seg, desc_seg) in enumerate(panorama["segmentos"]):
+                with seg_cols[i % 2]:
+                    st.markdown(
+                        "<div style='{base}margin-bottom:10px;'>"
+                        "<div style='font-size:0.85em;color:#D4AF37;font-weight:700;margin-bottom:4px;'>{nome}</div>"
+                        "<div style='font-size:0.82em;color:#ddd;line-height:1.5;'>{desc}</div>"
+                        "</div>".format(base=card_style, nome=nome_seg, desc=desc_seg),
+                        unsafe_allow_html=True
+                    )
+
+            st.markdown(
+                "<div style='{base}border:1px solid rgba(212,175,55,0.4);margin-top:4px;'>"
+                "<div style='font-size:0.78em;color:#D4AF37;font-weight:700;text-transform:uppercase;"
+                "letter-spacing:0.5px;margin-bottom:8px;'>💡 Detalhe que faz diferença</div>"
+                "<div style='font-size:0.88em;color:#F1EFE8;line-height:1.6;'>{texto}</div>"
+                "</div>".format(base=card_style, texto=panorama["insight_chave"]),
+                unsafe_allow_html=True
+            )
+
+            st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+            st.markdown(
+                "<div style='{base}'>"
+                "<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
+                "letter-spacing:0.5px;margin-bottom:8px;'>📐 Dinâmica do Setor</div>"
+                "<div style='font-size:0.88em;color:#ddd;line-height:1.6;'>{texto}</div>"
+                "</div>".format(base=card_style, texto=panorama["setor_dinamica"]),
+                unsafe_allow_html=True
+            )
+
             st.caption(
-                "Resumo de orientação — o que a empresa faz e de onde vem a receita. "
-                "Pesquisado por mim, não muda com frequência (diferente da Análise de "
-                "Resultado, que é por trimestre)."
+                "Pesquisado por mim com base em apresentações institucionais, releases e "
+                "demonstrações financeiras — não muda com frequência (diferente da Análise "
+                "de Resultado, que é por trimestre). Peça uma revisão quando quiser."
             )
         else:
             st.info(
@@ -2101,7 +2241,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: VALUATION & FUNDAMENTOS
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "💰 Valuation & Fundamentos":
+    if aba_ativa == "💰 Valuation":
         def _card_metric(col, titulo, texto, cor_valor="#F1EFE8"):
             col.markdown(
                 "<div style='{base}text-align:center;'>"
