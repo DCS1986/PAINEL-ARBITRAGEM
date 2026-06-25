@@ -7,7 +7,7 @@ Funciona para QUALQUER lista de tickers (nao ha universo fixo de 13 nem de
 40 -- a lista vem de fora, normalmente da coluna CODIGO do RADAR do Diego).
 
 Duas formas de uso:
-  1) render_confluencia(st, tickers, extras=None, df_programas=None) -> tela cheia
+  1) render_confluencia(st, tickers, extras=None, programas=None) -> tela cheia
   2) render_confluencia_card(st, ticker, tickers_universo, extras=None) ->
      card compacto pra dentro da pagina de detalhe de UM ativo (aba
      Movimentacao).
@@ -22,21 +22,15 @@ controlador, a propria empresa). Valuation e dividend safety SAIRAM daqui
 (eram dimensoes sem relacao causal com movimentacao, so confundiam a leitura
 -- a pedido do Diego, 24/06).
 
-NO CARD INDIVIDUAL (render_confluencia_card), NAO HA comparacao com outros
-tickers -- comparar DIRR3 com PETR4/AXIA3 (setores/dinamicas diferentes) e
-ruido, nao sinal, quando o foco e UM ativo so. Ranking/posicao entre todos
-os ativos do RADAR fica SO na tela cheia (render_confluencia), onde
-comparar o universo e o proposito real da tela (a pedido do Diego, 24/06).
-
 `extras` (opcional, em ambas): DataFrame com coluna ['ticker','recompra']
 vindo do RADAR (Fundamentus) -- quando passado, o Score de Confluencia passa
 a usar 3 sinais (insider/controlador da CVM + recompra do Fundamentus) em
 vez de so os 2 da CVM.
 
-`df_programas` (opcional, so na tela cheia): DataFrame de
-baixar_programa_recompra() -- mostra uma coluna extra na tabela com quem tem
-Programa de Recompra EM ANDAMENTO (autorizacao, nao execucao -- ver
-cvm_insiders.py).
+`programas` (opcional, so na tela cheia): dict {CNPJ: dict-do-programa} de
+programa_recompra_ativo() pra cada ticker -- mostra uma coluna extra na
+tabela com quem tem Programa de Recompra EM ANDAMENTO (autorizacao, nao
+execucao -- ver cvm_insiders.py).
 """
 
 import datetime
@@ -270,25 +264,39 @@ def render_confluencia_card(
         return
 
     row = linha.iloc[0]
-    score = row["score"]
-    cor = "#4CAF6D" if score > 5 else ("#D9534F" if score < -5 else "#aaaaaa")
     resumo = explicar(row)
     n_sinais_txt = " (com recompra do Fundamentus)" if extras is not None else ""
 
-    # SEM comparação com outros tickers aqui -- comparar a DIRR3 com a
-    # PETR4/AXIA3 (setores e dinamicas diferentes) e ruido, nao sinal,
-    # quando o que importa e "o que esta acontecendo com ESSE ativo".
-    # Ranking/posicao entre todos os ativos do RADAR fica SO na tela cheia
-    # (Confluência), onde comparar o universo e o proposito da tela.
+    # SEM número combinado, SEM comparação com outros tickers -- um score
+    # normalizado pelo maior movimento do universo (ex: a compra gigante da
+    # AXIA3) faz o MESMO movimento da PETR4 valer -15 hoje e -60 no mês que
+    # vem, sem a PETR4 ter feito nada diferente -- numero instavel, ilude
+    # mais do que ajuda. Em vez disso: um selo por sinal (Insider/
+    # Controlador/Recompra), colorido pra compra ou venda -- mostra
+    # concordancia ou divergencia sem nenhuma conta, sem comparar com nada.
+    _LABELS_SINAL = {"insider": "Insider", "controlador": "Controlador", "recompra": "Recompra"}
+    detalhe = str(row.get("detalhe", "") or "")
+    selos_html = ""
+    for p in [x.strip() for x in detalhe.split(",") if x.strip()]:
+        chave, sinal = p[:-1], p[-1]
+        label = _LABELS_SINAL.get(chave, chave)
+        cor_selo = "#4CAF6D" if sinal == "+" else "#D9534F"
+        icone = "▲" if sinal == "+" else "▼"
+        selos_html += (
+            f"<span style='display:inline-flex;align-items:center;gap:4px;"
+            f"background:{cor_selo}22;border:1px solid {cor_selo};color:{cor_selo};"
+            f"border-radius:14px;padding:4px 10px;font-size:0.78em;font-weight:700;'>"
+            f"{icone} {label}</span>"
+        )
+    selos_div = f"<div style='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;'>{selos_html}</div>" if selos_html else ""
+
     st.markdown(
         "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
         "border-radius:10px;padding:14px 16px;'>"
         f"<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
-        f"margin-bottom:8px;'>🎯 Score de Confluência{n_sinais_txt}</div>"
-        f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:8px;'>"
-        f"<span style='font-size:1.5em;font-weight:900;color:{cor};'>{score:.1f}</span>"
-        f"<span style='font-size:0.85em;color:#ccc;'>Concordância: {row['concordancia']}</span>"
-        "</div>"
+        f"margin-bottom:8px;'>🎯 Sinais de Movimentação{n_sinais_txt}</div>"
+        f"{selos_div}"
+        f"<div style='font-size:0.78em;color:#ccc;margin-bottom:6px;'>Concordância: {row['concordancia']}</div>"
         f"<div style='font-size:0.85em;color:#ddd;line-height:1.5;'>{resumo}</div>"
         f"<div style='font-size:0.72em;color:#888;margin-top:8px;'>📅 Dados da CVM até {data_str} "
         f"(insiders reportam mensalmente, com atraso de algumas semanas)</div>"
