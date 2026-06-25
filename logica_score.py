@@ -23,16 +23,20 @@ inteiro: das ~24 mil linhas, todas tem cargo de pessoa (Diretor/Conselho/
 Controlador/Conselho Fiscal); as poucas sem cargo sao "Saldo Inicial"/"Posse"
 com quantidade zero, nao recompra real.
 
-Por isso, recompra agora vem de FORA (via `extras`), tipicamente do
-Fundamentus (que ja distingue "Companhia - Tesouraria" no formulario
-individual da CVM, dado que o CSV aberto nao expoe). Isso faz a Concordancia
-cruzar duas FONTES DE VERDADE diferentes (CVM + Fundamentus), nao uma fonte
-disfarçada de duas.
+Por isso, recompra agora vem de FORA (via `extras`), do Fundamentus (que ja
+distingue "Companhia - Tesouraria" no formulario individual da CVM, dado que
+o CSV aberto nao expoe). Isso faz a Concordancia cruzar duas FONTES DE
+VERDADE diferentes (CVM + Fundamentus), nao uma fonte disfarçada de duas.
+
+POR QUE NAO TEM MAIS VALUATION NEM DIVIDEND SAFETY: esse score e sobre
+MOVIMENTACAO -- quem esta comprando/vendendo (insiders, controlador, a
+propria empresa). Valuation (quanto custa o papel) e dividend safety (quao
+seguro e o dividendo) sao dimensoes DIFERENTES, sem relacao causal com quem
+esta comprando/vendendo -- misturar tudo numa "concordancia" so confundia a
+leitura sem ganho real de sinal (a pedido do Diego, 24/06).
 
 Sinais que entram via `extras` (vindos do RADAR):
   - recompra         (Fundamentus -- liquido de recompra em R$, mesma janela)
-  - valuation        (desconto vs preco justo; +=barato)
-  - dividend_safety  (0-10 do RADAR)
 """
 
 import pandas as pd
@@ -43,11 +47,9 @@ from cvm_insiders import (
 )
 
 PESOS = {
-    "insider_pessoas": 0.35,
-    "recompra":        0.25,
-    "valuation":       0.20,
-    "dividend_safety": 0.15,
-    "controlador":     0.05,   # peso pequeno, conforme decidido
+    "insider_pessoas": 0.55,
+    "recompra":        0.35,
+    "controlador":     0.10,   # peso pequeno, conforme decidido
 }
 
 
@@ -127,9 +129,6 @@ def explicar(row: pd.Series) -> str:
         "recompra-": "empresa vendeu ações de tesouraria de volta ao mercado (não é cancelamento)",
         "controlador+": "controlador comprando (peso pequeno)",
         "controlador-": "controlador vendendo (peso pequeno)",
-        "valuation+": "desconto no valuation",
-        "valuation-": "caro no valuation",
-        "dividend+": "dividendo seguro",
     }
 
     partes = [p.strip() for p in detalhe.split(",")]
@@ -185,11 +184,10 @@ def score_confluencia(
                   qualquer ticker da B3 -- nao ha lista fixa.
     tickers     : lista de tickers a calcular (ex: os ~40 do RADAR do Diego,
                   vindos direto da planilha dele -- sempre em sincronia).
-    extras: DataFrame opcional do RADAR com colunas ['ticker','recompra','valuation',
-            'dividend_safety']. recompra em R$ (líquido compra-venda, via
-            Fundamentus -- normalizado aqui igual aos sinais da CVM). valuation
-            ja em [-1,+1] (+=desconto); dividend_safety em 0-10. Sinais
-            ausentes sao ignorados e os pesos renormalizados entre os presentes.
+    extras: DataFrame opcional com coluna ['ticker','recompra'] -- recompra
+            em R$ (líquido compra-venda, via Fundamentus, normalizada aqui
+            igual aos sinais da CVM). Sem extras, o score usa só os 2 sinais
+            da CVM (insider_pessoas + controlador).
     """
     base = sinais_cvm(df_cvm, mapa_tickers, tickers, meses=meses)
 
@@ -198,18 +196,13 @@ def score_confluencia(
     comp["insider_pessoas"] = _norm_simetrica(base["insider_pessoas"])
     comp["controlador"] = _norm_simetrica(base["controlador"])
 
-    # sinais do RADAR (se vierem) -- recompra (Fundamentus, em R$) entra aqui
-    # e e normalizada do mesmo jeito que os sinais da CVM (simetrica, por
-    # maior valor absoluto do universo) -- nao like valuation/dividend_safety,
-    # que ja chegam pre-escalados.
+    # recompra (Fundamentus, em R$) entra via extras e e normalizada do
+    # mesmo jeito que os sinais da CVM (simetrica, por maior valor absoluto
+    # do universo).
     if extras is not None:
         comp = comp.merge(extras, on="ticker", how="left")
         if "recompra" in comp:
             comp["recompra"] = _norm_simetrica(comp["recompra"])
-        if "dividend_safety" in comp:
-            comp["dividend_safety"] = comp["dividend_safety"] / 10 * 2 - 1  # 0-10 -> [-1,1]
-        if "valuation" in comp:
-            comp["valuation"] = comp["valuation"].clip(-1, 1)
 
     sinais_presentes = [s for s in PESOS if s in comp.columns]
 
@@ -255,12 +248,10 @@ if __name__ == "__main__":
     for _, row in res.head(5).iterrows():
         print(f"{row['ticker']:8} | score={row['score']:>6} | {row['concordancia']:>4} | {explicar(row)}")
 
-    # exemplo de como ficaria PLUGANDO sinais do RADAR (recompra Fundamentus + valuation + DY):
+    # exemplo de como ficaria PLUGANDO a recompra do Fundamentus:
     extras = pd.DataFrame({
         "ticker": ["PETR4", "VALE3", "BBAS3", "ITUB4", "BBDC3"],
         "recompra": [0, 1_000_000, 0, -500_000, 0],        # liquido R$ via Fundamentus
-        "valuation": [0.30, 0.10, 0.45, -0.20, 0.05],     # +=desconto vs preco justo
-        "dividend_safety": [7, 6, 9, 8, 7],                # 0-10 do RADAR
     })
-    print("\n\n=== COM SINAIS DO RADAR PLUGADOS, incl. recompra Fundamentus (exemplo p/ 5 papeis) ===\n")
+    print("\n\n=== COM RECOMPRA DO FUNDAMENTUS PLUGADA (exemplo p/ 5 papeis) ===\n")
     print(score_confluencia(df, mapa, TICKERS_RADAR, meses=6, extras=extras).head(10).to_string(index=False))
