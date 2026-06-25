@@ -145,8 +145,6 @@ def explicar(row: pd.Series) -> str:
     except ValueError:
         usados, total = 0, 0
 
-    score_val = row.get("score", 0) or 0
-
     # Todos os sinais concordam -> frase unica, sem precisar separar grupos
     if total >= 1 and usados == total:
         todos = alta + baixa
@@ -156,14 +154,14 @@ def explicar(row: pd.Series) -> str:
         # invertia a leitura (dizia "compra" quando o sinal real era venda).
         direcao_txt = "compra" if alta else "venda"
         corpo = todos[0] if len(todos) == 1 else ", ".join(todos[:-1]) + " e " + todos[-1]
-        # Magnitude pequena (score perto de zero) nao deveria ser anunciada
-        # como "forte"/"consistente" -- e tecnicamente verdade que concorda,
-        # mas a forca do sinal e quase nula, e dizer "forte" superestima.
-        if abs(score_val) < 1.0:
-            return f"Resumo: {corpo} — sinal de {direcao_txt}, mas fraco (magnitude pequena, pouco relevante)."
+        # Sem "forte"/"fraco" aqui -- essa intensidade vinha do score
+        # normalizado pelo maior movimento do universo, que e instavel (o
+        # mesmo movimento de um ticker pode "parecer" forte ou fraco so
+        # porque outro ticker teve um pico no mes, sem nada ter mudado no
+        # primeiro). So o fato: direcao + quantos sinais concordam.
         if total >= 2:
-            return f"Resumo: {corpo} — sinal de {direcao_txt} forte: todos os sinais apontam na mesma direção."
-        return f"Resumo: {corpo} — sinal de {direcao_txt} consistente."
+            return f"Resumo: {corpo} — os {total} sinais disponíveis apontam para {direcao_txt}."
+        return f"Resumo: {corpo}."
 
     # Sinais em conflito -> agrupa explicitamente quem aponta pra cada lado
     if alta and baixa:
