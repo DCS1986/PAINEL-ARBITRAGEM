@@ -1524,11 +1524,28 @@ if 'modo_exibicao' not in st.session_state:
     st.session_state.modo_exibicao = 'Lista'
 
 
+@st.cache_data(ttl=60 * 60 * 6, show_spinner=False)
+def _programa_recompra_cache():
+    return baixar_programa_recompra()
+
+
+@st.cache_data(ttl=60 * 60 * 24, show_spinner=False)
+def _mapa_tickers_cache(ano_ref):
+    return baixar_mapa_tickers(int(ano_ref))
+
+
 def montar_extras_confluencia(lista_ativos_com_score, meses=6):
     """
-    Converte os dados que o RADAR já calcula (preço teto/target, dividend
-    safety) + recompra do Fundamentus para o formato que score_confluencia()
-    espera em `extras`: ['ticker', 'recompra', 'valuation', 'dividend_safety'].
+    Converte a recompra (Fundamentus) pro formato que score_confluencia()
+    espera em `extras`: ['ticker', 'recompra'].
+
+    Por que SÓ recompra, e não mais valuation/dividend safety (como já foi):
+    o Score de Confluência é sobre MOVIMENTAÇÃO -- quem está comprando ou
+    vendendo (insiders, controlador, a própria empresa). Valuation e
+    dividend safety são dimensões DIFERENTES (quanto custa o papel, quão
+    seguro é o dividendo) que não têm relação causal com quem está
+    comprando/vendendo -- misturar os dois numa "concordância" só confundia
+    a leitura, sem ganho real de sinal.
 
     recompra: líquido (R$) de recompra de ações pela própria empresa, na
     mesma janela (`meses`) usada pro resto do Score -- vem do Fundamentus
@@ -1541,23 +1558,10 @@ def montar_extras_confluencia(lista_ativos_com_score, meses=6):
     Atenção de performance: assim como o Ranking Fórmula Mágica, isso busca
     Fundamentus pra cada ticker do universo -- lento só na primeira carga do
     dia (depois fica em cache de 24h via get_recompras_data).
-
-    valuation: desconto fracionário vs preço teto -- (teto - cotação) / teto.
-    Positivo = abaixo do teto (barato); negativo = acima do teto (caro).
-    Mesma conta já usada no card de Teto/Target da Visão Geral, então a
-    leitura é consistente com o que o Diego já vê em outro lugar da tela.
-    score_confluencia() já faz o clip para [-1, 1] internamente.
-
-    dividend_safety: repassa direto o score 0-10 que o RADAR já calcula
-    (calcular_dividend_safety) -- score_confluencia() já normaliza pra
-    [-1, 1] internamente.
     """
     linhas = []
     for a in lista_ativos_com_score:
         ticker = a['row'].get('CÓDIGO')
-        preco_teto = a.get('preco_teto_val', 0) or 0
-        cot = limpar_valor(str(a['row'].get('Cotação atual', 0)).replace('R$', ''))
-        valuation = ((preco_teto - cot) / preco_teto) if (preco_teto > 0 and cot > 0) else None
 
         recompra_val = 0.0
         try:
@@ -1571,8 +1575,6 @@ def montar_extras_confluencia(lista_ativos_com_score, meses=6):
         linhas.append({
             'ticker': ticker,
             'recompra': recompra_val,
-            'valuation': valuation,
-            'dividend_safety': a.get('div_safety_score'),
         })
     return pd.DataFrame(linhas)
 
@@ -2257,14 +2259,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         # existe autorização do conselho em vigor pra recomprar -- não diz
         # quanto foi efetivamente comprado (essa informação não tem fonte
         # estruturada confiável -- já tentamos 3 vezes e nenhuma se sustentou).
-        @st.cache_data(ttl=60 * 60 * 6, show_spinner=False)
-        def _programa_recompra_cache():
-            return baixar_programa_recompra()
-
-        @st.cache_data(ttl=60 * 60 * 24, show_spinner=False)
-        def _mapa_tickers_cache(ano_ref):
-            return baixar_mapa_tickers(int(ano_ref))
-
         st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
         with st.spinner(" "):
             try:
@@ -2926,9 +2920,14 @@ else:
         # Cards/Comparar) para nunca "sequestrar" a navegação de quem está
         # vendo o detalhe de um ativo.
         if st.session_state.modo_exibicao == 'Confluência':
+            try:
+                df_programas_completo = _programa_recompra_cache()
+            except Exception:
+                df_programas_completo = None
             render_confluencia(
                 st, tickers=df['CÓDIGO'].dropna().astype(str).tolist(),
                 extras=montar_extras_confluencia(ativos_com_score),
+                df_programas=df_programas_completo,
             )
             st.stop()
 
