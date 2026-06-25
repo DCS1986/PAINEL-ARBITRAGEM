@@ -2873,6 +2873,7 @@ else:
                         )
                         if st.button("Ver detalhes", key="card_{}".format(ticker_c), use_container_width=True):
                             st.session_state.ativo_selecionado = ticker_c
+                            st.session_state.aba_ativa = "📊 Visão Geral"
                             st.rerun()
             st.stop()
 
