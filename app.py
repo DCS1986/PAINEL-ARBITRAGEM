@@ -722,6 +722,11 @@ GOVERNANCA = {
     "LREN3":  {"nota": 8.8, "obs": "Capital pulverizado desde 2005 (sem controlador definido), listada no Novo Mercado, maioria independente no Conselho de Administração. Forte reputação ESG e de transparência."},
     "GRND3":  {"nota": 8.0, "obs": "Controle da família fundadora (Grendene Bartelle), com reorganização societária recente (transferência de participação para fundo exclusivo, sem mudança de controle ou regras de governança). Política financeira conservadora, praticamente sem dívida líquida."},
     "CGRA4":  {"nota": 6.5, "obs": "Classificada como 'Governança Tradicional' (não é Novo Mercado) — nível mais básico de exigências da B3. Baixa liquidez (small cap familiar do varejo gaúcho). Aumento de capital recente (abr/2026) via subscrição privada."},
+    "WEGE3":  {"nota": 8.8, "obs": "Novo Mercado, capital pulverizado (free float ~35%), forte reputação de transparência e previsibilidade entre as blue chips da bolsa brasileira. Sem polêmicas relevantes."},
+    "PRIO3":  {"nota": 8.5, "obs": "Novo Mercado, capital pulverizado sem controlador definido. Histórico de aquisições bem executadas (ativos maduros) e comunicação transparente com o mercado."},
+    "EQTL3":  {"nota": 8.3, "obs": "Novo Mercado, capital pulverizado, sem controlador definido. Estratégia de aquisição de concessões em dificuldade seguida de turnaround agressivo é o 'DNA' da empresa — aumenta o risco de execução mas é parte conhecida da tese, não um problema de governança em si."},
+    "JHSF3":  {"nota": 7.0, "obs": "Controle concentrado do fundador José Auriemo Neto, com papel decisório forte nas estratégias da companhia. Presença de investidores institucionais ajuda a equilibrar a governança, mas a concentração de poder no fundador é um ponto de atenção típico de holdings familiares."},
+    "POMO4":  {"nota": 7.5, "obs": "Controle de famílias fundadoras com longa trajetória, mantendo continuidade estratégica. Ações PN (POMO4) não dão direito a voto — quem compra PN fica sujeito às decisões do bloco ON controlador, estrutura típica de empresas mais antigas da B3."},
 }
 
 OUTLOOK_2026 = {
@@ -772,6 +777,11 @@ OUTLOOK_2026 = {
     "LREN3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Setor de varejo de moda pressionado por alta alavancagem das famílias, juros altos e concorrência de plataformas cross-border (Shein, AliExpress). Em contrapartida, P/VPA perto de mínimas históricas (~1,5x) e analistas (Citi, Santander, BTG) seguem recomendando compra, com plano estratégico 2026-2030 prevendo aceleração de aberturas de loja."},
     "GRND3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Lucro recuou em 2025 e o dividendo extraordinário recente (~R$1 bi) não deve se repetir no mesmo nível — payout acima de 170% é insustentável estruturalmente. Caixa líquido robusto (~R$1,1 bi) e baixa alavancagem sustentam a tese de renda, mas crescimento operacional é fraco; 2026 deve trazer normalização dos proventos."},
     "CGRA4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Varejo regional tradicional (tecidos/vestuário, RS), baixa cobertura de analistas e liquidez reduzida. Aumento de capital recente dilui a base acionária. Distribuição de JCP retomada em mai/2026, mas sem garantia de regularidade dado o histórico de proventos irregulares."},
+    "WEGE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "1T26 fraco: lucro -5,7% A/A, receita -6,1%, puxados por queda de 36% em GTD doméstico (solar) e câmbio desfavorável. Bancos cortaram projeção de lucro 2026. BTG mantém compra apostando em reaceleração via T&D a partir do 2S26/2027. Curto prazo exige cautela; tese estrutural de longo prazo permanece."},
+    "PRIO3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "1T26 forte: produção +42% T/T, lifting cost caiu para ~US$9,4/bbl, EBITDA ajustado quase dobrou T/T. Alavancagem caiu para 2,0x dívida líquida/EBITDA. Wahoo entrou em produção sem problemas. Queda da ação no pregão foi por correção do petróleo, não por fraqueza operacional."},
+    "EQTL3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "1T26 misto: EBITDA ajustado +11,3% A/A (acima do consenso), mas lucro líquido ajustado caiu -23,6%, pressionado por despesa financeira maior (CDI médio subiu A/A) e maior dívida. Distribuição segue como destaque operacional positivo. Mercado reagiu de forma cautelosa."},
+    "JHSF3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Melhor 1T da história da companhia: lucro +9,3% A/A, Ebitda ajustado +27%, receita +33%. Crescimento em shoppings, hospitalidade (Fasano) e expansão internacional (Miami, Punta del Este, Milão). Caixa líquido ajustado de R$1,8bi reforça a estrutura de capital mais sólida da história."},
+    "POMO4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "1T26 neutro: receita -1% A/A, EBITDA recorrente estável, margem mantida apesar de menor produção. Mercado externo (México) fraco. XP e BTG mantêm compra, citando catalisadores: programa Move Brasil, leilão Caminho da Escola e pedidos do Ministério da Saúde — volumes devem melhorar a partir do 2º trimestre."},
 }
 
 # ---- Estudos Específicos ----
@@ -783,6 +793,112 @@ OUTLOOK_2026 = {
 #
 # 'metrica': (label, valor) opcional -- numero computado pelo proprio RADAR
 # (ex: pvp_str) que ancora o estudo num dado ATUAL, nao so historico.
+# ---- Análise do Último Resultado ----
+# Diferente de GOVERNANCA/OUTLOOK_2026 (que tentam cobrir os 50), e diferente
+# de ESTUDOS_ESPECIFICOS (permanente), este dicionário e atualizado a cada
+# resultado trimestral -- fica "congelado" entre uma divulgação e outra (nao
+# se apaga, nao muda sozinho). Pesquisado e escrito por mim (Claude) a
+# pedido do Diego, com base em releases, casas de análise (XP, BTG, Genial,
+# Nord, etc) e noticias -- NAO e dado estruturado/automatico como o resto
+# do RADAR. Atualizar = o Diego pede aqui no chat, eu pesquiso de novo.
+ANALISE_RESULTADO = {
+    "WEGE3": {
+        "trimestre": "1T26", "data": "29/04/2026",
+        "numeros": "Lucro líquido R$1,46 bi (-5,7% A/A, -8,2% T/T) — abaixo do consenso "
+                   "(R$1,58bi esperado). Receita R$9,46bi (-6,1% A/A). EBITDA R$2,10bi "
+                   "(-3,2% A/A), margem EBITDA 22,2% (+0,6 p.p. A/A). ROIC 33,1% (estável).",
+        "pontos_fortes": "Margens resilientes mesmo com queda de receita. ROIC elevado e "
+                   "estável. Mercado externo resiliente (receita em dólar +16% A/A). "
+                   "Caixa líquido subiu para R$3,3bi.",
+        "pontos_fracos": "Receita doméstica de Geração/Transmissão/Distribuição caiu 36% "
+                   "A/A (forte queda em solar). Câmbio desvalorizado prejudicou a conversão "
+                   "da receita externa. Bancos cortaram estimativa de lucro 2026 (Safra "
+                   "-10,7%, Itaú BBA de R$6,6bi para R$6bi).",
+        "expectativa": "BTG mantém compra (TP R$65, upside ~37%) apostando em reaceleração "
+                   "da divisão de Transmissão & Distribuição a partir do 2S2026/2027. Risco "
+                   "de novas revisões para baixo no curto prazo segundo a XP. Tese estrutural "
+                   "de longo prazo (eletrificação, automação industrial) segue intacta para "
+                   "a maioria das casas, mas o próximo trimestre precisa mostrar reversão.",
+    },
+    "PRIO3": {
+        "trimestre": "1T26", "data": "05/05/2026",
+        "numeros": "Produção +42% T/T (~155kbpd). Lifting cost caiu para ~US$9,4-9,5/bbl. "
+                   "EBITDA ajustado quase dobrou T/T (~US$839-859mi). Volume vendido +45% "
+                   "(14,8 milhões de barris). Receita +60% (Brent +5% e menor desconto).",
+        "pontos_fortes": "Forte tração operacional: eficiência de 95-99% nos clusters. "
+                   "Wahoo entrou em produção sem problemas. Alavancagem caiu para 2,0x "
+                   "dívida líquida/EBITDA (de 2,3x no 4T25). Desconto vs. Brent caiu para "
+                   "US$8 (pode cair para US$5-6 no 2T26).",
+        "pontos_fracos": "Geração de caixa ficou perto de zero no trimestre, por causa do "
+                   "capex de Wahoo (US$300mi) e consumo de capital de giro. Dívida líquida "
+                   "ainda em ~US$4,3bi. Ação caiu no pregão de divulgação, mas por correção "
+                   "do petróleo (tensão no Oriente Médio), não por fraqueza do resultado.",
+        "expectativa": "BTG eleva preço-alvo para R$72/ação, citando contribuição mais cheia "
+                   "de Wahoo no 2T26, entrada do 4º poço e queda adicional de custo em "
+                   "Peregrino. Management mantém meta de 1,0x dívida líquida/EBITDA até fim "
+                   "de 2027 (Genial considera conservador). Sem recompra ou dividendo extra "
+                   "esperado neste ano.",
+    },
+    "EQTL3": {
+        "trimestre": "1T26", "data": "14/05/2026",
+        "numeros": "Receita líquida R$12,7-12,8bi (+12% A/A). EBITDA ajustado R$2,9bi "
+                   "(+11,3% A/A, acima do consenso). Lucro líquido ajustado R$359mi "
+                   "(-23,6% A/A).",
+        "pontos_fortes": "Distribuição segue como motor: margem bruta ajustada do segmento "
+                   "+14%, puxada por efeito tarifário e crescimento de mercado (destaque "
+                   "Maranhão, Pará, Piauí). Sabesp (equivalência patrimonial) contribuiu com "
+                   "R$254mi, crescendo R$40mi A/A — tese de turnaround avançando.",
+        "pontos_fracos": "Lucro líquido caiu apesar do EBITDA forte, pressionado por despesa "
+                   "financeira maior (CDI médio subiu A/A, dívida bruta +14,7%). PMSO ficou "
+                   "13% acima do esperado pela XP, com inadimplência em algumas concessões. "
+                   "Renováveis ainda pressionado por restrições de geração.",
+        "expectativa": "Em base comparável (mesmos ativos), lucro ficou praticamente estável "
+                   "(-0,3%). XP espera reação levemente negativa do mercado, mas mantém "
+                   "EQTL3 como 'must-own' do setor, com TIR real de 12,5%. Capex elevado "
+                   "(R$2,58bi) sustenta crescimento de longo prazo.",
+    },
+    "JHSF3": {
+        "trimestre": "1T26", "data": "08/05/2026",
+        "numeros": "Lucro líquido R$371,6mi (+9,3% A/A) — melhor 1º trimestre da história "
+                   "da companhia. Receita líquida R$537,7mi (+33,3% A/A). EBITDA ajustado "
+                   "R$250,6mi (+27% A/A, acima do esperado pelo mercado).",
+        "pontos_fortes": "Crescimento em todas as verticais: shoppings (+8,4% vendas, SSR "
+                   "+11,5% acima da inflação), hospitalidade/Fasano, residências de alto "
+                   "padrão (+45% receita). Caixa líquido ajustado de R$1,8bi (revertendo "
+                   "dívida líquida de R$1,5bi um ano atrás) — estrutura de capital mais "
+                   "sólida da história. Expansão internacional acelerando (Miami, Punta "
+                   "del Este, Milão).",
+        "pontos_fracos": "Parte relevante do lucro (R$278mi) vem de apreciação contábil de "
+                   "propriedades, sem efeito caixa imediato. Margem EBITDA recuou 2,4 p.p. "
+                   "(despesas operacionais +36,8%). Dívida bruta subiu 5% (nova captação "
+                   "via CRI).",
+        "expectativa": "XP vê potencial de continuidade com a expansão internacional do "
+                   "Fasano, crescimento de shoppings e o aeroporto Catarina (+18,3% "
+                   "movimentos) como próximo catalisador. Empresa segue investindo em ativos "
+                   "de luxo fora do Brasil — risco e oportunidade ao mesmo tempo.",
+    },
+    "POMO4": {
+        "trimestre": "1T26", "data": "05/05/2026",
+        "numeros": "Receita líquida R$1,66bi (-1,3% A/A, -36% T/T por sazonalidade). EBITDA "
+                   "R$305mi (+16,3% A/A, mas inclui ganho não recorrente da NFI/Canadá). "
+                   "Lucro líquido R$264,6mi (+8,8% A/A), margem 16% (vs 14,5% no 1T25).",
+        "pontos_fortes": "Margem sustentada por mix de produtos de maior valor agregado, "
+                   "mesmo com menor volume produzido (-11% A/A). Alavancagem muito baixa "
+                   "(dívida líquida/EBITDA ~0,2x). Equivalência patrimonial da NFI saltou "
+                   "de R$16mi para R$76mi (efeito não recorrente).",
+        "pontos_fracos": "Exportações caíram 27% em unidades (México fraco). EBITDA "
+                   "recorrente, excluindo o ganho não recorrente da NFI, ficou praticamente "
+                   "estável A/A (R$236mi) — resultado mais neutro do que o número headline "
+                   "sugere. XP e BTG apontam números um pouco abaixo das próprias estimativas.",
+        "expectativa": "Catalisadores concretos pela frente: programa Move Brasil (R$2bi "
+                   "alocados a ônibus), leilão Caminho da Escola (~5,2 mil unidades "
+                   "garantidas, podendo chegar a 7,2 mil) e pedidos do Ministério da Saúde "
+                   "a partir do 2T26. BTG/XP mantêm compra; dividend yield na faixa de 7-8% "
+                   "considerado atrativo dado valuation de 6-7x P/L 2026.",
+    },
+}
+
+
 ESTUDOS_ESPECIFICOS = {
     "BBAS3": {
         "titulo": "P/VP raramente abaixo de 0,50x",
@@ -1064,16 +1180,31 @@ def get_apresentacoes_data(ticker):
 
 
 def ultimas_apresentacoes(df):
-    """Separa a apresentação de resultado mais recente da apresentação
-    institucional/outra mais recente. Critério: descrição contém 'resultado'
-    (não é uma categoria oficial da CVM nessa página — é heurística baseada
-    no texto, mas é consistente porque os nomes seguem um padrão)."""
+    """Separa o Release de Resultados mais recente da apresentação
+    institucional/outra mais recente. Critério: NÃO é uma categoria oficial
+    da CVM nessa página — é heurística baseada no texto da descrição.
+
+    Prioriza "release" explicitamente (o documento de resultado de verdade,
+    com números) sobre qualquer coisa com "resultado" no texto -- um convite
+    de videoconferência/webcast também contém a palavra "resultado" no
+    título, mas não é o release."""
     if df.empty:
         return None, None
     df = df.sort_values('data_dt', ascending=False)
-    mask_resultado = df['descricao'].astype(str).str.contains('resultado', case=False, na=False)
-    df_resultado = df[mask_resultado]
-    df_institucional = df[~mask_resultado]
+    desc = df['descricao'].astype(str)
+
+    mask_video = desc.str.contains('video|webcast|teleconfer|conference call', case=False, na=False, regex=True)
+    mask_release = desc.str.contains('release', case=False, na=False) & ~mask_video
+    mask_resultado_generico = desc.str.contains('resultado', case=False, na=False) & ~mask_video
+
+    if mask_release.any():
+        df_resultado = df[mask_release]
+    else:
+        # Sem "release" explícito: usa qualquer coisa com "resultado" que
+        # não seja convite de video/webcast (melhor aproximação disponível).
+        df_resultado = df[mask_resultado_generico]
+
+    df_institucional = df[~mask_resultado_generico] if not df_resultado.empty else df[~mask_release]
     ultima_resultado = df_resultado.iloc[0].to_dict() if not df_resultado.empty else None
     ultima_institucional = df_institucional.iloc[0].to_dict() if not df_institucional.empty else None
     return ultima_resultado, ultima_institucional
@@ -1696,7 +1827,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.session_state.aba_ativa_ticker = ticker
 
     _NOMES_ABAS = ["📊 Visão Geral", "💰 Valuation & Fundamentos", "📈 Dividendos",
-                   "👤 Movimentação", "📑 Documentos", "📉 Gráfico"]
+                   "👤 Movimentação", "📑 Resultado", "📉 Gráfico"]
     _cols_abas = st.columns(len(_NOMES_ABAS))
     for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
         with _col:
@@ -2312,7 +2443,45 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: DOCUMENTOS (Apresentações)
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "📑 Documentos":
+    if aba_ativa == "📑 Resultado":
+        analise = ANALISE_RESULTADO.get(ticker)
+        if analise:
+            st.markdown(
+                "<div style='{base}border:1px solid rgba(212,175,55,0.35);'>"
+                "<div style='display:flex;justify-content:space-between;align-items:baseline;"
+                "margin-bottom:10px;'>"
+                "<div style='font-size:0.85em;color:#D4AF37;font-weight:700;text-transform:uppercase;"
+                "letter-spacing:0.5px;'>📊 Análise do Último Resultado — {tri}</div>"
+                "<div style='font-size:0.72em;color:#888;'>Divulgado em {data}</div>"
+                "</div>"
+                "<div style='font-size:0.85em;color:#F1EFE8;font-weight:700;margin-bottom:4px;'>Números</div>"
+                "<div style='font-size:0.85em;color:#ddd;line-height:1.55;margin-bottom:12px;'>{numeros}</div>"
+                "<div style='font-size:0.85em;color:#4CAF6D;font-weight:700;margin-bottom:4px;'>✓ Pontos fortes</div>"
+                "<div style='font-size:0.85em;color:#ddd;line-height:1.55;margin-bottom:12px;'>{fortes}</div>"
+                "<div style='font-size:0.85em;color:#D9534F;font-weight:700;margin-bottom:4px;'>✗ Pontos de atenção</div>"
+                "<div style='font-size:0.85em;color:#ddd;line-height:1.55;margin-bottom:12px;'>{fracos}</div>"
+                "<div style='font-size:0.85em;color:#5B8DB8;font-weight:700;margin-bottom:4px;'>→ O que esperar</div>"
+                "<div style='font-size:0.85em;color:#ddd;line-height:1.55;'>{expectativa}</div>"
+                "</div>".format(
+                    base=card_style, tri=analise["trimestre"], data=analise["data"],
+                    numeros=analise["numeros"], fortes=analise["pontos_fortes"],
+                    fracos=analise["pontos_fracos"], expectativa=analise["expectativa"],
+                ),
+                unsafe_allow_html=True
+            )
+            st.caption(
+                "Pesquisado e escrito com base em releases e casas de análise (XP, BTG, Genial, "
+                "Nord e outras) — fica congelado até o próximo resultado trimestral, não é "
+                "atualizado automaticamente. Peça uma atualização quando quiser."
+            )
+            st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        else:
+            st.info(
+                "Ainda não temos uma análise do último resultado pra este ativo. "
+                "Peça pra eu pesquisar e escrever quando quiser."
+            )
+            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+
         with st.spinner("Buscando apresentações..."):
             df_apres, erro_apres = get_apresentacoes_data(ticker)
 
@@ -2347,7 +2516,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 )
 
             with acol1:
-                st.markdown(_card_apresentacao(ultima_resultado, "📊 Última Apresentação de Resultados", "#4CAF6D"),
+                st.markdown(_card_apresentacao(ultima_resultado, "📊 Release de Resultados", "#4CAF6D"),
                            unsafe_allow_html=True)
             with acol2:
                 st.markdown(_card_apresentacao(ultima_inst, "🏢 Última Apresentação Institucional", "#5B8DB8"),
