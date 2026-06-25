@@ -146,12 +146,21 @@ def explicar(row: pd.Series) -> str:
         usados, total = 0, 0
 
     score_val = row.get("score", 0) or 0
-    direcao_txt = "venda" if score_val < 0 else "compra"
 
     # Todos os sinais concordam -> frase unica, sem precisar separar grupos
     if total >= 1 and usados == total:
         todos = alta + baixa
+        # Direcao vem da lista REAL (alta tem item = compra), nao do sinal
+        # do score arredondado -- um score pequeno como -0.04 arredonda pra
+        # exibicao como "-0.0", e em Python "-0.0 < 0" e False, o que
+        # invertia a leitura (dizia "compra" quando o sinal real era venda).
+        direcao_txt = "compra" if alta else "venda"
         corpo = todos[0] if len(todos) == 1 else ", ".join(todos[:-1]) + " e " + todos[-1]
+        # Magnitude pequena (score perto de zero) nao deveria ser anunciada
+        # como "forte"/"consistente" -- e tecnicamente verdade que concorda,
+        # mas a forca do sinal e quase nula, e dizer "forte" superestima.
+        if abs(score_val) < 1.0:
+            return f"Resumo: {corpo} — sinal de {direcao_txt}, mas fraco (magnitude pequena, pouco relevante)."
         if total >= 2:
             return f"Resumo: {corpo} — sinal de {direcao_txt} forte: todos os sinais apontam na mesma direção."
         return f"Resumo: {corpo} — sinal de {direcao_txt} consistente."
