@@ -7,7 +7,7 @@ Funciona para QUALQUER lista de tickers (nao ha universo fixo de 13 nem de
 40 -- a lista vem de fora, normalmente da coluna CODIGO do RADAR do Diego).
 
 Duas formas de uso:
-  1) render_confluencia(st, tickers, extras=None)            -> tela cheia
+  1) render_confluencia(st, tickers, extras=None, df_programas=None) -> tela cheia
   2) render_confluencia_card(st, ticker, tickers_universo, extras=None) ->
      card compacto pra dentro da pagina de detalhe de UM ativo (aba
      Movimentacao).
@@ -17,10 +17,20 @@ completa usada na tela cheia, porque a normalizacao do score e relativa ao
 universo (o maior valor em R$ do grupo) -- passar so 1 ticker quebraria essa
 normalizacao.
 
-`extras` (opcional, em ambas): DataFrame com colunas ['ticker','recompra',
-'valuation','dividend_safety'] vindo do RADAR -- quando passado, o Score de
-Confluencia passa a usar 5 sinais (insider/controlador da CVM + recompra do
-Fundamentus + valuation/dividend safety do RADAR) em vez de so os 2 da CVM.
+Esse score e sobre MOVIMENTACAO -- quem esta comprando/vendendo (insiders,
+controlador, a propria empresa). Valuation e dividend safety SAIRAM daqui
+(eram dimensoes sem relacao causal com movimentacao, so confundiam a leitura
+-- a pedido do Diego, 24/06).
+
+`extras` (opcional, em ambas): DataFrame com coluna ['ticker','recompra']
+vindo do RADAR (Fundamentus) -- quando passado, o Score de Confluencia passa
+a usar 3 sinais (insider/controlador da CVM + recompra do Fundamentus) em
+vez de so os 2 da CVM.
+
+`df_programas` (opcional, so na tela cheia): DataFrame de
+baixar_programa_recompra() -- mostra uma coluna extra na tabela com quem tem
+Programa de Recompra EM ANDAMENTO (autorizacao, nao execucao -- ver
+cvm_insiders.py).
 """
 
 import datetime
@@ -28,7 +38,7 @@ import pandas as pd
 
 try:
     from logica_score import score_confluencia, sinais_cvm, PESOS, data_atualizacao, explicar
-    from cvm_insiders import baixar_vlmo, baixar_mapa_tickers
+    from cvm_insiders import baixar_vlmo, baixar_mapa_tickers, programa_recompra_ativo
     _DEPS_OK = True
     _ERRO_IMPORT = ""
 except Exception as e:
@@ -77,15 +87,19 @@ def _aviso_defasagem(st, df):
     )
 
 
-def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = None):
-    """Tela cheia: ranking de Score de Confluência de todos os `tickers`."""
+def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = None,
+                       df_programas: pd.DataFrame | None = None):
+    """Tela cheia: ranking de Score de Confluência de todos os `tickers`.
+
+    df_programas: DataFrame de baixar_programa_recompra() (Programa de
+    Recompra EM ANDAMENTO -- autorização, não execução). Se passado, mostra
+    uma coluna extra na tabela."""
     st.markdown("#### 🎯 Score de Confluência")
-    n_sinais = "5 sinais (CVM + Fundamentus + RADAR)" if extras is not None else "2 sinais (CVM)"
+    n_sinais = "3 sinais (CVM + Fundamentus)" if extras is not None else "2 sinais (CVM)"
     st.caption(
-        f"Sinais cruzados num só número — hoje rodando com {n_sinais}: insiders "
-        "(diretoria + conselho, via CVM) e controlador (peso pequeno, via CVM)"
-        + (", recompra da própria empresa (via Fundamentus), valuation e dividend "
-           "safety (do RADAR)" if extras is not None else "") +
+        f"Sinais de movimentação cruzados num só número — hoje rodando com {n_sinais}: "
+        "insiders (diretoria + conselho, via CVM) e controlador (peso pequeno, via CVM)"
+        + (", recompra da própria empresa (via Fundamentus)" if extras is not None else "") +
         " — com grau de concordância entre fontes independentes. "
         "Fonte: CVM — Dados Abertos."
     )
@@ -131,9 +145,22 @@ def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = Non
 
     res = res.copy()
     res["Resumo em português"] = res.apply(explicar, axis=1)
-    res_show = res.rename(columns={
-        "ticker": "Ticker", "score": "Score", "concordancia": "Concordância",
-    })[["Ticker", "Score", "Concordância", "Resumo em português"]]
+
+    if df_programas is not None:
+        def _prog_txt(ticker):
+            cnpj = mapa.get(ticker)
+            prog = programa_recompra_ativo(df_programas, cnpj) if cnpj else None
+            if not prog:
+                return "—"
+            return f"✅ até {prog['data_final'].strftime('%m/%Y')}"
+        res["Programa de Recompra"] = res["ticker"].apply(_prog_txt)
+        cols_show = ["ticker", "score", "concordancia", "Programa de Recompra", "Resumo em português"]
+        cols_renome = {"ticker": "Ticker", "score": "Score", "concordancia": "Concordância"}
+    else:
+        cols_show = ["ticker", "score", "concordancia", "Resumo em português"]
+        cols_renome = {"ticker": "Ticker", "score": "Score", "concordancia": "Concordância"}
+
+    res_show = res.rename(columns=cols_renome)[[cols_renome.get(c, c) for c in cols_show]]
 
     st.dataframe(
         res_show.style.map(_cor_score, subset=["Score"]),
@@ -142,7 +169,7 @@ def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = Non
 
     with st.expander("Como ler / valores brutos por papel (R$)"):
         st.markdown(
-            "- **Score** (−100 a +100): soma ponderada dos sinais.\n"
+            "- **Score** (−100 a +100): soma ponderada dos sinais de movimentação.\n"
             "- **Concordância** X/N: quantos sinais apontam no mesmo sentido. "
             "X/N iguais = todos concordam (mais confiável); X menor que N = sinais em conflito.\n"
             "- **0/0**: nenhuma movimentação de insider/controlador/recompra no período "
@@ -151,8 +178,10 @@ def render_confluencia(st, tickers: list[str], extras: pd.DataFrame | None = Non
             "Fundamentus — o arquivo aberto da CVM usado aqui só cobre negociação de "
             "pessoas (Art. 11), não recompra de tesouraria.\n"
             "- **Recompra negativa**: significa que a empresa *vendeu* ações de tesouraria de "
-            "volta ao mercado — **não** é cancelamento de ações. Cancelamento é um evento "
-            "corporativo diferente, reportado em outro lugar (Fato Relevante/Assembleia)."
+            "volta ao mercado — **não** é cancelamento de ações.\n"
+            "- **Programa de Recompra**: autorização do conselho em vigor pra recomprar até "
+            "uma data — não é execução (quanto já foi comprado de fato). Dataset separado e "
+            "dedicado da CVM, atualizado diariamente."
         )
         st.write("Pesos:", PESOS)
         st.dataframe(sinais_cvm(df, mapa, tickers, meses=int(meses)),
@@ -238,13 +267,12 @@ def render_confluencia_card(
     score = row["score"]
     cor = "#4CAF6D" if score > 5 else ("#D9534F" if score < -5 else "#aaaaaa")
     resumo = explicar(row)
-    n_sinais_txt = " (com recompra, valuation e dividend safety)" if extras is not None else ""
+    n_sinais_txt = " (com recompra do Fundamentus)" if extras is not None else ""
 
-    # ---- Contexto de posição: "32,4" sozinho nao diz nada pra ninguem,
-    # nem pra quem usa o app todo dia. Mostra onde esse score fica relativo
-    # aos outros ativos do RADAR HOJE (a escala -100/+100 e relativa ao
-    # universo, nao um teto fixo -- por isso a posicao importa mais que o
-    # numero absoluto).
+    # Contexto de posição: "32,4" sozinho nao diz nada pra ninguem. Mostra
+    # onde esse score fica relativo aos outros ativos do RADAR HOJE -- sem
+    # barra visual (testamos uma barra "pior do dia/melhor do dia" e nem o
+    # autor do RADAR conseguiu interpretar de cara -- só o texto, direto).
     total_ativos = len(res)
     posicao = int((res["score"] > score).sum()) + 1
     if score > 0:
@@ -255,38 +283,16 @@ def render_confluencia_card(
     else:
         pos_txt = f"score neutro entre {total_ativos} ativos do RADAR hoje"
 
-    # Barra visual: posição RELATIVA aos ativos de hoje (0% = pior score do
-    # dia, 100% = melhor) -- não uma escala fixa -100/+100, que na prática
-    # quase nunca é alcançada nos dois extremos ao mesmo tempo (precisaria
-    # de um ativo no máximo absoluto em TODOS os sinais simultaneamente).
-    # Assim os dois extremos da barra são sempre alcançáveis, porque são
-    # definidos pelos próprios dados de hoje, não por um teto teórico.
-    if total_ativos > 1:
-        pct_pos = (total_ativos - posicao) / (total_ativos - 1) * 100
-    else:
-        pct_pos = 50
-    pct_pos = max(2, min(98, pct_pos))   # nunca cola na borda visualmente
-    barra_html = (
-        "<div style='position:relative;height:8px;background:linear-gradient(to right,"
-        "#3a3a3a 0%,#5B8DB8 50%,#D4AF37 100%);border-radius:4px;margin:8px 0 4px 0;'>"
-        f"<div style='position:absolute;left:{pct_pos}%;top:-3px;width:3px;height:14px;"
-        f"background:#F1EFE8;border-radius:1px;transform:translateX(-50%);'></div>"
-        "</div>"
-        "<div style='display:flex;justify-content:space-between;font-size:0.65em;color:#888;'>"
-        f"<span>Pior do dia</span><span>Melhor do dia</span></div>"
-    )
-
     st.markdown(
         "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
         "border-radius:10px;padding:14px 16px;'>"
         f"<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
         f"margin-bottom:8px;'>🎯 Score de Confluência{n_sinais_txt}</div>"
-        f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
+        f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:4px;'>"
         f"<span style='font-size:1.5em;font-weight:900;color:{cor};'>{score:.1f}</span>"
         f"<span style='font-size:0.85em;color:#ccc;'>Concordância: {row['concordancia']}</span>"
         "</div>"
-        f"{barra_html}"
-        f"<div style='font-size:0.78em;color:{cor};font-weight:700;margin:6px 0 8px 0;'>{pos_txt}</div>"
+        f"<div style='font-size:0.78em;color:{cor};font-weight:700;margin-bottom:8px;'>{pos_txt}</div>"
         f"<div style='font-size:0.85em;color:#ddd;line-height:1.5;'>{resumo}</div>"
         f"<div style='font-size:0.72em;color:#888;margin-top:8px;'>📅 Dados da CVM até {data_str} "
         f"(insiders reportam mensalmente, com atraso de algumas semanas)</div>"
