@@ -22,6 +22,12 @@ controlador, a propria empresa). Valuation e dividend safety SAIRAM daqui
 (eram dimensoes sem relacao causal com movimentacao, so confundiam a leitura
 -- a pedido do Diego, 24/06).
 
+NO CARD INDIVIDUAL (render_confluencia_card), NAO HA comparacao com outros
+tickers -- comparar DIRR3 com PETR4/AXIA3 (setores/dinamicas diferentes) e
+ruido, nao sinal, quando o foco e UM ativo so. Ranking/posicao entre todos
+os ativos do RADAR fica SO na tela cheia (render_confluencia), onde
+comparar o universo e o proposito real da tela (a pedido do Diego, 24/06).
+
 `extras` (opcional, em ambas): DataFrame com coluna ['ticker','recompra']
 vindo do RADAR (Fundamentus) -- quando passado, o Score de Confluencia passa
 a usar 3 sinais (insider/controlador da CVM + recompra do Fundamentus) em
@@ -269,49 +275,20 @@ def render_confluencia_card(
     resumo = explicar(row)
     n_sinais_txt = " (com recompra do Fundamentus)" if extras is not None else ""
 
-    # Contexto de posição: "32,4" sozinho nao diz nada pra ninguem. Mostra
-    # onde esse score fica relativo aos outros ativos do RADAR HOJE -- com
-    # os TICKERS reais nas pontas (nao "pior/melhor do dia" generico), pra
-    # nao precisar de explicacao nenhuma pra entender o que a barra mostra.
-    total_ativos = len(res)
-    posicao = int((res["score"] > score).sum()) + 1
-    if score > 0:
-        pos_txt = f"{posicao}º maior score de {total_ativos} ativos do RADAR hoje"
-    elif score < 0:
-        posicao_neg = int((res["score"] < score).sum()) + 1
-        pos_txt = f"{posicao_neg}º menor score de {total_ativos} ativos do RADAR hoje"
-    else:
-        pos_txt = f"score neutro entre {total_ativos} ativos do RADAR hoje"
-
-    res_ordenado = res.sort_values("score")
-    ticker_pior = res_ordenado.iloc[0]["ticker"]
-    ticker_melhor = res_ordenado.iloc[-1]["ticker"]
-    if total_ativos > 1:
-        pct_pos = (total_ativos - posicao) / (total_ativos - 1) * 100
-    else:
-        pct_pos = 50
-    pct_pos = max(2, min(98, pct_pos))   # nunca cola na borda visualmente
-    barra_html = (
-        "<div style='position:relative;height:8px;background:linear-gradient(to right,"
-        "#3a3a3a 0%,#5B8DB8 50%,#D4AF37 100%);border-radius:4px;margin:8px 0 4px 0;'>"
-        f"<div style='position:absolute;left:{pct_pos}%;top:-3px;width:3px;height:14px;"
-        f"background:#F1EFE8;border-radius:1px;transform:translateX(-50%);'></div>"
-        "</div>"
-        "<div style='display:flex;justify-content:space-between;font-size:0.65em;color:#888;'>"
-        f"<span>← {ticker_pior} (pior score)</span><span>{ticker_melhor} (melhor score) →</span></div>"
-    )
-
+    # SEM comparação com outros tickers aqui -- comparar a DIRR3 com a
+    # PETR4/AXIA3 (setores e dinamicas diferentes) e ruido, nao sinal,
+    # quando o que importa e "o que esta acontecendo com ESSE ativo".
+    # Ranking/posicao entre todos os ativos do RADAR fica SO na tela cheia
+    # (Confluência), onde comparar o universo e o proposito da tela.
     st.markdown(
         "<div style='background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);"
         "border-radius:10px;padding:14px 16px;'>"
         f"<div style='font-size:0.78em;color:#ccc;font-weight:600;text-transform:uppercase;"
         f"margin-bottom:8px;'>🎯 Score de Confluência{n_sinais_txt}</div>"
-        f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
+        f"<div style='display:flex;align-items:center;gap:10px;margin-bottom:8px;'>"
         f"<span style='font-size:1.5em;font-weight:900;color:{cor};'>{score:.1f}</span>"
         f"<span style='font-size:0.85em;color:#ccc;'>Concordância: {row['concordancia']}</span>"
         "</div>"
-        f"{barra_html}"
-        f"<div style='font-size:0.78em;color:{cor};font-weight:700;margin:6px 0 8px 0;'>{pos_txt}</div>"
         f"<div style='font-size:0.85em;color:#ddd;line-height:1.5;'>{resumo}</div>"
         f"<div style='font-size:0.72em;color:#888;margin-top:8px;'>📅 Dados da CVM até {data_str} "
         f"(insiders reportam mensalmente, com atraso de algumas semanas)</div>"
