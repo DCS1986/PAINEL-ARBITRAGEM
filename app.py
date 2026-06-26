@@ -3750,8 +3750,38 @@ def _ind_buscar(indicadores, *termos):
     (case-insensitive) e retorna como float. O pandas, com decimal=',', já
     normaliza vírgula->ponto mesmo em colunas mistas (ex: '5,97' -> '5.97'
     como string) — por isso tentamos float() direto primeiro, e só usamos a
-    limpeza manual de formato BR como fallback caso isso falhe."""
+    limpeza manual de formato BR como fallback caso isso falhe.
+
+    Prioriza correspondência EXATA do rótulo antes de cair pra substring --
+    evita pegar o valor de um rótulo errado quando algum texto explicativo
+    da página (tooltip) menciona o termo de passagem dentro da descrição de
+    OUTRO indicador (foi o que causou o P/L = 2770x errado na TIMS3)."""
     termos_lower = [t.lower() for t in termos]
+
+    def _extrair(valor):
+        if isinstance(valor, (int, float)):
+            return None if pd.isna(valor) else float(valor)
+        v = str(valor).strip().replace('%', '').strip()
+        if v in ('-', '', 'nan', 'None'):
+            return None
+        try:
+            return float(v)
+        except ValueError:
+            pass
+        v2 = v.replace('.', '').replace(',', '.')
+        try:
+            return float(v2)
+        except ValueError:
+            return None
+
+    # 1ª passada: rótulo IDÊNTICO ao termo (ignorando espaços nas pontas).
+    for rotulo, valor in indicadores.items():
+        if rotulo.lower().strip() in termos_lower:
+            resultado = _extrair(valor)
+            if resultado is not None:
+                return resultado
+
+    # 2ª passada (fallback): substring, igual ao comportamento original.
     for rotulo, valor in indicadores.items():
         if any(t in rotulo.lower() for t in termos_lower):
             if isinstance(valor, (int, float)):
@@ -4248,6 +4278,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     roic_val = _ind_buscar(ind_extras, 'roic') if ind_extras else None
     vpa_val = _ind_buscar(ind_extras, 'vpa') if ind_extras else None
     pl_atual_val = _ind_buscar(ind_extras, 'p/l', 'p / l') if ind_extras else None
+    _pl_atual_bruto = pl_atual_val  # guarda o valor ANTES do filtro, só pra diagnóstico
     # Blindagem: P/L real de empresa nao passa de algumas centenas. Se vier
     # um numero absurdo (ex: 2720x), e sinal de erro de leitura na pagina do
     # Fundamentus (celula deslocada) -- melhor mostrar "-" do que um numero
@@ -5361,25 +5392,6 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 if not st.session_state.ativo_selecionado:
-    with st.expander("🔧 Diagnóstico de Logos (clique se os logos não aparecerem)"):
-        if st.button("Testar busca de logo agora (PETR4)"):
-            _tok = st.secrets.get("BRAPI_TOKEN", "")
-            if not _tok:
-                st.error(
-                    "BRAPI_TOKEN não encontrado em st.secrets. Verifique em "
-                    "Settings → Secrets do app no Streamlit Cloud se a linha "
-                    "BRAPI_TOKEN = \"...\" foi salva corretamente (sem erro de "
-                    "digitação, com aspas)."
-                )
-            else:
-                st.write(f"Token encontrado (começa com: {_tok[:6]}...).")
-                try:
-                    _url_teste = f"https://brapi.dev/api/quote/PETR4?token={_tok}"
-                    _r = requests.get(_url_teste, timeout=8)
-                    st.write(f"Status HTTP: {_r.status_code}")
-                    st.json(_r.json())
-                except Exception as _e:
-                    st.error(f"Erro na requisição: {_e}")
     tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
