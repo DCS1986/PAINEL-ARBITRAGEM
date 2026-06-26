@@ -3391,9 +3391,12 @@ def icone_setor(setor):
 # ---- Logo via brapi ----
 @st.cache_data(ttl=86400)
 def get_logo_url(ticker):
+    _token_brapi = st.secrets.get("BRAPI_TOKEN", "")
+    if not _token_brapi:
+        return ''
     for _ in range(2):  # 1 retry simples -- defesa contra falha transitória da API
         try:
-            url = f"https://brapi.dev/api/quote/{ticker}?token=qX942ePxQaNWzSEs9gphZi"
+            url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
             r = requests.get(url, timeout=8).json()
             if r.get('results'):
                 logo = r['results'][0].get('logourl', '') or ''
@@ -4294,7 +4297,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.session_state.aba_ativa_ticker = ticker
 
     _NOMES_ABAS = ["📊 Visão Geral", "🧭 Panorama", "💰 Valuation", "📈 Dividendos",
-                   "👤 Movimentação", "📑 Resultado", "📐 Volatilidade"]
+                   "👤 Movimentação", "📑 Resultado", "📐 Vol. / Gráfico"]
     _cols_abas = st.columns(len(_NOMES_ABAS))
     for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
         with _col:
@@ -4451,9 +4454,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "Mostra se o consenso de analistas está revisando a estimativa de lucro "
                 "(EPS) do ano fiscal corrente para cima ou para baixo nas últimas semanas — "
                 "um sinal que costuma antecipar movimento de preço, sem precisar esperar o "
-                "resultado trimestral sair. NOVO — fonte: Yahoo Finance; a cobertura de "
-                "analistas pra ações da B3 é inconsistente, então pode não aparecer pra "
-                "todos os ativos."
+                "resultado trimestral sair."
             )
         else:
             st.info("Revisão de estimativas indisponível para este ativo.")
@@ -5052,10 +5053,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 ),
                 unsafe_allow_html=True
             )
-            st.caption(
-                "Fonte: release de resultados e casas de análise (XP, BTG, Genial, Nord e "
-                "outras). Referente ao trimestre indicado acima."
-            )
             st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         else:
             st.info("Análise do último resultado ainda não disponível para este ativo.")
@@ -5117,7 +5114,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: GRÁFICO (candlestick + volatilidade implícita)
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "📐 Volatilidade":
+    if aba_ativa == "📐 Vol. / Gráfico":
         with st.spinner("Buscando volatilidade implícita..."):
             vol_info, erro_vol = get_volatilidade_ticker(ticker)
 
