@@ -1093,6 +1093,225 @@ ANALISE_RESULTADO = {
                    "estrangeiro é variável volátil, depende de humor global e taxas de "
                    "juros americanas) ou um novo patamar — o 2T26 deve esclarecer.",
     },
+    "BPAC11": {
+        "trimestre": "1T26", "data": "11/05/2026",
+        "numeros": "Lucro líquido ajustado recorde R$4,8bi (+42% A/A), acima do consenso "
+                   "(R$4,58bi). Receita total recorde R$9,97bi (+34% A/A). ROE de 26,6% "
+                   "(+3,4 p.p. A/A).",
+        "pontos_fortes": "Diversificação ampla: Wealth Management (+44,6% A/A, receita "
+                   "recorde R$1,52bi), Corporate Lending (+20,7% A/A, carteira R$281bi), "
+                   "Sales & Trading (+43% A/A). Consolidação do Banco PAN criou nova "
+                   "vertical de Consumer Finance & Banking (+40% A/A). Índice de "
+                   "eficiência controlado em 38,1%, próximo da média histórica.",
+        "pontos_fracos": "Despesas operacionais subiram 25,5% A/A, puxadas por reajustes "
+                   "salariais e maior amortização de ágio das aquisições recentes. "
+                   "Investment Banking desacelerou (-9,3% T/T) por maior volatilidade de "
+                   "mercado. ROE caiu 1 p.p. T/T (de 27,6% no 4T25).",
+        "expectativa": "BTG superou o Itaú em rentabilidade (ROE 26,6% vs 24% do Itaú no "
+                   "mesmo trimestre) — junto com o Itaú, é um dos únicos bancos grandes "
+                   "com ROE consistentemente acima de 20%. Banco também avalia ativos do "
+                   "BRB. Tese de crescimento via diversificação (varejo via Pan/Too "
+                   "Seguros, M&A da Meu Tudo) segue sendo o principal vetor.",
+    },
+    "CXSE3": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido gerencial R$1,14bi (+13,2% A/A), maior trimestre da "
+                   "história da empresa. Receita operacional R$1,52bi (+10,3% A/A). ROE "
+                   "de 38%.",
+        "pontos_fortes": "Seguro habitacional (carro-chefe da tese) cresceu 13% A/A em "
+                   "prêmios, ligado à força do crédito imobiliário da Caixa. Sinistralidade "
+                   "de 22,5%, bem melhor que o esperado (-2,1 p.p.). Capitalização com "
+                   "receita de títulos crescendo ~30% A/A. Estoque de cartas de crédito de "
+                   "consórcio +39,1% A/A.",
+        "pontos_fracos": "Seguro prestamista (ligado a crédito pessoal) caiu 21% A/A, "
+                   "pressionado pela Selic alta encarecendo o crédito. 32% do lucro vem do "
+                   "resultado financeiro (juros sobre o caixa) — se a Selic cair, essa "
+                   "fonte de lucro perde força, embora o crédito imobiliário deva ganhar "
+                   "tração em compensação.",
+        "expectativa": "Resultado em linha com a XP e 2% acima do consenso do BTG. Casas "
+                   "de análise mantêm preferência por BBSE3 (P/L menor, dividend yield "
+                   "maior) frente a CXSE3, mas reconhecem a qualidade operacional. "
+                   "Dependência da Caixa Econômica Federal (controladora, >80% do "
+                   "capital) é estrutural.",
+    },
+    "AXIA3": {
+        "trimestre": "1T26", "data": "06/05/2026",
+        "numeros": "Lucro líquido ajustado R$3,2bi, revertendo prejuízo de R$409mi no "
+                   "1T25 (quase 8x de melhora). Receita líquida regulatória R$11,6bi "
+                   "(+20-22% A/A). EBITDA ajustado R$8,6bi (+60% A/A), com margem "
+                   "saltando de 56% para 74%.",
+        "pontos_fortes": "Segmento de geração (o mais relevante) teve receita +34-35% "
+                   "A/A, beneficiado pela 'descotização' (venda de energia a preço de "
+                   "mercado em vez de preço de custo regulado) e por preços de energia de "
+                   "longo prazo bem mais altos (R$240/MWh vs R$100-150/MWh nos últimos "
+                   "anos). Redução de R$2,2bi no estoque de provisões do empréstimo "
+                   "compulsório (passivo jurídico histórico). Migração para o Novo "
+                   "Mercado aprovada.",
+        "pontos_fracos": "Segmento de transmissão caiu (~-3 a -11% A/A), por provisão de "
+                   "R$725mi ligada a ativos/passivos de restituição regulatória. Dívida "
+                   "líquida subiu 17% A/A (R$46bi), alavancagem em 1,8-1,9x. Parte "
+                   "relevante do lucro vem de efeitos não-recorrentes (reversão de "
+                   "provisões), não só de operação recorrente.",
+        "expectativa": "Genial mantém compra, citando TIR implícita de 10% real e "
+                   "dividend yield esperado de ~10% para 2026, considerando AXIA3 'Top "
+                   "Pick' do setor de energia. Atenção do mercado: ritmo de crescimento "
+                   "da dívida vs geração de caixa, e transição de liderança executiva "
+                   "(saída de Ivan Monteiro, entrada de Elio Wolff).",
+    },
+    "CPLE3": {
+        "trimestre": "1T26", "data": "05/05/2026",
+        "numeros": "Lucro líquido R$694mi (+4,4% A/A); lucro recorrente R$639mi (+10,7% "
+                   "A/A). Receita líquida recorrente R$6,9bi (+19,2% A/A). EBITDA "
+                   "recorrente R$1,75bi (+16,7% A/A).",
+        "pontos_fortes": "Geração e Transmissão (GeT) foi o destaque, com EBITDA +30,7% "
+                   "A/A, beneficiado por ganhos de modulação hídrica e maior exposição a "
+                   "preços spot no submercado Sul. Distribuição cresceu 10% no EBITDA, "
+                   "beneficiada pelo reajuste tarifário anual e crescimento de 2,1% no "
+                   "mercado fio faturado.",
+        "pontos_fracos": "Resultado financeiro negativo cresceu 9,6% A/A. Alavancagem "
+                   "subiu de 2,7x para 2,8x dívida líquida/EBITDA. Maior carga tributária "
+                   "limitou a expansão do lucro líquido final, mesmo com EBITDA forte. "
+                   "Curtailment (restrição de geração eólica) continua pressionando "
+                   "custos de compra de energia.",
+        "expectativa": "XP destaca a Copel como nome 'premium' do setor pós-privatização "
+                   "(2023), negociando a uma TIR real atrativa de 11,5%, com a atual "
+                   "gestão considerada uma das melhores do setor de utilities. Empresa "
+                   "segue ativa em desinvestimentos de ativos não-core.",
+    },
+    "ALOS3": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido R$248,3mi (-2,5% A/A) — ou R$239mi ex-ajuste de "
+                   "aluguel linear. Receita líquida R$683-692mi (+9,8-10,9% A/A). EBITDA "
+                   "ajustado R$502mi (+10,2% A/A).",
+        "pontos_fortes": "Vendas nos shoppings aceleraram (+6,6% A/A), com vendas em "
+                   "mesmas lojas (SSS) de 5,0% (+250 bps A/A) — destaque para Alimentação "
+                   "(+7,9%). Despesas (SG&A) caíram 13% A/A. Excluindo o Shopping Tijuca "
+                   "(fechado temporariamente por incêndio em janeiro), o crescimento de "
+                   "EBITDA seria de 17% e do FFO, 18,2%.",
+        "pontos_fracos": "Lucro ficou estável/levemente negativo por causa de um incêndio "
+                   "no Shopping Tijuca em janeiro/2026 (~2 semanas de operação "
+                   "interrompida) e por despesas financeiras 52% maiores. Taxa de "
+                   "ocupação recuou 0,6 p.p. A/A (96,2%).",
+        "expectativa": "Nord não vê grande atratividade em ALOS3 no momento (negociando "
+                   "a 18x lucros, acima da média histórica) mesmo com dividend yield "
+                   "estimado de 12-13%. Allos segue reciclando portfólio: parceria com a "
+                   "Kinea para criar um fundo imobiliário (até R$2bi), venda do Shopping "
+                   "Curitiba.",
+    },
+    "TIMS3": {
+        "trimestre": "1T26", "data": "05/05/2026",
+        "numeros": "Lucro líquido normalizado R$821mi (+1,3% A/A, 12,9% abaixo do "
+                   "esperado pela XP). Receita líquida R$6,8bi (+6,5% A/A). EBITDA "
+                   "normalizado R$3,287bi (+6,6% A/A), margem 48,3%.",
+        "pontos_fortes": "Receita pós-paga (principal motor) cresceu 7,5% A/A, com ARPU "
+                   "pós-pago em R$55,1 (+1,6%). Receita do segmento fixo (fibra) acelerou "
+                   "+22,8% A/A. Fluxo de caixa operacional livre subiu 54% A/A.",
+        "pontos_fracos": "Lucro líquido cresceu muito menos que a receita/EBITDA (apenas "
+                   "+1,3%) por causa de uma carga tributária 75% maior (menor dedução de "
+                   "Juros sobre Capital Próprio). Receita pré-paga caiu 6,5% A/A, com "
+                   "perda líquida de 355 mil linhas no trimestre. TIM foi a operadora que "
+                   "mais perdeu participação de mercado em alguns estados nos últimos 12 "
+                   "meses.",
+        "expectativa": "XP mantém recomendação Neutra, achando que o valuation já "
+                   "reflete boa parte da melhora operacional recente. Pressão competitiva "
+                   "e agenda de convergência (fixo+móvel) devem exigir alocação de "
+                   "capital mais complexa nos próximos trimestres.",
+    },
+    "KLBN4": {
+        "trimestre": "1T26", "data": "06/05/2026",
+        "numeros": "Prejuízo líquido de R$497mi, revertendo lucro de R$446mi no 1T25. "
+                   "Receita líquida R$4,9bi (+2% A/A). EBITDA ajustado R$1,67-1,7bi (-9 a "
+                   "-10% A/A), margem caindo de 38% para 34%.",
+        "pontos_fortes": "Volume total vendido cresceu 12% A/A (recorde), com celulose "
+                   "+16%, papel +15%. Containerboard cresceu 31% A/A em volume, puxado "
+                   "por exportação. Dívida bruta caiu R$3,9bi no trimestre (resgate "
+                   "antecipado de green bonds e amortizações).",
+        "pontos_fracos": "Prejuízo veio principalmente de um resultado financeiro muito "
+                   "negativo (-R$570mi, vs -R$158mi no 1T25), por despesas ligadas à "
+                   "liquidação de swap no pagamento antecipado de dívida — efeito "
+                   "praticamente contábil, não operacional. Real mais valorizado (-10% "
+                   "A/A) pressionou receitas de exportação. Alavancagem em 3,1x dívida "
+                   "líquida/EBITDA, ainda elevada.",
+        "expectativa": "JPMorgan rebaixou a recomendação para neutra em abril/2026, "
+                   "citando preços fracos da celulose de fibra curta (preço-alvo R$22). "
+                   "Analistas avaliam o resultado operacional como 'em linha', e "
+                   "reconhecem que o prejuízo contábil (efeitos financeiros pontuais) não "
+                   "deve se repetir necessariamente.",
+    },
+    "CYRE3": {
+        "trimestre": "1T26", "data": "14/05/2026",
+        "numeros": "Lucro líquido R$297mi (-9% A/A, -56% T/T). Receita líquida R$2,02bi "
+                   "(+4% A/A). Margem bruta 32,9% (+0,4 p.p. A/A).",
+        "pontos_fortes": "Geração de caixa positiva de R$134mi no trimestre (revertendo "
+                   "queima de caixa do trimestre anterior). Lucro bruto a apropriar de "
+                   "R$4,2bi (+22% A/A). Equivalência patrimonial de participações em "
+                   "outras incorporadoras (Cury, Plano&Plano, Lavvi) contribuiu R$128mi "
+                   "(+14% A/A).",
+        "pontos_fracos": "Lançamentos desaceleraram fortemente: VGV de R$1,7bi no "
+                   "trimestre, queda de 48% A/A e 47% T/T. Despesas comerciais/"
+                   "administrativas cresceram como % da receita (20,3%, +3,5 p.p. A/A). "
+                   "Vendas ex-permuta praticamente estáveis (+2% A/A).",
+        "expectativa": "Santander via a Cyrela com resultados 'razoáveis' no trimestre. "
+                   "A empresa está rotacionando parte da atividade para o segmento "
+                   "econômico (MCMV) — 39% dos lançamentos do trimestre já são desse "
+                   "segmento, vs 22% um ano antes.",
+    },
+    "DIRR3": {
+        "trimestre": "1T26", "data": "11/05/2026",
+        "numeros": "Lucro líquido R$213,2mi (+29,6% A/A); lucro operacional ajustado "
+                   "R$200mi (+27% A/A). Receita líquida R$1,16-1,2bi (+30% A/A). Margem "
+                   "bruta ajustada recorde de 42,9% (+1,3 p.p. A/A).",
+        "pontos_fortes": "ROE de 38% (+9 p.p. A/A), um dos maiores do setor. VSO "
+                   "(velocidade de vendas) de 24%, o maior nível já registrado para um "
+                   "primeiro trimestre. Lançamentos de R$1bi em VGV (+12% A/A); vendas "
+                   "líquidas de R$1,35-1,6bi (+19-23% A/A). Resultado financeiro passou "
+                   "de negativo para positivo.",
+        "pontos_fracos": "Distratos aumentaram, atribuído pela empresa ao fim de alguns "
+                   "programas regionais de subsídio complementar ao MCMV. Dívida líquida "
+                   "subiu 15% no trimestre, com alavancagem em 24% (vs 23% no 4T25). "
+                   "Despesas administrativas e comerciais subiram 33% cada.",
+        "expectativa": "Nord reforça recomendação de compra, citando múltiplo de apenas "
+                   "9x lucros e dividend yield de 16,9% nos últimos 12 meses. Direcional "
+                   "segue como uma das principais beneficiárias do MCMV, com receita a "
+                   "apropriar de R$3,8bi (+34% A/A) garantindo visibilidade futura.",
+    },
+    "MDNE3": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido recorde R$155,5-156mi (+121-122% A/A), o maior da "
+                   "história da empresa. Receita líquida R$628mi (+43% A/A). ROE de ~33%.",
+        "pontos_fortes": "Vendas e adesões líquidas de R$1,02bi (+85,7% A/A). "
+                   "Lançamentos saltaram 218-255% A/A em VGV. Margem bruta ajustada de "
+                   "~42%. LPA de R$1,66 (+99% A/A). Consolidou 100% da marca Ún1ca "
+                   "(joint venture com a Direcional no segmento econômico).",
+        "pontos_fracos": "Empresa consumiu caixa por causa de aquisições de terrenos e "
+                   "novos lançamentos — precisou de um follow-on de R$483mi para manter "
+                   "a dívida líquida em níveis baixos. Ação caiu forte (-7,29%) no dia da "
+                   "divulgação, mesmo com resultado recorde.",
+        "expectativa": "BTG destaca a Moura Dubeux como combinando o que se espera de "
+                   "uma boa construtora: estrutura de capital enxuta, ROE forte e baixa "
+                   "alavancagem, mesmo crescendo rápido. Expansão da joint venture Ún1ca "
+                   "amplia a presença no segmento econômico.",
+    },
+    "CURY3": {
+        "trimestre": "1T26", "data": "12/05/2026",
+        "numeros": "Lucro líquido recorde R$302,9mi (+41,9% A/A). Receita líquida "
+                   "R$1,613bi (+32,6% A/A), recorde. EBITDA R$411,4mi (+42,9% A/A), "
+                   "margem 25,5% (+1,8 p.p. A/A).",
+        "pontos_fortes": "Preço médio dos apartamentos vendidos subiu 5% A/A "
+                   "(R$325,4mil), mostrando poder de repasse de preço. Custos mantidos "
+                   "sob controle mesmo com inflação setorial. Segundo trimestre já "
+                   "começou forte em vendas, segundo a própria empresa, beneficiado "
+                   "pelos ajustes recentes no MCMV.",
+        "pontos_fracos": "Santander projetava compressão de margem na comparação "
+                   "trimestral para a Cury, por descontos em vendas e revisões de "
+                   "orçamento — o resultado forte do 1T26 contraria parcialmente essa "
+                   "expectativa, mas o setor segue monitorando o impacto da alta do "
+                   "petróleo nos custos de construção.",
+        "expectativa": "Resultado reforça a Cury como uma das incorporadoras mais "
+                   "eficientes do segmento MCMV/econômico, com forte geração de caixa. "
+                   "Mercado atento às mudanças recentes no MCMV (ampliação de faixas de "
+                   "renda elegíveis), que devem ampliar o público endereçável.",
+    },
 }
 
 
@@ -1492,6 +1711,305 @@ PANORAMA_EMPRESA = {
                      "fixa) cresce de forma mais previsível, independente do humor do "
                      "mercado.",
     },
+    "BPAC11": {
+        "o_que_faz": "O BTG Pactual é o maior banco de investimento da América Latina, "
+                     "com atuação diversificada em banco de investimento, gestão de "
+                     "patrimônio (wealth management), crédito corporativo, trading, asset "
+                     "management e, mais recentemente, varejo bancário (via aquisição do "
+                     "Banco PAN).",
+        "segmentos": [
+            ("Corporate Lending & Business Banking", "crédito para grandes empresas — "
+             "maior carteira do banco, R$281bi, crescendo 22% ao ano, mais que o dobro "
+             "do mercado."),
+            ("Wealth Management & Personal Banking", "gestão de patrimônio para clientes "
+             "de alta renda — R$1,28tri sob gestão, maior motor de crescimento recente."),
+            ("Sales & Trading", "mesa de operações — receita mais volátil, sobe e desce "
+             "com a movimentação dos mercados."),
+            ("Consumer Finance & Banking", "nova vertical, criada com a consolidação do "
+             "Banco Pan e da Too Seguros — crédito consignado e financiamento de "
+             "veículos para o varejo."),
+        ],
+        "insight_chave": "O BTG não é mais 'só' um banco de investimento para gente "
+                     "rica — com a compra do Banco Pan e da Too Seguros, ele criou uma "
+                     "vertical de varejo (Consumer Finance & Banking) que já cresce 40% "
+                     "ao ano. Isso muda o perfil de risco do banco: ele está se tornando "
+                     "mais parecido com um banco de varejo tradicional (cartão, crédito "
+                     "consignado, financiamento de carro), um negócio com dinâmica e "
+                     "risco de crédito diferentes do banco de investimento clássico que "
+                     "historicamente definia o BTG.",
+        "setor_dinamica": "Banco de investimento diversificado — menos dependente de um "
+                     "único motor, com receitas vindas de fontes muito diferentes entre "
+                     "si (trading, wealth, M&A, crédito). Isso reduz a volatilidade "
+                     "trimestral comparado a um banco mono-linha, mas exige executar bem "
+                     "em várias frentes ao mesmo tempo.",
+    },
+    "CXSE3": {
+        "o_que_faz": "A Caixa Seguridade é a holding de seguros, previdência, "
+                     "capitalização e consórcio ligada à Caixa Econômica Federal — assim "
+                     "como a BB Seguridade usa a rede do Banco do Brasil, a Caixa "
+                     "Seguridade usa a rede da Caixa para vender seus produtos.",
+        "segmentos": [
+            ("Seguro Habitacional", "o principal motor — ligado direto ao financiamento "
+             "imobiliário, onde a Caixa é a maior financiadora do Brasil."),
+            ("Seguro Residencial e Prestamista", "prestamista (ligado a crédito pessoal) "
+             "é o mais sensível à Selic — sobe quando o crédito está barato, cai quando "
+             "os juros sobem."),
+            ("Previdência e Capitalização", "reservas de previdência em expansão, "
+             "capitalização com forte crescimento de receita de títulos."),
+            ("Consórcio", "cartas de crédito administradas crescendo forte, +39% A/A."),
+        ],
+        "insight_chave": "A tese da Caixa Seguridade está praticamente amarrada ao "
+                     "financiamento imobiliário da Caixa: o seguro habitacional (ligado "
+                     "direto a cada novo contrato de financiamento de imóvel) é o que "
+                     "mais cresce e mais pesa no resultado. Isso é diferente da BB "
+                     "Seguridade, cujo maior motor é o Seguro Rural — mesmo sendo as duas "
+                     "'seguradoras de banco público', elas têm exposições de risco bem "
+                     "diferentes: a Caixa Seguridade está mais ligada ao mercado "
+                     "imobiliário, a BB Seguridade ao agronegócio.",
+        "setor_dinamica": "Bancassurance (seguros vendidos via banco) — modelo de baixo "
+                     "custo de aquisição, mas dependente da saúde e do apetite de crédito "
+                     "do banco controlador. Juros altos ajudam o resultado financeiro mas "
+                     "pressionam produtos ligados a crédito (prestamista); juros baixos "
+                     "fazem o oposto.",
+    },
+    "AXIA3": {
+        "o_que_faz": "A Axia Energia (antiga Eletrobras) é a maior empresa de energia "
+                     "elétrica da América Latina, líder em geração e transmissão no "
+                     "Brasil, com ~22% da capacidade de geração instalada e 38% das "
+                     "linhas de transmissão do país.",
+        "segmentos": [
+            ("Geração", "hidrelétricas (incluindo metade de Itaipu), eólicas e outras "
+             "fontes renováveis — segmento mais representativo do lucro, beneficiado "
+             "pela venda de energia a preço de mercado após a privatização."),
+            ("Transmissão", "73 mil km de linhas — receita regulada e mais previsível, "
+             "mas sujeita a revisões tarifárias e provisões regulatórias."),
+        ],
+        "insight_chave": "Desde a privatização em 2022, a Axia passou por uma mudança "
+                     "estrutural que poucos investidores acompanham de perto: a "
+                     "'descotização' — antes, parte da energia da empresa era vendida a "
+                     "preço de CUSTO (regulado, baixo) para garantir energia barata ao "
+                     "consumidor; depois da privatização, essa energia passou a ser "
+                     "vendida a preço de MERCADO. Com os preços de energia de longo prazo "
+                     "tendo saltado de R$100-150/MWh para R$240/MWh, esse único fator "
+                     "explica boa parte do salto de lucro recente — não é só 'eficiência "
+                     "operacional', é uma mudança de regra do jogo que beneficia "
+                     "diretamente a receita.",
+        "setor_dinamica": "Utilities (energia elétrica) — geração tem receita mais "
+                     "sensível a preço de mercado de energia (mais parecido com uma "
+                     "commodity agora, pós-privatização); transmissão é mais estável e "
+                     "regulada. Ainda carrega passivos jurídicos históricos da era "
+                     "estatal (como o empréstimo compulsório), que vêm sendo equacionados "
+                     "gradualmente e afetam a leitura trimestre a trimestre.",
+    },
+    "CPLE3": {
+        "o_que_faz": "A Copel é uma companhia de energia elétrica integrada (geração, "
+                     "transmissão, distribuição e comercialização), com forte presença "
+                     "no Paraná, privatizada em 2023 (o governo deixou de ser o acionista "
+                     "controlador).",
+        "segmentos": [
+            ("Distribuição (Copel DIS)", "energia elétrica para o consumidor final no "
+             "Paraná — ~43% do EBITDA, receita ligada ao crescimento do mercado fio "
+             "faturado e reajustes tarifários anuais."),
+            ("Geração e Transmissão (Copel GeT/COM)", "~57% do EBITDA — inclui "
+             "hidrelétricas, eólicas e linhas de transmissão, com receita mais sensível "
+             "a preços de energia no mercado de curto prazo."),
+        ],
+        "insight_chave": "A privatização da Copel em 2023 é o ponto de virada da tese: "
+                     "deixou de ter o governo do Paraná como controlador e passou a ser "
+                     "uma corporação com capital pulverizado. Desde então, a empresa vem "
+                     "fazendo o que governos raramente fazem rápido — programa de "
+                     "desligamento voluntário, venda de ativos fora do core business, e "
+                     "disciplina de alocação de capital. O mercado já trata a Copel como "
+                     "um dos nomes 'premium' do setor justamente por essa mudança de "
+                     "gestão, não pelos ativos em si (que sempre foram bons).",
+        "setor_dinamica": "Utilities integradas — distribuição é mais previsível (tarifa "
+                     "regulada), geração/transmissão tem mais exposição a preço de "
+                     "mercado de energia e a fatores hidrológicos (chuva, modulação). "
+                     "Alavancagem na faixa de 2,7-2,8x é considerada saudável para o "
+                     "setor, mas limita espaço para grandes aquisições sem aumentar risco.",
+    },
+    "ALOS3": {
+        "o_que_faz": "A Allos é a maior administradora e proprietária de shopping "
+                     "centers do Brasil, formada pela fusão entre Aliansce Sonae e "
+                     "brMalls em 2023. Representa mais de 20% de todas as vendas do "
+                     "setor de shoppings do país.",
+        "segmentos": [
+            ("Locação (aluguel)", "principal fonte de receita — cobrada como % fixo + % "
+             "das vendas das lojas."),
+            ("Estacionamento, mídia e desenvolvimento imobiliário", "receitas "
+             "complementares, crescendo mais rápido que a locação tradicional."),
+            ("Serviços de administração para terceiros", "a Allos administra alguns "
+             "shoppings que não são dela, cobrando taxa de gestão."),
+        ],
+        "insight_chave": "Boa parte da 'fraqueza' do lucro da Allos no 1T26 não tem nada "
+                     "a ver com o negócio em si — foi um incêndio pontual no Shopping "
+                     "Tijuca em janeiro, que interrompeu a operação por ~2 semanas. Sem "
+                     "esse evento isolado, o crescimento de EBITDA e FFO teria sido de "
+                     "17-18%, não os números mais modestos divulgados. Isso é um exemplo "
+                     "claro de por que vale a pena olhar os números 'ex-evento "
+                     "específico' que a própria empresa divulga, e não só o número "
+                     "consolidado.",
+        "setor_dinamica": "Shopping centers — receita ligada ao consumo das famílias, "
+                     "taxa de juros (afeta crédito ao consumidor e custo de capital da "
+                     "própria Allos) e ocupação dos shoppings. Negócio tende a ser bom "
+                     "pagador de dividendos (modelo de REIT/FII implícito), mas com "
+                     "crescimento mais lento que setores de maior expansão.",
+    },
+    "TIMS3": {
+        "o_que_faz": "A TIM é uma das 3 grandes operadoras de telecomunicações do "
+                     "Brasil (junto com Vivo e Claro), oferecendo serviços de telefonia "
+                     "móvel, internet fixa (fibra) e serviços digitais.",
+        "segmentos": [
+            ("Serviço Móvel Pós-pago", "principal motor de crescimento — clientes com "
+             "plano fixo mensal, maior receita por usuário (ARPU) e mais "
+             "previsibilidade."),
+            ("Serviço Móvel Pré-pago", "em declínio estrutural — clientes migrando para "
+             "o pós-pago, que é mais lucrativo para a operadora."),
+            ("Serviço Fixo (TIM UltraFibra)", "ainda pequeno (menos de 6% da receita) "
+             "mas crescendo rápido, frente de expansão para os próximos anos."),
+        ],
+        "insight_chave": "A receita da TIM cresce, o EBITDA cresce, mas o LUCRO quase "
+                     "não se move — o motivo não é operacional, é tributário: uma "
+                     "mudança na forma de distribuir Juros sobre Capital Próprio (JCP) "
+                     "fez o imposto de renda saltar 75% em um ano. Para entender se a TIM "
+                     "está realmente 'indo bem', é mais informativo olhar Receita/"
+                     "EBITDA/Geração de Caixa do que o lucro líquido isolado nesse "
+                     "momento específico — o lucro está sendo 'mascarado' por um efeito "
+                     "fiscal, não por fraqueza do negócio.",
+        "setor_dinamica": "Telecomunicações — setor maduro e intensivo em capital "
+                     "(precisa investir constantemente em rede/5G), com crescimento "
+                     "vindo da migração pré-pago→pós-pago e da expansão de fibra, não de "
+                     "novos clientes (o mercado de celular já está saturado no Brasil). "
+                     "Competição via preço é constante.",
+    },
+    "KLBN4": {
+        "o_que_faz": "A Klabin é a maior produtora e exportadora de papéis do Brasil, "
+                     "com operação verticalizada: planta árvores, produz celulose, "
+                     "transforma em papel, fabrica embalagens — vendendo tanto para o "
+                     "mercado interno quanto para mais de 80 países.",
+        "segmentos": [
+            ("Celulose", "vende parte da celulose que produz para o mercado "
+             "internacional — essa é a parte da Klabin que se parece com a Suzano, "
+             "exposta ao preço global da commodity."),
+            ("Papéis (Kraftliner, cartões etc.)", "papel para embalagens, com forte "
+             "presença em exportação."),
+            ("Embalagens (caixas de papelão)", "consumo mais doméstico e estável, "
+             "ligado a alimentos, bebidas e produtos de consumo."),
+        ],
+        "insight_chave": "Diferente da Irani (que só produz celulose para uso próprio, "
+                     "sem vender para o mercado) e da Suzano (praticamente 100% exposta "
+                     "ao preço da celulose), a Klabin fica no meio do caminho: produz "
+                     "celulose suficiente para consumir na própria fábrica de papel/"
+                     "embalagens E ainda vende o excedente para o mercado internacional "
+                     "— estimativas de mercado colocam essa parcela 'exposta' em torno de "
+                     "40% da receita. Ou seja, a Klabin sente a volatilidade do preço da "
+                     "celulose, mas com menos intensidade que uma pure-player como a "
+                     "Suzano, porque uma parte relevante do negócio (papel e embalagens) "
+                     "tem preço e dinâmica próprios, mais ligados ao consumo doméstico.",
+        "setor_dinamica": "Papel e celulose — negócio cíclico, dependente do preço "
+                     "internacional da celulose (cotado em dólar) e do câmbio (receita "
+                     "de exportação em dólar, parte dos custos em real). Resultados "
+                     "financeiros (juros, swap, dívida em moeda estrangeira) podem "
+                     "distorcer bastante o lucro contábil de um trimestre para outro.",
+    },
+    "CYRE3": {
+        "o_que_faz": "A Cyrela é uma das maiores incorporadoras do Brasil, com foco "
+                     "histórico no segmento médio/alto padrão, mas também detém "
+                     "participações relevantes em outras incorporadoras (Cury, "
+                     "Plano&Plano, Lavvi) focadas em outros nichos.",
+        "segmentos": [
+            ("Incorporação própria (médio/alto padrão)", "o negócio principal — constrói "
+             "e vende apartamentos sob a marca Cyrela."),
+            ("Participações em outras incorporadoras", "Cury (MCMV), Plano&Plano "
+             "(econômico) e Lavvi (alto padrão) — reconhecidas via equivalência "
+             "patrimonial, sem a Cyrela operar diretamente esses negócios."),
+            ("CashMe", "braço de crédito/financiamento do grupo, complementar ao "
+             "negócio imobiliário."),
+        ],
+        "insight_chave": "Uma parte relevante e crescente do lucro da Cyrela não vem de "
+                     "vender apartamento com a própria marca — vem das participações que "
+                     "ela tem em outras incorporadoras (Cury, Plano&Plano, Lavvi), "
+                     "reconhecidas como 'equivalência patrimonial'. É como se a Cyrela "
+                     "fosse, em parte, uma holding/investidora dentro do próprio setor "
+                     "que ela atua, diversificando o risco entre vários perfis de "
+                     "incorporação (alto padrão, econômico, MCMV) sem precisar operar "
+                     "todos diretamente.",
+        "setor_dinamica": "Incorporação residencial médio/alto padrão — mais sensível a "
+                     "juros (financiamento imobiliário tradicional, sem subsídio do "
+                     "governo como o MCMV) e à renda das famílias de classe média/alta. "
+                     "Ciclo de reconhecimento de receita é longo (lucro bruto a "
+                     "apropriar vai sendo realizado conforme a obra avança).",
+    },
+    "DIRR3": {
+        "o_que_faz": "A Direcional é uma das maiores construtoras focadas no programa "
+                     "Minha Casa Minha Vida (MCMV) do Brasil, com mais de 40 anos de "
+                     "história e presença em 8 estados.",
+        "segmentos": [
+            ("Marca Direcional", "foco nas faixas mais baixas de renda do MCMV — ~70% "
+             "dos lançamentos recentes."),
+            ("Marca Riva", "empreendimentos de padrão médio/médio-baixo fora do "
+             "programa MCMV tradicional — ~30% dos lançamentos."),
+        ],
+        "insight_chave": "A Direcional opera com duas marcas deliberadamente "
+                     "posicionadas para atender faixas de renda diferentes dentro "
+                     "(Direcional) e fora (Riva) do programa MCMV — isso dá à empresa "
+                     "flexibilidade para direcionar lançamentos conforme as condições do "
+                     "programa habitacional mudam (faixas de subsídio, juros do FGTS), "
+                     "sem depender 100% de uma única faixa de renda ou de um único tipo "
+                     "de financiamento.",
+        "setor_dinamica": "Construção de baixa renda via MCMV — negócio com ROE "
+                     "historicamente alto (ciclo de capital de giro mais rápido que "
+                     "construção de alto padrão) e fortemente ligado a decisões de "
+                     "política pública (faixas de subsídio do MCMV, juros do FGTS). "
+                     "Mudanças nas regras do programa podem impactar rapidamente o ritmo "
+                     "de vendas.",
+    },
+    "MDNE3": {
+        "o_que_faz": "A Moura Dubeux é uma das principais incorporadoras do Nordeste "
+                     "brasileiro, com foco em empreendimentos residenciais de médio e "
+                     "alto padrão, usando um modelo de condomínio fechado como "
+                     "diferencial.",
+        "segmentos": [
+            ("Incorporação própria (médio/alto padrão)", "negócio histórico, "
+             "concentrado no Nordeste."),
+            ("Ún1ca (joint venture com a Direcional)", "expansão para o segmento "
+             "econômico/MCMV, complementando o foco tradicional."),
+        ],
+        "insight_chave": "O CEO da empresa destaca que o modelo de condomínio fechado "
+                     "funciona como uma 'blindagem' contra a inflação de custos de "
+                     "construção: diferente da venda tradicional de apartamento, no "
+                     "modelo de condomínio o cliente entra como cotista e paga conforme "
+                     "a evolução da obra, o que repassa parte do risco de custo para o "
+                     "comprador, em vez de a construtora assumir sozinha o risco de "
+                     "orçamentos que furam por inflação.",
+        "setor_dinamica": "Incorporação regional (Nordeste) de médio/alto padrão — "
+                     "menos dependente de programas de subsídio governamental que "
+                     "construtoras de baixa renda, mas mais exposta a ciclos de renda da "
+                     "classe média/alta regional e à inflação de custos de construção "
+                     "(INCC).",
+    },
+    "CURY3": {
+        "o_que_faz": "A Cury é uma joint venture entre a família Cury (fundadora) e a "
+                     "Cyrela, focada em incorporação residencial de baixa renda dentro "
+                     "do programa Minha Casa Minha Vida, concentrada em São Paulo e Rio "
+                     "de Janeiro.",
+        "segmentos": [
+            ("MCMV (Minha Casa Minha Vida)", "praticamente todo o negócio da empresa — "
+             "apartamentos econômicos voltados às faixas de renda do programa."),
+        ],
+        "insight_chave": "A Cury é uma das incorporadoras com maior velocidade de giro "
+                     "do setor: lança, vende e entrega muito mais rápido que "
+                     "incorporadoras de médio/alto padrão, o que faz o capital girar "
+                     "mais vezes no mesmo período e sustenta um ROE muito alto. Esse "
+                     "modelo de alto giro e baixo ticket médio é o oposto do modelo de "
+                     "uma incorporadora de luxo, que vende poucas unidades de "
+                     "altíssimo valor.",
+        "setor_dinamica": "Construção de baixa renda via MCMV — assim como a Direcional, "
+                     "depende fortemente das regras do programa habitacional (faixas de "
+                     "subsídio, juros do FGTS) e tende a ter ROE mais alto que "
+                     "construtoras de padrão mais alto, pela maior velocidade de giro do "
+                     "capital.",
+    },
 }
 
 
@@ -1505,6 +2023,28 @@ ESTUDOS_ESPECIFICOS = {
             "pra avaliar se o desconto atual já é extremo ou ainda tem espaço."
         ),
         "metrica": "pvp_str",
+    },
+    "SLCE3": {
+        "titulo": "P/NAV: mercado precifica a empresa por menos da metade do valor das próprias terras",
+        "texto": (
+            "Todo mês de junho, a SLC Agrícola divulga uma avaliação independente "
+            "(feita pela consultoria Deloitte) do valor de mercado de todas as suas "
+            "terras. Na avaliação de 15/06/2026, o portfólio (incluindo áreas em "
+            "parceria com fundos do BTG Pactual) foi avaliado em R$13,53 bilhões, com "
+            "o hectare agricultável médio em R$59.534 — e o NAV (Net Asset Value, valor "
+            "líquido dos ativos) total da companhia em R$13,8 bilhões. Comparado ao "
+            "valor de mercado da SLC na bolsa (~R$6,7 bilhões), o P/NAV fica em torno "
+            "de 0,49x — o mercado avalia a empresa por menos da metade do que vale só "
+            "o patrimônio de terras, segundo a própria avaliação da companhia. Isso não "
+            "significa que a ação está '50% barata' de forma automática — o NAV é uma "
+            "estimativa de valor de liquidação dos ativos, não um preço-alvo de bolsa, "
+            "e o mercado pode estar descontando a dificuldade prática de vender 840 mil "
+            "hectares rapidamente, ou o ciclo de baixa nos preços de soja/algodão/milho "
+            "que pressiona o lucro operacional no curto prazo. Mas é uma referência "
+            "relevante de 'piso patrimonial': mesmo com o agronegócio fraco, a empresa "
+            "tem um patrimônio fundiário avaliado por consultoria independente que vale "
+            "mais que o dobro do valor de mercado atual."
+        ),
     },
 }
 
@@ -3476,13 +4016,13 @@ with tcol4:
         st.rerun()
 
 # --- LISTAGEM DE ATIVOS ---
-if df_f.empty:
-    card_filtrados.markdown("""<div class='top-card'>
-        <div class='label'>🔍 Ativos Filtrados</div>
-        <div class='value'>0</div>
-    </div>""", unsafe_allow_html=True)
-    st.warning("Nenhum ativo encontrado.")
-else:
+@st.cache_data(ttl=300, show_spinner=False)
+def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
+    """Monta os dados de score/indicadores pra TODOS os ativos filtrados.
+    Isolado numa função cacheada porque, sem isso, o app recalculava os 50
+    ativos (Yahoo, logo, score) a CADA clique -- inclusive só navegando
+    entre abas dentro de UM ativo já aberto, onde nada disso muda. Com
+    cache, só recalcula quando os filtros do dashboard realmente mudam."""
     ativos_com_score = []
 
     for _, row in df_f.iterrows():
@@ -3575,6 +4115,18 @@ else:
     # Teto 9.5: o 10 é reservado para casos verdadeiramente excepcionais
     for a in ativos_com_score:
         a['score'] = round(min(a['score'], 9.5), 1)
+
+    return ativos_com_score
+
+
+if df_f.empty:
+    card_filtrados.markdown("""<div class='top-card'>
+        <div class='label'>🔍 Ativos Filtrados</div>
+        <div class='value'>0</div>
+    </div>""", unsafe_allow_html=True)
+    st.warning("Nenhum ativo encontrado.")
+else:
+    ativos_com_score = _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val)
 
     card_filtrados.markdown(f"""<div class='top-card'>
         <div class='label'>🔍 Ativos Filtrados</div>
