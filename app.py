@@ -5358,6 +5358,25 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 if not st.session_state.ativo_selecionado:
+    with st.expander("🔧 Diagnóstico de Logos (clique se os logos não aparecerem)"):
+        if st.button("Testar busca de logo agora (PETR4)"):
+            _tok = st.secrets.get("BRAPI_TOKEN", "")
+            if not _tok:
+                st.error(
+                    "BRAPI_TOKEN não encontrado em st.secrets. Verifique em "
+                    "Settings → Secrets do app no Streamlit Cloud se a linha "
+                    "BRAPI_TOKEN = \"...\" foi salva corretamente (sem erro de "
+                    "digitação, com aspas)."
+                )
+            else:
+                st.write(f"Token encontrado (começa com: {_tok[:6]}...).")
+                try:
+                    _url_teste = f"https://brapi.dev/api/quote/PETR4?token={_tok}"
+                    _r = requests.get(_url_teste, timeout=8)
+                    st.write(f"Status HTTP: {_r.status_code}")
+                    st.json(_r.json())
+                except Exception as _e:
+                    st.error(f"Erro na requisição: {_e}")
     tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
