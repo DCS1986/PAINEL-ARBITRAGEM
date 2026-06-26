@@ -1784,6 +1784,34 @@ ANALISE_RESULTADO = {
                    "mais dos números trimestrais brutos do que de relatórios de "
                    "bancos/casas de research, que praticamente não cobrem o papel.",
     },
+    "BBDC3": {
+        "trimestre": "1T26", "data": "06/05/2026",
+        "numeros": "Lucro líquido recorrente R$6,8bi (+16,1% A/A, +4,5% T/T) — nono "
+                   "trimestre consecutivo de melhora. ROE de 15,4-15,8%. Receitas "
+                   "totais R$36,9bi (+14% A/A).",
+        "pontos_fortes": "Margem financeira com clientes cresceu 16,3% A/A (R$19,49bi). "
+                   "Unidade de Seguros entregou R$2,8bi de lucro (+13% A/A), "
+                   "representando ~41% do lucro total do grupo. Índice de eficiência "
+                   "caiu para 49,2% (melhora de 2,6 p.p.). O evento mais importante do "
+                   "trimestre não está nem no resultado: a cisão da BradSaúde (SAUD3) "
+                   "foi concluída em maio/2026, com o ativo saindo do balanço do banco "
+                   "a R$14bi para ser avaliado em R$49bi — um ganho de capital "
+                   "potencial de R$35bi.",
+        "pontos_fracos": "Provisões para devedores duvidosos aumentaram, com custo de "
+                   "risco subindo para 3,5%, puxado por um caso específico no Atacado "
+                   "(grandes empresas) e normalização gradual da inadimplência. "
+                   "Deterioração pontual em carteiras mais antigas de crédito rural. "
+                   "Ação caiu quase 4% no dia da divulgação, mesmo com lucro acima do "
+                   "esperado — mercado reagiu à qualidade de crédito, não ao resultado "
+                   "em si.",
+        "expectativa": "Genial mantém compra (preço-alvo R$25), citando a reorganização "
+                   "da BradSaúde como destravamento de capital relevante — o banco "
+                   "ainda detém 91,35% da nova empresa, e uma eventual venda parcial "
+                   "futura (o free float de 8,65% está abaixo do mínimo de 20% do Novo "
+                   "Mercado) pode liberar ainda mais capital. BTG classificou o "
+                   "trimestre como 'forte', destacando ser o único entre os grandes "
+                   "bancos com crescimento sequencial de lucro.",
+    },
 }
 
 
@@ -1849,14 +1877,22 @@ PANORAMA_EMPRESA = {
              "crescimento de produção daqui pra frente."),
             ("Polvo e Frade", "ativos mais antigos, já maduros na carteira da PRIO."),
         ],
-        "insight_chave": "A receita da PRIO é 100% ligada ao preço do petróleo Brent "
-                     "(cotado em dólar) — diferente de uma empresa industrial que define "
-                     "seu próprio preço, a PRIO 'recebe' o preço que o mercado mundial de "
-                     "petróleo determinar. Por isso, mesmo com a empresa operando "
-                     "PERFEITAMENTE (produção +42% e custo em queda no 1T26), a ação pode "
-                     "cair só porque o petróleo caiu por um motivo geopolítico que nada tem "
-                     "a ver com a empresa — foi o que aconteceu em mai/2026 com a tensão no "
-                     "Oriente Médio.",
+        "insight_chave": "Um dos maiores segredos de eficiência da PRIO é técnico, não "
+                     "financeiro: ao invés de construir uma plataforma nova pra cada "
+                     "campo novo, a empresa conecta a produção de campos vizinhos via "
+                     "'tieback' (tubulação submarina) à infraestrutura que já existe — "
+                     "foi assim que uniu Wahoo ao Frade (35 km de tieback) e o cluster "
+                     "Polvo+Tubarão Martelo, economizando bilhões em capex que "
+                     "concorrentes gastariam construindo plataformas do zero. Na "
+                     "revitalização do Frade (2022-2023), a PRIO já aumentou a "
+                     "produção em mais de 200% e reduziu as emissões de CO2 por barril "
+                     "em 70% — uma combinação de eficiência econômica e ambiental que "
+                     "poucas petroleiras conseguem entregar ao mesmo tempo. A receita "
+                     "da PRIO é 100% ligada ao preço do petróleo Brent (cotado em "
+                     "dólar) — por isso, mesmo operando perfeitamente, a ação pode "
+                     "cair só porque o petróleo caiu por um motivo geopolítico que "
+                     "nada tem a ver com a empresa, como aconteceu em mai/2026 com a "
+                     "tensão no Oriente Médio.",
         "setor_dinamica": "Petróleo e gás (E&P) — pense nela como uma 'gestora de ativos "
                      "maduros de petróleo': quanto mais eficiente em reduzir o custo de "
                      "extração (lifting cost), maior a margem em qualquer cenário de preço. "
@@ -1929,13 +1965,20 @@ PANORAMA_EMPRESA = {
              "elétricos/GNV — contabilizada por equivalência patrimonial, contribuição "
              "não-operacional relevante e crescente."),
         ],
-        "insight_chave": "Parte relevante do lucro da Marcopolo no 1T26 não veio da venda "
-                     "de ônibus no Brasil — veio da equivalência patrimonial da NFI "
-                     "(Canadá), que saltou de R$16mi pra R$76mi por um efeito não-recorrente "
-                     "(reversão de provisão de recall de bateria). Sem esse efeito, o "
-                     "resultado operacional do trimestre foi praticamente neutro — separar "
-                     "'o que veio da operação de ônibus' do 'que veio da participação no "
-                     "Canadá' evita achar o resultado melhor do que realmente foi.",
+        "insight_chave": "Houve uma mudança estrutural silenciosa na Marcopolo: em "
+                     "2025, os negócios internacionais (exportação + vendas das "
+                     "fábricas no exterior) já representaram 45,4% da receita líquida "
+                     "total — contra 36,3% em 2024. A empresa também passou a usar "
+                     "'plataformas globais': o mesmo modelo de ônibus é produzido em "
+                     "fábricas de países diferentes, dando flexibilidade pra exportar "
+                     "do Brasil OU do México pra um mesmo mercado, dependendo de qual "
+                     "rota é mais vantajosa no momento. Outro movimento recente: "
+                     "parceria com a Volvo pra entrar no mercado europeu pela primeira "
+                     "vez. Já dentro do Brasil, parte relevante do lucro trimestral "
+                     "não vem da venda de ônibus em si — vem da equivalência "
+                     "patrimonial da NFI (Canadá), que pode oscilar bastante por "
+                     "efeitos contábeis não-recorrentes (como já aconteceu com a "
+                     "reversão de uma provisão de recall de bateria).",
         "setor_dinamica": "Bens de capital / transporte — extremamente ligado a programas "
                      "governamentais de renovação de frota (Caminho da Escola, Move Brasil, "
                      "compras do Ministério da Saúde) e à saúde de crédito das empresas de "
@@ -2054,15 +2097,20 @@ PANORAMA_EMPRESA = {
              "(operação deficitária), mantendo só o atacado — reduzindo exposição "
              "internacional de menor retorno."),
         ],
-        "insight_chave": "O Itaú é conhecido no mercado como o banco mais 'sem "
-                     "surpresas' da bolsa — o ROE no Brasil (26,4% no 1T26) é "
-                     "consistentemente maior que o de seus pares (Santander reportou 16% "
-                     "no mesmo trimestre). A maior parte do crescimento recente vem de "
-                     "linhas de crédito colateralizadas (consignado, imobiliário) — "
-                     "empréstimos com garantia, que dão menos risco de inadimplência "
-                     "mesmo crescendo a carteira. É uma escolha deliberada da gestão: "
-                     "crescer 'mais devagar e com mais segurança' em vez de perseguir "
-                     "crescimento bruto.",
+        "insight_chave": "Internamente, os executivos do Itaú falam em 'profit pool' — a "
+                     "soma de todo o lucro que existe pra se ganhar no setor financeiro "
+                     "brasileiro — e o banco captura mais de 20% desse total, sozinho. A "
+                     "escala é difícil de replicar: cerca de 30% de toda a folha de "
+                     "pagamento do Brasil passa por contas do Itaú, e o banco cobre o "
+                     "'complexo imobiliário' inteiro — desde o crédito pra construtoras "
+                     "até o financiamento do comprador final do imóvel. A própria gestão "
+                     "reconhece que replicar UM produto ou segmento é possível, mas "
+                     "replicar o ecossistema completo (varejo + atacado + seguros + "
+                     "gestão de recursos, tudo conectado) é muito mais difícil — e isso "
+                     "é o que sustenta o ROE consistentemente acima dos pares. O banco "
+                     "também administra, gerencia e custodia cerca de R$4,1 trilhões em "
+                     "recursos de terceiros, um negócio de taxa que cresce "
+                     "independentemente do ciclo de crédito.",
         "setor_dinamica": "Bancos — resultado sensível ao ciclo de crédito (juros, "
                      "inadimplência) e à Selic. Diferente de bancos menores, o Itaú tem "
                      "escala suficiente pra manter o índice de eficiência no menor nível "
@@ -2095,7 +2143,14 @@ PANORAMA_EMPRESA = {
                      "Itaú: enquanto o Itaú cresce 'mais devagar e com mais segurança' "
                      "via crédito colateralizado, o BB tem uma concentração estrutural "
                      "em agro que vira vantagem em anos boas de safra e vira problema "
-                     "quando o agro aperta — como está acontecendo agora.",
+                     "quando o agro aperta — como está acontecendo agora. Um detalhe "
+                     "operacional pouco visto: o BB alcança áreas rurais sem agência "
+                     "física através de 'carretas agro' (agências móveis que já "
+                     "percorreram mais de 200 mil km pelo país) e de uma subsidiária, a "
+                     "BBTS, que mantém uma rede de mais de 2.000 correspondentes "
+                     "bancários em municípios desbancarizados — formas de estender o "
+                     "alcance do banco no campo sem o custo de abrir uma agência "
+                     "completa em cada cidade pequena.",
         "setor_dinamica": "Bancos com exposição concentrada a um setor específico (agro) "
                      "tendem a ter resultado mais cíclico que bancos diversificados — o "
                      "ROE do BB (7,3% no 1T26) ficou bem abaixo de todos os pares "
@@ -2125,7 +2180,13 @@ PANORAMA_EMPRESA = {
                      "reconhecimento contábil). Isso significa que quando o preço do "
                      "petróleo sobe de repente (como aconteceu com a tensão no Oriente "
                      "Médio em 2026), o efeito positivo não aparece imediatamente no "
-                     "resultado — aparece com defasagem, no trimestre seguinte.",
+                     "resultado — aparece com defasagem, no trimestre seguinte. Outro "
+                     "ponto pouco comentado: a própria Petrobras projeta seus "
+                     "investimentos em cenários de Brent BEM mais baixo do que o preço "
+                     "atual (média de US$25-28/barril no longo prazo) — ou seja, o "
+                     "plano de US$109bi em investimentos até 2030 (62% no pré-sal) já "
+                     "foi desenhado pra continuar viável mesmo se o petróleo despencar, "
+                     "não depende de preços altos pra fazer sentido financeiramente.",
         "setor_dinamica": "Petróleo integrado — resultado depende do preço internacional "
                      "do Brent, mas amortecido pelo Refino (que ganha margem mesmo "
                      "quando o petróleo sobe) e pelo baixo custo de extração do pré-sal "
@@ -2448,12 +2509,17 @@ PANORAMA_EMPRESA = {
         ],
         "insight_chave": "Uma parte relevante e crescente do lucro da Cyrela não vem de "
                      "vender apartamento com a própria marca — vem das participações que "
-                     "ela tem em outras incorporadoras (Cury, Plano&Plano, Lavvi), "
-                     "reconhecidas como 'equivalência patrimonial'. É como se a Cyrela "
-                     "fosse, em parte, uma holding/investidora dentro do próprio setor "
-                     "que ela atua, diversificando o risco entre vários perfis de "
-                     "incorporação (alto padrão, econômico, MCMV) sem precisar operar "
-                     "todos diretamente.",
+                     "ela tem em outras incorporadoras: em 2025, Cury, Plano&Plano e "
+                     "Lavvi contribuíram juntas com cerca de R$395mi ao lucro líquido da "
+                     "Cyrela (~20% do total), via equivalência patrimonial. O JP Morgan "
+                     "já calculou que vender essas 3 participações poderia liberar até "
+                     "R$1,9bi em dividendos extraordinários — mas reduziria o ROE da "
+                     "empresa (de ~18-19% para ~16%), o que mostra que essas "
+                     "participações não são só 'caixa parado': sustentam parte real da "
+                     "rentabilidade do grupo. A Cyrela também tem acordos que a obrigam "
+                     "a manter participação mínima nessas empresas (15% na Lavvi, 14% "
+                     "na Cury e na Plano&Plano), limitando a liquidez imediata dessas "
+                     "posições.",
         "setor_dinamica": "Incorporação residencial médio/alto padrão — mais sensível a "
                      "juros (financiamento imobiliário tradicional, sem subsídio do "
                      "governo como o MCMV) e à renda das famílias de classe média/alta. "
@@ -2470,13 +2536,20 @@ PANORAMA_EMPRESA = {
             ("Marca Riva", "empreendimentos de padrão médio/médio-baixo fora do "
              "programa MCMV tradicional — ~30% dos lançamentos."),
         ],
-        "insight_chave": "A Direcional opera com duas marcas deliberadamente "
-                     "posicionadas para atender faixas de renda diferentes dentro "
-                     "(Direcional) e fora (Riva) do programa MCMV — isso dá à empresa "
-                     "flexibilidade para direcionar lançamentos conforme as condições do "
-                     "programa habitacional mudam (faixas de subsídio, juros do FGTS), "
-                     "sem depender 100% de uma única faixa de renda ou de um único tipo "
-                     "de financiamento.",
+        "insight_chave": "O grande diferencial operacional da Direcional é o método "
+                     "construtivo: a empresa consegue erguer duas torres, da fundação "
+                     "ao acabamento, em até 45 dias, com 99,6% de industrialização no "
+                     "canteiro de obras — um nível de padronização que poucas "
+                     "concorrentes conseguem replicar com a mesma qualidade. Também usa "
+                     "o 'modelo associativo': o contrato de venda só é assinado DEPOIS "
+                     "que o crédito do cliente é aprovado pelo banco financiador, "
+                     "reduzindo drasticamente o risco de distrato (cancelamento) que "
+                     "afeta concorrentes que vendem antes da aprovação bancária. Em "
+                     "dezembro/2025, a Direcional vendeu uma fatia da Riva pra gestora "
+                     "Riza (que tem ~R$15bi sob gestão) por um valor que avaliou a Riva "
+                     "sozinha em R$2,6bi — mais da metade do valor de mercado de toda a "
+                     "Direcional na época, mostrando o quanto a Riva estava 'escondida' "
+                     "dentro do valuation da controladora.",
         "setor_dinamica": "Construção de baixa renda via MCMV — negócio com ROE "
                      "historicamente alto (ciclo de capital de giro mais rápido que "
                      "construção de alto padrão) e fortemente ligado a decisões de "
@@ -2485,28 +2558,37 @@ PANORAMA_EMPRESA = {
                      "de vendas.",
     },
     "MDNE3": {
-        "o_que_faz": "A Moura Dubeux é uma das principais incorporadoras do Nordeste "
-                     "brasileiro, com foco em empreendimentos residenciais de médio e "
-                     "alto padrão, usando um modelo de condomínio fechado como "
-                     "diferencial.",
+        "o_que_faz": "A MDNE (antiga Moura Dubeux) é a holding que reúne as principais "
+                     "incorporadoras do Nordeste brasileiro, líder regional há mais de "
+                     "40 anos, organizada em 2026 sob uma estrutura de 3 marcas com "
+                     "públicos bem definidos.",
         "segmentos": [
-            ("Incorporação própria (médio/alto padrão)", "negócio histórico, "
-             "concentrado no Nordeste."),
-            ("Ún1ca (joint venture com a Direcional)", "expansão para o segmento "
-             "econômico/MCMV, complementando o foco tradicional."),
+            ("Moura Dubeux (alto padrão e segunda residência)", "negócio histórico, com "
+             "a linha Beach Class — mais de 30 empreendimentos litorâneos usados como "
+             "segunda residência, hotelaria ou investimento para locação."),
+            ("Mood (médio padrão)", "lançada em 2023, atende famílias com renda entre "
+             "R$12-15 mil/mês — já ~30% dos lançamentos, com projeção de chegar a "
+             "metade nos próximos anos."),
+            ("Ún1ca (MCMV/econômico)", "lançada em 2025, joint venture com a "
+             "Direcional, voltada à Faixa 3 do programa habitacional."),
         ],
-        "insight_chave": "O CEO da empresa destaca que o modelo de condomínio fechado "
-                     "funciona como uma 'blindagem' contra a inflação de custos de "
-                     "construção: diferente da venda tradicional de apartamento, no "
-                     "modelo de condomínio o cliente entra como cotista e paga conforme "
-                     "a evolução da obra, o que repassa parte do risco de custo para o "
-                     "comprador, em vez de a construtora assumir sozinha o risco de "
-                     "orçamentos que furam por inflação.",
-        "setor_dinamica": "Incorporação regional (Nordeste) de médio/alto padrão — "
-                     "menos dependente de programas de subsídio governamental que "
-                     "construtoras de baixa renda, mas mais exposta a ciclos de renda da "
-                     "classe média/alta regional e à inflação de custos de construção "
-                     "(INCC).",
+        "insight_chave": "Um detalhe que poucos sabem sobre a história da empresa: por "
+                     "volta de 2010, grandes incorporadoras de São Paulo (incluindo a "
+                     "própria Cyrela) tentaram entrar no Nordeste e fracassaram — "
+                     "tiveram que 'queimar' estoque a preços baixos quando saíram da "
+                     "região, o que paradoxalmente ajudou a Moura Dubeux a consolidar "
+                     "ainda mais a liderança local, com menos concorrência por terrenos "
+                     "(banco de terras) depois desse episódio. O modelo de condomínio "
+                     "fechado (onde o cliente entra como cotista e paga conforme a obra "
+                     "avança) funciona como uma 'blindagem' contra a inflação de "
+                     "custos de construção, repassando parte do risco de orçamento ao "
+                     "comprador em vez de a construtora assumir sozinha.",
+        "setor_dinamica": "Incorporação regional (Nordeste) — a diversificação entre 3 "
+                     "marcas/faixas de renda (alto padrão, médio, MCMV) e entre estados "
+                     "(presença em 7 do Nordeste) protege a empresa de revisões de "
+                     "plano diretor ou desaceleração específica de uma única praça, "
+                     "ainda que a empresa permaneça mais exposta à inflação de custos "
+                     "de construção (INCC) que construtoras puramente MCMV.",
     },
     "CURY3": {
         "o_que_faz": "A Cury é uma joint venture entre a família Cury (fundadora) e a "
@@ -2517,13 +2599,17 @@ PANORAMA_EMPRESA = {
             ("MCMV (Minha Casa Minha Vida)", "praticamente todo o negócio da empresa — "
              "apartamentos econômicos voltados às faixas de renda do programa."),
         ],
-        "insight_chave": "A Cury é uma das incorporadoras com maior velocidade de giro "
-                     "do setor: lança, vende e entrega muito mais rápido que "
-                     "incorporadoras de médio/alto padrão, o que faz o capital girar "
-                     "mais vezes no mesmo período e sustenta um ROE muito alto. Esse "
-                     "modelo de alto giro e baixo ticket médio é o oposto do modelo de "
-                     "uma incorporadora de luxo, que vende poucas unidades de "
-                     "altíssimo valor.",
+        "insight_chave": "A própria Cury se descreve como um modelo 'Asset Light' — "
+                     "precisa de muito menos capital próprio que concorrentes pra gerar "
+                     "o mesmo volume de negócio, o que sustenta um ROE que já chegou a "
+                     "quase 80% em trimestres recordes (1T26), muito acima da média do "
+                     "setor (~15%). A empresa entrega margem bruta de ~38-39% (vs ~30% "
+                     "da média do setor) e margem EBITDA de ~21% (vs ~13% da média) — "
+                     "uma combinação de controle de custo rígido, concentração "
+                     "geográfica (forte presença em São Paulo, onde já tem ~28% de "
+                     "participação nos lançamentos do MCMV) e o 'crédito associativo' "
+                     "(contrato só fecha após aprovação bancária do cliente, reduzindo "
+                     "o risco de distrato).",
         "setor_dinamica": "Construção de baixa renda via MCMV — assim como a Direcional, "
                      "depende fortemente das regras do programa habitacional (faixas de "
                      "subsídio, juros do FGTS) e tende a ter ROE mais alto que "
@@ -2746,21 +2832,32 @@ PANORAMA_EMPRESA = {
                      "a camada de reposição (aftermarket) trazendo mais estabilidade.",
     },
     "SHUL4": {
-        "o_que_faz": "A Schulz é fabricante de compressores de ar, peças fundidas e "
-                     "produtos automotivos/agrícolas, com operação relevante de "
-                     "exportação para os EUA.",
+        "o_que_faz": "A Schulz opera duas unidades de negócio bem distintas: Schulz "
+                     "Automotiva (a maior fundição com usinagem e pintura integradas da "
+                     "América do Sul) e Schulz Compressores (líder absoluta na América "
+                     "Latina em compressores de ar de pistão), com fábricas no Brasil, "
+                     "China e filial nos EUA.",
         "segmentos": [
-            ("Compressores", "mercado interno e exportação, inclusive EUA."),
-            ("Fundidos/Automotivo", "peças pra montadoras de veículos e máquinas "
-             "agrícolas/construção."),
+            ("Schulz Automotiva (~75% do negócio)", "fundição de ferro nodular e "
+             "cinzento, usinagem e montagem de peças para veículos comerciais "
+             "pesados, máquinas agrícolas e equipamentos de construção, além de "
+             "reposição (aftermarket)."),
+            ("Schulz Compressores (~25% do negócio)", "compressores de ar pra "
+             "indústria, oficinas e uso residencial, com mais de 10 mil revendas e "
+             "distribuidores na América Latina."),
         ],
-        "insight_chave": "A Schulz tem uma característica rara entre empresas "
-                     "industriais menores: opera com caixa líquido positivo (mais "
-                     "caixa do que dívida), o que significa que não depende de bancos "
-                     "pra sobreviver em anos ruins — pode esperar a virada do ciclo sem "
-                     "pressão financeira, diferente de concorrentes mais endividados "
-                     "que podem ser forçados a vender ativos ou diluir acionistas em "
-                     "momentos de baixa.",
+        "insight_chave": "Em 2024, a Schulz comprou a Janus & Pergher e criou a "
+                     "'Schulz Gases' — uma terceira frente que produz oxigênio, "
+                     "nitrogênio e purificação de biometano pra hospitais e indústrias, "
+                     "diversificando pra além de compressores e autopeças. A empresa "
+                     "também lançou em 2026 o 'Ecossistema Schulz', que integra "
+                     "compressores, ferramentas, peças de reposição e monitoramento "
+                     "via telemetria (sensores de pneus, gestão de frota) numa única "
+                     "proposta pra transportadoras — uma tentativa de vender solução "
+                     "recorrente, não só produto pontual. A Schulz tem caixa líquido "
+                     "positivo (mais caixa do que dívida), raro entre indústrias "
+                     "menores, o que permite esperar a virada de ciclo sem pressão "
+                     "financeira.",
         "setor_dinamica": "Bens de capital/autopeças — cíclico, ligado à indústria "
                      "automotiva e de máquinas agrícolas, com exposição cambial "
                      "relevante (vendas em dólar nos EUA).",
@@ -2802,22 +2899,37 @@ PANORAMA_EMPRESA = {
     },
     "KEPL3": {
         "o_que_faz": "A Kepler Weber é a maior fabricante de equipamentos de "
-                     "armazenagem de grãos (silos) do Brasil.",
+                     "armazenagem de grãos (silos) do Brasil, com mais de 100 anos de "
+                     "história, e está em processo de fusão com a americana GSI (Grain "
+                     "& Protein Technologies) anunciado em março/2026.",
         "segmentos": [
-            ("Armazenagem (silos)", "equipamentos pra fazendas e cooperativas "
-             "guardarem grãos após a colheita."),
+            ("Fazendas", "~27% da receita — venda direta a produtores rurais, o "
+             "segmento mais sensível a juros altos e seletividade de crédito."),
+            ("Agroindústrias", "silos pra usinas, cooperativas e processadoras."),
+            ("Negócios Internacionais", "~19% da receita, crescendo forte — Argentina "
+             "vem sendo o destaque, depois de mais de 20 anos sem investimento em "
+             "armazenagem no país vizinho."),
+            ("Portos e Terminais", "projetos grandes e pontuais — só ~5 por ano, mas "
+             "de alto valor (é um segmento 'tudo ou nada')."),
+            ("Reposição e Serviços", "peças e manutenção — fluxo mais recorrente, "
+             "~11 mil pedidos/ano."),
         ],
-        "insight_chave": "A Kepler Weber não vende pro consumidor final nem compete "
-                     "com commodities agrícolas diretamente — ela vende equipamento "
-                     "pro produtor rural guardar a própria colheita. Isso significa "
-                     "que o resultado da empresa segue o ciclo de INVESTIMENTO do agro "
-                     "(quanto o produtor está dispondo a gastar em infraestrutura), não "
-                     "direto o preço da soja/milho — em anos de margem agrícola "
-                     "apertada, o produtor primeiro corta investimento em armazenagem, "
-                     "antes de cortar a própria produção.",
+        "insight_chave": "Em março/2026, a Kepler Weber anunciou uma fusão com a "
+                     "americana GSI (marca da Grain & Protein Technologies), que tem "
+                     "fábricas em mais de 10 países — criando um gigante global de "
+                     "armazenagem agrícola. A tese de fundo segue intacta: o Brasil "
+                     "armazena só ~63% da produção de grãos, contra 108% nos EUA "
+                     "(ou seja, os americanos têm MAIS capacidade de armazenagem do "
+                     "que produzem em um ano, o Brasil tem bem menos) — um déficit "
+                     "estrutural que sustenta demanda de longo prazo mesmo quando o "
+                     "produtor rural está com margem apertada e investindo menos no "
+                     "curto prazo.",
         "setor_dinamica": "Bens de capital agrícola — depende da saúde financeira e do "
                      "apetite de investimento do produtor rural, mais do que do preço "
-                     "das commodities em si.",
+                     "das commodities em si. A margem EBITDA atual (~14,7%) já é bem "
+                     "superior à registrada no último grande ciclo de baixa do agro "
+                     "(2015-2017, abaixo de 5%), mostrando maior resiliência da "
+                     "empresa mesmo num cenário parecido de juros altos.",
     },
     "SLCE3": {
         "o_que_faz": "A SLC Agrícola é uma das maiores produtoras agrícolas do Brasil "
@@ -3105,6 +3217,36 @@ PANORAMA_EMPRESA = {
                      "de e-commerce nacional/internacional que varejistas de moda "
                      "maiores (como a Renner), mas também com crescimento mais "
                      "limitado e dependente da economia regional do Sul do Brasil.",
+    },
+    "BBDC3": {
+        "o_que_faz": "O Bradesco é um dos maiores bancos privados do Brasil, com "
+                     "modelo de negócio estruturado em dois pilares igualmente "
+                     "estratégicos: banco (crédito, varejo, atacado) e seguridade "
+                     "(seguros, saúde, previdência).",
+        "segmentos": [
+            ("Banco (varejo e atacado)", "crédito para pessoas físicas e empresas — "
+             "carteira expandida de R$1,1 trilhão."),
+            ("Seguros, Previdência e Capitalização", "~41% do lucro do grupo — "
+             "Bradesco Vida e Previdência, Bradesco Capitalização, Bradesco Auto/RE."),
+            ("Saúde (BradSaúde / SAUD3)", "recém desmembrada e listada na bolsa em "
+             "maio/2026 — reúne Bradesco Saúde, Odontoprev, Atlântica Hospitais, "
+             "Mediservice e uma participação de 25% no Fleury."),
+        ],
+        "insight_chave": "Em 2026, o Bradesco fez o maior 'IPO reverso' da história da "
+                     "B3: separou todo o seu ecossistema de saúde (operadora, "
+                     "odontologia, hospitais, laboratórios) numa empresa só — a "
+                     "BradSaúde, com R$52bi de receita e 13 milhões de beneficiários — "
+                     "e listou no Novo Mercado sob o ticker SAUD3. O Bradesco continua "
+                     "sendo o controlador (91,35%), mas esse movimento 'destrava' "
+                     "valor: o ativo estava registrado no balanço do banco por R$14bi, "
+                     "mas o mercado avalia a nova empresa em R$49bi — um ganho de "
+                     "capital de R$35bi que melhora os índices de capital do banco sem "
+                     "precisar vender ações ou se endividar.",
+        "setor_dinamica": "Bancos com braço de seguros forte — diferente de bancos "
+                     "puramente de crédito, o Bradesco tem quase a metade do lucro "
+                     "vindo de seguros/seguridade, um negócio com dinâmica de risco "
+                     "bem diferente (menos ligado ao ciclo de crédito, mais à "
+                     "sinistralidade e à gestão de reservas).",
     },
 }
 
