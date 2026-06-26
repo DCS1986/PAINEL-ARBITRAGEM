@@ -3750,8 +3750,38 @@ def _ind_buscar(indicadores, *termos):
     (case-insensitive) e retorna como float. O pandas, com decimal=',', já
     normaliza vírgula->ponto mesmo em colunas mistas (ex: '5,97' -> '5.97'
     como string) — por isso tentamos float() direto primeiro, e só usamos a
-    limpeza manual de formato BR como fallback caso isso falhe."""
+    limpeza manual de formato BR como fallback caso isso falhe.
+
+    Prioriza correspondência EXATA do rótulo antes de cair pra substring --
+    evita pegar o valor de um rótulo errado quando algum texto explicativo
+    da página (tooltip) menciona o termo de passagem dentro da descrição de
+    OUTRO indicador (foi o que causou o P/L = 2770x errado na TIMS3)."""
     termos_lower = [t.lower() for t in termos]
+
+    def _extrair(valor):
+        if isinstance(valor, (int, float)):
+            return None if pd.isna(valor) else float(valor)
+        v = str(valor).strip().replace('%', '').strip()
+        if v in ('-', '', 'nan', 'None'):
+            return None
+        try:
+            return float(v)
+        except ValueError:
+            pass
+        v2 = v.replace('.', '').replace(',', '.')
+        try:
+            return float(v2)
+        except ValueError:
+            return None
+
+    # 1ª passada: rótulo IDÊNTICO ao termo (ignorando espaços nas pontas).
+    for rotulo, valor in indicadores.items():
+        if rotulo.lower().strip() in termos_lower:
+            resultado = _extrair(valor)
+            if resultado is not None:
+                return resultado
+
+    # 2ª passada (fallback): substring, igual ao comportamento original.
     for rotulo, valor in indicadores.items():
         if any(t in rotulo.lower() for t in termos_lower):
             if isinstance(valor, (int, float)):
