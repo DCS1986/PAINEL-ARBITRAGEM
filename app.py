@@ -908,6 +908,32 @@ ANALISE_RESULTADO = {
                    "a partir do 2T26. BTG/XP mantêm compra; dividend yield na faixa de 7-8% "
                    "considerado atrativo dado valuation de 6-7x P/L 2026.",
     },
+    "RANI3": {
+        "trimestre": "1T26", "data": "30/04/2026",
+        "numeros": "Lucro líquido R$19,4mi (-68,1% A/A, -50,2% T/T) — bem abaixo do "
+                   "consenso (Bloomberg esperava R$44mi). Receita líquida R$409,8mi (-3,1% "
+                   "A/A). EBITDA ajustado R$113,5mi (-17,1% A/A), margem 27,7% (-4,5 p.p.). "
+                   "Dívida líquida/EBITDA em 2,11x (melhora vs 2,21x no 1T25).",
+        "pontos_fortes": "ROIC subiu para 12,3% (+1,0 p.p. A/A), mantendo spread positivo "
+                   "sobre o custo da dívida. Alavancagem caiu (de 2,21x para 2,11x). Lucro "
+                   "recorrente acumulado em 12 meses (desconsiderando ativos biológicos) "
+                   "cresceu 13,3% A/A, para R$102,9mi — mostra que o trimestre fraco foi "
+                   "pontual, não uma deterioração estrutural. Geração de caixa mantida, com "
+                   "proposta de dividendo (25% do lucro).",
+        "pontos_fracos": "Queda forte e concentrada em eventos pontuais: parada programada "
+                   "da Máquina de Papel 5 (Projeto Gaia XI) e inspeção bianual da Caldeira "
+                   "de Força (parada da MP#1), somando R$20,7mi de impacto negativo no "
+                   "EBITDA. Problema técnico no transformador do turbo gerador 4 (TG4) "
+                   "obrigou compra extra de energia de terceiros (~R$6,1mi de efeito "
+                   "negativo adicional). Resultado ficou bem abaixo das expectativas do "
+                   "mercado.",
+        "expectativa": "A própria empresa afirma que, sem os efeitos das paradas "
+                   "programadas, o EBITDA teria CRESCIDO na comparação anual — ou seja, o "
+                   "problema é tratado como temporário/pontual, ligado ao calendário de "
+                   "manutenção do Projeto Gaia, não a uma fraqueza de demanda. Mercado deve "
+                   "observar o 2T26 para confirmar se a operação volta ao normal sem as "
+                   "paradas programadas.",
+    },
 }
 
 
@@ -1053,6 +1079,35 @@ PANORAMA_EMPRESA = {
                      "governamentais de renovação de frota (Caminho da Escola, Move Brasil, "
                      "compras do Ministério da Saúde) e à saúde de crédito das empresas de "
                      "transporte público, que são os clientes finais.",
+    },
+    "RANI3": {
+        "o_que_faz": "A Irani é uma das poucas 'pure players' de papel e embalagens "
+                     "sustentáveis listadas na B3 (Novo Mercado), com mais de 80 anos de "
+                     "operação, sede em Santa Catarina. Encerrou o segmento de resinas em "
+                     "2025 para focar 100% em papel e embalagens.",
+        "segmentos": [
+            ("Embalagens (papelão ondulado)", "63% da receita (UDM 1T26) — a maior parte "
+             "vendida pro setor alimentício (71,3% das vendas de embalagem), um cliente "
+             "final historicamente pouco cíclico."),
+            ("Papéis para embalagens sustentáveis", "36,4% da receita — linhas como "
+             "Finekraft, Flashkraft, Bagkraft, com ~4,85% de market share nacional."),
+            ("Ativos florestais (RS)", "apenas 0,6% da receita — venda de madeira e "
+             "arrendamento, um complemento pequeno, não o núcleo do negócio."),
+        ],
+        "insight_chave": "Diferente da Suzano (praticamente toda a receita exposta ao "
+                     "preço internacional da celulose) e da Klabin (~40% exposta, já que "
+                     "vende parte da celulose que produz), a Irani produz celulose só pra "
+                     "consumo próprio — não vende celulose pro mercado. Isso significa que "
+                     "a Irani não sofre diretamente com a oscilação do preço internacional "
+                     "da celulose; o que importa pra ela é o preço do PAPEL e da EMBALAGEM "
+                     "que ela mesma fabrica e vende. Além disso, 68,9% da matéria-prima vem "
+                     "de fibra reciclada (não virgem), reduzindo até a dependência do preço "
+                     "da madeira.",
+        "setor_dinamica": "Papel e embalagem — setor com crescimento estrutural "
+                     "(substituição do plástico, e-commerce, delivery), historicamente "
+                     "menos volátil que celulose pura porque a demanda majoritária vem do "
+                     "setor alimentício (baixa ciclicidade) e a receita é 91% doméstica "
+                     "(91% mercado interno, 9% exportação) — pouco exposta a câmbio.",
     },
 }
 
@@ -2839,31 +2894,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             st.info("Volatilidade implícita indisponível para este ativo.")
             if erro_vol:
                 st.caption(f"🔧 Detalhe técnico: {erro_vol}")
-
-        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-        st.markdown("---")
-        st.markdown("##### 📋 Grade de Opções")
-        st.caption(
-            "Fonte: OpLab (cotações com ~15 minutos de atraso). NOVO — testando a "
-            "confiabilidade dessa fonte; se a tabela vier estranha ou vazia, me avisa."
-        )
-        hoje_opc = pd.Timestamp.today()
-        opcoes_mes = []
-        for _i in range(4):
-            _dt = hoje_opc + pd.DateOffset(months=_i)
-            opcoes_mes.append((_dt.month, _dt.year, f"{_MESES_PT[_dt.month].capitalize()}/{_dt.year}"))
-        mes_escolhido = st.selectbox(
-            "Vencimento (mês):", options=opcoes_mes, format_func=lambda x: x[2],
-            key=f"venc_opcoes_{ticker}"
-        )
-        with st.spinner("Buscando grade de opções na OpLab..."):
-            df_opcoes, erro_opcoes = get_grade_opcoes_oplab(ticker, mes=mes_escolhido[0], ano=mes_escolhido[1])
-        if df_opcoes is not None:
-            st.dataframe(df_opcoes, use_container_width=True, hide_index=True)
-        else:
-            st.info(f"Sem grade de opções disponível pra {ticker} nesse vencimento.")
-            if erro_opcoes:
-                st.caption(f"🔧 Detalhe técnico: {erro_opcoes}")
 
         st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
         st.markdown("---")
