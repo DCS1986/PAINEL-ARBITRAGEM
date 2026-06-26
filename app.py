@@ -1667,6 +1667,87 @@ ANALISE_RESULTADO = {
                    "renda (dividendos), mas o crescimento operacional fraco deve manter "
                    "o foco do mercado na normalização dos proventos em 2026.",
     },
+    "EGIE3": {
+        "trimestre": "1T26", "data": "07-08/05/2026",
+        "numeros": "Lucro líquido ajustado R$789-792mi (-4,1% A/A). Receita líquida "
+                   "R$3,4bi (+13,1% A/A). EBITDA ajustado R$2,2-2,25bi (+10% A/A), "
+                   "acima do esperado pelo mercado (consenso R$1,8bi).",
+        "pontos_fortes": "EBITDA veio bem acima do consenso, puxado por +8% na geração "
+                   "hidrelétrica e +7% nas complementares. Vendeu 195,78 MW da usina "
+                   "Jaguara em contrato de 15 anos com receita fixa anual de R$270mi+ a "
+                   "partir de 2030 — trava receita futura. Participação na TAG "
+                   "(gasoduto) contribuiu R$133mi via equivalência patrimonial.",
+        "pontos_fracos": "Lucro caiu mesmo com EBITDA forte, pressionado por maior "
+                   "despesa financeira (+33%, mais juros de dívida) e maior "
+                   "depreciação. Dívida líquida saltou 20,9% A/A (R$25bi), elevando "
+                   "alavancagem para 3,2x (de 2,7x). Investimentos caíram 80% no "
+                   "trimestre, após ciclo pesado anterior.",
+        "expectativa": "Nord encerrou posição na empresa, vendo melhor assimetria de "
+                   "risco/retorno em outros nomes do setor — sem recomendação de "
+                   "compra no momento. Para 2026, expectativa é de redução do nível de "
+                   "investimento e maior foco em geração de caixa para preservar "
+                   "capacidade de pagamento da dívida.",
+    },
+    "CPFE3": {
+        "trimestre": "1T26", "data": "14/05/2026",
+        "numeros": "Lucro líquido R$1,9bi (+18,2% A/A). Receita operacional líquida "
+                   "R$10,1-11,3bi (+6,4-7% A/A). EBITDA R$3,86-3,9bi (~estável, +0,2% "
+                   "A/A).",
+        "pontos_fortes": "Conclusão histórica da renovação das concessões das "
+                   "distribuidoras CPFL Paulista, CPFL Piratininga e RGE por mais 30 "
+                   "anos (em 08/05/2026) — remove um risco de longo prazo que pesava "
+                   "sobre a tese. Lucro cresceu bem mais que o EBITDA, puxado por "
+                   "melhora no resultado financeiro líquido e efeitos tributários "
+                   "favoráveis. Demanda de data centers cresceu 24% nas regiões onde a "
+                   "empresa atua.",
+        "pontos_fracos": "Energia faturada para consumidores cativos caiu 7,8% A/A — "
+                   "sinal de desaceleração de consumo/maior migração para o mercado "
+                   "livre. Custos com energia elétrica subiram 13% (leilões, contratos "
+                   "bilaterais e curto prazo mais caros). Dívida líquida subiu 15% A/A "
+                   "(R$30,6bi), alavancagem em 2,3x (de 2x).",
+        "expectativa": "Nord recomenda compra, citando múltiplo baixo (9x lucros, 6x "
+                   "EBITDA) e novo plano de investimentos 2026-2030 de R$31bi (R$25bi "
+                   "em distribuição), buscando maior solidez e previsibilidade nos "
+                   "próximos anos.",
+    },
+    "SAPR4": {
+        "trimestre": "1T26", "data": "14/05/2026",
+        "numeros": "Lucro líquido R$352,7mi (-70,8% A/A). Receita líquida "
+                   "R$1,946-1,95bi (+7,8% A/A). EBITDA R$843-843,5mi (-24,4% A/A), "
+                   "margem caindo de 61,8% para 43,3%.",
+        "pontos_fortes": "Receita em crescimento real (volume de água +1,2%, esgoto "
+                   "+2,4%, novas ligações). Dívida líquida caiu 59,6% A/A (para "
+                   "R$1,921bi), com alavancagem de apenas 0,7x dívida líquida/EBITDA "
+                   "(de 1,5x) — balanço muito mais saudável. Inadimplência caiu de "
+                   "2,8% para 2,5%.",
+        "pontos_fracos": "A queda de 70,8% no lucro é enganosa se olhada sem contexto: "
+                   "o 1T25 teve um efeito contábil extraordinário (reconhecimento de "
+                   "um ganho de ação judicial de IRPJ), que infla artificialmente a "
+                   "base de comparação. Sem esse efeito pontual do ano passado, a "
+                   "queda real do negócio operacional é bem menor. Despesas de pessoal "
+                   "e custos subiram 60% A/A.",
+        "expectativa": "A própria empresa atribui a queda 'basicamente' ao efeito de "
+                   "comparação contra a base extraordinária do 1T25 — investidores "
+                   "precisam normalizar essa comparação pra entender a real trajetória "
+                   "operacional da empresa, que segue de crescimento de receita e "
+                   "desalavancagem.",
+    },
+    "CGRA4": {
+        "trimestre": "1T26", "data": "15-16/05/2026",
+        "numeros": "Lucro líquido R$5,2mi (+18% A/A). EBITDA R$10,8mi (+58,2% A/A).",
+        "pontos_fortes": "Crescimento expressivo de EBITDA (+58,2%), bem acima do "
+                   "crescimento do lucro — sinal de melhora operacional real no "
+                   "trimestre. Margem EBITDA de 12,71% nos últimos 12 meses.",
+        "pontos_fracos": "Empresa pequena e pouco coberta por analistas — poucas casas "
+                   "de research acompanham CGRA4 de perto, o que significa menos "
+                   "'segunda opinião' disponível pra validar o resultado. Aumento de "
+                   "capital recente (por subscrição privada, anunciado em abr-mai/2026) "
+                   "dilui a base acionária existente.",
+        "expectativa": "Resultado positivo, mas a empresa segue sendo uma small cap de "
+                   "baixa liquidez e cobertura — qualquer análise mais profunda depende "
+                   "mais dos números trimestrais brutos do que de relatórios de "
+                   "bancos/casas de research, que praticamente não cobrem o papel.",
+    },
 }
 
 
@@ -2636,11 +2717,18 @@ PANORAMA_EMPRESA = {
             ("Algodão (pluma e caroço)", "segunda cultura mais relevante."),
             ("Milho e sementes", "complementares, geralmente segunda safra."),
         ],
-        "insight_chave": "A SLC possui um patrimônio de terras avaliado por "
-                     "consultoria independente (Deloitte) em valor bem superior ao "
-                     "valor de mercado da empresa na bolsa — veja o Estudo Específico "
-                     "na aba Visão Geral pra ver o cálculo completo de P/NAV e o que "
-                     "isso significa na prática.",
+        "insight_chave": "Em nov/2025, a SLC fez algo pouco comum no setor: criou uma "
+                     "parceria com fundos geridos pelo BTG Pactual, na qual a SLC "
+                     "contribuiu com TERRA (a Fazenda Piratini, na Bahia, 18 mil "
+                     "hectares) e os fundos contribuíram com DINHEIRO (R$1,03bi) pra "
+                     "financiar irrigação. Isso mostra como a empresa usa o valor das "
+                     "próprias terras como moeda de troca pra atrair capital de "
+                     "investimento sem precisar se endividar ou diluir acionistas via "
+                     "emissão de ações — monetiza parte do patrimônio fundiário sem "
+                     "vender a terra. O projeto deve elevar a área irrigada de 19 mil "
+                     "para 58 mil hectares nos próximos anos, o que tende a reduzir a "
+                     "dependência da empresa do clima (chuva) pra sustentar "
+                     "produtividade.",
         "setor_dinamica": "Agricultura (commodities) — resultado muito ligado ao preço "
                      "internacional de soja/algodão/milho, clima (produtividade da "
                      "safra) e câmbio (boa parte da receita é dolarizada via "
@@ -2807,6 +2895,103 @@ PANORAMA_EMPRESA = {
         "setor_dinamica": "Calçados — exportação relevante (câmbio importa), consumo "
                      "de massa, ligado ao poder de compra do consumidor brasileiro e "
                      "de mercados de exportação (América Latina principalmente).",
+    },
+    "EGIE3": {
+        "o_que_faz": "A Engie Brasil é a segunda maior geradora de energia elétrica "
+                     "privada do Brasil, com portfólio diversificado entre "
+                     "hidrelétricas, eólicas, solares e participação em transmissão e "
+                     "gás (via TAG).",
+        "segmentos": [
+            ("Geração Hidrelétrica", "principal fonte — mais estável e previsível."),
+            ("Geração Eólica e Solar", "complementares, mas com risco de 'frustração "
+             "de geração' (vento/sol abaixo do esperado) — foi de 17% no 1T26, em "
+             "linha com o sistema nacional."),
+            ("Transmissão e participação na TAG (gasoduto)", "diversificação fora da "
+             "geração pura, incluindo equivalência patrimonial de uma participação de "
+             "17,5% num gasoduto."),
+        ],
+        "insight_chave": "Diferente de uma geradora pura, a Engie Brasil tem uma "
+                     "'pernada' silenciosa de receita vindo da participação na TAG "
+                     "(Transportadora Associada de Gás) — um gasoduto, não uma usina "
+                     "elétrica. Essa diversificação fora do setor elétrico tradicional "
+                     "ajuda a estabilizar o resultado em trimestres onde a geração de "
+                     "energia (hídrica, eólica, solar) sofre com clima desfavorável.",
+        "setor_dinamica": "Geração de energia — resultado depende de fatores "
+                     "climáticos (chuva para hidrelétrica, vento para eólica, sol "
+                     "para solar) e do nível de investimento em curso, que tem "
+                     "pressionado a dívida e a alavancagem recentemente.",
+    },
+    "CPFE3": {
+        "o_que_faz": "A CPFL Energia é uma das maiores distribuidoras/geradoras de "
+                     "energia do Brasil, controlada pela State Grid (estatal chinesa), "
+                     "atendendo milhões de consumidores em SP, RS, PR e MG.",
+        "segmentos": [
+            ("Distribuição", "~61% do EBITDA — principal negócio, recém renovado por "
+             "mais 30 anos de concessão."),
+            ("Geração", "~28% do EBITDA."),
+            ("Transmissão e Comercialização", "~11% combinados."),
+        ],
+        "insight_chave": "Em maio/2026, a CPFL concluiu a renovação das concessões de "
+                     "suas 3 principais distribuidoras (CPFL Paulista, CPFL "
+                     "Piratininga, RGE) por mais 30 anos — um evento que remove um "
+                     "risco estrutural de longo prazo que existia sobre a tese (a "
+                     "possibilidade de o governo não renovar e a empresa perder o "
+                     "direito de operar essas redes). Mesmo sendo controlada por uma "
+                     "estatal chinesa, a empresa mantém elevados níveis de governança "
+                     "e o mesmo rating soberano da China.",
+        "setor_dinamica": "Distribuição de energia — negócio regulado e bastante "
+                     "estável, mas sensível à migração de clientes para o mercado "
+                     "livre de energia (que reduz a base de consumidores cativos) e ao "
+                     "custo de compra de energia em leilões.",
+    },
+    "SAPR4": {
+        "o_que_faz": "A Sanepar é a empresa de saneamento básico do estado do Paraná, "
+                     "com forte presença em água e esgoto, ainda com participação "
+                     "relevante do governo estadual.",
+        "segmentos": [
+            ("Água", "captação, tratamento e distribuição no PR."),
+            ("Esgoto", "coleta e tratamento."),
+        ],
+        "insight_chave": "A queda de 70,8% no lucro da Sanepar no 1T26 parece um "
+                     "desastre, mas é majoritariamente um efeito de comparação: o "
+                     "1T25 teve um ganho contábil extraordinário (vitória numa ação "
+                     "judicial de IRPJ) que infla a base de comparação anterior. "
+                     "Olhando só para receita (+7,8%) e para dívida (que caiu 59,6%, "
+                     "com alavancagem de apenas 0,7x), a saúde operacional da empresa "
+                     "está, na verdade, melhorando — não piorando. Um exemplo clássico "
+                     "de por que comparar 'ano contra ano' sem entender o que compõe "
+                     "cada lado pode dar uma impressão errada.",
+        "setor_dinamica": "Saneamento estadual — monopólio natural regulado, com "
+                     "receita previsível, mas sujeito a efeitos contábeis pontuais "
+                     "(ações judiciais, revisões tarifárias) que podem distorcer "
+                     "comparações de curto prazo entre trimestres.",
+    },
+    "CGRA4": {
+        "o_que_faz": "A Grazziotin é uma rede de varejo tradicional do Rio Grande do "
+                     "Sul e Santa Catarina, vendendo tecidos, vestuário, materiais de "
+                     "construção e produtos de decoração, com mais de 70 anos de "
+                     "história.",
+        "segmentos": [
+            ("Varejo de vestuário/tecidos (lojas Tottal, PorMenos, Franco Giorgi)", "negócio "
+             "histórico da empresa."),
+            ("Materiais de construção e acabamentos", "frente mais recente de "
+             "diversificação."),
+            ("Grazziotin Financeira", "crédito ao consumidor complementar ao varejo, "
+             "cartão próprio."),
+        ],
+        "insight_chave": "A Grazziotin é classificada pela própria B3 como "
+                     "'Governança Tradicional' (não é Novo Mercado) — o nível mais "
+                     "básico de exigências de governança da bolsa. Isso, combinado "
+                     "com baixa liquidez (poucas casas de análise cobrem o papel) e um "
+                     "aumento de capital recente que dilui acionistas, faz da CGRA4 "
+                     "uma 'small cap regional' no sentido mais literal: pouca "
+                     "visibilidade externa, decisões mais concentradas na família "
+                     "fundadora, mas com histórico de mais de 70 anos de operação no "
+                     "varejo gaúcho.",
+        "setor_dinamica": "Varejo regional tradicional — menos exposto a concorrência "
+                     "de e-commerce nacional/internacional que varejistas de moda "
+                     "maiores (como a Renner), mas também com crescimento mais "
+                     "limitado e dependente da economia regional do Sul do Brasil.",
     },
 }
 
@@ -3866,26 +4051,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     unsafe_allow_html=True
                 )
 
-        # ---- Estudo Específico (so aparece se existir entrada pro ticker) ----
-        estudo = ESTUDOS_ESPECIFICOS.get(ticker)
-        if estudo:
-            metrica_valor = locals().get(estudo.get('metrica', ''), None)
-            metrica_html = (
-                f"<div style='margin-top:10px;font-size:0.95em;color:#D4AF37;font-weight:800;'>"
-                f"P/VP atual: {metrica_valor}</div>"
-                if metrica_valor and metrica_valor != '-' else ""
-            )
-            st.markdown(
-                "<div style='{base}margin-top:14px;border:1px solid rgba(212,175,55,0.35);'>"
-                "<div style='font-size:0.78em;font-weight:600;color:#D4AF37;letter-spacing:0.5px;"
-                "text-transform:uppercase;margin-bottom:8px;'>🔬 Estudo Específico — {titulo}</div>"
-                "<div style='font-size:0.85em;color:#ddd;line-height:1.55;'>{texto}</div>"
-                "{metrica_html}"
-                "</div>".format(base=card_style, titulo=estudo['titulo'], texto=estudo['texto'],
-                                metrica_html=metrica_html),
-                unsafe_allow_html=True
-            )
-
         # Teto / Target / Status
         pt_v  = ativo_data.get('preco_teto_val', 0) if isinstance(ativo_data, dict) else 0
         tg_v  = ativo_data.get('target_val', 0)      if isinstance(ativo_data, dict) else 0
@@ -3997,6 +4162,29 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ABA: PANORAMA (orientação pra quem não conhece a empresa)
     # ════════════════════════════════════════════════════════════════════
     if aba_ativa == "🧭 Panorama":
+        # ---- Estudo Específico (so aparece se existir entrada pro ticker) ----
+        # Fica no TOPO do Panorama, não em Visão Geral -- é justamente o tipo
+        # de detalhe estrutural/permanente que ajuda a entender a empresa,
+        # então faz mais sentido logo na "porta de entrada" do panorama.
+        estudo = ESTUDOS_ESPECIFICOS.get(ticker)
+        if estudo:
+            metrica_valor = ativo_data.get(estudo.get('metrica', ''), None) if isinstance(ativo_data, dict) else None
+            metrica_html = (
+                f"<div style='margin-top:10px;font-size:0.95em;color:#D4AF37;font-weight:800;'>"
+                f"P/VP atual: {metrica_valor}</div>"
+                if metrica_valor and metrica_valor != '-' else ""
+            )
+            st.markdown(
+                "<div style='{base}border:1px solid rgba(212,175,55,0.35);margin-bottom:18px;'>"
+                "<div style='font-size:0.78em;font-weight:600;color:#D4AF37;letter-spacing:0.5px;"
+                "text-transform:uppercase;margin-bottom:8px;'>🔬 Estudo Específico — {titulo}</div>"
+                "<div style='font-size:0.85em;color:#ddd;line-height:1.55;'>{texto}</div>"
+                "{metrica_html}"
+                "</div>".format(base=card_style, titulo=estudo['titulo'], texto=estudo['texto'],
+                                metrica_html=metrica_html),
+                unsafe_allow_html=True
+            )
+
         panorama = PANORAMA_EMPRESA.get(ticker)
         if panorama:
             st.markdown(
