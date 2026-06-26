@@ -2303,8 +2303,8 @@ PANORAMA_EMPRESA = {
     "ALOS3": {
         "o_que_faz": "A Allos é a maior administradora e proprietária de shopping "
                      "centers do Brasil, formada pela fusão entre Aliansce Sonae e "
-                     "brMalls em 2023. Representa mais de 20% de todas as vendas do "
-                     "setor de shoppings do país.",
+                     "brMalls em 2023 — hoje com 59 shoppings em todo o país e mais de "
+                     "15 mil lojistas.",
         "segmentos": [
             ("Locação (aluguel)", "principal fonte de receita — cobrada como % fixo + % "
              "das vendas das lojas."),
@@ -2313,14 +2313,19 @@ PANORAMA_EMPRESA = {
             ("Serviços de administração para terceiros", "a Allos administra alguns "
              "shoppings que não são dela, cobrando taxa de gestão."),
         ],
-        "insight_chave": "Boa parte da 'fraqueza' do lucro da Allos no 1T26 não tem nada "
-                     "a ver com o negócio em si — foi um incêndio pontual no Shopping "
-                     "Tijuca em janeiro, que interrompeu a operação por ~2 semanas. Sem "
-                     "esse evento isolado, o crescimento de EBITDA e FFO teria sido de "
-                     "17-18%, não os números mais modestos divulgados. Isso é um exemplo "
-                     "claro de por que vale a pena olhar os números 'ex-evento "
-                     "específico' que a própria empresa divulga, e não só o número "
-                     "consolidado.",
+        "insight_chave": "Um diferencial operacional pouco visível de fora: a Allos "
+                     "mapeia mais de 170 mil lojas ao redor de cada um dos seus "
+                     "shoppings pra decidir, com dados (não 'feeling'), qual tipo de "
+                     "loja está faltando em cada empreendimento — uma mudança de "
+                     "modelo 'artesanal' pra um mais analítico depois da fusão. Isso "
+                     "orienta tanto a escolha de novos lojistas quanto decisões de "
+                     "expansão, como a reforma do Shopping Campo Grande (R$216mi "
+                     "investidos, 150 lojas novas, expectativa de +40% nas vendas do "
+                     "shopping). Além disso, boa parte da 'fraqueza' do lucro no 1T26 "
+                     "não teve nada a ver com o negócio em si — foi um incêndio "
+                     "pontual no Shopping Tijuca em janeiro, que interrompeu a "
+                     "operação por ~2 semanas; sem esse evento isolado, o crescimento "
+                     "de EBITDA e FFO teria sido de 17-18%.",
         "setor_dinamica": "Shopping centers — receita ligada ao consumo das famílias, "
                      "taxa de juros (afeta crédito ao consumidor e custo de capital da "
                      "própria Allos) e ocupação dos shoppings. Negócio tende a ser bom "
@@ -2356,28 +2361,33 @@ PANORAMA_EMPRESA = {
     },
     "KLBN4": {
         "o_que_faz": "A Klabin é a maior produtora e exportadora de papéis do Brasil, "
-                     "com operação verticalizada: planta árvores, produz celulose, "
-                     "transforma em papel, fabrica embalagens — vendendo tanto para o "
-                     "mercado interno quanto para mais de 80 países.",
+                     "com mais de 125 anos de história e operação verticalizada em 4 "
+                     "unidades de negócio: Florestal, Celulose, Papel e Conversão "
+                     "(embalagens) — vendendo tanto para o mercado interno quanto "
+                     "para mais de 80 países.",
         "segmentos": [
-            ("Celulose", "vende parte da celulose que produz para o mercado "
-             "internacional — essa é a parte da Klabin que se parece com a Suzano, "
-             "exposta ao preço global da commodity."),
+            ("Florestal", "911 mil hectares de área de fibras (eucalipto + pinus) — "
+             "base que sustenta toda a cadeia, com excedente de terras que a empresa "
+             "tem monetizado separadamente."),
+            ("Celulose", "a Klabin é a ÚNICA empresa do Brasil que oferece "
+             "simultaneamente celulose de fibra curta, fibra longa E fluff — vende "
+             "parte ao mercado internacional, exposta ao preço da commodity."),
             ("Papéis (Kraftliner, cartões etc.)", "papel para embalagens, com forte "
              "presença em exportação."),
-            ("Embalagens (caixas de papelão)", "consumo mais doméstico e estável, "
-             "ligado a alimentos, bebidas e produtos de consumo."),
+            ("Conversão (embalagens de papelão ondulado, sacos industriais)", "consumo "
+             "mais doméstico e estável, ligado a alimentos, bebidas e produtos de "
+             "consumo."),
         ],
-        "insight_chave": "Diferente da Irani (que só produz celulose para uso próprio, "
-                     "sem vender para o mercado) e da Suzano (praticamente 100% exposta "
-                     "ao preço da celulose), a Klabin fica no meio do caminho: produz "
-                     "celulose suficiente para consumir na própria fábrica de papel/"
-                     "embalagens E ainda vende o excedente para o mercado internacional "
-                     "— estimativas de mercado colocam essa parcela 'exposta' em torno de "
-                     "40% da receita. Ou seja, a Klabin sente a volatilidade do preço da "
-                     "celulose, mas com menos intensidade que uma pure-player como a "
-                     "Suzano, porque uma parte relevante do negócio (papel e embalagens) "
-                     "tem preço e dinâmica próprios, mais ligados ao consumo doméstico.",
+        "insight_chave": "Diferente da Irani (que só produz celulose para uso próprio) "
+                     "e da Suzano (praticamente 100% exposta ao preço da celulose), a "
+                     "Klabin fica no meio do caminho: produz celulose suficiente para "
+                     "consumir na própria fábrica de papel/embalagens E ainda vende o "
+                     "excedente ao mercado internacional — essa parcela 'exposta' fica "
+                     "em torno de 40% da receita. Outro movimento pouco comentado: o "
+                     "'Projeto Plateau', que antecipa a monetização de parte das "
+                     "terras do Projeto Caetê — a Klabin, assim como a SLC Agrícola, "
+                     "também usa o valor das próprias terras como fonte de capital, "
+                     "sem precisar vender a operação florestal por completo.",
         "setor_dinamica": "Papel e celulose — negócio cíclico, dependente do preço "
                      "internacional da celulose (cotado em dólar) e do câmbio (receita "
                      "de exportação em dólar, parte dos custos em real). Resultados "
@@ -2707,22 +2717,39 @@ PANORAMA_EMPRESA = {
                      "relevante (vendas em dólar nos EUA).",
     },
     "VULC3": {
-        "o_que_faz": "A Vulcabras é fabricante de calçados esportivos, dona das marcas "
-                     "Olympikus e Mizuno no Brasil, e licenciada da Under Armour.",
+        "o_que_faz": "A Vulcabras é a maior indústria de calçados esportivos do "
+                     "Brasil, com mais de 70 anos de história, gestora das marcas "
+                     "Olympikus e licenciada exclusiva de Mizuno e Under Armour no "
+                     "país.",
         "segmentos": [
-            ("Olympikus", "marca própria, principal motor de crescimento."),
-            ("Mizuno e Under Armour", "marcas licenciadas/parceria, ampliam o "
-             "portfólio sem precisar criar marca do zero."),
+            ("Calçados Esportivos (Olympikus, Mizuno, Under Armour)", "~83% da "
+             "receita — o motor principal, com crescimento em todas as marcas há "
+             "mais de 15 trimestres consecutivos."),
+            ("Outros Calçados (chinelos, botas profissionais, femininos)", "~7% da "
+             "receita — mais instável, sensível à demanda por equipamento "
+             "profissional."),
+            ("Vestuário e Acessórios", "~10% da receita — meias, roupas esportivas; "
+             "crescimento mais lento que calçados."),
         ],
-        "insight_chave": "A Vulcabras tem uma estratégia de portfólio multimarcas que "
-                     "poucas concorrentes brasileiras conseguem replicar: uma marca "
-                     "própria (Olympikus, mais acessível) e duas internacionais "
-                     "licenciadas (Mizuno, mais técnica/corrida; Under Armour, mais "
-                     "lifestyle/fitness) — atingindo públicos e faixas de preço "
-                     "diferentes ao mesmo tempo, sem o custo de criar marcas do zero.",
-        "setor_dinamica": "Calçados esportivos — ligado ao consumo das famílias, com a "
-                     "vantagem de competir parcialmente fora do espaço dominado por "
-                     "Nike/Adidas no Brasil (que têm distribuição mais cara/importada).",
+        "insight_chave": "A Vulcabras opera o maior centro de P&D de calçados "
+                     "esportivos da América Latina, em Parobé (RS), que desenvolve "
+                     "mais de 800 novos modelos por ano — foi lá que nasceu o "
+                     "Olympikus Corre Supra, o primeiro 'supertênis' 100% brasileiro "
+                     "(placa de carbono + grafeno), que venceu a Maratona de São Paulo "
+                     "na semana de lançamento. A fabricação é concentrada em duas "
+                     "plantas no Nordeste (Ceará e Bahia), região com incentivo fiscal "
+                     "de ICMS — esse benefício ajudou a sustentar margem bruta acima "
+                     "de 40% por treze trimestres seguidos, até a Lei 14.789/23 mudar "
+                     "a tributação sobre subvenções a partir de 2024, reduzindo parte "
+                     "desse ganho. O e-commerce já responde por ~13% da receita e "
+                     "cresce bem mais rápido que o varejo físico (+52% em um ano em "
+                     "alguns trimestres).",
+        "setor_dinamica": "Calçados esportivos — a empresa mantém ROIC consistentemente "
+                     "acima de 25% (chegando a ~29% ajustado) e historicamente opera "
+                     "com caixa líquido positivo (mais caixa que dívida), uma posição "
+                     "rara entre fabricantes de bens de consumo no Brasil — dá "
+                     "resiliência mesmo em trimestres de varejo mais fraco, e "
+                     "sustenta uma política de dividendos generosa.",
     },
     "KEPL3": {
         "o_que_faz": "A Kepler Weber é a maior fabricante de equipamentos de "
