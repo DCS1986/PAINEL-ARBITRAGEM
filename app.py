@@ -3394,16 +3394,19 @@ def get_logo_url(ticker):
     _token_brapi = st.secrets.get("BRAPI_TOKEN", "")
     if not _token_brapi:
         return ''
-    for _ in range(2):  # 1 retry simples -- defesa contra falha transitória da API
-        try:
-            url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
-            r = requests.get(url, timeout=8).json()
-            if r.get('results'):
-                logo = r['results'][0].get('logourl', '') or ''
-                if logo:
-                    return logo
-        except Exception:
-            pass
+    # Timeout curto e SEM retry -- com 50 ativos na página, se a brapi.dev
+    # estiver lenta/fora do ar, 2 tentativas de 8s cada por ticker travava a
+    # tela inteira por minutos. Melhor falhar rápido e seguir sem logo do
+    # que travar a página esperando uma API externa fora do nosso controle.
+    try:
+        url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
+        r = requests.get(url, timeout=3).json()
+        if r.get('results'):
+            logo = r['results'][0].get('logourl', '') or ''
+            if logo:
+                return logo
+    except Exception:
+        pass
     return ''
 
 # ---- Insiders e Recompras via Fundamentus ----
