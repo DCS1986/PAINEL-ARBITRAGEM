@@ -4248,6 +4248,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     roic_val = _ind_buscar(ind_extras, 'roic') if ind_extras else None
     vpa_val = _ind_buscar(ind_extras, 'vpa') if ind_extras else None
     pl_atual_val = _ind_buscar(ind_extras, 'p/l', 'p / l') if ind_extras else None
+    _pl_atual_bruto = pl_atual_val  # guarda o valor ANTES do filtro, só pra diagnóstico
     # Blindagem: P/L real de empresa nao passa de algumas centenas. Se vier
     # um numero absurdo (ex: 2720x), e sinal de erro de leitura na pagina do
     # Fundamentus (celula deslocada) -- melhor mostrar "-" do que um numero
@@ -4638,6 +4639,15 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "de resultado adotado na modelagem — quando esse cenário é conservador, o P/L "
             "Projetado tende a ficar acima do P/L Atual."
         )
+        if pl_atual_val is None and _pl_atual_bruto is not None:
+            st.caption(
+                f"🔧 Detalhe técnico: o Fundamentus retornou P/L = {_pl_atual_bruto} pra este "
+                f"ativo, e isso foi descartado automaticamente (P/L negativo ou maior que "
+                f"300x costuma ser erro de leitura da página, não um número real). Se isso "
+                f"aparecer pra empresas que você sabe que têm lucro normal, me avisa."
+            )
+        elif pl_atual_val is None and erro_ind:
+            st.caption(f"🔧 Detalhe técnico: {erro_ind}")
 
         # ---- Earnings Yield -- inverso do P/L Atual, em %. Mesmo cálculo
         # já usado internamente na Fórmula Mágica (Greenblatt): quanto maior,
