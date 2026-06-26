@@ -24,8 +24,8 @@ if 'autenticado' not in st.session_state:
 #   destaque     #D4AF37 (dourado discreto)
 #   texto        #F1EFE8 (creme)
 #   texto 2ario  #94A3B8
-#   positivo     #4CAF6D (verde seco)
-#   negativo     #D9534F (vermelho seco)
+#   positivo     #22C55E (verde seco)
+#   negativo     #EF4444 (vermelho seco)
 #   info/neutro  #5B8DB8 (azul-aço)
 
 page_bg_img = f"""
@@ -133,7 +133,7 @@ div[data-testid="stButton"] button {{
 
 .top-card .sub {{
     font-size: 0.85em;
-    color: #4CAF6D;
+    color: #22C55E;
     margin-top: 4px;
     font-weight: bold;
 }}
@@ -169,7 +169,7 @@ div[data-testid="stButton"] button {{
 }}
 .destaque-card .sub {{
     font-size: 0.85em;
-    color: #4CAF6D;
+    color: #22C55E;
     margin-top: 4px;
     font-weight: bold;
 }}
@@ -197,9 +197,9 @@ div[data-testid="stButton"] button {{
 .asset-card .ac-logo {{ width:34px;height:34px;border-radius:50%;object-fit:cover;background:#F1EFE8;padding:2px;display:block; }}
 .asset-card .ac-ticker {{ font-size:1.05em;font-weight:800;color:#F1EFE8;letter-spacing:0.5px; }}
 .asset-card .ac-cot {{ font-size:0.95em;color:#F1EFE8;font-weight:bold;margin-top:2px; }}
-.asset-card .ac-var-pos {{ color:#4CAF6D;font-size:0.68em;font-weight:bold; }}
-.asset-card .ac-var-neg {{ color:#D9534F;font-size:0.68em;font-weight:bold; }}
-.asset-card .ac-var-neu {{ color:#D4AF37;font-size:0.68em;font-weight:bold; }}
+.asset-card .ac-var-pos {{ color:#22C55E;font-size:0.85em;font-weight:bold; }}
+.asset-card .ac-var-neg {{ color:#EF4444;font-size:0.85em;font-weight:bold; }}
+.asset-card .ac-var-neu {{ color:#D4AF37;font-size:0.85em;font-weight:bold; }}
 .asset-card .ac-row {{ display:flex;justify-content:space-between;margin-top:5px;font-size:0.68em;color:#F1EFE8;font-weight:bold;border-top:1px solid rgba(255,255,255,0.07);padding-top:5px; }}
 .asset-card .ac-val {{ color:#F1EFE8;font-weight:bold;font-size:0.88em; }}
 </style>
@@ -306,11 +306,11 @@ def formatar_pl(valor):
 # ---- Cor dinâmica da barra de progresso ----
 def cor_progresso(porcentagem):
     if porcentagem >= 50:
-        return "#4CAF6D"
+        return "#22C55E"
     elif porcentagem >= 25:
         return "#D4AF37"
     else:
-        return "#D9534F"
+        return "#EF4444"
 
 # ---- Score Geral por Setor (0–10) ----
 # Estrutura: 70% Qualidade + 30% Valuation
@@ -429,13 +429,13 @@ def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num
 
 def badge_score(score):
     if score >= 7:
-        cor_bg, cor_txt, label = "#1a3a1a", "#4CAF6D", "Ótimo"
+        cor_bg, cor_txt, label = "#1a3a1a", "#22C55E", "Ótimo"
     elif score >= 5:
         cor_bg, cor_txt, label = "#3a3a10", "#D4AF37", "Bom"
     elif score >= 3:
         cor_bg, cor_txt, label = "#3a2010", "#C97D3B", "Regular"
     else:
-        cor_bg, cor_txt, label = "#3a1010", "#D9534F", "Fraco"
+        cor_bg, cor_txt, label = "#3a1010", "#EF4444", "Fraco"
     return f"""
     <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
         <span class="score-badge" style="background:{cor_bg}; color:{cor_txt}; border:1px solid {cor_txt};">
@@ -520,11 +520,11 @@ def calcular_dividend_safety(payout_raw, div_ebitda_num, roe_num, historico_lucr
                         score_div * 0.20 + score_roe * 0.20, 1)
 
     if score_final >= 7:
-        label, cor = "Segurança Alta", "#4CAF6D"
+        label, cor = "Segurança Alta", "#22C55E"
     elif score_final >= 4:
         label, cor = "Segurança Média", "#D4AF37"
     else:
-        label, cor = "Risco de Corte", "#D9534F"
+        label, cor = "Risco de Corte", "#EF4444"
 
     return score_final, label, cor
 
@@ -633,7 +633,7 @@ def mini_grafico_dy(historico_dy):
     barras = ""
     for ano, val in sorted(historico_dy.items()):
         altura = max(int((val / max_val) * 90), 6)
-        cor = "#4CAF6D" if val >= 8 else "#5B8DB8"
+        cor = "#22C55E" if val >= 8 else "#5B8DB8"
         barras += f"""
         <div class="dy-bar-wrap">
             <span class="dy-bar-value">{val:.1f}%</span>
@@ -779,56 +779,56 @@ GOVERNANCA = {
 
 OUTLOOK_2026 = {
     "BBSE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Atenção: exposição ao agro (granizo, seca, El Niño) pode pressionar sinistros em 2026. Monitorar sinistralidade agrícola no 1T26 antes de ampliar posição."},
-    "ITUB4":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Ciclo de crédito favorável, inadimplência sob controle, ROE elevado. Um dos melhores momentos operacionais da história. Perspectiva positiva para 2026."},
-    "BBAS3":  {"icone": "🔴", "cor": "#D9534F", "texto": "Carteira agro comprometida pela crise do crédito rural — inadimplência em alta e sem sinais de reversão rápida. Guidance revisado para baixo sem aviso. Banco público sujeito a pressão política. Perspectiva negativa para 2026 — aguardar pelo menos 2 trimestres antes de reavaliar."},
+    "ITUB4":  {"icone": "✅", "cor": "#22C55E", "texto": "Ciclo de crédito favorável, inadimplência sob controle, ROE elevado. Um dos melhores momentos operacionais da história. Perspectiva positiva para 2026."},
+    "BBAS3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Carteira agro comprometida pela crise do crédito rural — inadimplência em alta e sem sinais de reversão rápida. Guidance revisado para baixo sem aviso. Banco público sujeito a pressão política. Perspectiva negativa para 2026 — aguardar pelo menos 2 trimestres antes de reavaliar."},
     "BBDC3":  {"icone": "🟡", "cor": "#D4AF37", "texto": "Recuperação em curso após anos difíceis. Lucro voltando a crescer mas abaixo dos pares. Posição especulativa de melhora — cautela com alocação."},
-    "ABCB4":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Carteira corporativa de alta qualidade, inadimplência estruturalmente baixa. Perspectiva positiva, menos sensível ao ciclo de varejo."},
-    "BRSR6":  {"icone": "🔴", "cor": "#D9534F", "texto": "Duplo impacto: crise do crédito rural gaúcho + reflexos das enchentes de 2024 ainda presentes na carteira. Inadimplência estruturalmente elevada para 2026. Perspectiva negativa."},
-    "SANB3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Ciclo de melhora operacional. ROE subindo, foco em eficiência. Perspectiva moderadamente positiva para 2026."},
+    "ABCB4":  {"icone": "✅", "cor": "#22C55E", "texto": "Carteira corporativa de alta qualidade, inadimplência estruturalmente baixa. Perspectiva positiva, menos sensível ao ciclo de varejo."},
+    "BRSR6":  {"icone": "🔴", "cor": "#EF4444", "texto": "Duplo impacto: crise do crédito rural gaúcho + reflexos das enchentes de 2024 ainda presentes na carteira. Inadimplência estruturalmente elevada para 2026. Perspectiva negativa."},
+    "SANB3":  {"icone": "✅", "cor": "#22C55E", "texto": "Ciclo de melhora operacional. ROE subindo, foco em eficiência. Perspectiva moderadamente positiva para 2026."},
     "BMGB4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Nicho de consignado INSS sob pressão regulatória. Teto de juros pode impactar margens. Monitorar evolução da regulação em 2026."},
-    "BPAC11": {"icone": "✅", "cor": "#4CAF6D", "texto": "Forte expansão de receitas recorrentes. Menos dependente do ciclo de crédito. Uma das melhores perspectivas do setor financeiro para 2026."},
+    "BPAC11": {"icone": "✅", "cor": "#22C55E", "texto": "Forte expansão de receitas recorrentes. Menos dependente do ciclo de crédito. Uma das melhores perspectivas do setor financeiro para 2026."},
     "IRBR3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Ressegurador em recuperação pós-fraude. Resultados melhorando, mas histórico exige cautela. El Niño e eventos climáticos extremos são risco relevante."},
-    "PSSA3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Momento operacional sólido. Seguros auto e residencial com bons resultados. Perspectiva positiva, mas monitorar sinistralidade climática."},
-    "CXSE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Crescimento consistente de prêmios via rede da Caixa. Vantagem competitiva de distribuição enorme. Perspectiva positiva para 2026."},
-    "ITSA4":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Holding do Itaú — resultado acompanha o banco. Desconto histórico pode se fechar. Perspectiva positiva com menor volatilidade que o banco diretamente."},
+    "PSSA3":  {"icone": "✅", "cor": "#22C55E", "texto": "Momento operacional sólido. Seguros auto e residencial com bons resultados. Perspectiva positiva, mas monitorar sinistralidade climática."},
+    "CXSE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Crescimento consistente de prêmios via rede da Caixa. Vantagem competitiva de distribuição enorme. Perspectiva positiva para 2026."},
+    "ITSA4":  {"icone": "✅", "cor": "#22C55E", "texto": "Holding do Itaú — resultado acompanha o banco. Desconto histórico pode se fechar. Perspectiva positiva com menor volatilidade que o banco diretamente."},
     "PETR4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Petróleo em patamar moderado (~$70-75). Risco fiscal e de interferência na política de dividendos. Monitorar anúncio de investimentos e possível revisão da remuneração em 2026."},
-    "VALE3":  {"icone": "🔴", "cor": "#D9534F", "texto": "Minério de ferro pressionado pela desaceleração chinesa. Acordo de Mariana ainda em negociação (provisão bilionária). 2026 desafiador — aguardar estabilização do cenário China."},
+    "VALE3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Minério de ferro pressionado pela desaceleração chinesa. Acordo de Mariana ainda em negociação (provisão bilionária). 2026 desafiador — aguardar estabilização do cenário China."},
     "BRAP4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Herda o cenário desafiador da Vale com desconto adicional de holding. Monitorar acordo de Mariana e preço do minério."},
     "CMIN3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Sensível ao preço do minério e desaceleração chinesa. Perspectiva cautelosa para 2026."},
     "GGBR3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Dependente do ciclo de construção civil. Perspectiva neutra — programa de infraestrutura pode ser catalisador positivo em 2026."},
-    "KLBN4":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Celulose e papel com demanda resiliente. Expansão Puma II maturando. Perspectiva positiva para 2026, menos cíclica que pares do setor."},
+    "KLBN4":  {"icone": "✅", "cor": "#22C55E", "texto": "Celulose e papel com demanda resiliente. Expansão Puma II maturando. Perspectiva positiva para 2026, menos cíclica que pares do setor."},
     "UNIP6":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Margens pressionadas pelo ciclo químico global e dumping chinês de petroquímicos. Perspectiva neutra a negativa para 2026."},
-    "LEVE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Reposição automotiva resiliente. Transição para elétricos é risco de longo prazo, irrelevante para 2026. Perspectiva positiva."},
-    "SHUL4":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Compressores industriais com demanda estável. Nicho protegido e bem gerido. Perspectiva positiva para 2026."},
-    "VULC3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Marca consolidada no esportivo. Expansão de margens em curso. Perspectiva positiva, dependente do consumo doméstico."},
-    "TIMS3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Crescimento consistente de receita e margens. Mercado consolidado favorece rentabilidade. Excelente perspectiva para 2026."},
-    "ALOS3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Shoppings em ciclo favorável. Consumo aquecido e vacância baixa. Integração da fusão gerando sinergias. Perspectiva positiva para 2026."},
-    "KEPL3":  {"icone": "🔴", "cor": "#D9534F", "texto": "Cenário desafiador: inadimplência rural elevada e crédito agrícola travado reduzem investimentos em armazenagem. Clientes endividados adiam expansões. 2026 deve ser ano de contração de receita — aguardar estabilização do crédito rural."},
-    "SLCE3":  {"icone": "🔴", "cor": "#D9534F", "texto": "Agro em momento crítico: margens comprimidas por queda de commodities, câmbio desfavorável e clima incerto. Produtores endividados e sem apetite a risco. 2026 deve trazer queda de receita e resultado — cautela máxima."},
-    "RANI3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Embalagens de papel com demanda resiliente e crescente. Expansão de capacidade em andamento. Perspectiva positiva para 2026."},
+    "LEVE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Reposição automotiva resiliente. Transição para elétricos é risco de longo prazo, irrelevante para 2026. Perspectiva positiva."},
+    "SHUL4":  {"icone": "✅", "cor": "#22C55E", "texto": "Compressores industriais com demanda estável. Nicho protegido e bem gerido. Perspectiva positiva para 2026."},
+    "VULC3":  {"icone": "✅", "cor": "#22C55E", "texto": "Marca consolidada no esportivo. Expansão de margens em curso. Perspectiva positiva, dependente do consumo doméstico."},
+    "TIMS3":  {"icone": "✅", "cor": "#22C55E", "texto": "Crescimento consistente de receita e margens. Mercado consolidado favorece rentabilidade. Excelente perspectiva para 2026."},
+    "ALOS3":  {"icone": "✅", "cor": "#22C55E", "texto": "Shoppings em ciclo favorável. Consumo aquecido e vacância baixa. Integração da fusão gerando sinergias. Perspectiva positiva para 2026."},
+    "KEPL3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Cenário desafiador: inadimplência rural elevada e crédito agrícola travado reduzem investimentos em armazenagem. Clientes endividados adiam expansões. 2026 deve ser ano de contração de receita — aguardar estabilização do crédito rural."},
+    "SLCE3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Agro em momento crítico: margens comprimidas por queda de commodities, câmbio desfavorável e clima incerto. Produtores endividados e sem apetite a risco. 2026 deve trazer queda de receita e resultado — cautela máxima."},
+    "RANI3":  {"icone": "✅", "cor": "#22C55E", "texto": "Embalagens de papel com demanda resiliente e crescente. Expansão de capacidade em andamento. Perspectiva positiva para 2026."},
     "CMIG4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Distribuição e geração reguladas, mas gestão pública limita eficiência. Perspectiva neutra. Atenção ao processo de renovação de concessões."},
-    "CPLE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Privatização trazendo eficiência. Perspectiva positiva com potencial de redução de custos e melhora de margens em 2026."},
-    "EGIE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Geração renovável com contratos longos. Menor exposição a risco hidrológico por mix diversificado. Perspectiva excelente para 2026."},
-    "TAEE11": {"icone": "✅", "cor": "#4CAF6D", "texto": "Transmissão com RAP garantido — completamente independente de hidrologia. Perspectiva muito positiva e previsível para 2026."},
-    "ISAE4":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Transmissão regulada, receita previsível. Perspectiva positiva similar à Taesa, com ciclo de revisão tarifária favorável."},
-    "CPFE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Mix equilibrado de distribuição e geração. Perspectiva positiva beneficiada por revisão tarifária e expansão renovável em 2026."},
-    "SBSP3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Pós-privatização acelerando investimentos. Perspectiva positiva de médio prazo, mas 2026 ainda é ano de transição e reorganização."},
-    "SAPR4":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Saneamento com demanda inelástica. Perspectiva estável. Revisão tarifária pendente pode ser catalisador positivo em 2026."},
+    "CPLE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Privatização trazendo eficiência. Perspectiva positiva com potencial de redução de custos e melhora de margens em 2026."},
+    "EGIE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Geração renovável com contratos longos. Menor exposição a risco hidrológico por mix diversificado. Perspectiva excelente para 2026."},
+    "TAEE11": {"icone": "✅", "cor": "#22C55E", "texto": "Transmissão com RAP garantido — completamente independente de hidrologia. Perspectiva muito positiva e previsível para 2026."},
+    "ISAE4":  {"icone": "✅", "cor": "#22C55E", "texto": "Transmissão regulada, receita previsível. Perspectiva positiva similar à Taesa, com ciclo de revisão tarifária favorável."},
+    "CPFE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Mix equilibrado de distribuição e geração. Perspectiva positiva beneficiada por revisão tarifária e expansão renovável em 2026."},
+    "SBSP3":  {"icone": "✅", "cor": "#22C55E", "texto": "Pós-privatização acelerando investimentos. Perspectiva positiva de médio prazo, mas 2026 ainda é ano de transição e reorganização."},
+    "SAPR4":  {"icone": "✅", "cor": "#22C55E", "texto": "Saneamento com demanda inelástica. Perspectiva estável. Revisão tarifária pendente pode ser catalisador positivo em 2026."},
     "CSMG3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Ainda pública. Privatização em discussão pode ser catalisador, mas risco político de MG é relevante. Perspectiva neutra."},
-    "AXIA3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Fibra óptica em expansão acelerada. Demanda por conectividade crescente e estrutural. Perspectiva positiva para 2026."},
+    "AXIA3":  {"icone": "✅", "cor": "#22C55E", "texto": "Fibra óptica em expansão acelerada. Demanda por conectividade crescente e estrutural. Perspectiva positiva para 2026."},
     "B3SA3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Dependente do volume de negociação. Juros altos reduzem fluxo para renda variável. Melhora depende de queda de juros e volta do PF — perspectiva neutra para 2026."},
-    "BRBI11": {"icone": "✅", "cor": "#4CAF6D", "texto": "Banco de investimento em crescimento. Perspectiva positiva dependente do ambiente de M&A e mercado de capitais em 2026."},
+    "BRBI11": {"icone": "✅", "cor": "#22C55E", "texto": "Banco de investimento em crescimento. Perspectiva positiva dependente do ambiente de M&A e mercado de capitais em 2026."},
     "CYRE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Bonificação em PN especiais (criada pra antecipar valor antes da tributação de dividendos a partir de 2026) provocou queda nos papéis na virada do ano. Negócio segue sólido e diversificado, mas atenção à diluição e à reação do mercado à nova estrutura de capital."},
-    "DIRR3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Foco em habitação popular (MCMV Faixas 1-3) torna o negócio mais resiliente ao ciclo de juros. Geração de caixa forte, baixo endividamento e dividendos elevados. Início de 2026 com fundamentos sólidos e ROIC bem acima do custo de capital."},
-    "MDNE3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Maior construtora do Nordeste. Follow-on de R$500 milhões em jan/2026 dobrou a liquidez do papel. Marca Única (baixa renda/MCMV) é o principal vetor de crescimento, com parceria com a Direcional. Dividend yield esperado de ~7% para 2026."},
-    "CURY3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Foco em SP e RJ, MCMV + médio padrão. ROE de ~78% e múltiplos baratos (P/L 2026E entre 7x-8,5x). Riscos: pressão de custos de construção, cancelamentos e sensibilidade a mudanças no financiamento do MCMV/FGTS."},
+    "DIRR3":  {"icone": "✅", "cor": "#22C55E", "texto": "Foco em habitação popular (MCMV Faixas 1-3) torna o negócio mais resiliente ao ciclo de juros. Geração de caixa forte, baixo endividamento e dividendos elevados. Início de 2026 com fundamentos sólidos e ROIC bem acima do custo de capital."},
+    "MDNE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Maior construtora do Nordeste. Follow-on de R$500 milhões em jan/2026 dobrou a liquidez do papel. Marca Única (baixa renda/MCMV) é o principal vetor de crescimento, com parceria com a Direcional. Dividend yield esperado de ~7% para 2026."},
+    "CURY3":  {"icone": "✅", "cor": "#22C55E", "texto": "Foco em SP e RJ, MCMV + médio padrão. ROE de ~78% e múltiplos baratos (P/L 2026E entre 7x-8,5x). Riscos: pressão de custos de construção, cancelamentos e sensibilidade a mudanças no financiamento do MCMV/FGTS."},
     "LREN3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Setor de varejo de moda pressionado por alta alavancagem das famílias, juros altos e concorrência de plataformas cross-border (Shein, AliExpress). Em contrapartida, P/VPA perto de mínimas históricas (~1,5x) e analistas (Citi, Santander, BTG) seguem recomendando compra, com plano estratégico 2026-2030 prevendo aceleração de aberturas de loja."},
     "GRND3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Lucro recuou em 2025 e o dividendo extraordinário recente (~R$1 bi) não deve se repetir no mesmo nível — payout acima de 170% é insustentável estruturalmente. Caixa líquido robusto (~R$1,1 bi) e baixa alavancagem sustentam a tese de renda, mas crescimento operacional é fraco; 2026 deve trazer normalização dos proventos."},
     "CGRA4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Varejo regional tradicional (tecidos/vestuário, RS), baixa cobertura de analistas e liquidez reduzida. Aumento de capital recente dilui a base acionária. Distribuição de JCP retomada em mai/2026, mas sem garantia de regularidade dado o histórico de proventos irregulares."},
     "WEGE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "1T26 fraco: lucro -5,7% A/A, receita -6,1%, puxados por queda de 36% em GTD doméstico (solar) e câmbio desfavorável. Bancos cortaram projeção de lucro 2026. BTG mantém compra apostando em reaceleração via T&D a partir do 2S26/2027. Curto prazo exige cautela; tese estrutural de longo prazo permanece."},
-    "PRIO3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "1T26 forte: produção +42% T/T, lifting cost caiu para ~US$9,4/bbl, EBITDA ajustado quase dobrou T/T. Alavancagem caiu para 2,0x dívida líquida/EBITDA. Wahoo entrou em produção sem problemas. Queda da ação no pregão foi por correção do petróleo, não por fraqueza operacional."},
+    "PRIO3":  {"icone": "✅", "cor": "#22C55E", "texto": "1T26 forte: produção +42% T/T, lifting cost caiu para ~US$9,4/bbl, EBITDA ajustado quase dobrou T/T. Alavancagem caiu para 2,0x dívida líquida/EBITDA. Wahoo entrou em produção sem problemas. Queda da ação no pregão foi por correção do petróleo, não por fraqueza operacional."},
     "EQTL3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "1T26 misto: EBITDA ajustado +11,3% A/A (acima do consenso), mas lucro líquido ajustado caiu -23,6%, pressionado por despesa financeira maior (CDI médio subiu A/A) e maior dívida. Distribuição segue como destaque operacional positivo. Mercado reagiu de forma cautelosa."},
-    "JHSF3":  {"icone": "✅", "cor": "#4CAF6D", "texto": "Melhor 1T da história da companhia: lucro +9,3% A/A, Ebitda ajustado +27%, receita +33%. Crescimento em shoppings, hospitalidade (Fasano) e expansão internacional (Miami, Punta del Este, Milão). Caixa líquido ajustado de R$1,8bi reforça a estrutura de capital mais sólida da história."},
+    "JHSF3":  {"icone": "✅", "cor": "#22C55E", "texto": "Melhor 1T da história da companhia: lucro +9,3% A/A, Ebitda ajustado +27%, receita +33%. Crescimento em shoppings, hospitalidade (Fasano) e expansão internacional (Miami, Punta del Este, Milão). Caixa líquido ajustado de R$1,8bi reforça a estrutura de capital mais sólida da história."},
     "POMO4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "1T26 neutro: receita -1% A/A, EBITDA recorrente estável, margem mantida apesar de menor produção. Mercado externo (México) fraco. XP e BTG mantêm compra, citando catalisadores: programa Move Brasil, leilão Caminho da Escola e pedidos do Ministério da Saúde — volumes devem melhorar a partir do 2º trimestre."},
 }
 
@@ -3330,7 +3330,7 @@ def status_aporte(cotacao_raw, preco_teto, target):
         if cot > target:
             # Acima do target — zona de venda/redução
             pct_acima = ((cot - target) / target) * 100
-            return ('acima_target', '#D9534F', '🔴',
+            return ('acima_target', '#EF4444', '🔴',
                     f"Acima do target (+{pct_acima:.1f}%) — considerar redução")
 
         elif cot > preco_teto:
@@ -3344,7 +3344,7 @@ def status_aporte(cotacao_raw, preco_teto, target):
             pct_teto   = ((preco_teto - cot) / preco_teto) * 100
             pct_target = ((target - cot) / target) * 100
             if pct_teto >= 15:
-                return ('oportunidade', '#4CAF6D', '🟢',
+                return ('oportunidade', '#22C55E', '🟢',
                         f"Forte oportunidade — {pct_teto:.1f}% abaixo do teto / {pct_target:.1f}% abaixo do target")
             else:
                 return ('compra', '#5B8DB8', '🔵',
@@ -4265,7 +4265,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         div_atual = limpar_valor(row.get('Dívida líquida/EBITDA', 0))
         divergencias = checar_divergencia_tese(ticker, tese_info, roe_atual, pl_proj_num, div_atual)
 
-        cor_tese = "#D9534F" if divergencias else "#4CAF6D"
+        cor_tese = "#EF4444" if divergencias else "#22C55E"
         st.markdown(
             "<div style='background:rgba(255,255,255,0.04);border:1px solid {cor}66;"
             "border-radius:11px;padding:14px 18px;margin-bottom:14px;'>"
@@ -4335,7 +4335,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 f"<div style='font-size:1.5em;font-weight:800;color:#D4AF37;'>R$ {pt_v:.2f}</div>"
                 f"<div style='font-size:0.85em;color:#ccc;'>{'▼' if pct_teto > 0 else '▲'} {abs(pct_teto):.1f}%</div></div>"
                 f"<div><div style='font-size:0.85em;color:#ccc;margin-bottom:5px;'>TARGET</div>"
-                f"<div style='font-size:1.5em;font-weight:800;color:#4CAF6D;'>R$ {tg_v:.2f}</div>"
+                f"<div style='font-size:1.5em;font-weight:800;color:#22C55E;'>R$ {tg_v:.2f}</div>"
                 f"<div style='font-size:0.85em;color:#ccc;'>{'▼' if pct_target > 0 else '▲'} {abs(pct_target):.1f}%</div></div>"
                 f"</div></div>",
                 unsafe_allow_html=True
@@ -4389,7 +4389,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         r0, r1, r2, r3 = st.columns(4)
 
         var_resumo_str = f"{variacao_dia:+.2f}%".replace(".", ",")
-        cor_var = "#4CAF6D" if variacao_dia > 0 else ("#D9534F" if variacao_dia < 0 else "#D4AF37")
+        cor_var = "#22C55E" if variacao_dia > 0 else ("#EF4444" if variacao_dia < 0 else "#D4AF37")
         _card_resumo(r0, "💹 Mercado", [
             ("Cotação Atual", cot),
             ("Variação (dia)", var_resumo_str, cor_var),
@@ -4425,7 +4425,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             def _cor_variacao(v):
                 if v is None:
                     return "#888"
-                return "#4CAF6D" if v > 0.5 else ("#D9534F" if v < -0.5 else "#D4AF37")
+                return "#22C55E" if v > 0.5 else ("#EF4444" if v < -0.5 else "#D4AF37")
             v30_str = f"{v30:+.1f}%".replace(".", ",") if v30 is not None else "—"
             v90_str = f"{v90:+.1f}%".replace(".", ",") if v90 is not None else "—"
             rc1, rc2 = st.columns(2)
@@ -4477,11 +4477,11 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             with gcol1:
                 if nota_gov is not None:
                     if nota_gov >= 8:
-                        gov_cor, gov_label = "#4CAF6D", "Alta"
+                        gov_cor, gov_label = "#22C55E", "Alta"
                     elif nota_gov >= 6:
                         gov_cor, gov_label = "#D4AF37", "Média"
                     else:
-                        gov_cor, gov_label = "#D9534F", "Baixa"
+                        gov_cor, gov_label = "#EF4444", "Baixa"
                     st.markdown(
                         "<div style='{base}'>"
                         "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
@@ -4610,7 +4610,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         # ---- Linha 1: Resultado Projetado + Resultado Último Tri ----
         v1, v2 = st.columns([1, 1])
         _card_metric(v1, "Resultado Projetado 2026", row.get('LL PROJETADO', '-'))
-        _card_metric(v2, "⭐ Resultado Último Tri (1/4)", row.get('RESULTADO 2026 (1/4)', '-'), cor_valor="#4CAF6D")
+        _card_metric(v2, "⭐ Resultado Último Tri (1/4)", row.get('RESULTADO 2026 (1/4)', '-'), cor_valor="#22C55E")
         st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
         barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
         st.markdown(barra, unsafe_allow_html=True)
@@ -4641,7 +4641,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         with g1:
             if historico_lucro:
                 st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 Lucro Líquido (5 anos)</span>", unsafe_allow_html=True)
-                st.markdown(mini_grafico_linha(historico_lucro, "#4CAF6D"), unsafe_allow_html=True)
+                st.markdown(mini_grafico_linha(historico_lucro, "#22C55E"), unsafe_allow_html=True)
         with g2:
             if historico_pl:
                 st.markdown("<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>📈 P/L Histórico (5 anos)</span>", unsafe_allow_html=True)
@@ -4694,7 +4694,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 if rank is None or not n:
                     return "#888"
                 pct_topo = (n - rank) / (n - 1) if n > 1 else 0
-                return "#4CAF6D" if pct_topo >= 0.7 else ("#D4AF37" if pct_topo >= 0.3 else "#D9534F")
+                return "#22C55E" if pct_topo >= 0.7 else ("#D4AF37" if pct_topo >= 0.3 else "#EF4444")
             def _texto_rank(rank, n):
                 if rank is None or not n:
                     return "—"
@@ -4752,7 +4752,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 )
                 return
             diff_pct = ((valor - cot_pj) / cot_pj * 100) if cot_pj else None
-            cor_pj = "#4CAF6D" if (diff_pct or 0) > 0 else "#D9534F"
+            cor_pj = "#22C55E" if (diff_pct or 0) > 0 else "#EF4444"
             sub = f"{'+' if diff_pct and diff_pct>=0 else ''}{diff_pct:.1f}% vs cotação" if diff_pct is not None else ""
             col.markdown(
                 "<div style='{base}text-align:center;'>"
@@ -4780,7 +4780,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     if aba_ativa == "📈 Dividendos":
         st.markdown("#### 💰 Dividendos")
-        style_dy = "color:#4CAF6D;font-weight:bold;" if dy_num > 8 else ""
+        style_dy = "color:#22C55E;font-weight:bold;" if dy_num > 8 else ""
         st.markdown("<div style='font-size:0.88em;line-height:1.7;'>"
             "<b>Dividend Yield:</b> <span style='{}'>{}</span><br>"
             "<b>Payout:</b> {}<br>"
@@ -4795,8 +4795,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             unsafe_allow_html=True)
         if proximo_provento_data != "-":
             st.markdown(
-                "<div style='margin-top:6px;padding:5px 8px;border-radius:6px;background:#1a3a1a;border:1px solid #4CAF6D;font-size:0.84em;'>"
-                "<span style='color:#4CAF6D;font-weight:bold;'>📅 Próximo Provento em Aberto</span><br>"
+                "<div style='margin-top:6px;padding:5px 8px;border-radius:6px;background:#1a3a1a;border:1px solid #22C55E;font-size:0.84em;'>"
+                "<span style='color:#22C55E;font-weight:bold;'>📅 Próximo Provento em Aberto</span><br>"
                 "<span style='color:#F1EFE8;'>Data COM: <b>{}</b> | Valor Est.: <b>{}</b></span></div>".format(
                     proximo_provento_data, proximo_provento_valor),
                 unsafe_allow_html=True)
@@ -4840,7 +4840,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "<div style='{base}'>"
                 "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
                 "text-transform:uppercase;margin-bottom:8px;'>Últimos 12 meses</div>"
-                "<div style='font-size:1.3em;font-weight:900;color:#4CAF6D;'>R$ {total:.4f} / ação</div>"
+                "<div style='font-size:1.3em;font-weight:900;color:#22C55E;'>R$ {total:.4f} / ação</div>"
                 "<div style='font-size:0.75em;color:#999;margin-top:6px;line-height:1.4;'>"
                 "Soma de dividendos e JCP pagos nos últimos 12 meses.</div>"
                 "</div>".format(base=card_style, total=total_12m),
@@ -4908,11 +4908,11 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 if resumo is None:
                     cor_ins, sub_ins = "#888", "Nenhuma movimentação registrada"
                 elif resumo['tipo'] == 'periodo':
-                    cor_ins = "#4CAF6D" if resumo['valor'] >= 0 else "#D9534F"
+                    cor_ins = "#22C55E" if resumo['valor'] >= 0 else "#EF4444"
                     label = "Compra líquida" if resumo['valor'] >= 0 else "Venda líquida"
                     sub_ins = f"{label} (6m): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
                 else:
-                    cor_ins = "#4CAF6D" if resumo['valor'] >= 0 else "#D9534F"
+                    cor_ins = "#22C55E" if resumo['valor'] >= 0 else "#EF4444"
                     label = "Última compra" if resumo['valor'] >= 0 else "Última venda"
                     sub_ins = f"{label} ({resumo['data'].strftime('%m/%Y')}): R$ {abs(resumo['valor']):,.0f}".replace(",", ".")
                 st.markdown(
@@ -5039,9 +5039,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "</div>"
                 "<div style='font-size:0.85em;color:#F1EFE8;font-weight:700;margin-bottom:4px;'>Números</div>"
                 "<div style='font-size:0.85em;color:#ddd;line-height:1.55;margin-bottom:12px;'>{numeros}</div>"
-                "<div style='font-size:0.85em;color:#4CAF6D;font-weight:700;margin-bottom:4px;'>✓ Pontos fortes</div>"
+                "<div style='font-size:0.85em;color:#22C55E;font-weight:700;margin-bottom:4px;'>✓ Pontos fortes</div>"
                 "<div style='font-size:0.85em;color:#ddd;line-height:1.55;margin-bottom:12px;'>{fortes}</div>"
-                "<div style='font-size:0.85em;color:#D9534F;font-weight:700;margin-bottom:4px;'>✗ Pontos de atenção</div>"
+                "<div style='font-size:0.85em;color:#EF4444;font-weight:700;margin-bottom:4px;'>✗ Pontos de atenção</div>"
                 "<div style='font-size:0.85em;color:#ddd;line-height:1.55;margin-bottom:12px;'>{fracos}</div>"
                 "<div style='font-size:0.85em;color:#5B8DB8;font-weight:700;margin-bottom:4px;'>→ O que esperar</div>"
                 "<div style='font-size:0.85em;color:#ddd;line-height:1.55;'>{expectativa}</div>"
@@ -5094,7 +5094,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "</div>".format(base=card_style, titulo=titulo, data=data_fmt, desc=desc, link_html=link_html)
                 )
 
-            st.markdown(_card_apresentacao(ultimo_release, "📊 Release/Apresentação de Resultados mais recente", "#4CAF6D"),
+            st.markdown(_card_apresentacao(ultimo_release, "📊 Release/Apresentação de Resultados mais recente", "#22C55E"),
                        unsafe_allow_html=True)
 
             with st.expander("Ver todas as apresentações e comunicados"):
@@ -5125,7 +5125,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             vi = vol_info['vol_implicita']
             rank = vol_info['iv_rank']
             pct = vol_info['iv_percentil']
-            cor_vi = "#D9534F" if (rank or 0) >= 70 else ("#D4AF37" if (rank or 0) >= 30 else "#4CAF6D")
+            cor_vi = "#EF4444" if (rank or 0) >= 70 else ("#D4AF37" if (rank or 0) >= 30 else "#22C55E")
             vcol1, vcol2, vcol3 = st.columns(3)
             with vcol1:
                 st.markdown(
@@ -5174,7 +5174,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 fig = go.Figure(data=[go.Candlestick(
                     x=hist.index,
                     open=hist['Open'], high=hist['High'], low=hist['Low'], close=hist['Close'],
-                    increasing_line_color='#4CAF6D', decreasing_line_color='#D9534F', name=ticker
+                    increasing_line_color='#22C55E', decreasing_line_color='#EF4444', name=ticker
                 )])
                 fig.update_layout(
                     paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0.3)',
@@ -5281,7 +5281,7 @@ with c2:
     card_filtrados = st.empty()
 with c3:
     if ibov_val is not None:
-        cor_ibov = "#4CAF6D" if ibov_var > 0 else ("#D9534F" if ibov_var < 0 else "#D4AF37")
+        cor_ibov = "#22C55E" if ibov_var > 0 else ("#EF4444" if ibov_var < 0 else "#D4AF37")
         ibov_fmt = f"{ibov_val:,.0f}".replace(",", ".")
         st.markdown(f"""<div class='top-card'>
             <div class='label'>📊 Ibovespa</div>
@@ -5580,7 +5580,7 @@ else:
                     else:
                         var_html = "<span class='ac-var-neu'>🟡 {:.2f}%</span>".format(var_c)
 
-                    dy_color = "#4CAF6D" if dy_num_c > 8 else "#5B8DB8"
+                    dy_color = "#22C55E" if dy_num_c > 8 else "#5B8DB8"
                     logo_html = "<div class='ac-logo-area'><img src='{}' class='ac-logo'/></div>".format(logo_c) if logo_c else "<div class='ac-logo-area' style='font-size:1.8em;'>{}</div>".format(ic_c)
 
                     with cols[idx]:
