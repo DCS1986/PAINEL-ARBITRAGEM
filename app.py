@@ -1312,6 +1312,361 @@ ANALISE_RESULTADO = {
                    "Mercado atento às mudanças recentes no MCMV (ampliação de faixas de "
                    "renda elegíveis), que devem ampliar o público endereçável.",
     },
+    "ABCB4": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido recorrente R$230,2mi (+2,1% A/A). Margem financeira "
+                   "R$647,8mi (+14,3% A/A).",
+        "pontos_fortes": "Margem financeira em forte expansão, mostrando capacidade de "
+                   "ampliar ganhos com crédito e tesouraria mesmo num ambiente "
+                   "competitivo. Banco de nicho corporativo, menos exposto a varejo e "
+                   "agro do que os grandes bancos.",
+        "pontos_fracos": "Crescimento de lucro bem mais lento que a margem financeira "
+                   "(+2,1% vs +14,3%), sugerindo pressão de custos/provisões absorvendo "
+                   "parte do ganho de receita. Seletividade no crédito corporativo limita "
+                   "o ritmo de expansão da carteira.",
+        "expectativa": "Resultado reforça a resiliência operacional do banco em ambiente "
+                   "de juros elevados, mas sem grande surpresa positiva ou negativa — "
+                   "trimestre dentro do esperado para um banco de nicho corporativo.",
+    },
+    "BRSR6": {
+        "trimestre": "1T26", "data": "14/05/2026",
+        "numeros": "Lucro líquido R$221,6mi (-8,2% A/A, -66% T/T). ROE de 7,9%.",
+        "pontos_fortes": "Resultado ficou 5% acima das estimativas mais recentes do "
+                   "BTG, com provisões cíveis/trabalhistas/tributárias abaixo da média e "
+                   "receitas operacionais diversas maiores que o esperado.",
+        "pontos_fracos": "Queda forte T/T (-66%) reflete desaceleração da carteira de "
+                   "crédito combinada com deterioração de qualidade de ativos, em "
+                   "intensidade maior que o projetado pelo mercado. Provisões cobriram "
+                   "quase 95% da formação de inadimplência. ROE de 7,9% é baixo mesmo "
+                   "pra um banco regional.",
+        "expectativa": "BTG segue cauteloso mesmo após a ação já ter caído 23% desde a "
+                   "recomendação de venda — vê fraca capacidade de geração de resultados "
+                   "do banco persistindo.",
+    },
+    "SANB3": {
+        "trimestre": "1T26", "data": "29/04/2026",
+        "numeros": "Lucro líquido recorrente R$3,78bi (-1,9% A/A, -7,3% T/T) — abaixo "
+                   "do consenso (R$4,066bi). Margem financeira R$15,8bi (+3,1% T/T).",
+        "pontos_fortes": "Índice de eficiência em 37,7% (melhora de 1,1 p.p. T/T). "
+                   "Margem financeira com o mercado (tesouraria) melhorou 48,1% T/T, "
+                   "mesmo ainda negativa. Custo de crédito estável em 3,73%.",
+        "pontos_fracos": "Normalização da carga tributária (alíquota efetiva subiu pra "
+                   "15-17%, depois de trimestres com alíquota atipicamente baixa) "
+                   "pressionou o lucro. Banco manteve postura conservadora na concessão "
+                   "de crédito, limitando crescimento da carteira no curto prazo.",
+        "expectativa": "CEO defende que 'pagar mais imposto é bom sinal' (reflete maior "
+                   "lucro antes de impostos) e mantém meta de ROE de 20%. UBS BB segue "
+                   "vendo motivos para investir na história, mesmo com mercado menos "
+                   "otimista após o trimestre.",
+    },
+    "BMGB4": {
+        "trimestre": "1T26", "data": "maio/2026",
+        "numeros": "Lucro líquido R$147mi (+27,8% A/A, -14,5% T/T).",
+        "pontos_fortes": "Crescimento sólido na comparação anual, com mix de produtos "
+                   "sustentando margem.",
+        "pontos_fracos": "PDD (provisão para devedores duvidosos) limitou o lucro no "
+                   "trimestre, segundo a Genial — sinal de atenção em qualidade de "
+                   "crédito, mesmo com crescimento anual positivo.",
+        "expectativa": "Genial nota que o mix de produtos sustenta a margem, mas o "
+                   "crescimento das provisões é o ponto a monitorar nos próximos "
+                   "trimestres.",
+    },
+    "IRBR3": {
+        "trimestre": "1T26", "data": "04/05/2026",
+        "numeros": "Lucro líquido recorrente R$101,6mi (-14,3 a -14,8% A/A, -29,1% T/T) "
+                   "— abaixo do esperado pelo mercado. ROE de 8,2%. Prêmios emitidos "
+                   "R$1,28-1,29bi (+3,2% A/A).",
+        "pontos_fortes": "Resultado operacional (subscrição) positivo em R$7mi, "
+                   "revertendo prejuízo operacional de R$31mi no 1T25. Índice combinado "
+                   "melhorou de 102% para 98%. Sinistralidade caiu 8,5 p.p. A/A. Ações "
+                   "chegaram a subir mais de 3% mesmo com queda no lucro.",
+        "pontos_fracos": "Retração de prêmios é estratégia deliberada (a empresa prefere "
+                   "fechar menos negócios a preços ruins, num momento de 'soft market' "
+                   "global no resseguro), mas isso reduz volume e lucro no curto prazo. "
+                   "Despesas com retrocessão subiram 42,9% A/A.",
+        "expectativa": "Genial vê a retração de prêmios como intencional, alinhada à "
+                   "estratégia de cautela, sustentando melhora estrutural do resultado "
+                   "técnico nos próximos ciclos. Início de pagamento de JCP deve trazer "
+                   "benefícios fiscais a partir do 2T26.",
+    },
+    "ITSA4": {
+        "trimestre": "1T26", "data": "11/05/2026",
+        "numeros": "Lucro líquido R$4,4bi (lucro recorrente das investidas R$4,794bi, "
+                   "+15,8% A/A). Setor financeiro (Itaú) contribuiu R$4,383bi (+10,9%), "
+                   "setor não-financeiro R$454mi (+75,6%).",
+        "pontos_fortes": "Crescimento forte do setor não-financeiro (+75,6%), puxado por "
+                   "Alpargatas, Copa Energia, Motiva e Aegea, além de variação positiva "
+                   "no valor justo da NTS. Aumento de participação na Aegea (saneamento) "
+                   "para 13,27%.",
+        "pontos_fracos": "Dívida líquida subiu de R$351mi (1T25) para R$1,010bi, "
+                   "influenciada pela redução de caixa e pelo aporte na Aegea.",
+        "expectativa": "Genial mantém tese de fechamento do desconto da Itaúsa frente à "
+                   "soma das partes (desconto de holding de 19,4% no trimestre), vendo "
+                   "ainda espaço para reprecificação.",
+    },
+    "BRAP4": {
+        "trimestre": "1T26", "data": "14/05/2026",
+        "numeros": "Lucro líquido R$553,5mi (+73,9% A/A). Receita operacional R$553mi "
+                   "(vs R$314,7mi no 1T25).",
+        "pontos_fortes": "Resultado quase 100% explicado pela forte contribuição da "
+                   "Vale (principal investida), via equivalência patrimonial e JCP — "
+                   "estrutura financeira sem endividamento.",
+        "pontos_fracos": "Ação caiu no dia da divulgação mesmo com lucro forte, sinal de "
+                   "realização de lucros — a Bradespar não tem operação própria "
+                   "relevante, então seu resultado é 100% derivado do desempenho de "
+                   "outra empresa.",
+        "expectativa": "Resultado é, na prática, um espelho do resultado da Vale do "
+                   "mesmo período — qualquer análise de BRAP4 precisa necessariamente "
+                   "passar pela tese de VALE3.",
+    },
+    "CMIN3": {
+        "trimestre": "1T26", "data": "13/05/2026",
+        "numeros": "Lucro líquido R$222mi, revertendo prejuízo de R$357mi no 1T25. "
+                   "EBITDA ajustado R$1,42bi (-0,5% A/A). Receita líquida R$3,165bi "
+                   "(-7,2% A/A).",
+        "pontos_fortes": "Produção própria cresceu 6,7% A/A, sustentando volume de "
+                   "vendas estável (9,6 milhões de toneladas) mesmo com chuvas acima da "
+                   "média. Alavancagem extremamente baixa (0,11x dívida líquida/EBITDA). "
+                   "Caixa de R$8,8bi.",
+        "pontos_fracos": "Receita unitária por tonelada caiu (US$62,60, -1,1% T/T), "
+                   "pressionada pela alta nos preços de frete marítimo (US$24,83/t, "
+                   "+27,5% A/A) — exposição ao mercado spot de frete aumenta a "
+                   "volatilidade do resultado. Custo caixa C1 subiu 10% A/A.",
+        "expectativa": "BB-BI mantém recomendação de Venda (preço-alvo R$5,40), "
+                   "destacando resultado operacional 'neutro' e a elevada exposição da "
+                   "companhia à volatilidade dos fretes marítimos como risco específico.",
+    },
+    "GGBR3": {
+        "trimestre": "1T26", "data": "27-28/04/2026",
+        "numeros": "Lucro líquido ajustado R$1bi (+33,6% A/A, +51,2% T/T). Receita "
+                   "líquida R$16,7bi (-3,8% A/A). EBITDA ajustado R$3bi (+23,2% A/A), "
+                   "margem 17,7% (+3,7 p.p.).",
+        "pontos_fortes": "América do Norte respondeu por ~75% do EBITDA ajustado "
+                   "consolidado (+88,1% em 12 meses) — motor quase exclusivo do "
+                   "resultado. Programa de recompra já 21% executado (R$210,7mi). "
+                   "Dividendos de R$354,1mi aprovados.",
+        "pontos_fracos": "Operação Brasil 'derreteu quase pela metade': receita -12,7% "
+                   "T/T, EBITDA -47%, margem caindo 5,4 p.p. — pressionada pela elevada "
+                   "penetração de aço importado (28,5% em aços planos). Guerra no "
+                   "Oriente Médio já começa a pesar nas projeções de custo.",
+        "expectativa": "Mercado trata a Gerdau cada vez mais como 'uma história de aço "
+                   "americano', com o Brasil funcionando como motor secundário. Pergunta "
+                   "chave: até quando os EUA seguram o resultado enquanto o Brasil tenta "
+                   "se recuperar.",
+    },
+    "UNIP6": {
+        "trimestre": "1T26", "data": "24/04/2026",
+        "numeros": "Lucro líquido R$37mi (-75% A/A, revertendo prejuízo de R$7mi no "
+                   "4T25). Receita líquida R$1,2bi (-10% A/A). EBITDA ajustado R$145-174mi "
+                   "(-59% A/A).",
+        "pontos_fortes": "Geração de caixa sustentada por entrada de capital de giro "
+                   "(~R$110mi) e capex menor. Preços internacionais e spreads já "
+                   "mostraram recuperação em março/abril, após o início do conflito "
+                   "entre EUA e Irã.",
+        "pontos_fracos": "Queda de preços internacionais da soda cáustica (-11% A/A) e "
+                   "do PVC (-13% A/A), com real desvalorizado adicionando pressão. "
+                   "Alavancagem subiu de 2,2x para 2,6x dívida líquida/EBITDA. Taxa de "
+                   "utilização das plantas caiu para 73%.",
+        "expectativa": "XP espera melhora no 2T26 com a recuperação de preços/spreads "
+                   "internacionais já em curso. Nord mantém recomendação neutra, citando "
+                   "baixa visibilidade sobre o ciclo das commodities petroquímicas.",
+    },
+    "LEVE3": {
+        "trimestre": "1T26", "data": "06-07/05/2026",
+        "numeros": "Lucro líquido R$214,2mi (+34,9% A/A). Receita líquida R$1,3bi. "
+                   "EBITDA +5,2% A/A.",
+        "pontos_fortes": "Crescimento robusto de lucro acima do crescimento de receita, "
+                   "indicando ganho de margem. Empresa expandindo pra novas frentes "
+                   "(solução de carregamento de veículos elétricos no Brasil).",
+        "pontos_fracos": "Crescimento de EBITDA (+5,2%) bem mais modesto que o de lucro "
+                   "(+34,9%) — parte da melhora pode vir de itens abaixo da linha "
+                   "operacional (financeiro, tributário), não só de operação.",
+        "expectativa": "Empresa amplia portfólio para alémde autopeças tradicionais, "
+                   "buscando capturar a transição para veículos elétricos sem abandonar "
+                   "o negócio principal (peças pra motores a combustão).",
+    },
+    "SHUL4": {
+        "trimestre": "1T26", "data": "21/05/2026",
+        "numeros": "Lucro líquido R$56mi (-22% A/A). Receita líquida R$448mi (-9% A/A). "
+                   "EBITDA R$63mi (-26% A/A). ROE de 18,2%.",
+        "pontos_fortes": "Caixa líquido (mais caixa que dívida) de R$135mi — estrutura "
+                   "de capital muito confortável, que permite atravessar ciclos "
+                   "desfavoráveis sem aperto financeiro. Fluxo de caixa livre positivo "
+                   "(R$7,5mi), revertendo queima de caixa do ano anterior.",
+        "pontos_fracos": "Divisão Automotiva (compressores) e máquinas agrícolas/"
+                   "construção seguem pressionadas: vendas nos EUA -7% A/A (em dólar), "
+                   "vendas pra máquinas agrícolas -14% A/A, refletindo juros altos, "
+                   "estoques elevados e câmbio desfavorável.",
+        "expectativa": "Nord mantém posição na empresa via série de valor, citando "
+                   "múltiplo de apenas 6,5x lucros e valor de mercado de R$1,8bi — vendo "
+                   "a empresa bem posicionada para uma eventual virada de ciclo do "
+                   "mercado automotivo no longo prazo.",
+    },
+    "VULC3": {
+        "trimestre": "1T26", "data": "05/05/2026",
+        "numeros": "Lucro líquido R$80,1mi (-24,5% A/A) ou R$86,1mi recorrente (-18,9% "
+                   "A/A). Receita líquida recorde R$776,4mi (+10,7% A/A) — 23º trimestre "
+                   "consecutivo de crescimento.",
+        "pontos_fortes": "23 trimestres seguidos de crescimento de receita — uma das "
+                   "sequências mais consistentes do varejo de calçados. Volume bruto "
+                   "+6,8% A/A. Boa aceitação das marcas (Olympikus, Mizuno, Under "
+                   "Armour no Brasil).",
+        "pontos_fracos": "Lucro caiu mesmo com receita recorde — alta volatilidade "
+                   "geopolítica e pressões fiscais no trimestre pressionaram a última "
+                   "linha. Volume sequencial (T/T) caiu (7,6 milhões de pares vs 9,2 "
+                   "milhões no 4T25, efeito sazonal esperado).",
+        "expectativa": "Administração reforça resiliência do modelo de negócio mesmo em "
+                   "ambiente desafiador de consumo, mas o descolamento entre receita "
+                   "recorde e lucro menor é o ponto que o mercado deve monitorar nos "
+                   "próximos trimestres.",
+    },
+    "KEPL3": {
+        "trimestre": "1T26", "data": "08/05/2026",
+        "numeros": "Lucro líquido R$17,1mi. Receita R$318,1mi. Margem EBITDA de 10,6%.",
+        "pontos_fortes": "Resultado positivo mesmo em cenário mais seletivo no "
+                   "agronegócio (cliente final da Kepler Weber), mostrando alguma "
+                   "resiliência da demanda por armazenagem de grãos.",
+        "pontos_fracos": "Margem EBITDA de 10,6% é relativamente baixa para o setor, "
+                   "refletindo o ambiente mais seletivo e cauteloso entre os produtores "
+                   "rurais (clientes da empresa) em meio a um agro mais fraco.",
+        "expectativa": "Resultado reflete diretamente o humor do produtor rural — em "
+                   "anos de agro mais fraco (como 2026), a Kepler Weber sente o impacto "
+                   "indireto via menor investimento em armazenagem.",
+    },
+    "SLCE3": {
+        "trimestre": "1T26", "data": "13/05/2026",
+        "numeros": "Lucro líquido R$236,1mi (-53,8% A/A). Receita líquida R$2,27bi "
+                   "(-2,7% A/A). EBITDA ajustado R$695mi (-26,3% A/A), margem 30,7% "
+                   "(-9,8 p.p.).",
+        "pontos_fortes": "Produtividade da soja 4,7% acima da última safra, com seis "
+                   "fazendas acima de 4.800 kg/ha. Geração de caixa teve leve melhora "
+                   "anual (+4,6%), mesmo ainda negativa. Empresa atribui a queda de "
+                   "faturamento da soja a um evento pontual de mix de fazendas, não a "
+                   "uma deterioração estrutural.",
+        "pontos_fracos": "Queda de volume em quase todos os produtos (algodão em pluma "
+                   "-5%, soja -3%, caroço de algodão -35%). Resultado financeiro "
+                   "negativo cresceu 124% por maior endividamento. Dívida líquida subiu "
+                   "para R$5,2-6,6bi, alavancagem em 2,7x dívida líquida/EBITDA (vs 2x "
+                   "no 4T25). Fluxo de caixa livre negativo em R$1,3-1,35bi.",
+        "expectativa": "A própria administração espera normalização ao longo dos "
+                   "próximos trimestres, à medida que a melhor produtividade das "
+                   "demais regiões (além das fazendas com mix mais fraco neste "
+                   "trimestre) seja incorporada aos resultados.",
+    },
+    "CMIG4": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Resultado pressionado pelo maior programa de investimentos da "
+                   "história da companhia, refletindo em maior alavancagem.",
+        "pontos_fortes": "Diversificação de receita entre distribuição (~46% do "
+                   "EBITDA), geração (~27%), gás natural (~12%), transmissão (~8%) e "
+                   "comercialização (~7%) — poucas utilities têm portfólio tão "
+                   "diversificado.",
+        "pontos_fracos": "Alta alavancagem, fruto do maior programa de investimentos da "
+                   "história da empresa, pesa sobre a lucratividade no curto prazo.",
+        "expectativa": "Nord mantém preferência por outras companhias do setor (como a "
+                   "CPFL) frente à Cemig, citando a pressão de alavancagem como fator "
+                   "que limita a atratividade no momento.",
+    },
+    "ISAE4": {
+        "trimestre": "1T26", "data": "04/05/2026",
+        "numeros": "Lucro líquido R$357,7mi. ROE de 19,1%.",
+        "pontos_fortes": "Melhores indicadores de endividamento entre os pares "
+                   "(Taesa, Alupar) do setor de transmissão, com o vencimento médio de "
+                   "contratos mais longo do setor e múltiplos mais baixos. ROE de "
+                   "19,1% é elevado para uma transmissora pura.",
+        "pontos_fracos": "Negócio de transmissão pura tem crescimento mais limitado que "
+                   "geração/distribuição — depende de novos leilões para expandir a "
+                   "base de ativos.",
+        "expectativa": "Nord recomenda compra, citando múltiplo de 7x lucros e dividend "
+                   "yield de ~10% — vista como a transmissora com melhor relação "
+                   "risco-retorno do setor elétrico.",
+    },
+    "TAEE11": {
+        "trimestre": "1T26", "data": "06/05/2026",
+        "numeros": "Lucro líquido regulatório R$192,6mi.",
+        "pontos_fortes": "Negócio de transmissão pura, com receita contratada e "
+                   "previsível via reajustes anuais (IPCA/IGPM), pouco sensível a "
+                   "ciclos econômicos de curto prazo.",
+        "pontos_fracos": "Crescimento limitado sem novos leilões de transmissão — "
+                   "modelo de negócio maduro, com poucas avenidas de expansão orgânica.",
+        "expectativa": "Política robusta de distribuição de dividendos mantida, com "
+                   "JCP anunciado no mesmo período — tese de renda permanece o principal "
+                   "atrativo da ação.",
+    },
+    "SBSP3": {
+        "trimestre": "1T26", "data": "07-08/05/2026",
+        "numeros": "Lucro líquido R$1,55bi (+32% A/A).",
+        "pontos_fortes": "Crescimento robusto de lucro, sustentado por disciplina de "
+                   "custos e despesas, segundo a Nord. Caixa disponível de R$19,2bi "
+                   "frente a dívida líquida de R$32,5bi.",
+        "pontos_fracos": "Dívida líquida elevada (R$32,5bi) é estrutural ao negócio de "
+                   "saneamento, que exige investimento constante em infraestrutura.",
+        "expectativa": "Privatizada em 2024, a Sabesp segue em processo de "
+                   "reestruturação e ganho de eficiência, com o mercado acompanhando de "
+                   "perto se o ritmo de melhora operacional se sustenta nos próximos "
+                   "trimestres.",
+    },
+    "CSMG3": {
+        "trimestre": "1T26", "data": "08/05/2026",
+        "numeros": "Lucro líquido R$368,1mi (-14,1% A/A). Receita líquida R$1,91bi "
+                   "(+2,5% A/A). EBITDA R$787,4mi.",
+        "pontos_fortes": "Receita em crescimento, com a companhia mantendo presença "
+                   "relevante no saneamento de Minas Gerais (estado ainda detém 50,3% "
+                   "das ações).",
+        "pontos_fracos": "Lucro caiu mesmo com receita maior, por margens menores e "
+                   "endividamento maior. Atraso no cronograma do processo de "
+                   "privatização aumentou a incerteza sobre parte relevante da tese de "
+                   "investimento (a expectativa de venda do controle estatal).",
+        "expectativa": "Tese de privatização (gatilho de re-rating, como aconteceu com "
+                   "a Sabesp) segue sendo o principal catalisador de longo prazo, mas o "
+                   "atraso no cronograma reduz a visibilidade no curto prazo.",
+    },
+    "BRBI11": {
+        "trimestre": "1T26", "data": "07-08/05/2026",
+        "numeros": "Lucro líquido R$37,7-38mi (-12,5 a -13% A/A, -15,3% T/T) — abaixo do "
+                   "consenso. Receita total R$134,8-135mi (+5,7-6% A/A). ROE de 19,1%.",
+        "pontos_fortes": "Receita com clientes cresceu 7,7-8% A/A. Wealth Management "
+                   "(gestão de fortunas) atingiu R$6,1bi sob assessoria (+10% A/A), "
+                   "ampliando a base de receita recorrente. Treasury Sales & "
+                   "Structuring cresceu 7,9-10,4%.",
+        "pontos_fracos": "Despesas com pessoal subiram fortemente (+30,3% vs estimado), "
+                   "fruto de uma decisão estratégica de reforçar o time, não de piora de "
+                   "disciplina — mas pressionou o lucro no trimestre. M&A demorou mais "
+                   "que o esperado para fechar negócios, mesmo com pipeline acelerando.",
+        "expectativa": "O próprio DRI da empresa reconhece que 'o trimestre foi "
+                   "positivo, mas poderia ter sido melhor'. Negociando a múltiplos bem "
+                   "inferiores aos pares (BTG no Brasil), Nord recomenda compra, citando "
+                   "ROE histórico acima de 20% desde o IPO.",
+    },
+    "LREN3": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido R$257,3mi (+16,4% A/A). Receita de varejo R$2,9bi. "
+                   "EBITDA de varejo R$487,5mi. ROIC (12 meses) de 15,2% (+1,9 p.p. "
+                   "A/A).",
+        "pontos_fortes": "Fluxo de caixa livre de R$258mi (vs R$70,9mi no 1T25) — mais "
+                   "que triplicou. Caixa líquido de R$1,5bi. Recompra de ações (R$100mi) "
+                   "e distribuição de R$217,4mi em JCP no trimestre.",
+        "pontos_fracos": "Setor de varejo de moda segue pressionado pela alta "
+                   "alavancagem das famílias e concorrência de plataformas cross-border "
+                   "(Shein, AliExpress) — risco estrutural de médio prazo que não "
+                   "aparece diretamente no resultado do trimestre.",
+        "expectativa": "Empresa mantém meta de crescimento de receita entre 9-13% ao "
+                   "ano até 2030, com margem EBITDA de varejo (ex-IFRS 16) entre 18-20% "
+                   "— plano de expansão de longo prazo segue intacto.",
+    },
+    "GRND3": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido R$102,1mi (-9,9% A/A).",
+        "pontos_fortes": "Queda de lucro moderada (-9,9%) considerando que o ano "
+                   "anterior teve dividendo extraordinário não recorrente que elevou a "
+                   "base de comparação em outras métricas.",
+        "pontos_fracos": "Continuidade da normalização de resultados após o pico de "
+                   "2025 (puxado por dividendo extraordinário não recorrente) — "
+                   "crescimento operacional segue fraco.",
+        "expectativa": "Caixa líquido robusto e baixa alavancagem sustentam a tese de "
+                   "renda (dividendos), mas o crescimento operacional fraco deve manter "
+                   "o foco do mercado na normalização dos proventos em 2026.",
+    },
 }
 
 
@@ -2009,6 +2364,449 @@ PANORAMA_EMPRESA = {
                      "subsídio, juros do FGTS) e tende a ter ROE mais alto que "
                      "construtoras de padrão mais alto, pela maior velocidade de giro do "
                      "capital.",
+    },
+    "ABCB4": {
+        "o_que_faz": "O Banco ABC Brasil é um banco de nicho corporativo, focado em "
+                     "médias e grandes empresas, sem rede de agências de varejo nem "
+                     "cliente pessoa física relevante.",
+        "segmentos": [
+            ("Crédito Corporativo", "operações de crédito com médias e grandes "
+             "empresas."),
+            ("Tesouraria", "operações financeiras próprias, complementares ao crédito."),
+        ],
+        "insight_chave": "Diferente dos grandes bancos (Itaú, BB, Santander), o ABC "
+                     "Brasil não tem agências de varejo — é um banco 'atacadista', que "
+                     "vive de relacionamento direto com empresas. Isso o protege de "
+                     "crises de inadimplência de varejo (cartão, consignado), mas o "
+                     "deixa mais exposto ao ciclo de crédito corporativo puro.",
+        "setor_dinamica": "Bancos de nicho corporativo — menos diversificado que os "
+                     "grandes bancos, com seletividade maior na originação de crédito e "
+                     "resultado mais ligado à margem financeira que à escala.",
+    },
+    "BRSR6": {
+        "o_que_faz": "O Banrisul é o banco estadual do Rio Grande do Sul, controlado "
+                     "pelo governo do estado, com forte presença regional.",
+        "segmentos": [
+            ("Varejo bancário no RS", "agências concentradas no estado, atendendo "
+             "pessoas físicas."),
+            ("Crédito corporativo/agro", "exposição a empresas e produtores rurais "
+             "gaúchos."),
+        ],
+        "insight_chave": "Sendo controlado pelo governo do RS, o Banrisul tem uma "
+                     "dinâmica de governança diferente de bancos privados — decisões "
+                     "de crédito e expansão podem ser influenciadas por objetivos de "
+                     "política estadual, não só por retorno financeiro puro, o que "
+                     "ajuda a explicar por que sua rentabilidade (ROE) historicamente "
+                     "fica abaixo dos pares privados.",
+        "setor_dinamica": "Bancos regionais/estaduais — menor escala que os bancos "
+                     "nacionais, com ROE estruturalmente mais baixo e resultado mais "
+                     "concentrado na economia de um único estado.",
+    },
+    "SANB3": {
+        "o_que_faz": "O Santander Brasil é o terceiro maior banco privado do país, "
+                     "controlado pelo Santander Espanha.",
+        "segmentos": [
+            ("Varejo", "pessoas físicas — cartão, crédito pessoal, financiamento."),
+            ("Corporate/PJ", "empresas de todos os portes."),
+        ],
+        "insight_chave": "O Santander Brasil tem entregado ROE consistentemente menor "
+                     "que Itaú e BTG nos últimos trimestres (16% no 1T26, vs 24% do "
+                     "Itaú e 26,6% do BTG) — a própria gestão reconhece que isso é "
+                     "parcialmente uma escolha deliberada: postura mais conservadora no "
+                     "crédito, priorizando uma carteira mais 'limpa' no longo prazo em "
+                     "vez de crescer rápido agora.",
+        "setor_dinamica": "Bancos grandes privados — ROE é o principal termômetro de "
+                     "comparação entre pares; resultado sensível ao ciclo de crédito e "
+                     "à carga tributária.",
+    },
+    "BMGB4": {
+        "o_que_faz": "O Banco BMG é focado em crédito consignado (público e privado) e "
+                     "cartão consignado, com forte presença via correspondentes "
+                     "bancários.",
+        "segmentos": [
+            ("Crédito Consignado", "principal produto — empréstimo com desconto "
+             "direto em folha de pagamento."),
+            ("Cartão Consignado", "linha de crédito rotativo vinculada ao consignado."),
+        ],
+        "insight_chave": "O BMG foi pioneiro no consignado privado no Brasil, mas hoje "
+                     "compete com praticamente todos os grandes bancos nesse mercado, "
+                     "que se tornou bem mais concorrido. A vantagem histórica de 'ser o "
+                     "primeiro' foi erodindo, e hoje o BMG precisa competir em execução "
+                     "e relacionamento com correspondentes, não mais em exclusividade "
+                     "de produto.",
+        "setor_dinamica": "Bancos de crédito consignado — produto de baixo risco "
+                     "(desconto automático em folha), mas mercado cada vez mais "
+                     "disputado por grandes bancos.",
+    },
+    "IRBR3": {
+        "o_que_faz": "O IRB é a maior resseguradora da América Latina — vende 'seguro "
+                     "de seguradoras', protegendo outras seguradoras que querem "
+                     "repassar parte do risco que assumiram.",
+        "segmentos": [
+            ("P&C Brasil", "resseguro patrimonial, rural, riscos especiais no Brasil."),
+            ("Exterior", "operações internacionais, incluindo Londres e Buenos Aires."),
+        ],
+        "insight_chave": "A IRB passou por uma crise contábil/de governança grave em "
+                     "2020 (escândalo que derrubou a ação mais de 90%) e desde então "
+                     "vem reconstruindo a confiança do mercado através de disciplina de "
+                     "subscrição — a empresa hoje prefere recusar negócios mal "
+                     "precificados (mesmo perdendo volume) a repetir os erros do "
+                     "passado. Essa cicatriz histórica explica por que a empresa é tão "
+                     "conservadora hoje, mesmo perdendo prêmios.",
+        "setor_dinamica": "Resseguro — negócio cíclico ligado a 'hard market' (quando "
+                     "há catástrofes, sobe a demanda e o preço do resseguro) vs 'soft "
+                     "market' (poucos eventos, mais concorrência, preços caem).",
+    },
+    "ITSA4": {
+        "o_que_faz": "A Itaúsa é a holding controladora do Itaú Unibanco, com "
+                     "participações também em empresas não-financeiras (Alpargatas, "
+                     "Dexco, Copa Energia, Aegea).",
+        "segmentos": [
+            ("Itaú Unibanco", "principal ativo — responde pela maior parte do valor e "
+             "do lucro da holding."),
+            ("Participações não-financeiras", "Alpargatas (calçados/vestuário), Dexco "
+             "(madeira/louças), Copa Energia (GLP), Aegea (saneamento)."),
+        ],
+        "insight_chave": "A Itaúsa historicamente negocia com DESCONTO em relação à "
+                     "soma das partes (valor de mercado de tudo que ela possui, "
+                     "somado) — no 1T26 esse desconto era de 19,4%. Em teoria, comprar "
+                     "Itaúsa pode ser 'mais barato' que comprar Itaú direto mais as "
+                     "outras participações separadamente — mas esse desconto de "
+                     "holding é estrutural (existe há anos) e pode nunca 'fechar' "
+                     "completamente.",
+        "setor_dinamica": "Holding diversificada — risco e retorno são uma média "
+                     "ponderada de todas as investidas, dominada pelo peso do Itaú.",
+    },
+    "BRAP4": {
+        "o_que_faz": "A Bradespar é uma holding controlada pelo Bradesco, cujo único "
+                     "ativo relevante é uma participação na Vale.",
+        "segmentos": [
+            ("Participação na Vale", "praticamente 100% do valor e do resultado da "
+             "empresa."),
+        ],
+        "insight_chave": "Diferente da Itaúsa (diversificada), a Bradespar é, na "
+                     "prática, uma forma de comprar exposição à Vale com uma estrutura "
+                     "societária diferente — não tem operação própria relevante. "
+                     "Investir em BRAP4 é, na essência, uma aposta na Vale, só que com "
+                     "uma camada extra de holding no meio.",
+        "setor_dinamica": "Holding mono-ativo — sem diversificação, 100% dependente do "
+                     "desempenho de uma única investida (Vale).",
+    },
+    "CMIN3": {
+        "o_que_faz": "A CSN Mineração é o braço de mineração de ferro do grupo CSN, "
+                     "com minas próprias e parceria logística com a CSN (siderúrgica).",
+        "segmentos": [
+            ("Minério de Ferro", "produção e venda, com forte exposição ao mercado "
+             "chinês."),
+            ("Logística (frete marítimo)", "exposição relevante ao mercado spot de "
+             "frete, que distorce o resultado."),
+        ],
+        "insight_chave": "Diferente da Vale (que tem escala e contratos de frete mais "
+                     "estáveis), a CSN Mineração tem MAIOR exposição ao mercado SPOT de "
+                     "frete marítimo — quando o frete sobe (por conflitos geopolíticos "
+                     "ou menor disponibilidade de navios), a receita líquida por "
+                     "tonelada da CMIN3 cai mais que a de outras mineradoras, mesmo com "
+                     "o preço do minério estável.",
+        "setor_dinamica": "Mineração de ferro — menor escala que a Vale, com estrutura "
+                     "de custo mais sensível a frete marítimo.",
+    },
+    "GGBR3": {
+        "o_que_faz": "A Gerdau é a maior produtora de aço do Brasil e uma das "
+                     "principais fornecedoras de aços longos das Américas, com "
+                     "operações no Brasil e nos EUA.",
+        "segmentos": [
+            ("América do Norte", "hoje responde por ~75% do EBITDA — motor principal "
+             "do resultado."),
+            ("Brasil (aços longos e planos)", "pressionado por importação de aço, "
+             "especialmente em aços planos."),
+            ("Mineração", "minério de ferro próprio, usado internamente e vendido."),
+        ],
+        "insight_chave": "A Gerdau se tornou, na prática, 'uma história de aço "
+                     "americano com uma opção brasileira' — 75% do EBITDA vem dos EUA, "
+                     "que se beneficia de tarifas protecionistas (menos concorrência de "
+                     "aço importado) e demanda mais forte. O Brasil, ao contrário, "
+                     "sofre justamente com importação (28,5% de penetração em aços "
+                     "planos), mostrando como a mesma empresa pode ter sorte muito "
+                     "diferente em geografias diferentes ao mesmo tempo.",
+        "setor_dinamica": "Siderurgia — altamente cíclica, sensível a tarifas de "
+                     "comércio internacional, custo de minério/carvão e demanda da "
+                     "construção civil/industrial.",
+    },
+    "UNIP6": {
+        "o_que_faz": "A Unipar é a maior produtora de cloro e soda cáustica da América "
+                     "do Sul, e a segunda maior produtora de PVC da região.",
+        "segmentos": [
+            ("Cloro-soda", "produto base, usado em saneamento, papel e celulose, "
+             "alimentos."),
+            ("PVC", "usado em construção civil — tubos, conexões, esquadrias."),
+        ],
+        "insight_chave": "O negócio da Unipar depende do 'spread' entre o preço de "
+                     "venda dos produtos petroquímicos e o custo da matéria-prima "
+                     "(eletricidade, sal, eteno) — não é tanto sobre volume vendido, é "
+                     "sobre a diferença de preço. Quando esse spread aperta (como em "
+                     "2024-2026), o lucro cai mesmo com volume de vendas estável, "
+                     "porque a margem por tonelada encolhe.",
+        "setor_dinamica": "Petroquímica — altamente cíclica, ligada a preços "
+                     "internacionais de commodities petroquímicas e câmbio.",
+    },
+    "LEVE3": {
+        "o_que_faz": "A Mahle Metal Leve é fabricante de autopeças (pistões, anéis, "
+                     "filtros, camisas de cilindro), com forte presença na reposição "
+                     "(aftermarket) e fabricação original (OEM), no Brasil e exterior.",
+        "segmentos": [
+            ("Mercado de reposição (aftermarket)", "vendas pra manutenção de carros já "
+             "em circulação — menos cíclico."),
+            ("OEM (fabricação original)", "vendas pra montadoras — mais cíclico, "
+             "ligado à produção de carros novos."),
+            ("Novas frentes (elétrico)", "solução de carregamento de veículos "
+             "elétricos — diversificação pro futuro."),
+        ],
+        "insight_chave": "Por ter forte presença no aftermarket (peças de reposição), "
+                     "a Mahle Metal Leve tem uma característica defensiva que outras "
+                     "autopeças não têm: carros velhos continuam precisando de peça de "
+                     "reposição, mesmo quando a venda de carros NOVOS desacelera. Isso "
+                     "ajuda a amortecer os ciclos de queda da indústria automotiva.",
+        "setor_dinamica": "Autopeças — ligado ao ciclo da indústria automotiva, mas com "
+                     "a camada de reposição (aftermarket) trazendo mais estabilidade.",
+    },
+    "SHUL4": {
+        "o_que_faz": "A Schulz é fabricante de compressores de ar, peças fundidas e "
+                     "produtos automotivos/agrícolas, com operação relevante de "
+                     "exportação para os EUA.",
+        "segmentos": [
+            ("Compressores", "mercado interno e exportação, inclusive EUA."),
+            ("Fundidos/Automotivo", "peças pra montadoras de veículos e máquinas "
+             "agrícolas/construção."),
+        ],
+        "insight_chave": "A Schulz tem uma característica rara entre empresas "
+                     "industriais menores: opera com caixa líquido positivo (mais "
+                     "caixa do que dívida), o que significa que não depende de bancos "
+                     "pra sobreviver em anos ruins — pode esperar a virada do ciclo sem "
+                     "pressão financeira, diferente de concorrentes mais endividados "
+                     "que podem ser forçados a vender ativos ou diluir acionistas em "
+                     "momentos de baixa.",
+        "setor_dinamica": "Bens de capital/autopeças — cíclico, ligado à indústria "
+                     "automotiva e de máquinas agrícolas, com exposição cambial "
+                     "relevante (vendas em dólar nos EUA).",
+    },
+    "VULC3": {
+        "o_que_faz": "A Vulcabras é fabricante de calçados esportivos, dona das marcas "
+                     "Olympikus e Mizuno no Brasil, e licenciada da Under Armour.",
+        "segmentos": [
+            ("Olympikus", "marca própria, principal motor de crescimento."),
+            ("Mizuno e Under Armour", "marcas licenciadas/parceria, ampliam o "
+             "portfólio sem precisar criar marca do zero."),
+        ],
+        "insight_chave": "A Vulcabras tem uma estratégia de portfólio multimarcas que "
+                     "poucas concorrentes brasileiras conseguem replicar: uma marca "
+                     "própria (Olympikus, mais acessível) e duas internacionais "
+                     "licenciadas (Mizuno, mais técnica/corrida; Under Armour, mais "
+                     "lifestyle/fitness) — atingindo públicos e faixas de preço "
+                     "diferentes ao mesmo tempo, sem o custo de criar marcas do zero.",
+        "setor_dinamica": "Calçados esportivos — ligado ao consumo das famílias, com a "
+                     "vantagem de competir parcialmente fora do espaço dominado por "
+                     "Nike/Adidas no Brasil (que têm distribuição mais cara/importada).",
+    },
+    "KEPL3": {
+        "o_que_faz": "A Kepler Weber é a maior fabricante de equipamentos de "
+                     "armazenagem de grãos (silos) do Brasil.",
+        "segmentos": [
+            ("Armazenagem (silos)", "equipamentos pra fazendas e cooperativas "
+             "guardarem grãos após a colheita."),
+        ],
+        "insight_chave": "A Kepler Weber não vende pro consumidor final nem compete "
+                     "com commodities agrícolas diretamente — ela vende equipamento "
+                     "pro produtor rural guardar a própria colheita. Isso significa "
+                     "que o resultado da empresa segue o ciclo de INVESTIMENTO do agro "
+                     "(quanto o produtor está dispondo a gastar em infraestrutura), não "
+                     "direto o preço da soja/milho — em anos de margem agrícola "
+                     "apertada, o produtor primeiro corta investimento em armazenagem, "
+                     "antes de cortar a própria produção.",
+        "setor_dinamica": "Bens de capital agrícola — depende da saúde financeira e do "
+                     "apetite de investimento do produtor rural, mais do que do preço "
+                     "das commodities em si.",
+    },
+    "SLCE3": {
+        "o_que_faz": "A SLC Agrícola é uma das maiores produtoras agrícolas do Brasil "
+                     "em área cultivada, com foco em soja, algodão, milho e sementes, "
+                     "atuando em fazendas próprias e arrendadas em várias regiões do "
+                     "país.",
+        "segmentos": [
+            ("Soja", "principal cultura em área plantada — 51,1% da área total."),
+            ("Algodão (pluma e caroço)", "segunda cultura mais relevante."),
+            ("Milho e sementes", "complementares, geralmente segunda safra."),
+        ],
+        "insight_chave": "A SLC possui um patrimônio de terras avaliado por "
+                     "consultoria independente (Deloitte) em valor bem superior ao "
+                     "valor de mercado da empresa na bolsa — veja o Estudo Específico "
+                     "na aba Visão Geral pra ver o cálculo completo de P/NAV e o que "
+                     "isso significa na prática.",
+        "setor_dinamica": "Agricultura (commodities) — resultado muito ligado ao preço "
+                     "internacional de soja/algodão/milho, clima (produtividade da "
+                     "safra) e câmbio (boa parte da receita é dolarizada via "
+                     "exportação).",
+    },
+    "CMIG4": {
+        "o_que_faz": "A Cemig é uma holding de energia elétrica e gás natural de "
+                     "Minas Gerais, com a maior diversificação de segmentos entre as "
+                     "utilities brasileiras.",
+        "segmentos": [
+            ("Distribuição", "~46% do EBITDA — energia elétrica pra 9 milhões de "
+             "consumidores em MG."),
+            ("Geração", "~27% do EBITDA — hidrelétricas e outras fontes."),
+            ("Gás Natural", "~12% do EBITDA — distribuição de gás em MG."),
+            ("Transmissão e Comercialização", "~15% combinados."),
+        ],
+        "insight_chave": "A Cemig é a utility mais diversificada do Brasil em termos "
+                     "de segmentos (energia + gás, distribuição + geração + "
+                     "transmissão) — isso reduz a dependência de um único negócio, mas "
+                     "a empresa também carrega um dos maiores programas de "
+                     "investimento da história entre as utilities, o que pressiona a "
+                     "alavancagem no curto prazo mesmo com a diversificação ajudando a "
+                     "estabilizar receita.",
+        "setor_dinamica": "Utilities integradas — diversificação ampla é uma vantagem "
+                     "estrutural, mas o ciclo atual de investimento pesado exige "
+                     "paciência do investidor antes de ver o retorno completo.",
+    },
+    "ISAE4": {
+        "o_que_faz": "A ISA Energia (antiga ISA CTEEP) é a maior transmissora de "
+                     "energia elétrica do Brasil, controlada pelo grupo colombiano "
+                     "ISA, responsável por transmitir ~30% de toda a energia consumida "
+                     "no país.",
+        "segmentos": [
+            ("Transmissão", "praticamente 100% do negócio — linhas de alta tensão que "
+             "levam energia das usinas até as distribuidoras."),
+        ],
+        "insight_chave": "Sendo uma transmissora pura (sem geração nem distribuição), "
+                     "a ISA Energia tem o perfil de receita mais 'parecido com renda "
+                     "fixa' entre as utilities — a receita é definida por contratos de "
+                     "longo prazo com reajuste predefinido (RAP), com pouquíssima "
+                     "exposição a chuva, preço de energia no mercado de curto prazo ou "
+                     "inadimplência de consumidor final.",
+        "setor_dinamica": "Transmissão de energia — o segmento mais previsível e menos "
+                     "cíclico do setor elétrico; crescimento vem de novos leilões de "
+                     "concessão.",
+    },
+    "TAEE11": {
+        "o_que_faz": "A Taesa é uma das maiores transmissoras de energia elétrica do "
+                     "Brasil, fundada como parceria entre a Cemig e a colombiana ISA.",
+        "segmentos": [
+            ("Transmissão", "linhas de transmissão de alta tensão em várias regiões "
+             "do país."),
+        ],
+        "insight_chave": "Assim como a ISA Energia, a Taesa vive de contratos de "
+                     "transmissão com receita praticamente garantida por lei (RAP) — a "
+                     "diferença entre as duas está mais na carteira de ativos e no "
+                     "histórico de aquisições/leilões que cada uma venceu ao longo dos "
+                     "anos, não tanto na dinâmica fundamental do negócio, que é "
+                     "parecida.",
+        "setor_dinamica": "Transmissão de energia — negócio de 'renda fixa de "
+                     "infraestrutura', com dividendos consistentes e crescimento "
+                     "dependente de vencer novos leilões.",
+    },
+    "SBSP3": {
+        "o_que_faz": "A Sabesp é a maior empresa de saneamento básico do Brasil, "
+                     "responsável por água e esgoto na maior parte do estado de São "
+                     "Paulo, privatizada em 2024.",
+        "segmentos": [
+            ("Água", "captação, tratamento e distribuição."),
+            ("Esgoto", "coleta e tratamento."),
+        ],
+        "insight_chave": "A privatização da Sabesp em 2024 é o evento que redefine a "
+                     "tese de investimento — assim como aconteceu com a Eletrobras "
+                     "(Axia) e a Copel, o mercado está observando se a gestão privada "
+                     "vai conseguir extrair eficiência operacional que o controle "
+                     "estatal não conseguia (redução de perdas de água, melhoria de "
+                     "cobrança, disciplina de custos). O crescimento de lucro de 32% no "
+                     "1T26 é um primeiro sinal nessa direção, mas ainda é início de "
+                     "jogo.",
+        "setor_dinamica": "Saneamento — monopólio natural regulado, com receita "
+                     "previsível mas dependente de investimento constante em "
+                     "infraestrutura (tubos, estações de tratamento).",
+    },
+    "CSMG3": {
+        "o_que_faz": "A Copasa é a empresa de saneamento básico de Minas Gerais (água "
+                     "e esgoto), ainda controlada pelo governo do estado (~50,3% das "
+                     "ações).",
+        "segmentos": [
+            ("Água", "captação, tratamento e distribuição em MG."),
+            ("Esgoto", "coleta e tratamento."),
+        ],
+        "insight_chave": "A Copasa é vista pelo mercado como uma 'Sabesp em "
+                     "potencial' — a tese de privatização (que já aconteceu com a "
+                     "Sabesp e gerou forte valorização) é o principal catalisador de "
+                     "longo prazo pra ação, mas atrasos no cronograma desse processo "
+                     "geram volatilidade e incerteza, já que boa parte do valor da "
+                     "tese depende de um evento político/regulatório específico "
+                     "acontecer.",
+        "setor_dinamica": "Saneamento estatal — mesmo modelo de negócio da Sabesp, mas "
+                     "ainda sem o catalisador da privatização, o que historicamente faz "
+                     "negociar com desconto frente a pares já privatizados.",
+    },
+    "BRBI11": {
+        "o_que_faz": "O BR Partners é um banco de investimento independente "
+                     "brasileiro (não ligado a nenhum banco de varejo), especializado "
+                     "em M&A, mercado de capitais (DCM/ECM), tesouraria e wealth "
+                     "management.",
+        "segmentos": [
+            ("Investment Banking & Mercado de Capitais", "~62% da receita — "
+             "assessoria em fusões/aquisições e emissões de dívida/ações."),
+            ("Treasury Sales & Structuring", "~14% da receita — hedge em moedas, "
+             "commodities e juros pra empresas."),
+            ("Wealth Management", "gestão de fortunas — menor em receita, mas "
+             "crescendo e trazendo mais previsibilidade."),
+        ],
+        "insight_chave": "O BR Partners é conhecido informalmente como o 'mini-BTG' — "
+                     "réplica em menor escala (cerca de 1% do tamanho do BTG em valor "
+                     "de mercado) do mesmo modelo de banco de investimento "
+                     "independente, com ROE historicamente acima de 20%. A empresa "
+                     "está deliberadamente investindo em Wealth Management justamente "
+                     "pra reduzir a dependência das receitas mais voláteis (M&A, "
+                     "trading), buscando se tornar mais parecida com o BTG também "
+                     "nesse aspecto de receita recorrente.",
+        "setor_dinamica": "Banco de investimento independente — receita mais volátil "
+                     "que bancos de varejo (depende do volume de negócios fechados), "
+                     "mas margens e ROE estruturalmente mais altos.",
+    },
+    "LREN3": {
+        "o_que_faz": "A Lojas Renner é a maior varejista de moda do Brasil, dona das "
+                     "marcas Renner, Camicado e Youcom, com operação de banco digital "
+                     "(Realize) complementar.",
+        "segmentos": [
+            ("Varejo de moda (Renner)", "principal negócio — vestuário."),
+            ("Camicado", "casa e decoração."),
+            ("Realize (financeira)", "cartão de crédito e crédito ao consumidor, "
+             "complementar ao varejo."),
+        ],
+        "insight_chave": "Diferente de outras varejistas de moda, a Renner tem capital "
+                     "pulverizado desde 2005 (sem controlador definido) e é listada no "
+                     "Novo Mercado — governança considerada referência no setor. O "
+                     "maior risco estrutural de longo prazo não é concorrência de "
+                     "outra loja física, é a entrada de plataformas cross-border como "
+                     "Shein e AliExpress, que vendem direto da China com preços muito "
+                     "mais baixos, sem precisar manter lojas físicas no Brasil.",
+        "setor_dinamica": "Varejo de moda — sensível a juros (afeta tanto o consumo "
+                     "quanto a financeira/cartão da empresa) e a concorrência de "
+                     "e-commerce internacional.",
+    },
+    "GRND3": {
+        "o_que_faz": "A Grendene é uma das maiores fabricantes de calçados do Brasil "
+                     "(Melissa, Ipanema, Rider, entre outras), com forte presença em "
+                     "exportação.",
+        "segmentos": [
+            ("Calçados femininos/infantis (Melissa, Ipanema)", "marcas mais "
+             "conhecidas no Brasil e exterior."),
+            ("Calçados masculinos/esportivos (Rider, Cartago)", "complementares."),
+        ],
+        "insight_chave": "Em 2025, a Grendene distribuiu um dividendo extraordinário "
+                     "relevante (~R$1bi), elevando bastante a base de comparação de "
+                     "2026 — o 'recuo' no lucro de 2026 não significa necessariamente "
+                     "que o negócio piorou, é em parte um efeito de comparação contra "
+                     "um ano atípico. A empresa mantém política financeira "
+                     "conservadora, com caixa líquido robusto e baixa alavancagem.",
+        "setor_dinamica": "Calçados — exportação relevante (câmbio importa), consumo "
+                     "de massa, ligado ao poder de compra do consumidor brasileiro e "
+                     "de mercados de exportação (América Latina principalmente).",
     },
 }
 
