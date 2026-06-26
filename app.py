@@ -981,6 +981,118 @@ ANALISE_RESULTADO = {
                    "e mantém venda; outras casas (Nord) seguem compradas, citando P/L de 7x "
                    "(abaixo da média histórica de 13,5x) e dividend yield de ~12-13%.",
     },
+    "ITUB4": {
+        "trimestre": "1T26", "data": "05/05/2026",
+        "numeros": "Lucro líquido recorrente R$12,28bi (+10,4% A/A, -0,3% T/T) — levemente "
+                   "acima do consenso (R$12,19bi). ROE de 24,8% (+2,3 p.p. A/A). Carteira "
+                   "de crédito R$1,48tri (+7,2% A/A, +9% A/A ex-câmbio).",
+        "pontos_fortes": "ROE no Brasil de 26,4% — bem acima de pares (Santander reportou "
+                   "16% no mesmo trimestre). Índice de eficiência de 34,4%, o menor da "
+                   "série histórica do banco. Crescimento da carteira concentrado em "
+                   "linhas colateralizadas (consignado +4,4% T/T, imobiliário +3,3% T/T) "
+                   "— menos risco. Receitas de serviços e seguros cresceram 5,3% em 12 "
+                   "meses (administração de recursos +15,1%, seguros +17,2%).",
+        "pontos_fracos": "Lucro ficou estável/levemente menor (-0,3% T/T) por sazonalidade "
+                   "do 1T (menos dias úteis) e antecipação do pagamento de dividendos no "
+                   "fim de 2025 (que reduziu o patrimônio disponível pra gerar receita). "
+                   "Custo de crédito subiu 4,5% A/A (R$10bi), refletindo maior pressão no "
+                   "varejo. CEO sinalizou 2026 como ano que 'exige cautela e disciplina' "
+                   "no crédito.",
+        "expectativa": "Casas de análise (Genial, BTG) mantêm recomendação de compra, "
+                   "vendo 2026 como 'ano de transição' com crescimento mais moderado que "
+                   "os anos anteriores excepcionais, mas tese estrutural intacta — "
+                   "guidance da própria empresa aponta lucro de ~R$51bi pro ano "
+                   "(crescimento de dígito baixo). Banco vai saindo do varejo na Colômbia "
+                   "para focar só no atacado, melhorando rentabilidade internacional.",
+    },
+    "BBAS3": {
+        "trimestre": "1T26", "data": "13/05/2026",
+        "numeros": "Lucro líquido ajustado R$3,4bi (-53,5% A/A, -40,2% T/T) — dentro do "
+                   "esperado pelo mercado, mas mostra deterioração real. ROE caiu para "
+                   "7,3% (de 16,7% no 1T25) — bem abaixo de todos os bancos privados pares.",
+        "pontos_fortes": "Margem financeira bruta cresceu 14,8% A/A (R$27,4bi), mostrando "
+                   "que a geração de receita 'bruta' do banco continua forte. Carteira de "
+                   "pessoa física cresceu 8%, puxada por consignado privado. Receitas de "
+                   "prestação de serviços subiram 5,5%.",
+        "pontos_fracos": "Custo de crédito disparou 85,8% A/A (R$18,9bi), com inadimplência "
+                   "rural subindo para 6,22% e custeio rural a 10,56% — a pior leitura em "
+                   "anos do segmento. PJ encolheu (-6% A/A), puxado por MPME (-10%) e "
+                   "grandes empresas (-9%). O banco cortou o guidance de lucro de 2026 de "
+                   "R$22-26bi para R$18-22bi, reconhecendo que o problema do agro deve "
+                   "continuar pressionando os próximos trimestres.",
+        "expectativa": "Casas de análise adotaram postura mais neutra/cautelosa. O corte "
+                   "de guidance reduziu a visibilidade sobre quando o lucro deve se "
+                   "recuperar; o banco intensificou medidas de cobrança e uso de garantias, "
+                   "mas a CEO reconheceu que 'o primeiro semestre tende a ser mais "
+                   "apertado'. Dividend yield deve ficar pressionado no curto prazo "
+                   "(payout de 30% sobre lucro menor).",
+    },
+    "PETR4": {
+        "trimestre": "1T26", "data": "11/05/2026",
+        "numeros": "Lucro líquido reportado R$32,7bi (+109,9% T/T; -7,2% A/A excluindo "
+                   "eventos não recorrentes, R$23,8bi). Receita líquida R$123,7bi (estável "
+                   "A/A). EBITDA ajustado R$61,7bi (estável A/A). Produção total de óleo e "
+                   "gás 3,23 milhões boed (+16,1% A/A).",
+        "pontos_fortes": "Produção em forte expansão, puxada pelo ramp-up de novas "
+                   "plataformas no pré-sal (Búzios e Mero). ROE de 29,3% (melhor que 26,4% "
+                   "em 2025). Refino (RTC) teve desempenho excepcional. Dividendos de R$9bi "
+                   "anunciados, mantendo política de remuneração robusta mesmo com "
+                   "resultado mais fraco.",
+        "pontos_fracos": "Resultado ficou abaixo do consenso (esperado R$30,68bi) porque a "
+                   "alta recente do Brent (por tensão no Oriente Médio) ainda não foi "
+                   "capturada na receita — efeito de defasagem entre exportação e "
+                   "reconhecimento contábil. Lifting cost no pré-sal subiu (câmbio mais "
+                   "valorizado e custos do ramp-up de novas unidades). Geração de caixa "
+                   "veio mais fraca que o esperado, por maior consumo de capital de giro.",
+        "expectativa": "A própria empresa e analistas (Genial, XP) apontam o 2T26 como o "
+                   "trimestre em que o Brent mais alto deve aparecer 'cheio' no resultado "
+                   "— a tese é que o 1T26 foi operacionalmente sólido mas represado "
+                   "contabilmente, com upside represado para frente.",
+    },
+    "VALE3": {
+        "trimestre": "1T26", "data": "28/04/2026",
+        "numeros": "Lucro líquido atribuível US$1,893bi (+36% A/A, revertendo prejuízo de "
+                   "US$3,844bi no 4T25). Receita líquida US$9,3bi (+14% A/A). EBITDA "
+                   "proforma US$3,89bi (+23% A/A).",
+        "pontos_fortes": "Maior volume de vendas de minério de ferro desde 2018. Cobre com "
+                   "EBITDA +74% A/A. Recordes de produção em múltiplos ativos (S11D, "
+                   "Brucutu, e melhor produção de cobre desde 2017, níquel desde 2020). "
+                   "Fluxo de caixa livre positivo (US$813mi), revertendo trimestre "
+                   "anterior fraco.",
+        "pontos_fracos": "EBITDA ficou abaixo do esperado por algumas casas (Safra viu "
+                   "resultado 'levemente negativo'): geração de caixa livre 44% abaixo da "
+                   "projeção do Safra, por maior necessidade de capital de giro. Custo "
+                   "caixa C1 subiu 12% A/A (US$23,6/tonelada), por valorização do real. "
+                   "Alavancagem subiu para 0,8x dívida líquida/EBITDA, reduzindo a chance "
+                   "de dividendo extraordinário em 2026 segundo o Safra.",
+        "expectativa": "BTG e XP mantêm recomendação de compra, vendo o trimestre como "
+                   "reforço da tese de execução operacional consistente. Vale segue "
+                   "mirando produção de minério de ferro acima de 360 milhões de "
+                   "toneladas/ano até 2030 (+10% vs guidance 2025). Atenção do mercado "
+                   "migra para geração de caixa e disciplina de capex nos próximos "
+                   "trimestres.",
+    },
+    "B3SA3": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido recorrente R$1,5-1,54bi (+33,5% A/A; +39,4% A/A em base "
+                   "ajustada). Receita líquida recorde R$3,2bi (+20,5% A/A). EBITDA "
+                   "recorrente R$2,05-2,1bi. ROE de 33,8% (+10 p.p. A/A).",
+        "pontos_fortes": "Receita recorde histórica, puxada por fluxo estrangeiro recorde "
+                   "(R$53,8bi líquidos no trimestre — mais que o dobro de TODO o ano de "
+                   "2025). Volume médio diário em ações +46% A/A. ADV de derivativos "
+                   "+16,4% A/A. Despesas cresceram só 6% A/A, bem menos que a receita "
+                   "(+20%), mostrando alavancagem operacional forte. Receitas recorrentes "
+                   "(Tesouro Direto +45,5% em estoque, renda fixa) também cresceram bem.",
+        "pontos_fracos": "Parte da melhora veio de uma alíquota de imposto menor que a "
+                   "esperada (28% vs 34% projetado pelo Citi) — 'a cereja do bolo', segundo "
+                   "o próprio banco, não repetível todo trimestre. Concorrência começando "
+                   "a aparecer no radar (Base Exchange/Mubadala, BEE4, CSD BR), ainda sem "
+                   "efeito prático.",
+        "expectativa": "Citi reiterou compra com preço-alvo de R$23 (upside de ~30%). "
+                   "Resultado tão forte levanta a pergunta se foi um pico pontual (fluxo "
+                   "estrangeiro é variável volátil, depende de humor global e taxas de "
+                   "juros americanas) ou um novo patamar — o 2T26 deve esclarecer.",
+    },
 }
 
 
@@ -1221,6 +1333,164 @@ PANORAMA_EMPRESA = {
                      "resultado tem dupla blindagem: em cenário de juros altos, o resultado "
                      "financeiro (rendimento das reservas) compensa um resultado "
                      "operacional mais fraco — foi exatamente o que sustentou o 1T26.",
+    },
+    "ITUB4": {
+        "o_que_faz": "O Itaú Unibanco é o maior banco privado da América Latina, com "
+                     "atuação em varejo, crédito, investimentos, seguros e banco de "
+                     "investimento — negociando tanto no Brasil quanto em outros países "
+                     "da América Latina.",
+        "segmentos": [
+            ("Pessoas Físicas (varejo)", "crédito consignado, financiamento imobiliário, "
+             "cartões — cresceu 6,8% no 1T26, puxado por linhas colateralizadas (mais "
+             "seguras)."),
+            ("Empresas (PJ)", "de micro/pequenas até grandes empresas — crescimento "
+             "sustentado por programas governamentais de crédito."),
+            ("Serviços e Seguros", "administração de recursos, seguros, banco de "
+             "investimento — R$14bi de receita no 1T26, crescendo mais rápido que o "
+             "crédito puro (administração de recursos +15,1%, seguros +17,2%)."),
+            ("América Latina (ex-Brasil)", "o banco está saindo do varejo na Colômbia "
+             "(operação deficitária), mantendo só o atacado — reduzindo exposição "
+             "internacional de menor retorno."),
+        ],
+        "insight_chave": "O Itaú é conhecido no mercado como o banco mais 'sem "
+                     "surpresas' da bolsa — o ROE no Brasil (26,4% no 1T26) é "
+                     "consistentemente maior que o de seus pares (Santander reportou 16% "
+                     "no mesmo trimestre). A maior parte do crescimento recente vem de "
+                     "linhas de crédito colateralizadas (consignado, imobiliário) — "
+                     "empréstimos com garantia, que dão menos risco de inadimplência "
+                     "mesmo crescendo a carteira. É uma escolha deliberada da gestão: "
+                     "crescer 'mais devagar e com mais segurança' em vez de perseguir "
+                     "crescimento bruto.",
+        "setor_dinamica": "Bancos — resultado sensível ao ciclo de crédito (juros, "
+                     "inadimplência) e à Selic. Diferente de bancos menores, o Itaú tem "
+                     "escala suficiente pra manter o índice de eficiência no menor nível "
+                     "da própria história (34,4% no 1T26) mesmo em cenário de juros "
+                     "altos, sustentando rentabilidade acima dos pares mesmo em "
+                     "trimestres mais fracos.",
+    },
+    "BBAS3": {
+        "o_que_faz": "O Banco do Brasil é o maior banco estatal do país e o maior "
+                     "financiador do agronegócio brasileiro — atua em crédito, "
+                     "investimentos, seguros, gestão de patrimônio e serviços bancários, "
+                     "com presença nacional muito ampla.",
+        "segmentos": [
+            ("Agronegócio (crédito rural)", "carteira de R$418,4bi (+3% A/A) — é a maior "
+             "vantagem competitiva histórica do BB, mas hoje também é a maior fonte de "
+             "risco."),
+            ("Pessoa Física", "+8% A/A, puxado por consignado (R$151,8bi, +7,2%) e o "
+             "novo 'crédito do trabalhador' (+2.000% em 12 meses, ainda pequeno em "
+             "volume)."),
+            ("Pessoa Jurídica", "-6% A/A — recuou tanto em médias/pequenas empresas "
+             "(-10%) quanto em grandes empresas (-9%), reflexo de um ambiente de crédito "
+             "mais seletivo."),
+        ],
+        "insight_chave": "O BB é, ao mesmo tempo, o banco com maior exposição ao "
+                     "agronegócio e o que mais sofreu quando esse setor entrou em "
+                     "dificuldade: no 1T26, a inadimplência rural saltou para 6,22% (de "
+                     "níveis bem mais baixos), o custo de crédito disparou 86% e o lucro "
+                     "caiu 53,5% — a maior queda trimestral em anos, encerrando uma "
+                     "sequência de 16 trimestres de crescimento. Isso é o oposto do "
+                     "Itaú: enquanto o Itaú cresce 'mais devagar e com mais segurança' "
+                     "via crédito colateralizado, o BB tem uma concentração estrutural "
+                     "em agro que vira vantagem em anos boas de safra e vira problema "
+                     "quando o agro aperta — como está acontecendo agora.",
+        "setor_dinamica": "Bancos com exposição concentrada a um setor específico (agro) "
+                     "tendem a ter resultado mais cíclico que bancos diversificados — o "
+                     "ROE do BB (7,3% no 1T26) ficou bem abaixo de todos os pares "
+                     "privados (Itaú 24%, Santander 16%, Bradesco 15,8%) justamente "
+                     "nesse trimestre de crise agrícola.",
+    },
+    "PETR4": {
+        "o_que_faz": "A Petrobras é uma das maiores empresas integradas de energia do "
+                     "mundo, com atuação em exploração e produção (E&P) de petróleo e "
+                     "gás, refino, transporte e comercialização (RTC) de derivados, além "
+                     "de uma divisão de gás e energias de baixo carbono.",
+        "segmentos": [
+            ("E&P (Exploração e Produção)", "o motor da empresa — produção de ~3,2 "
+             "milhões de barris/dia, com ~2,19 milhões vindo do pré-sal (Búzios, Mero), "
+             "que tem o menor custo de extração do mundo."),
+            ("RTC (Refino, Transporte e Comercialização)", "transforma o petróleo bruto "
+             "em derivados (gasolina, diesel, querosene) e vende — teve desempenho "
+             "excepcional no 1T26."),
+            ("Gás e Energias de Baixo Carbono", "ainda um segmento menor e mais "
+             "desafiado, com EBITDA caindo 24% T/T no 1T26 por efeitos contratuais e de "
+             "preço."),
+        ],
+        "insight_chave": "Um detalhe que confunde muita gente ao olhar só o resultado "
+                     "trimestral: a Petrobras vende boa parte do petróleo pra exportação, "
+                     "e existe um intervalo de tempo entre o navio sair carregado e a "
+                     "venda ser reconhecida na receita ('descasamento' entre embarque e "
+                     "reconhecimento contábil). Isso significa que quando o preço do "
+                     "petróleo sobe de repente (como aconteceu com a tensão no Oriente "
+                     "Médio em 2026), o efeito positivo não aparece imediatamente no "
+                     "resultado — aparece com defasagem, no trimestre seguinte.",
+        "setor_dinamica": "Petróleo integrado — resultado depende do preço internacional "
+                     "do Brent, mas amortecido pelo Refino (que ganha margem mesmo "
+                     "quando o petróleo sobe) e pelo baixo custo de extração do pré-sal "
+                     "(lifting cost de ~US$9,3/barril, um dos mais baixos do mundo), o "
+                     "que protege a margem mesmo em cenários de preço mais baixo.",
+    },
+    "VALE3": {
+        "o_que_faz": "A Vale é uma das maiores mineradoras do mundo, com foco em "
+                     "minério de ferro (seu principal produto histórico) e uma divisão "
+                     "crescente de metais básicos (cobre e níquel), usados em baterias, "
+                     "eletrônicos e na transição energética.",
+        "segmentos": [
+            ("Soluções de Minério de Ferro", "ainda a maior fonte de resultado — EBITDA "
+             "de ~US$2,9bi no 1T26, com produção recorde em vários ativos (S11D, "
+             "Brucutu) e preço realizado de ~US$95,8/tonelada."),
+            ("Metais Básicos (cobre e níquel)", "a divisão que mais cresce em "
+             "importância — a participação do cobre no EBITDA total saltou de 10% em "
+             "2024 pra mais de 17% em 2025, com o níquel registrando altas expressivas."),
+        ],
+        "insight_chave": "Por muitos anos, a Vale foi vista como 'a empresa do minério "
+                     "de ferro' — e ainda é, em tamanho. Mas o que está mudando de "
+                     "verdade é a importância crescente do cobre e do níquel: como esses "
+                     "metais aparecem nas mesmas minas que produzem ouro como "
+                     "subproduto, o custo de produção do cobre da Vale está caindo pra "
+                     "perto de zero, o que pode transformar esse segmento (hoje menor) "
+                     "num motor de resultado relevante nos próximos anos — uma "
+                     "característica que diferencia a Vale de mineradoras de minério de "
+                     "ferro 'puro'.",
+        "setor_dinamica": "Mineração — resultado extremamente ligado ao preço "
+                     "internacional das commodities e à demanda chinesa (maior "
+                     "compradora de minério de ferro do mundo). Vale tem vantagem de "
+                     "custo por possuir reservas de alto teor (Carajás), o que ajuda a "
+                     "manter margem mesmo em cenários de preço mais baixo.",
+    },
+    "B3SA3": {
+        "o_que_faz": "A B3 é a única bolsa de valores do Brasil — dona de toda a "
+                     "infraestrutura de negociação, registro, depósito e liquidação de "
+                     "ações, derivativos, renda fixa e outros ativos financeiros no "
+                     "país. Funciona quase como uma 'utility' do mercado financeiro: "
+                     "ganha com o volume negociado, não com o resultado dos investidores.",
+        "segmentos": [
+            ("Listados (ações e ETFs)", "ganha taxa sobre o volume negociado de ações, "
+             "ETFs, BDRs e fundos listados — segmento mais cíclico, depende de "
+             "volatilidade e fluxo de investidores."),
+            ("Derivativos", "contratos de juros, câmbio, índices — maior e mais estável "
+             "fonte de receita; cresce com volatilidade do mercado."),
+            ("Renda Fixa, Crédito Privado e Tesouro Direto", "receitas mais recorrentes "
+             "e menos cíclicas — crescimento constante mesmo em mercado de ações fraco."),
+            ("Dados, Listagem e Soluções pra Emissores", "menor em tamanho, mas "
+             "crescendo — venda de dados analíticos, taxas de IPO/follow-on."),
+        ],
+        "insight_chave": "A B3 tem hoje um monopólio prático no Brasil — é a única "
+                     "bolsa de ações relevante do país. Isso está mudando: já existem 3 "
+                     "iniciativas de concorrência avançando (a Base Exchange, ligada ao "
+                     "fundo Mubadala de Abu Dhabi; a BEE4, focada em pequenas/médias "
+                     "empresas; e a CSD BR, que já compete no registro/depósito). "
+                     "Nenhuma dessas ameaças deve afetar o resultado no curto prazo — a "
+                     "entrada efetiva só é esperada a partir de 2027 — mas é o tipo de "
+                     "risco estrutural de longo prazo que ainda não aparece nos números "
+                     "de hoje.",
+        "setor_dinamica": "Bolsa de valores — modelo de negócio com altíssima "
+                     "alavancagem operacional (custos fixos, margem cresce muito quando "
+                     "o volume sobe) e baixa necessidade de capital novo. Receita "
+                     "'pró-cíclica' (derivativos, ações) sobe com volatilidade e fluxo "
+                     "estrangeiro; receita 'recorrente' (dados, Tesouro Direto, renda "
+                     "fixa) cresce de forma mais previsível, independente do humor do "
+                     "mercado.",
     },
 }
 
@@ -2991,7 +3261,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Rank</div>"
                     "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
                     "</div>".format(base=card_style, cor=cor_vi,
-                                    v=f"{rank:.0f}".replace(".", ",") if rank is not None else "—"),
+                                    v=f"{rank:.0f}%".replace(".", ",") if rank is not None else "—"),
                     unsafe_allow_html=True
                 )
             with vcol3:
@@ -3000,7 +3270,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>IV Percentil</div>"
                     "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{v}</div>"
                     "</div>".format(base=card_style, cor=cor_vi,
-                                    v=f"{pct:.0f}".replace(".", ",") if pct is not None else "—"),
+                                    v=f"{pct:.0f}%".replace(".", ",") if pct is not None else "—"),
                     unsafe_allow_html=True
                 )
         else:
