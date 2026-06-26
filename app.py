@@ -138,6 +138,42 @@ div[data-testid="stButton"] button {{
     font-weight: bold;
 }}
 
+/* ---- Cards de DESTAQUE (Maior Desconto P/L, Maior DY, Maior Score) ----
+   Mesma estrutura do .top-card, mas com borda/fundo dourados -- são
+   destaques reais do radar, não dados neutros como Ibovespa/Selic. ---- */
+.destaque-card {{
+    background: rgba(212,175,55,0.08);
+    border: 1px solid rgba(212,175,55,0.45);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+}}
+.destaque-card .label {{
+    font-size: 0.78em;
+    color: #D4AF37;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}}
+.destaque-card .value {{
+    font-size: 1.9em;
+    font-weight: 800;
+    color: #F1EFE8;
+    line-height: 1.1;
+}}
+.destaque-card .sub {{
+    font-size: 0.85em;
+    color: #4CAF6D;
+    margin-top: 4px;
+    font-weight: bold;
+}}
+
 /* ---- SEPARADOR ENTRE ATIVOS ---- */
 .ativo-sep {{
     height: 1px;
@@ -4241,14 +4277,24 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ABA: VALUATION & FUNDAMENTOS
     # ════════════════════════════════════════════════════════════════════
     if aba_ativa == "💰 Valuation":
-        def _card_metric(col, titulo, texto, cor_valor="#F1EFE8"):
+        def _card_metric(col, titulo, texto, cor_valor="#F1EFE8", destaque=False):
+            estilo_extra = "border:1px solid rgba(212,175,55,0.55);background:rgba(212,175,55,0.07);" if destaque else ""
+            prefixo_label = "⭐ " if destaque else ""
             col.markdown(
-                "<div style='{base}text-align:center;'>"
-                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>{titulo}</div>"
+                "<div style='{base}{extra}text-align:center;'>"
+                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>{prefixo}{titulo}</div>"
                 "<div style='font-size:1.25em;font-weight:900;color:{cor};'>{texto}</div>"
-                "</div>".format(base=card_style, titulo=titulo, texto=texto, cor=cor_valor),
+                "</div>".format(base=card_style, extra=estilo_extra, prefixo=prefixo_label,
+                                titulo=titulo, texto=texto, cor=cor_valor),
                 unsafe_allow_html=True
             )
+
+        # ---- Categoria do setor -- define quais indicadores são "chave"
+        # pra esse tipo de empresa e merecem destaque visual nesta aba ----
+        _setor_cat = classificar_setor(row.get('SETOR', ''))
+        _destaca_pl   = _setor_cat in ('banco', 'seguradora')
+        _destaca_pvp_roe = _setor_cat == 'banco'
+        _destaca_div_ebitda = _setor_cat not in ('banco', 'seguradora', 'capital_intensivo')
 
         st.markdown("#### 📊 Valuation")
 
@@ -4271,7 +4317,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         pl_proj = row.get('P/L PROJETADO', '-')
         pl_atual_str = f"{pl_atual_val:.2f}".replace(".", ",") + "x" if pl_atual_val is not None else "-"
         pl1, pl2, pl3 = st.columns(3)
-        _card_metric(pl1, "P/L Atual", pl_atual_str, cor_valor="#D4AF37")
+        _card_metric(pl1, "P/L Atual", pl_atual_str, cor_valor="#D4AF37", destaque=_destaca_pl)
         _card_metric(pl2, "P/L Médio (10 anos)", f"{row.get('P/L médio (últ. 10 anos)', '-')}x")
         _card_metric(pl3, "P/L Projetado", f"{pl_proj}x")
         st.caption(
@@ -4301,9 +4347,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             _card_metric(col, titulo, texto)
 
         i1, i2, i3, i4 = st.columns(4)
-        _card_metric(i1, "Dívida Líq/EBITDA", row.get('Dívida líquida/EBITDA', '-'))
+        _card_metric(i1, "Dívida Líq/EBITDA", row.get('Dívida líquida/EBITDA', '-'), destaque=_destaca_div_ebitda)
         _card_metric(i2, "CAGR Lucros", row.get('CAGR lucros (últ. 5 anos)', '-'))
-        _card_metric(i3, "ROE", roe)
+        _card_metric(i3, "ROE", roe, destaque=_destaca_pvp_roe)
         _card_metric(i4, "Margem Líq.", margem)
         i5, i6, i7, i8 = st.columns(4)
         _card_metric(i5, "Beta (vs IBOV)", beta)
@@ -4314,7 +4360,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             i9, i10, i11, i12 = st.columns(4)
             _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
             _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
-            _card_metric(i11, "P/VP", pvp_str if pvp_str != "-" else "—")
+            _card_metric(i11, "P/VP", pvp_str if pvp_str != "-" else "—", destaque=_destaca_pvp_roe)
             _card_ind(i12, "ROA", roa_val, sufixo="%")
             st.caption(
                 "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros) — abaixo de 1x "
@@ -4961,7 +5007,7 @@ c5, c6, c7 = st.columns(3)
 with c5:
     card_menor_pl = st.empty()
 with c6:
-    st.markdown(f"""<div class='top-card'>
+    st.markdown(f"""<div class='destaque-card'>
         <div class='label'>🏆 Maior DY</div>
         <div class='value'>{ticker_max_dy}</div>
         <div class='sub'>{val_max_dy}</div>
@@ -4984,22 +5030,23 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 }
 </style>
 """, unsafe_allow_html=True)
-tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
-with tcol2:
-    if st.button("⊞ Cards", use_container_width=True,
-                 type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
-        st.session_state.modo_exibicao = 'Cards'
-        st.rerun()
-with tcol3:
-    if st.button("⚖ Comparar", use_container_width=True,
-                 type="primary" if st.session_state.modo_exibicao == 'Comparar' else "secondary"):
-        st.session_state.modo_exibicao = 'Comparar'
-        st.rerun()
-with tcol4:
-    if st.button("🎯 Confluência", use_container_width=True,
-                 type="primary" if st.session_state.modo_exibicao == 'Confluência' else "secondary"):
-        st.session_state.modo_exibicao = 'Confluência'
-        st.rerun()
+if not st.session_state.ativo_selecionado:
+    tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
+    with tcol2:
+        if st.button("⊞ Cards", use_container_width=True,
+                     type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
+            st.session_state.modo_exibicao = 'Cards'
+            st.rerun()
+    with tcol3:
+        if st.button("⚖ Comparar", use_container_width=True,
+                     type="primary" if st.session_state.modo_exibicao == 'Comparar' else "secondary"):
+            st.session_state.modo_exibicao = 'Comparar'
+            st.rerun()
+    with tcol4:
+        if st.button("🎯 Confluência", use_container_width=True,
+                     type="primary" if st.session_state.modo_exibicao == 'Confluência' else "secondary"):
+            st.session_state.modo_exibicao = 'Confluência'
+            st.rerun()
 
 # --- LISTAGEM DE ATIVOS ---
 @st.cache_data(ttl=300, show_spinner=False)
@@ -5121,13 +5168,13 @@ else:
 
     if ativos_com_score:
         top = ativos_com_score[0]
-        card_maior_score.markdown(f"""<div class='top-card'>
+        card_maior_score.markdown(f"""<div class='destaque-card'>
             <div class='label'>🏅 Maior Score</div>
             <div class='value'>{top['row']['CÓDIGO']}</div>
             <div class='sub'>⭐ {top['score']}/10</div>
         </div>""", unsafe_allow_html=True)
     else:
-        card_maior_score.markdown("""<div class='top-card'>
+        card_maior_score.markdown("""<div class='destaque-card'>
             <div class='label'>🏅 Maior Score</div>
             <div class='value'>-</div>
         </div>""", unsafe_allow_html=True)
@@ -5153,13 +5200,13 @@ else:
             continue
 
     if melhor_desconto:
-        card_menor_pl.markdown(f"""<div class='top-card'>
+        card_menor_pl.markdown(f"""<div class='destaque-card'>
             <div class='label'>📉 Maior Desconto P/L</div>
             <div class='value'>{melhor_desconto}</div>
             <div class='sub'>-{melhor_pct:.0f}% vs média 10a</div>
         </div>""", unsafe_allow_html=True)
     else:
-        card_menor_pl.markdown("""<div class='top-card'>
+        card_menor_pl.markdown("""<div class='destaque-card'>
             <div class='label'>📉 Maior Desconto P/L</div>
             <div class='value'>-</div>
         </div>""", unsafe_allow_html=True)
