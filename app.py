@@ -1804,13 +1804,16 @@ PANORAMA_EMPRESA = {
                      "Jaraguá do Sul (SC), fábricas em 17 países, vendas para mais de 135 "
                      "países.",
         "segmentos": [
-            ("Equipamentos Eletroeletrônicos Industriais", "motores de baixa/alta tensão, "
-             "redutores, automação — vendidos pra praticamente todo tipo de indústria."),
-            ("GTD — Geração, Transmissão e Distribuição", "transformadores, geração solar/"
-             "eólica/hidrelétrica/biomassa — maior motor de crescimento recente, mas também "
-             "o mais cíclico."),
-            ("Motores Comerciais e Appliance", "motores de menor porte pra uso comercial/"
-             "residencial."),
+            ("Equipamentos Eletroeletrônicos Industriais (EEI)", "~52% da receita — "
+             "motores de baixa/alta tensão, redutores, automação, vendidos pra "
+             "praticamente todo tipo de indústria; crescimento recente puxado também "
+             "por aquisições (Marathon, Cemp, Rotor, Volt Electric Motor)."),
+            ("GTD — Geração, Transmissão e Distribuição", "~36% da receita — "
+             "transformadores, geração solar/eólica/hidrelétrica/biomassa e, mais "
+             "recentemente, sistemas de armazenamento de energia (BESS); maior motor "
+             "de crescimento recente, mas também o mais cíclico."),
+            ("Motores Comerciais e Appliance", "motores de menor porte pra uso "
+             "comercial/residencial."),
             ("Tintas e Vernizes", "menor participação na receita total."),
         ],
         "insight_chave": "Receita externa já é maior que a doméstica (57% em 2024) — e "
@@ -1818,12 +1821,20 @@ PANORAMA_EMPRESA = {
                      "industrial (mineração, papel e celulose, óleo e gás, saneamento, "
                      "agro). Isso significa que a WEG não depende da saúde de um setor "
                      "específico — diferente de uma empresa de celulose ou mineração, que "
-                     "sofre inteira quando o preço da commodity cai. A fragilidade recente "
-                     "(1T26) não veio de um setor só: foi uma queda pontual em geração "
-                     "solar doméstica (-36%) somada ao câmbio mais valorizado.",
+                     "sofre inteira quando o preço da commodity cai. Um ângulo recente "
+                     "pouco notado: os geradores que a WEG vende nos EUA (via Marathon) "
+                     "têm sido usados como energia de reserva para data centers — a "
+                     "empresa está capturando parte do boom de infraestrutura de IA sem "
+                     "depender diretamente de tecnologia digital. A fragilidade do 1T26 "
+                     "não veio de um setor só: foi uma queda pontual em geração solar "
+                     "doméstica somada ao câmbio mais valorizado.",
         "setor_dinamica": "Bens de capital industrial — o crescimento segue ciclos de "
                      "investimento industrial (motores/automação, mais estável) e ciclos "
-                     "de energia renovável (GTD, mais volátil mês a mês).",
+                     "de energia renovável (GTD, mais volátil mês a mês). Verticalização "
+                     "da produção (a empresa fabrica boa parte dos próprios componentes) "
+                     "já se mostrou uma vantagem em crises de cadeia de suprimentos, "
+                     "garantindo mais disponibilidade de produto que concorrentes "
+                     "dependentes de terceiros.",
     },
     "PRIO3": {
         "o_que_faz": "Maior petroleira privada do Brasil. Compra campos de petróleo "
@@ -2130,19 +2141,23 @@ PANORAMA_EMPRESA = {
             ("Soluções de Minério de Ferro", "ainda a maior fonte de resultado — EBITDA "
              "de ~US$2,9bi no 1T26, com produção recorde em vários ativos (S11D, "
              "Brucutu) e preço realizado de ~US$95,8/tonelada."),
-            ("Metais Básicos (cobre e níquel)", "a divisão que mais cresce em "
-             "importância — a participação do cobre no EBITDA total saltou de 10% em "
-             "2024 pra mais de 17% em 2025, com o níquel registrando altas expressivas."),
+            ("Vale Base Metals — cobre e níquel", "a divisão que mais cresce em "
+             "importância — EBITDA do segmento cresceu 116% A/A no 1T26. O custo "
+             "all-in do níquel caiu 48% A/A, e o do cobre já é NEGATIVO (a receita de "
+             "subprodutos como ouro e prata cobre todo o custo de produção)."),
         ],
-        "insight_chave": "Por muitos anos, a Vale foi vista como 'a empresa do minério "
-                     "de ferro' — e ainda é, em tamanho. Mas o que está mudando de "
-                     "verdade é a importância crescente do cobre e do níquel: como esses "
-                     "metais aparecem nas mesmas minas que produzem ouro como "
-                     "subproduto, o custo de produção do cobre da Vale está caindo pra "
-                     "perto de zero, o que pode transformar esse segmento (hoje menor) "
-                     "num motor de resultado relevante nos próximos anos — uma "
-                     "característica que diferencia a Vale de mineradoras de minério de "
-                     "ferro 'puro'.",
+        "insight_chave": "A Vale está investindo R$70bi no programa 'Novo Carajás', que "
+                     "pretende elevar a capacidade de minério de ferro pra 200 milhões "
+                     "de toneladas/ano até 2030 E expandir a produção de cobre em 32% "
+                     "(via minas de Sossego, Salobo e Onça Puma, no mesmo complexo do "
+                     "Pará) — ou seja, ferro e cobre crescem juntos, na mesma região, "
+                     "compartilhando infraestrutura. Outro ponto que poucos sabem: o "
+                     "S11D (maior mina da Vale) processa o minério A SECO, sem usar "
+                     "água nem precisar de barragens de rejeito — uma escolha técnica "
+                     "que reduz diretamente o tipo de risco que causou os desastres de "
+                     "Brumadinho e Mariana. A conclusão do acordo de Mariana em 2025 "
+                     "removeu, nas palavras do próprio CEO, um 'grande risco de cauda' "
+                     "que pesava sobre a empresa há quase uma década.",
         "setor_dinamica": "Mineração — resultado extremamente ligado ao preço "
                      "internacional das commodities e à demanda chinesa (maior "
                      "compradora de minério de ferro do mundo). Vale tem vantagem de "
@@ -2201,14 +2216,23 @@ PANORAMA_EMPRESA = {
              "Banco Pan e da Too Seguros — crédito consignado e financiamento de "
              "veículos para o varejo."),
         ],
-        "insight_chave": "O BTG não é mais 'só' um banco de investimento para gente "
-                     "rica — com a compra do Banco Pan e da Too Seguros, ele criou uma "
-                     "vertical de varejo (Consumer Finance & Banking) que já cresce 40% "
-                     "ao ano. Isso muda o perfil de risco do banco: ele está se tornando "
-                     "mais parecido com um banco de varejo tradicional (cartão, crédito "
-                     "consignado, financiamento de carro), um negócio com dinâmica e "
-                     "risco de crédito diferentes do banco de investimento clássico que "
-                     "historicamente definia o BTG.",
+        "insight_chave": "O segredo por trás do ROE consistentemente alto do BTG não é "
+                     "só diversificação — é a estrutura de 'Partnership': os executivos "
+                     "mais importantes do banco são também SÓCIOS, através de uma holding "
+                     "separada que reúne o capital de mais de 400 sócios. Essa "
+                     "partnership não compete com o cliente — ela entra DEPOIS dos "
+                     "fundos e dos clientes institucionais em uma operação, mas "
+                     "frequentemente com o maior cheque de todos, e usa parte dos "
+                     "dividendos para investir diretamente na economia real (participações "
+                     "em empresas como Light, Veste e Metalfrio, por exemplo). Isso "
+                     "cria um incentivo muito mais forte que um salário: o sócio só "
+                     "ganha se o banco (e os investimentos da partnership) performarem "
+                     "bem — e explica por que o BTG hoje se parece menos com 'só um "
+                     "banco' e mais com um grupo empresarial diversificado, no estilo "
+                     "Itaúsa/Bradespar, só que mais agressivo. Além disso, com a compra "
+                     "do Banco Pan e da Too Seguros, o BTG criou uma vertical de varejo "
+                     "(Consumer Finance & Banking) que muda seu perfil de risco, "
+                     "aproximando-o de um banco de varejo tradicional.",
         "setor_dinamica": "Banco de investimento diversificado — menos dependente de um "
                      "único motor, com receitas vindas de fontes muito diferentes entre "
                      "si (trading, wealth, M&A, crédito). Isso reduz a volatilidade "
@@ -2237,7 +2261,15 @@ PANORAMA_EMPRESA = {
                      "Seguridade, cujo maior motor é o Seguro Rural — mesmo sendo as duas "
                      "'seguradoras de banco público', elas têm exposições de risco bem "
                      "diferentes: a Caixa Seguridade está mais ligada ao mercado "
-                     "imobiliário, a BB Seguridade ao agronegócio.",
+                     "imobiliário, a BB Seguridade ao agronegócio. Um detalhe pouco "
+                     "comentado: a Caixa Seguridade não vende só pela rede da Caixa — "
+                     "tem uma parceria de 49% com o BTG Pactual (Too Seguros, "
+                     "distribuída via Banco PAN) e de 60% com a francesa CNP Assurances "
+                     "(vida e previdência), diversificando os canais de venda além das "
+                     "agências da Caixa. A receita de BDF (taxa que as seguradoras "
+                     "parceiras pagam pra usar a marca e a rede de distribuição da "
+                     "Caixa) é, na prática, a empresa 'alugando' sua marca e capilaridade "
+                     "pra terceiros.",
         "setor_dinamica": "Bancassurance (seguros vendidos via banco) — modelo de baixo "
                      "custo de aquisição, mas dependente da saúde e do apetite de crédito "
                      "do banco controlador. Juros altos ajudam o resultado financeiro mas "
@@ -2344,15 +2376,21 @@ PANORAMA_EMPRESA = {
              "o pós-pago, que é mais lucrativo para a operadora."),
             ("Serviço Fixo (TIM UltraFibra)", "ainda pequeno (menos de 6% da receita) "
              "mas crescendo rápido, frente de expansão para os próximos anos."),
+            ("B2B / IoT", "conectividade pra empresas (logística, iluminação "
+             "inteligente, agronegócio) — receita contratada cresceu 30% A/A, para "
+             "R$1,08bi no 1T26."),
         ],
-        "insight_chave": "A receita da TIM cresce, o EBITDA cresce, mas o LUCRO quase "
-                     "não se move — o motivo não é operacional, é tributário: uma "
-                     "mudança na forma de distribuir Juros sobre Capital Próprio (JCP) "
-                     "fez o imposto de renda saltar 75% em um ano. Para entender se a TIM "
-                     "está realmente 'indo bem', é mais informativo olhar Receita/"
-                     "EBITDA/Geração de Caixa do que o lucro líquido isolado nesse "
-                     "momento específico — o lucro está sendo 'mascarado' por um efeito "
-                     "fiscal, não por fraqueza do negócio.",
+        "insight_chave": "A TIM optou por NÃO ser dona da própria infraestrutura "
+                     "física de fibra: em 2024, vendeu a I-Systems (sua operação de "
+                     "fibra) para a IHS Towers por R$1,1bi, recebendo de volta o "
+                     "serviço como locatária — o mesmo modelo já usado com torres de "
+                     "celular. A própria empresa admite que 'não temos data centers, "
+                     "não temos infraestrutura fixa' como discurso deliberado, "
+                     "preferindo alugar capacidade de terceiros especializados a "
+                     "carregar esses ativos no próprio balanço. Isso libera capital "
+                     "pra focar em rede móvel e cliente, mas também significa que "
+                     "parte da infraestrutura crítica do negócio não está sob "
+                     "controle direto da TIM.",
         "setor_dinamica": "Telecomunicações — setor maduro e intensivo em capital "
                      "(precisa investir constantemente em rede/5G), com crescimento "
                      "vindo da migração pré-pago→pós-pago e da expansão de fibra, não de "
@@ -2677,22 +2715,33 @@ PANORAMA_EMPRESA = {
                      "internacionais de commodities petroquímicas e câmbio.",
     },
     "LEVE3": {
-        "o_que_faz": "A Mahle Metal Leve é fabricante de autopeças (pistões, anéis, "
-                     "filtros, camisas de cilindro), com forte presença na reposição "
-                     "(aftermarket) e fabricação original (OEM), no Brasil e exterior.",
+        "o_que_faz": "A Mahle Metal Leve é controlada pelo grupo alemão MAHLE (um dos "
+                     "30 maiores fornecedores da indústria automotiva mundial, com "
+                     "mais de 160 fábricas em 35 países) — no Brasil, fabrica "
+                     "autopeças (pistões, anéis, filtros, bronzinas, camisas de "
+                     "cilindro) em 5 unidades industriais (4 no Brasil, 1 na "
+                     "Argentina).",
         "segmentos": [
-            ("Mercado de reposição (aftermarket)", "vendas pra manutenção de carros já "
-             "em circulação — menos cíclico."),
+            ("Mercado de reposição (aftermarket)", "historicamente a maior parte da "
+             "receita (chegou a ~70% em alguns trimestres) — vendas pra manutenção "
+             "de carros já em circulação, menos cíclico."),
             ("OEM (fabricação original)", "vendas pra montadoras — mais cíclico, "
              "ligado à produção de carros novos."),
-            ("Novas frentes (elétrico)", "solução de carregamento de veículos "
-             "elétricos — diversificação pro futuro."),
+            ("Exportação", "relevante e diversificada: Europa (~47%), América do "
+             "Norte (~38%) e América Latina (~12%) — câmbio de várias moedas afeta o "
+             "resultado, não só o dólar."),
         ],
         "insight_chave": "Por ter forte presença no aftermarket (peças de reposição), "
                      "a Mahle Metal Leve tem uma característica defensiva que outras "
                      "autopeças não têm: carros velhos continuam precisando de peça de "
-                     "reposição, mesmo quando a venda de carros NOVOS desacelera. Isso "
-                     "ajuda a amortecer os ciclos de queda da indústria automotiva.",
+                     "reposição, mesmo quando a venda de carros NOVOS desacelera. A "
+                     "empresa ajusta deliberadamente o mix entre OEM e aftermarket, e "
+                     "entre mercado interno e externo, justamente pra equilibrar essas "
+                     "oscilações e estabilizar a margem ao longo do tempo — uma "
+                     "decisão de gestão, não um acaso. Sendo controlada por um grupo "
+                     "alemão gigante, a empresa também se beneficia de tecnologia e "
+                     "P&D desenvolvidos centralmente pela matriz, sem precisar "
+                     "replicar esse investimento sozinha no Brasil.",
         "setor_dinamica": "Autopeças — ligado ao ciclo da indústria automotiva, mas com "
                      "a camada de reposição (aftermarket) trazendo mais estabilidade.",
     },
@@ -2772,26 +2821,27 @@ PANORAMA_EMPRESA = {
     },
     "SLCE3": {
         "o_que_faz": "A SLC Agrícola é uma das maiores produtoras agrícolas do Brasil "
-                     "em área cultivada, com foco em soja, algodão, milho e sementes, "
-                     "atuando em fazendas próprias e arrendadas em várias regiões do "
-                     "país.",
+                     "em área cultivada (mais de 830 mil hectares, em 26 unidades e 8 "
+                     "estados), com foco em soja, algodão, milho e sementes.",
         "segmentos": [
-            ("Soja", "principal cultura em área plantada — 51,1% da área total."),
-            ("Algodão (pluma e caroço)", "segunda cultura mais relevante."),
+            ("Soja", "principal cultura em área plantada — mais de 50% da área total."),
+            ("Algodão (pluma e caroço)", "segunda cultura mais relevante — maior "
+             "valor agregado, foco crescente da estratégia."),
             ("Milho e sementes", "complementares, geralmente segunda safra."),
         ],
-        "insight_chave": "Em nov/2025, a SLC fez algo pouco comum no setor: criou uma "
-                     "parceria com fundos geridos pelo BTG Pactual, na qual a SLC "
-                     "contribuiu com TERRA (a Fazenda Piratini, na Bahia, 18 mil "
-                     "hectares) e os fundos contribuíram com DINHEIRO (R$1,03bi) pra "
-                     "financiar irrigação. Isso mostra como a empresa usa o valor das "
-                     "próprias terras como moeda de troca pra atrair capital de "
-                     "investimento sem precisar se endividar ou diluir acionistas via "
-                     "emissão de ações — monetiza parte do patrimônio fundiário sem "
-                     "vender a terra. O projeto deve elevar a área irrigada de 19 mil "
-                     "para 58 mil hectares nos próximos anos, o que tende a reduzir a "
-                     "dependência da empresa do clima (chuva) pra sustentar "
-                     "produtividade.",
+        "insight_chave": "Desde 2008, a SLC vem migrando deliberadamente para um "
+                     "modelo 'asset light': em vez de só plantar em terra própria, "
+                     "vendeu parte do seu patrimônio fundiário e passou a crescer via "
+                     "arrendamento e joint ventures — hoje já mais de 50% da área "
+                     "plantada é arrendada/JV, e cerca de 30% da colheita de soja é "
+                     "terceirizada (não usa máquina própria), o que reduz a "
+                     "necessidade de capital fixo (capex). A parceria com fundos "
+                     "ligados ao PSP Investments (fundo de pensão canadense, gerido "
+                     "pelo BTG) pra financiar irrigação é a evolução mais recente "
+                     "dessa estratégia: dados da própria empresa mostram que o "
+                     "algodão irrigado já rendeu 360 arrobas/hectare, contra 120 no "
+                     "sequeiro (3x mais) — e a soja, 73,6 sacas/hectare irrigada "
+                     "contra 35,2 no sequeiro (mais que o dobro).",
         "setor_dinamica": "Agricultura (commodities) — resultado muito ligado ao preço "
                      "internacional de soja/algodão/milho, clima (produtividade da "
                      "safra) e câmbio (boa parte da receita é dolarizada via "
