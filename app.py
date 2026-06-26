@@ -4636,6 +4636,27 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "Projetado tende a ficar acima do P/L Atual."
         )
 
+        # ---- Earnings Yield -- inverso do P/L Atual, em %. Mesmo cálculo
+        # já usado internamente na Fórmula Mágica (Greenblatt): quanto maior,
+        # mais "barata" a empresa em relação ao lucro que gera. Funciona pra
+        # qualquer ativo que tenha P/L Atual (Fundamentus), sem precisar
+        # buscar nenhum dado novo. ----
+        st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+        if pl_atual_val and pl_atual_val > 0:
+            ey_val = (1 / pl_atual_val) * 100
+            ey_str = f"{ey_val:.1f}%".replace(".", ",")
+            ey_cor = "#22C55E" if ey_val >= 10 else ("#D4AF37" if ey_val >= 6 else "#EF4444")
+        else:
+            ey_str, ey_cor = "—", "#888"
+        ey1, ey2, ey3 = st.columns(3)
+        _card_metric(ey1, "Earnings Yield", ey_str, cor_valor=ey_cor)
+        st.caption(
+            "Earnings Yield = 1 ÷ P/L Atual, em %. Mostra quanto a empresa 'rende' em lucro "
+            "sobre o preço atual — quanto maior, mais barata em relação ao que ela gera de "
+            "resultado. É o mesmo indicador usado na Fórmula Mágica de Greenblatt, comparável "
+            "diretamente com a Selic ou outra renda fixa como referência de oportunidade."
+        )
+
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         g1, g2 = st.columns(2)
