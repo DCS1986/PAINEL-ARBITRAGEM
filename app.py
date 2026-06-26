@@ -3766,6 +3766,49 @@ def _ind_buscar(indicadores, *termos):
 
 
 # ---- Busca de dados no Yahoo Finance ----
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_revisao_estimativas(ticker):
+    """Revisão de estimativas de lucro pelos analistas (EPS trend) -- sinal
+    usado por gestores profissionais pra antecipar movimento de preço: se o
+    consenso de analistas está subindo ou caindo a expectativa de lucro nas
+    últimas semanas, sem o investidor precisar esperar o resultado sair.
+
+    NUNCA TESTADO contra ticker brasileiro de verdade -- a cobertura de
+    dados de analistas do Yahoo Finance pra ações da B3 é historicamente
+    inconsistente (boa pra alguns ativos populares, vazia pra outros,
+    sobretudo small caps). Retorna (dict_ou_None, erro_ou_None); o dict
+    tem 'atual', 'ha_30d', 'ha_90d' (estimativa de EPS do ano fiscal
+    corrente) e 'variacao_30d', 'variacao_90d' (em %)."""
+    try:
+        stock = yf.Ticker(f"{ticker}.SA")
+        trend = stock.eps_trend
+        if trend is None or trend.empty:
+            return None, "Yahoo Finance não tem dados de revisão de estimativas pra este ativo"
+
+        # Linha '0y' = ano fiscal corrente -- a referência mais estável pra
+        # ver se o consenso está sendo revisado pra cima ou pra baixo.
+        if '0y' not in trend.index:
+            return None, "dado de revisão do ano fiscal corrente não disponível"
+        linha = trend.loc['0y']
+
+        atual  = linha.get('current', None)
+        ha_30d = linha.get('30daysAgo', None)
+        ha_90d = linha.get('90daysAgo', None)
+
+        if atual is None or (ha_30d is None and ha_90d is None):
+            return None, "dados insuficientes pra calcular a variação"
+
+        variacao_30d = ((atual - ha_30d) / abs(ha_30d) * 100) if ha_30d else None
+        variacao_90d = ((atual - ha_90d) / abs(ha_90d) * 100) if ha_90d else None
+
+        return {
+            'atual': atual, 'ha_30d': ha_30d, 'ha_90d': ha_90d,
+            'variacao_30d': variacao_30d, 'variacao_90d': variacao_90d,
+        }, None
+    except Exception as e:
+        return None, str(e)
+
+
 @st.cache_data(ttl=86400)
 def get_dados_yahoo(ticker):
     try:
@@ -4266,46 +4309,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ABA: VISÃO GERAL
     # ════════════════════════════════════════════════════════════════════
     if aba_ativa == "📊 Visão Geral":
-        gov = GOVERNANCA.get(ticker, {})
-        out = OUTLOOK_2026.get(ticker, {})
-        nota_gov = gov.get('nota', None)
-        obs_gov  = gov.get('obs', '')
-
-        gcol1, gcol2 = st.columns(2)
-
-        with gcol1:
-            if nota_gov is not None:
-                if nota_gov >= 8:
-                    gov_cor, gov_label = "#4CAF6D", "Alta"
-                elif nota_gov >= 6:
-                    gov_cor, gov_label = "#D4AF37", "Média"
-                else:
-                    gov_cor, gov_label = "#D9534F", "Baixa"
-                st.markdown(
-                    "<div style='{base}'>"
-                    "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
-                    "text-transform:uppercase;margin-bottom:8px;'>🏛️ Governança Corporativa</div>"
-                    "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
-                    "<span style='font-size:1.9em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
-                    "<span style='font-size:0.85em;color:{cor};font-weight:700;'>{label}</span>"
-                    "</div>"
-                    "<div style='font-size:0.92em;color:#ddd;line-height:1.6;'>{obs}</div>"
-                    "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
-                                    label=gov_label, obs=obs_gov),
-                    unsafe_allow_html=True
-                )
-
-        with gcol2:
-            if out:
-                st.markdown(
-                    "<div style='{base}'>"
-                    "<div style='font-size:0.78em;font-weight:600;color:#ccc;letter-spacing:0.5px;"
-                    "text-transform:uppercase;margin-bottom:8px;'>{icone} Outlook 2026</div>"
-                    "<div style='font-size:0.92em;color:#ddd;line-height:1.6;'>{texto}</div>"
-                    "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
-                    unsafe_allow_html=True
-                )
-
         # Teto / Target / Status
         pt_v  = ativo_data.get('preco_teto_val', 0) if isinstance(ativo_data, dict) else 0
         tg_v  = ativo_data.get('target_val', 0)      if isinstance(ativo_data, dict) else 0
@@ -4413,10 +4416,97 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
 
         _card_score_hero(r3, score)
 
+        # ---- Revisão de Estimativas (consenso de analistas) ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        rev_dados, rev_erro = get_revisao_estimativas(ticker)
+        if rev_dados and (rev_dados['variacao_30d'] is not None or rev_dados['variacao_90d'] is not None):
+            v30 = rev_dados['variacao_30d']
+            v90 = rev_dados['variacao_90d']
+            def _cor_variacao(v):
+                if v is None:
+                    return "#888"
+                return "#4CAF6D" if v > 0.5 else ("#D9534F" if v < -0.5 else "#D4AF37")
+            v30_str = f"{v30:+.1f}%".replace(".", ",") if v30 is not None else "—"
+            v90_str = f"{v90:+.1f}%".replace(".", ",") if v90 is not None else "—"
+            rc1, rc2 = st.columns(2)
+            with rc1:
+                st.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.78em;color:#ccc;text-transform:uppercase;"
+                    "margin-bottom:6px;'>📈 Revisão de Estimativas (30 dias)</div>"
+                    "<div style='font-size:1.6em;font-weight:900;color:{cor};'>{v}</div>"
+                    "</div>".format(base=card_style, cor=_cor_variacao(v30), v=v30_str),
+                    unsafe_allow_html=True
+                )
+            with rc2:
+                st.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.78em;color:#ccc;text-transform:uppercase;"
+                    "margin-bottom:6px;'>📈 Revisão de Estimativas (90 dias)</div>"
+                    "<div style='font-size:1.6em;font-weight:900;color:{cor};'>{v}</div>"
+                    "</div>".format(base=card_style, cor=_cor_variacao(v90), v=v90_str),
+                    unsafe_allow_html=True
+                )
+            st.caption(
+                "Mostra se o consenso de analistas está revisando a estimativa de lucro "
+                "(EPS) do ano fiscal corrente para cima ou para baixo nas últimas semanas — "
+                "um sinal que costuma antecipar movimento de preço, sem precisar esperar o "
+                "resultado trimestral sair. NOVO — fonte: Yahoo Finance; a cobertura de "
+                "analistas pra ações da B3 é inconsistente, então pode não aparecer pra "
+                "todos os ativos."
+            )
+        else:
+            st.info("Revisão de estimativas indisponível para este ativo.")
+            if rev_erro:
+                st.caption(f"🔧 Detalhe técnico: {rev_erro}")
+
     # ════════════════════════════════════════════════════════════════════
     # ABA: PANORAMA (orientação pra quem não conhece a empresa)
     # ════════════════════════════════════════════════════════════════════
     if aba_ativa == "🧭 Panorama":
+        # ---- Governança e Outlook -- mudaram de Visão Geral pra aqui:
+        # são texto descritivo/estrutural sobre a empresa, não status de
+        # mercado do dia, então combinam mais com o espírito do Panorama. ----
+        gov = GOVERNANCA.get(ticker, {})
+        out = OUTLOOK_2026.get(ticker, {})
+        nota_gov = gov.get('nota', None)
+        obs_gov  = gov.get('obs', '')
+
+        if nota_gov is not None or out:
+            gcol1, gcol2 = st.columns(2)
+            with gcol1:
+                if nota_gov is not None:
+                    if nota_gov >= 8:
+                        gov_cor, gov_label = "#4CAF6D", "Alta"
+                    elif nota_gov >= 6:
+                        gov_cor, gov_label = "#D4AF37", "Média"
+                    else:
+                        gov_cor, gov_label = "#D9534F", "Baixa"
+                    st.markdown(
+                        "<div style='{base}'>"
+                        "<div style='font-size:0.78em;color:#ccc;font-weight:600;letter-spacing:0.5px;"
+                        "text-transform:uppercase;margin-bottom:8px;'>🏛️ Governança Corporativa</div>"
+                        "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>"
+                        "<span style='font-size:1.9em;font-weight:900;color:{cor};line-height:1;'>{nota}</span>"
+                        "<span style='font-size:0.85em;color:{cor};font-weight:700;'>{label}</span>"
+                        "</div>"
+                        "<div style='font-size:0.92em;color:#ddd;line-height:1.6;'>{obs}</div>"
+                        "</div>".format(base=card_style, cor=gov_cor, nota=nota_gov,
+                                        label=gov_label, obs=obs_gov),
+                        unsafe_allow_html=True
+                    )
+            with gcol2:
+                if out:
+                    st.markdown(
+                        "<div style='{base}'>"
+                        "<div style='font-size:0.78em;font-weight:600;color:#ccc;letter-spacing:0.5px;"
+                        "text-transform:uppercase;margin-bottom:8px;'>{icone} Outlook 2026</div>"
+                        "<div style='font-size:0.92em;color:#ddd;line-height:1.6;'>{texto}</div>"
+                        "</div>".format(base=card_style, icone=out['icone'], texto=out['texto']),
+                        unsafe_allow_html=True
+                    )
+            st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
+
         # ---- Estudo Específico (so aparece se existir entrada pro ticker) ----
         # Fica no TOPO do Panorama, não em Visão Geral -- é justamente o tipo
         # de detalhe estrutural/permanente que ajuda a entender a empresa,
