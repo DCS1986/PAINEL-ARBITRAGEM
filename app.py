@@ -934,6 +934,53 @@ ANALISE_RESULTADO = {
                    "observar o 2T26 para confirmar se a operação volta ao normal sem as "
                    "paradas programadas.",
     },
+    "PSSA3": {
+        "trimestre": "1T26", "data": "07/05/2026",
+        "numeros": "Lucro líquido total R$1,13bi (+36,3% A/A) — lucro recorrente de "
+                   "R$958mi (+15,1% A/A), 8% acima do consenso. ROAE de 29,0% (vs 23,9% "
+                   "no 1T25). Receita total R$10,58bi (+8,8% A/A).",
+        "pontos_fortes": "Quinto trimestre consecutivo de crescimento de dois dígitos no "
+                   "lucro recorrente. Vertical Seguro entregou lucro de R$467mi (+49% A/A) "
+                   "com melhora de sinistralidade (índice combinado caiu 4 p.p., para 85%). "
+                   "Saúde cresceu 20% no lucro, com 858 mil vidas (+22%). Bank cresceu 10% "
+                   "no lucro mesmo com custo de crédito mais alto, puxado por carteira "
+                   "+13,7%.",
+        "pontos_fracos": "Resultado financeiro caiu ~20% (R$307mi vs R$382,6mi), por "
+                   "rolagem de títulos a taxas melhores — efeito esperado se revertendo "
+                   "nos próximos trimestres. Perdas de crédito no Bank subiram 44,3% A/A, "
+                   "sinal de ambiente de crédito mais desafiador. Parte da melhora do ROAE "
+                   "recorrente veio de uma alíquota de impostos menor, não só de operação "
+                   "mais lucrativa.",
+        "expectativa": "Casas de análise avaliam o resultado como positivo, com "
+                   "diversificação (Saúde + Bank) sustentando o crescimento enquanto o "
+                   "Seguro Auto (negócio principal histórico) enfrenta crescimento mais "
+                   "limitado por já ser líder de mercado. Guidance da própria empresa para "
+                   "2026 mantido: Seguro +3-7% em prêmios, Saúde +14-22%, Bank entre "
+                   "R$7,5-7,9bi em receita.",
+    },
+    "BBSE3": {
+        "trimestre": "1T26", "data": "04/05/2026",
+        "numeros": "Lucro líquido gerencial R$2,2bi (+11,2% A/A), dentro do esperado pelo "
+                   "mercado. Resultado financeiro combinado R$507,1mi (+58,5% A/A), "
+                   "respondendo por ~23% do lucro total.",
+        "pontos_fortes": "Brasilprev (previdência) foi o destaque: lucro +51% A/A "
+                   "(R$538,1mi), puxado por melhora de 716% no resultado financeiro "
+                   "(redução do custo do passivo) e alta de 7% no resultado operacional. "
+                   "Brasilcap (capitalização) também subiu 50,6% (R$81,3mi). Sinistralidade "
+                   "da Brasilseg seguiu em patamar historicamente baixo. Reservas de "
+                   "previdência avançaram 9,1%.",
+        "pontos_fracos": "Brasilseg (maior negócio, seguros) mostrou crescimento fraco — "
+                   "lucro +1% apenas, com prêmios emitidos caindo 2,3% (segmento agrícola "
+                   "-27,9% e penhor rural -14,2%, refletindo piora do agronegócio). O "
+                   "resultado depende cada vez mais do resultado financeiro (juros), não "
+                   "do crescimento operacional puro — em cenário de juros mais baixos, "
+                   "esse suporte desaparece.",
+        "expectativa": "Crescimento dentro do guidance da própria empresa, mas perto do "
+                   "piso (prêmios -2,3% vs faixa de -3% a +2%) — pouca margem de segurança "
+                   "se o agro continuar fraco. JPMorgan cortou preço-alvo após o 4T25 fraco "
+                   "e mantém venda; outras casas (Nord) seguem compradas, citando P/L de 7x "
+                   "(abaixo da média histórica de 13,5x) e dividend yield de ~12-13%.",
+    },
 }
 
 
@@ -1108,6 +1155,72 @@ PANORAMA_EMPRESA = {
                      "menos volátil que celulose pura porque a demanda majoritária vem do "
                      "setor alimentício (baixa ciclicidade) e a receita é 91% doméstica "
                      "(91% mercado interno, 9% exportação) — pouco exposta a câmbio.",
+    },
+    "PSSA3": {
+        "o_que_faz": "A Porto deixou de ser 'só' uma seguradora de carros e se tornou um "
+                     "ecossistema de proteção e serviços financeiros, com 4 verticais: "
+                     "Porto Seguro, Porto Saúde, Porto Bank e Porto Serviço.",
+        "segmentos": [
+            ("Porto Seguro (auto, residência, empresas, vida)", "51% do lucro em 2025 — "
+             "ainda o maior negócio, mas caiu de 67% em 2023 por crescimento mais rápido "
+             "das outras verticais."),
+            ("Porto Saúde", "25% do lucro — a vertical que mais cresce: receita +37%/ano "
+             "e lucro +78%/ano entre 2021-2025."),
+            ("Porto Bank", "18% do lucro — cartão, crédito, consórcio, conta digital; "
+             "carteira de crédito de R$22,9bi."),
+            ("Porto Serviço", "7% do lucro — assistência residencial/automotiva; menor em "
+             "lucro, mas ajuda a reter cliente."),
+        ],
+        "insight_chave": "O dado mais importante: em 2023, seguro tradicional (auto/"
+                     "residência) era 67% do lucro da Porto; em 2025, caiu para 51% — não "
+                     "porque o seguro piorou, mas porque Saúde e Bank cresceram muito mais "
+                     "rápido. Hoje quase metade do lucro (49%) já vem de negócios que não "
+                     "são seguro tradicional, e todas as 4 verticais entregam ROAE acima de "
+                     "20% — raro entre empresas brasileiras com tantas frentes diferentes "
+                     "ao mesmo tempo.",
+        "setor_dinamica": "Seguros e serviços financeiros diversificados — menos cíclico "
+                     "que uma seguradora pura de automóvel. Saúde tem dinâmica de "
+                     "crescimento estrutural (mais vidas seguradas, mais beneficiários "
+                     "odonto); Bank é sensível ao ciclo de crédito (custo de crédito subiu "
+                     "44% A/A no 1T26, sinal de atenção); o seguro tradicional já é líder "
+                     "de mercado (26% de market share em auto), com menos espaço de "
+                     "crescimento orgânico forte.",
+    },
+    "BBSE3": {
+        "o_que_faz": "A BB Seguridade é uma holding de seguros, previdência e "
+                     "capitalização ligada ao Banco do Brasil — não vende diretamente, usa "
+                     "a rede de agências do BB pra distribuir os produtos das suas "
+                     "controladas/joint ventures (Brasilseg, Brasilprev, Brasilcap, "
+                     "Brasildental).",
+        "segmentos": [
+            ("Seguro Rural (Brasilseg)", "35,9% do lucro — a maior fatia, maior até que "
+             "previdência ou vida. Líder absoluta com 62,9% de market share, mas só ~7% "
+             "da área agrícola brasileira tem seguro."),
+            ("Previdência (Brasilprev)", "22,6% do lucro — maior empresa de previdência "
+             "privada do país, R$484bi em reservas."),
+            ("Prestamista", "15,4% do lucro — seguro que protege operações de crédito, "
+             "crescendo junto com o crédito brasileiro."),
+            ("Vida e Capitalização", "13,2% + 6% do lucro — segmentos mais estáveis e "
+             "diversificadores."),
+        ],
+        "insight_chave": "A maior fatia do lucro da BB Seguridade não vem de previdência "
+                     "nem de seguro de vida — vem do Seguro Rural (35,9%). Isso significa "
+                     "que o resultado da empresa está mais ligado à saúde do agronegócio "
+                     "brasileiro (safra, clima, crédito rural) do que a maioria das pessoas "
+                     "imagina quando pensa numa 'seguradora ligada a banco'. Foi exatamente "
+                     "isso que pressionou o resultado no 1T26: os prêmios do segmento "
+                     "agrícola caíram 27,9% A/A por causa de um agro mais fraco. Ao mesmo "
+                     "tempo, a empresa avalia que só 7% da área agrícola tem seguro hoje — "
+                     "vê isso como o segmento com mais espaço pra crescer no longo prazo, "
+                     "mesmo sendo o mais sensível no curto prazo.",
+        "setor_dinamica": "Seguros e previdência distribuídos via rede bancária — modelo "
+                     "de baixíssimo custo de aquisição (usa a estrutura do Banco do Brasil, "
+                     "que é também o controlador com 68% do capital). Receitas diferidas "
+                     "(R$14,9bi em prêmios + R$6,3bi em comissões a apropriar) funcionam "
+                     "como um 'colchão' que reduz a volatilidade trimestre a trimestre. O "
+                     "resultado tem dupla blindagem: em cenário de juros altos, o resultado "
+                     "financeiro (rendimento das reservas) compensa um resultado "
+                     "operacional mais fraco — foi exatamente o que sustentou o 1T26.",
     },
 }
 

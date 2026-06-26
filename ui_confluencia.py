@@ -265,7 +265,7 @@ def render_confluencia_card(
 
     row = linha.iloc[0]
     resumo = explicar(row)
-    n_sinais_txt = " (com recompra do Fundamentus)" if extras is not None else ""
+    n_sinais_txt = ""
 
     # SEM número combinado, SEM comparação com outros tickers -- um score
     # normalizado pelo maior movimento do universo (ex: a compra gigante da
