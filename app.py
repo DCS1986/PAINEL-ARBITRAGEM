@@ -480,38 +480,37 @@ def badge_score(score):
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
 def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
-                      crescimento_max=0.15, tir_nominal_max=0.35):
+                      crescimento_max=0.12, tir_nominal_max=0.35):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
-    de dividendo mais o quanto o lucro deve crescer ESTE ano especificamente'.
-    Mesma lógica que bancos publicam em relatório (retorno implícito
-    comparável a uma NTN-B):
+    de dividendo mais o quanto o lucro deve crescer'. Mesma lógica que
+    bancos publicam em relatório (retorno implícito comparável a uma NTN-B):
 
     1. Parte que vira dividendo = Dividend Yield bruto estimado (dy_num) --
-       o MESMO número já usado em todo o resto do app (cards, Dividendos).
-       Se não disponível, cai pro cálculo derivado (Earnings Yield × Payout)
-       como respaldo.
-    2. Crescimento esperado = LL Projetado (2026) ÷ lucro do último ano
-       FECHADO (ex: 2025 real) − 1. Importante: isso é diferente de um CAGR
-       de 5 anos ou de um modelo de reinvestimento ao ROE -- ambos descrevem
-       uma taxa de crescimento de LONGO PRAZO/perpétua, e essa TIR é
-       explicitamente só pra um ano (2026). Usar uma média de 5 anos (que
-       pode ter vindo de crescimento concentrado em anos passados) ou uma
-       taxa teórica perpétua como se fosse "o crescimento de 2026" gerava
-       número irreal (uma CXSE3 com CAGR histórico de 19,4% não
-       necessariamente vai crescer 19,4% EM 2026 especificamente -- pode ter
-       sido puxado por um ano fora da curva no passado).
+       o MESMO número já usado em todo o resto do app. Se não disponível,
+       cai pro cálculo derivado (Earnings Yield × Payout) como respaldo.
+    2. Crescimento esperado -- duas fontes possíveis, nessa ordem de
+       preferência:
+       a) LL Projetado (2026) ÷ lucro do último ano FECHADO − 1, quando o
+          histórico de lucro (via Yahoo) está disponível -- é a estimativa
+          mais precisa, específica de 2026, não uma média de vários anos.
+       b) CAGR de lucros (últ. 5 anos) -- usado como respaldo quando (a) não
+          está disponível (o que acontece com frequência, já que o
+          histórico multi-ano do Yahoo é inconsistente pra ações da B3).
+          É um dado real que você confere manualmente, então não o
+          descartamos -- só o limitamos a crescimento_max nessa conta
+          específica, porque mesmo um número real e correto, ao ser tratado
+          como "a taxa de crescimento de só este ano", precisa de uma
+          margem de prudência (nenhuma taxa alta se sustenta indefinidamente
+          quando extrapolada de uma média de 5 anos pra um único ano).
     3. TIR nominal = (1) + (2), limitado a tir_nominal_max
     4. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
        'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
 
-    Atualiza sozinha conforme o resultado trimestral muda o DY, o Payout e
-    o LL Projetado -- não precisa recalcular manualmente.
-
-    NÃO se aplica bem a empresas sem histórico de lucro suficiente, com
-    lucro projetado/realizado negativo, payout ausente/fora de faixa
-    razoável, OU quando o resultado nominal passa de tir_nominal_max (35%
-    a.a. por padrão) -- nesses casos retorna None."""
+    NÃO se aplica bem a empresas com lucro projetado negativo, payout
+    ausente/fora de faixa razoável, sem CAGR nem histórico de lucro
+    disponíveis, OU quando o resultado nominal passa de tir_nominal_max
+    (35% a.a. por padrão) -- nesses casos retorna None."""
     pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
     ll_proj = limpar_valor_resultado(row.get('LL PROJETADO', 0))
     payout_raw = row.get('PAYOUT', '-')
@@ -532,15 +531,27 @@ def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
     else:
         return None
 
-    if not historico_lucro or ll_proj <= 0:
-        return None
-    ultimo_ano = max(historico_lucro.keys())
-    lucro_ultimo_ano = historico_lucro[ultimo_ano]
-    if lucro_ultimo_ano <= 0:
-        return None  # empresa saindo de prejuízo -- crescimento % não é informativo aqui
+    g = None
+    fonte_g = None
+    ano_base = None
+    if historico_lucro and ll_proj > 0:
+        ultimo_ano = max(historico_lucro.keys())
+        lucro_ultimo_ano = historico_lucro[ultimo_ano]
+        if lucro_ultimo_ano > 0:
+            g_calc = (ll_proj / lucro_ultimo_ano) - 1
+            if g_calc >= 0:
+                g = min(g_calc, crescimento_max)
+                fonte_g = 'ano_a_ano'
+                ano_base = ultimo_ano
 
-    g = max((ll_proj / lucro_ultimo_ano) - 1, 0)
-    g = min(g, crescimento_max)
+    if g is None:
+        cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+        if cagr_pct_tir > 0:
+            g = min(cagr_pct_tir / 100, crescimento_max)
+            fonte_g = 'cagr_5anos'
+
+    if g is None:
+        return None
 
     tir_nominal = parte_dividendo + g
 
@@ -552,7 +563,8 @@ def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
 
     return {
         'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
-        'g': g * 100, 'dy_usado': parte_dividendo * 100, 'ano_base': ultimo_ano,
+        'g': g * 100, 'dy_usado': parte_dividendo * 100, 'ano_base': ano_base,
+        'fonte_g': fonte_g, 'crescimento_max_usado': crescimento_max * 100,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
         'g_no_teto': g >= crescimento_max - 1e-9,
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
@@ -4884,16 +4896,25 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "dividendo de fato pago) — resultado menos confiável, olhe os números acima "
                 "com mais cautela." if tir_dados['payout_baixo'] else ""
             )
+            if tir_dados['fonte_g'] == 'ano_a_ano':
+                _texto_g = (
+                    f"comparando o LL Projetado pra 2026 com o lucro real de "
+                    f"{tir_dados['ano_base']} (último ano fechado)"
+                )
+            else:
+                _texto_g = (
+                    "com base no CAGR de lucros dos últimos 5 anos (o histórico ano-a-ano não "
+                    "estava disponível pra esse ativo) — por ser uma média de vários anos, "
+                    f"limitamos a {tir_dados['crescimento_max_usado']:.0f}%".replace(".", ",") +
+                    " a.a. nessa conta especificamente, já que essa TIR é só pra este ano"
+                )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
                 f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
                 " = parte que vira dividendo de fato — o mesmo número usado no resto do app —, "
                 "mais crescimento esperado de " +
                 f"{tir_dados['g']:.1f}%".replace(".", ",") +
-                (" (no teto de 15% a.a.)" if tir_dados['g_no_teto'] else "") +
-                f" a.a., comparando o LL Projetado pra 2026 com o lucro real de "
-                f"{tir_dados['ano_base']} (último ano fechado) — propositalmente NÃO uma média "
-                "de vários anos, já que essa TIR é só pra este ano), menos IPCA acumulado de " +
+                f" a.a., {_texto_g}), menos IPCA acumulado de " +
                 f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
                 "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." + aviso_confianca
@@ -4901,8 +4922,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         else:
             st.caption(
                 "TIR esperada 2026 não disponível — esse modelo não se aplica bem a "
-                "empresas sem histórico de lucro suficiente, com lucro projetado ou do "
-                "último ano negativo, payout ausente/fora de faixa razoável, ou quando o "
+                "empresas com lucro projetado negativo, payout ausente/fora de faixa "
+                "razoável, sem CAGR nem histórico de lucro disponíveis, ou quando o "
                 "resultado nominal passaria de 35% a.a. (sinal de que algum dos números de "
                 "entrada provavelmente está errado)."
             )
