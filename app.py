@@ -5966,18 +5966,23 @@ if not st.session_state.ativo_selecionado:
                 )
             else:
                 st.error(f"Não funcionou: {_fdm_erro}")
-    tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
+    tcol2, tcol3, tcol4, tcol5, tcol6 = st.columns([1, 1, 1, 1.4, 5])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
                      type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
             st.session_state.modo_exibicao = 'Cards'
             st.rerun()
     with tcol3:
+        if st.button("📋 Tabela", use_container_width=True,
+                     type="primary" if st.session_state.modo_exibicao == 'Tabela' else "secondary"):
+            st.session_state.modo_exibicao = 'Tabela'
+            st.rerun()
+    with tcol4:
         if st.button("⚖ Comparar", use_container_width=True,
                      type="primary" if st.session_state.modo_exibicao == 'Comparar' else "secondary"):
             st.session_state.modo_exibicao = 'Comparar'
             st.rerun()
-    with tcol4:
+    with tcol5:
         if st.button("🎯 Confluência", use_container_width=True,
                      type="primary" if st.session_state.modo_exibicao == 'Confluência' else "secondary"):
             st.session_state.modo_exibicao = 'Confluência'
@@ -6310,6 +6315,76 @@ else:
                             st.session_state.ativo_selecionado = ticker_c
                             st.session_state.aba_ativa = "📊 Visão Geral"
                             st.rerun()
+            st.stop()
+
+        # Modo Tabela — grade completa, ordenável por coluna (clicando no
+        # cabeçalho), igual o screener do Fundamentei que o Diego mostrou.
+        # Mostra muitos ativos e muitos números ao mesmo tempo -- o que os
+        # Cards não conseguem fazer bem.
+        if st.session_state.modo_exibicao == 'Tabela':
+            st.markdown("#### 📋 Tabela Completa")
+            st.caption(
+                "Clique no cabeçalho de qualquer coluna pra ordenar. Use o seletor abaixo "
+                "pra abrir o detalhe de um ativo."
+            )
+
+            linhas_tabela = []
+            for a in ativos_com_score:
+                r = a['row']
+                linhas_tabela.append({
+                    'Ticker': r['CÓDIGO'],
+                    'Setor': r.get('SETOR', '-'),
+                    'Cotação': limpar_valor(str(r.get('Cotação atual', 0))),
+                    'Var. Dia (%)': a.get('variacao_dia', 0.0),
+                    'Score (Momento)': a.get('score', 0),
+                    'Score Estrutural': a.get('score_estrutural', 0),
+                    'Status': a.get('st_desc', '-'),
+                    'P/L': a.get('pl_num', 0) or None,
+                    'P/VP': a.get('pvp_str', '-'),
+                    'DY (%)': a.get('dy_num', 0) or None,
+                    'ROE (%)': a.get('roe_num_raw', 0) or None,
+                    'Earnings Yield (%)': a.get('earnings_yield') or None,
+                    'TIR 2026 Real (%)': a.get('tir_real') or None,
+                    '% vs Teto': a.get('pct_acima_teto') if a.get('pct_acima_teto') is not None else None,
+                })
+            df_tabela = pd.DataFrame(linhas_tabela)
+
+            st.dataframe(
+                df_tabela,
+                use_container_width=True,
+                hide_index=True,
+                height=min(740, 70 + 35 * len(df_tabela)),
+                column_config={
+                    'Cotação': st.column_config.NumberColumn(format="R$ %.2f"),
+                    'Var. Dia (%)': st.column_config.NumberColumn(format="%.2f%%"),
+                    'Score (Momento)': st.column_config.NumberColumn(format="%.1f"),
+                    'Score Estrutural': st.column_config.NumberColumn(format="%.1f"),
+                    'P/L': st.column_config.NumberColumn(format="%.1fx"),
+                    'DY (%)': st.column_config.NumberColumn(format="%.1f%%"),
+                    'ROE (%)': st.column_config.NumberColumn(format="%.1f%%"),
+                    'Earnings Yield (%)': st.column_config.NumberColumn(format="%.1f%%"),
+                    'TIR 2026 Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
+                    '% vs Teto': st.column_config.NumberColumn(format="%.0f%%"),
+                },
+            )
+
+            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+            ticker_aberto = st.selectbox(
+                "Abrir detalhe de um ativo:",
+                options=[""] + sorted(df_tabela['Ticker'].tolist()),
+                index=0,
+            )
+            if ticker_aberto:
+                st.session_state.ativo_selecionado = ticker_aberto
+                st.session_state.aba_ativa = "📊 Visão Geral"
+                st.rerun()
+
+            st.download_button(
+                "⬇ Baixar tabela em CSV",
+                data=df_tabela.to_csv(index=False).encode('utf-8-sig'),
+                file_name="radar_fundamentalista.csv",
+                mime="text/csv",
+            )
             st.stop()
 
         # Modo Comparar — tabela lado a lado de 2 a 4 ativos
