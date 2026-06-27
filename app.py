@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 import requests
+from bs4 import BeautifulSoup
 
 from ui_confluencia import render_confluencia, render_confluencia_card
 from cvm_insiders import (
@@ -3915,6 +3916,56 @@ def get_volatilidade_ticker(ticker):
     return item, None
 
 
+# ---- P/FCO e P/FCL via Fundamentei (página de Valuation, sem login) ------
+# NUNCA TESTADO contra o HTML de verdade -- a página parece ser um app
+# Next.js (componentes React), não uma tabela HTML tradicional como o
+# Fundamentus, então a extração aqui é por busca de texto em sequência
+# (acha "P/FCO"/"P/FCL" no DOM e pega o número que vem imediatamente antes),
+# resistente a mudança de tag (div/h2/h4) mas sensível a mudança de classe
+# CSS que reordene o conteúdo. Validar com Diego antes de confiar.
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_fluxo_caixa_fundamentei(ticker):
+    """Busca P/FCO (preço ÷ fluxo de caixa operacional) e P/FCL (preço ÷
+    fluxo de caixa livre) na página pública de Valuation do Fundamentei --
+    métricas de geração de caixa real, não disponíveis no Fundamentus.
+    Retorna (dict_ou_None, erro_ou_None). dict tem 'p_fco' e 'p_fcl'
+    (ambos float ou None se não encontrados)."""
+    try:
+        url = f"https://fundamentei.com/br/{ticker.lower()}/valuation?tab=VALUATION"
+        r = requests.get(url, timeout=12, headers=_FUNDAMENTUS_HEADERS)
+        if r.status_code != 200:
+            return None, f"HTTP {r.status_code} ao acessar Fundamentei"
+
+        soup = BeautifulSoup(r.text, 'html.parser')
+        # Pega todo o texto visível, em ordem, quebrado por elemento --
+        # assim a busca não depende de qual tag específica (h2, h4, div)
+        # envolve cada número/rótulo.
+        textos = [t.strip() for t in soup.stripped_strings]
+
+        def _achar_valor_antes_do_rotulo(rotulo_exato):
+            for i, txt in enumerate(textos):
+                if txt == rotulo_exato:
+                    # Procura pra trás o primeiro texto que parece um número
+                    for j in range(i - 1, max(i - 4, -1), -1):
+                        candidato = textos[j].replace('.', '').replace(',', '.')
+                        try:
+                            return float(candidato)
+                        except ValueError:
+                            continue
+            return None
+
+        p_fco = _achar_valor_antes_do_rotulo('P/FCO')
+        p_fcl = _achar_valor_antes_do_rotulo('P/FCL')
+
+        if p_fco is None and p_fcl is None:
+            return None, "P/FCO e P/FCL não encontrados na página (estrutura pode ter mudado)"
+
+        return {'p_fco': p_fco, 'p_fcl': p_fcl}, None
+    except Exception as e:
+        return None, str(e)
+
+
+
 # ---- Indicadores extras (ROIC, VPA, P/EBIT, EV/EBITDA, margens, liquidez) ----
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_indicadores_fundamentus(ticker):
@@ -5872,17 +5923,22 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 if not st.session_state.ativo_selecionado:
-    with st.expander("🔧 Diagnóstico de Fluxo de Caixa Livre (teste antes de usarmos no Score)"):
-        _ticker_teste_fcl = st.text_input("Ticker pra testar:", value="PETR4", key="ticker_teste_fcl")
-        if st.button("Testar busca de Fluxo de Caixa Livre"):
-            _fcl_val, _fcl_json, _fcl_erro = get_fluxo_caixa_livre(_ticker_teste_fcl.upper().strip())
-            if _fcl_val is not None:
-                st.success(f"Funcionou! Fluxo de Caixa Livre (TTM) de {_ticker_teste_fcl.upper()}: R$ {_fcl_val:,.0f}")
+    with st.expander("🔧 Diagnóstico de P/FCO e P/FCL via Fundamentei (teste antes de usarmos)"):
+        st.caption(
+            "brapi.dev exige plano pago pra Fluxo de Caixa, então não vamos usar ela — "
+            "achamos uma fonte grátis (Fundamentei) que mostra P/FCO e P/FCL sem login. "
+            "Testa aqui antes de eu usar isso no Score."
+        )
+        _ticker_teste_fdm = st.text_input("Ticker pra testar:", value="RANI3", key="ticker_teste_fdm")
+        if st.button("Testar busca de P/FCO e P/FCL"):
+            _fdm_dados, _fdm_erro = get_fluxo_caixa_fundamentei(_ticker_teste_fdm.upper().strip())
+            if _fdm_dados:
+                st.success(
+                    f"Funcionou! {_ticker_teste_fdm.upper()} — "
+                    f"P/FCO: {_fdm_dados['p_fco']} | P/FCL: {_fdm_dados['p_fcl']}"
+                )
             else:
-                st.error(f"Não funcionou: {_fcl_erro}")
-            if _fcl_json is not None:
-                with st.expander("Ver resposta completa da API (JSON)"):
-                    st.json(_fcl_json)
+                st.error(f"Não funcionou: {_fdm_erro}")
     tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
