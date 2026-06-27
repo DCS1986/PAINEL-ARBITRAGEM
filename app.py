@@ -5879,60 +5879,68 @@ def get_taxa_real_referencia():
 ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
 
+# Cabeçalho (Total/Filtrados/Ibovespa/Selic/destaques) só aparece na tela
+# principal em modo Cards -- esconde ao abrir um ativo (mais espaço pra
+# ver o detalhe) e no modo Tabela (mais espaço pra ver mais empresas).
+_mostrar_cabecalho = (not st.session_state.ativo_selecionado
+                      and st.session_state.modo_exibicao != 'Tabela')
+card_filtrados = card_menor_pl = card_maior_score = None
+
 # ---- Linha 1: Total+Filtrados (juntas = largura de 1 caixa de baixo);
 # Ibovespa+Selic (juntas = largura de 2 caixas de baixo, centralizadas) ----
-c1, c2, c3, c4 = st.columns([0.5, 0.5, 1, 1])
-with c1:
-    st.markdown(f"""<div class='top-card'>
-        <div class='label'>📋 Total de Ativos</div>
-        <div class='value'>{len(df)}</div>
-    </div>""", unsafe_allow_html=True)
-with c2:
-    card_filtrados = st.empty()
-with c3:
-    if ibov_val is not None:
-        cor_ibov = "#22C55E" if ibov_var > 0 else ("#EF4444" if ibov_var < 0 else "#D4AF37")
-        ibov_fmt = f"{ibov_val:,.0f}".replace(",", ".")
+if _mostrar_cabecalho:
+    c1, c2, c3, c4 = st.columns([0.5, 0.5, 1, 1])
+    with c1:
         st.markdown(f"""<div class='top-card'>
-            <div class='label'>📊 Ibovespa</div>
-            <div class='value'>{ibov_fmt}</div>
-            <div class='sub' style='color:{cor_ibov};'>{ibov_var:+.2f}%</div>
+            <div class='label'>📋 Total de Ativos</div>
+            <div class='value'>{len(df)}</div>
         </div>""", unsafe_allow_html=True)
-    else:
-        st.markdown("""<div class='top-card'>
-            <div class='label'>📊 Ibovespa</div>
-            <div class='value'>—</div>
-        </div>""", unsafe_allow_html=True)
-with c4:
-    if selic_val is not None:
-        selic_fmt = f"{selic_val:.2f}".replace(".", ",")
-        st.markdown(f"""<div class='top-card'>
-            <div class='label'>🏦 Selic</div>
-            <div class='value'>{selic_fmt}% a.a.</div>
-        </div>""", unsafe_allow_html=True)
-    else:
-        st.markdown("""<div class='top-card'>
-            <div class='label'>🏦 Selic</div>
-            <div class='value'>—</div>
-        </div>""", unsafe_allow_html=True)
+    with c2:
+        card_filtrados = st.empty()
+    with c3:
+        if ibov_val is not None:
+            cor_ibov = "#22C55E" if ibov_var > 0 else ("#EF4444" if ibov_var < 0 else "#D4AF37")
+            ibov_fmt = f"{ibov_val:,.0f}".replace(",", ".")
+            st.markdown(f"""<div class='top-card'>
+                <div class='label'>📊 Ibovespa</div>
+                <div class='value'>{ibov_fmt}</div>
+                <div class='sub' style='color:{cor_ibov};'>{ibov_var:+.2f}%</div>
+            </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown("""<div class='top-card'>
+                <div class='label'>📊 Ibovespa</div>
+                <div class='value'>—</div>
+            </div>""", unsafe_allow_html=True)
+    with c4:
+        if selic_val is not None:
+            selic_fmt = f"{selic_val:.2f}".replace(".", ",")
+            st.markdown(f"""<div class='top-card'>
+                <div class='label'>🏦 Selic</div>
+                <div class='value'>{selic_fmt}% a.a.</div>
+            </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown("""<div class='top-card'>
+                <div class='label'>🏦 Selic</div>
+                <div class='value'>—</div>
+            </div>""", unsafe_allow_html=True)
 
-st.markdown(
-    "<div style='margin:14px 0 14px 0;border-bottom:1px solid rgba(255,255,255,0.08);'></div>",
-    unsafe_allow_html=True
-)
+    st.markdown(
+        "<div style='margin:14px 0 14px 0;border-bottom:1px solid rgba(255,255,255,0.08);'></div>",
+        unsafe_allow_html=True
+    )
 
-# ---- Linha 2: Maior Desconto P/L, Maior DY, Maior Score -- 3 cards iguais ----
-c5, c6, c7 = st.columns(3)
-with c5:
-    card_menor_pl = st.empty()
-with c6:
-    st.markdown(f"""<div class='destaque-card'>
-        <div class='label'>🏆 Maior DY</div>
-        <div class='value'>{ticker_max_dy}</div>
-        <div class='sub'>{val_max_dy}</div>
-    </div>""", unsafe_allow_html=True)
-with c7:
-    card_maior_score = st.empty()
+    # ---- Linha 2: Maior Desconto P/L, Maior DY, Maior Score -- 3 cards iguais ----
+    c5, c6, c7 = st.columns(3)
+    with c5:
+        card_menor_pl = st.empty()
+    with c6:
+        st.markdown(f"""<div class='destaque-card'>
+            <div class='label'>🏆 Maior DY</div>
+            <div class='value'>{ticker_max_dy}</div>
+            <div class='sub'>{val_max_dy}</div>
+        </div>""", unsafe_allow_html=True)
+    with c7:
+        card_maior_score = st.empty()
 
 
 
@@ -5950,22 +5958,6 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 if not st.session_state.ativo_selecionado:
-    with st.expander("🔧 Diagnóstico de P/FCO e P/FCL via Fundamentei (teste antes de usarmos)"):
-        st.caption(
-            "brapi.dev exige plano pago pra Fluxo de Caixa, então não vamos usar ela — "
-            "achamos uma fonte grátis (Fundamentei) que mostra P/FCO e P/FCL sem login. "
-            "Testa aqui antes de eu usar isso no Score."
-        )
-        _ticker_teste_fdm = st.text_input("Ticker pra testar:", value="RANI3", key="ticker_teste_fdm")
-        if st.button("Testar busca de P/FCO e P/FCL"):
-            _fdm_dados, _fdm_erro = get_fluxo_caixa_fundamentei(_ticker_teste_fdm.upper().strip())
-            if _fdm_dados:
-                st.success(
-                    f"Funcionou! {_ticker_teste_fdm.upper()} — "
-                    f"P/FCO: {_fdm_dados['p_fco']} | P/FCL: {_fdm_dados['p_fcl']}"
-                )
-            else:
-                st.error(f"Não funcionou: {_fdm_erro}")
     tcol2, tcol3, tcol4, tcol5, tcol6 = st.columns([1, 1, 1, 1.4, 5])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
@@ -6135,31 +6127,34 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
 
 
 if df_f.empty:
-    card_filtrados.markdown("""<div class='top-card'>
-        <div class='label'>🔍 Ativos Filtrados</div>
-        <div class='value'>0</div>
-    </div>""", unsafe_allow_html=True)
+    if card_filtrados is not None:
+        card_filtrados.markdown("""<div class='top-card'>
+            <div class='label'>🔍 Ativos Filtrados</div>
+            <div class='value'>0</div>
+        </div>""", unsafe_allow_html=True)
     st.warning("Nenhum ativo encontrado.")
 else:
     ativos_com_score = _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val)
 
-    card_filtrados.markdown(f"""<div class='top-card'>
-        <div class='label'>🔍 Ativos Filtrados</div>
-        <div class='value'>{len(ativos_com_score)}</div>
-    </div>""", unsafe_allow_html=True)
+    if card_filtrados is not None:
+        card_filtrados.markdown(f"""<div class='top-card'>
+            <div class='label'>🔍 Ativos Filtrados</div>
+            <div class='value'>{len(ativos_com_score)}</div>
+        </div>""", unsafe_allow_html=True)
 
-    if ativos_com_score:
-        top = ativos_com_score[0]
-        card_maior_score.markdown(f"""<div class='destaque-card'>
-            <div class='label'>🏅 Maior Score</div>
-            <div class='value'>{top['row']['CÓDIGO']}</div>
-            <div class='sub'>⭐ {top['score']}/10</div>
-        </div>""", unsafe_allow_html=True)
-    else:
-        card_maior_score.markdown("""<div class='destaque-card'>
-            <div class='label'>🏅 Maior Score</div>
-            <div class='value'>-</div>
-        </div>""", unsafe_allow_html=True)
+    if card_maior_score is not None:
+        if ativos_com_score:
+            top = ativos_com_score[0]
+            card_maior_score.markdown(f"""<div class='destaque-card'>
+                <div class='label'>🏅 Maior Score</div>
+                <div class='value'>{top['row']['CÓDIGO']}</div>
+                <div class='sub'>⭐ {top['score']}/10</div>
+            </div>""", unsafe_allow_html=True)
+        else:
+            card_maior_score.markdown("""<div class='destaque-card'>
+                <div class='label'>🏅 Maior Score</div>
+                <div class='value'>-</div>
+            </div>""", unsafe_allow_html=True)
 
     # ---- Maior desconto: P/L projetado vs P/L médio histórico (10 anos) ----
     # Exclui empresas cíclicas (Vale, Petrobras, Klabin etc.) pois o P/L
@@ -6181,17 +6176,18 @@ else:
         except:
             continue
 
-    if melhor_desconto:
-        card_menor_pl.markdown(f"""<div class='destaque-card'>
-            <div class='label'>📉 Maior Desconto P/L</div>
-            <div class='value'>{melhor_desconto}</div>
-            <div class='sub'>-{melhor_pct:.0f}% vs média 10a</div>
-        </div>""", unsafe_allow_html=True)
-    else:
-        card_menor_pl.markdown("""<div class='destaque-card'>
-            <div class='label'>📉 Maior Desconto P/L</div>
-            <div class='value'>-</div>
-        </div>""", unsafe_allow_html=True)
+    if card_menor_pl is not None:
+        if melhor_desconto:
+            card_menor_pl.markdown(f"""<div class='destaque-card'>
+                <div class='label'>📉 Maior Desconto P/L</div>
+                <div class='value'>{melhor_desconto}</div>
+                <div class='sub'>-{melhor_pct:.0f}% vs média 10a</div>
+            </div>""", unsafe_allow_html=True)
+        else:
+            card_menor_pl.markdown("""<div class='destaque-card'>
+                <div class='label'>📉 Maior Desconto P/L</div>
+                <div class='value'>-</div>
+            </div>""", unsafe_allow_html=True)
 
     if not ativos_com_score:
         st.warning("Nenhum ativo com score suficiente encontrado.")
@@ -6332,13 +6328,13 @@ else:
             for a in ativos_com_score:
                 r = a['row']
                 linhas_tabela.append({
+                    'Logo': a.get('logo_url', '') or None,
                     'Ticker': r['CÓDIGO'],
                     'Setor': r.get('SETOR', '-'),
                     'Cotação': limpar_valor(str(r.get('Cotação atual', 0))),
                     'Var. Dia (%)': a.get('variacao_dia', 0.0),
                     'Score (Momento)': a.get('score', 0),
                     'Score Estrutural': a.get('score_estrutural', 0),
-                    'Status': a.get('st_desc', '-'),
                     'P/L': a.get('pl_num', 0) or None,
                     'P/VP': a.get('pvp_str', '-'),
                     'DY (%)': a.get('dy_num', 0) or None,
@@ -6346,6 +6342,7 @@ else:
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
                     'TIR 2026 Real (%)': a.get('tir_real') or None,
                     '% vs Teto': a.get('pct_acima_teto') if a.get('pct_acima_teto') is not None else None,
+                    'Status': a.get('st_desc', '-'),
                 })
             df_tabela = pd.DataFrame(linhas_tabela)
 
@@ -6355,6 +6352,7 @@ else:
                 hide_index=True,
                 height=min(740, 70 + 35 * len(df_tabela)),
                 column_config={
+                    'Logo': st.column_config.ImageColumn(width="small"),
                     'Cotação': st.column_config.NumberColumn(format="R$ %.2f"),
                     'Var. Dia (%)': st.column_config.NumberColumn(format="%.2f%%"),
                     'Score (Momento)': st.column_config.NumberColumn(format="%.1f"),
