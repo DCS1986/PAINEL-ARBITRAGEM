@@ -482,27 +482,32 @@ def badge_score(score):
 def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nominal_max=0.20):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
-    de dividendo mais o que ela reinveste a um certo ROE'. Mesma lógica que
-    bancos publicam em relatório (retorno implícito comparável a uma NTN-B):
+    de dividendo mais o quanto ela deve crescer'. Mesma lógica que bancos
+    publicam em relatório (retorno implícito comparável a uma NTN-B):
 
     1. Parte que vira dividendo = Dividend Yield bruto estimado (dy_num) --
        o MESMO número já usado em todo o resto do app (cards, Dividendos).
        Se não disponível, cai pro cálculo derivado (Earnings Yield × Payout)
-       como respaldo -- mas o direto é preferido porque já é validado/
-       calibrado pra cada ativo, em vez de recompor via dois números
-       separados que podem não bater exatamente (foi o que causou a TIR da
-       CXSE3 vir mais baixa do que devia: o Payout × Earnings Yield
-       derivado não reproduzia o yield real dela).
-    2. Crescimento esperado (lucro retido reinvestido ao ROE atual) =
-       (1 − Payout) × ROE, limitado a crescimento_max -- SEM esse teto, uma
-       empresa com payout baixo e ROE alto faz a conta "explodir" (ex: ROE de
-       35% com payout de 20% dava g=28%, um absurdo).
+       como respaldo.
+    2. Crescimento esperado -- a fonte muda por tipo de negócio, porque
+       "lucro retido reinvestido ao ROE atual" só faz sentido pra empresa
+       que CRESCE RETENDO CAPITAL (ex: banco, que usa capital retido pra
+       sustentar mais empréstimo). Pra holding de distribuição/seguros
+       (asset-light -- cresce vendendo mais apólice pela rede do parceiro,
+       não reinvestindo capital), essa lógica não reflete a realidade do
+       negócio -- nesse caso usamos o CAGR de lucros histórico (crescimento
+       de verdade já observado) em vez da fórmula teórica de reinvestimento.
+       - Bancos (capital intensivo de verdade): g = (1−Payout) × ROE
+       - Seguradoras/demais (asset-light ou crescimento não-ligado a
+         reinvestimento de capital): g = CAGR de lucros histórico
+       Ambos limitados a crescimento_max, pelo mesmo motivo (evitar a conta
+       "explodir" com ROE ou CAGR muito alto/instável).
     3. TIR nominal = (1) + (2)
     4. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
        'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
 
-    Atualiza sozinha conforme o resultado trimestral muda o DY, o Payout e
-    o ROE -- não precisa recalcular manualmente.
+    Atualiza sozinha conforme o resultado trimestral muda o DY, o Payout, o
+    ROE e o CAGR -- não precisa recalcular manualmente.
 
     NÃO se aplica bem a empresas cíclicas, com lucro projetado negativo,
     payout ausente/fora de faixa razoável, ROE não disponível, OU quando o
@@ -527,7 +532,14 @@ def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nomin
     else:
         return None
 
-    g = min((1 - payout) * (roe_num / 100), crescimento_max)
+    _setor_cat_tir = classificar_setor(row.get('SETOR', ''))
+    _fonte_crescimento = 'reinvestimento_roe' if _setor_cat_tir == 'banco' else 'cagr_historico'
+    if _fonte_crescimento == 'reinvestimento_roe':
+        g = min((1 - payout) * (roe_num / 100), crescimento_max)
+    else:
+        cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+        g = min(max(cagr_pct_tir / 100, 0), crescimento_max)
+
     tir_nominal = parte_dividendo + g
 
     if tir_nominal > tir_nominal_max:
@@ -538,7 +550,7 @@ def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nomin
 
     return {
         'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
-        'g': g * 100, 'dy_usado': parte_dividendo * 100,
+        'g': g * 100, 'dy_usado': parte_dividendo * 100, 'fonte_crescimento': _fonte_crescimento,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
         'g_no_teto': g >= crescimento_max - 1e-9,
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
@@ -4871,21 +4883,26 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "dividendo de fato pago) — resultado menos confiável, olhe os números acima "
                 "com mais cautela." if tir_dados['payout_baixo'] else ""
             )
+            _texto_fonte_g = (
+                "pelo reinvestimento do lucro retido ao ROE atual (modelo de capital "
+                f"intensivo, com Payout de {tir_dados['payout_usado']:.0f}%".replace(".", ",") + ")"
+                if tir_dados['fonte_crescimento'] == 'reinvestimento_roe'
+                else "com base no CAGR de lucros histórico (modelo asset-light/distribuição — "
+                "o crescimento dessas empresas não vem de reinvestir capital, vem de vender "
+                "mais volume pela rede do parceiro, então usamos o crescimento real já "
+                "observado em vez da fórmula de reinvestimento)"
+            )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
                 f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
                 " = parte que vira dividendo de fato — o mesmo número usado no resto do app, "
                 "não derivado de outra conta —, mais crescimento esperado de " +
                 f"{tir_dados['g']:.1f}%".replace(".", ",") +
-                (" (no teto de 10% a.a. — ROE atual seria mais alto que isso reinvestido pra "
-                 "sempre)" if tir_dados['g_no_teto'] else "") +
-                " a.a. pelo reinvestimento do lucro retido ao ROE atual, com Payout de " +
-                f"{tir_dados['payout_usado']:.0f}%".replace(".", ",") +
-                "), menos IPCA acumulado de " +
+                (" (no teto de 10% a.a.)" if tir_dados['g_no_teto'] else "") +
+                f" a.a. {_texto_fonte_g}), menos IPCA acumulado de " +
                 f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
-                "mercado de renda fixa usa pra apresentar uma NTN-B. Assume que o ROE atual "
-                "se mantém estável — não é previsão garantida." + aviso_confianca
+                "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." + aviso_confianca
             )
         else:
             st.caption(
