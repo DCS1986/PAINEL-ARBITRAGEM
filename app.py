@@ -6324,30 +6324,49 @@ else:
                 "pra abrir o detalhe de um ativo."
             )
 
+            # Vol. Implícita vem de uma busca única que já traz todos os
+            # ativos de uma vez (cache compartilhado) -- não precisa de uma
+            # chamada por ticker.
+            _vol_dados_tabela, _ = get_volatilidade_oplab()
+            _vol_dados_tabela = _vol_dados_tabela or {}
+
             linhas_tabela = []
             for a in ativos_com_score:
                 r = a['row']
+                tk = r['CÓDIGO']
+                _fdm_tab, _ = get_fluxo_caixa_fundamentei(tk)
+                _vol_tab = _vol_dados_tabela.get(tk, {})
                 linhas_tabela.append({
                     'Logo': a.get('logo_url', '') or None,
-                    'Ticker': r['CÓDIGO'],
+                    'Ticker': tk,
                     'Setor': r.get('SETOR', '-'),
                     'Cotação': limpar_valor(str(r.get('Cotação atual', 0))),
                     'Var. Dia (%)': a.get('variacao_dia', 0.0),
-                    'Score (Momento)': a.get('score', 0),
-                    'Score Estrutural': a.get('score_estrutural', 0),
+                    'Score': a.get('score', 0),
                     'P/L': a.get('pl_num', 0) or None,
                     'P/VP': a.get('pvp_str', '-'),
                     'DY (%)': a.get('dy_num', 0) or None,
                     'ROE (%)': a.get('roe_num_raw', 0) or None,
+                    'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
                     'TIR 2026 Real (%)': a.get('tir_real') or None,
-                    '% vs Teto': a.get('pct_acima_teto') if a.get('pct_acima_teto') is not None else None,
-                    'Status': a.get('st_desc', '-'),
+                    'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
+                    'P/FCO': (_fdm_tab or {}).get('p_fco'),
+                    'P/FCL': (_fdm_tab or {}).get('p_fcl'),
+                    'Vol. Implícita (%)': _vol_tab.get('vol_implicita'),
                 })
             df_tabela = pd.DataFrame(linhas_tabela)
 
+            def _cor_variacao_tabela(v):
+                if pd.isna(v):
+                    return ''
+                cor = "#22C55E" if v > 0 else ("#EF4444" if v < 0 else "#D4AF37")
+                return f"color: {cor}; font-weight: 700;"
+
+            styler_tabela = df_tabela.style.map(_cor_variacao_tabela, subset=['Var. Dia (%)'])
+
             st.dataframe(
-                df_tabela,
+                styler_tabela,
                 use_container_width=True,
                 hide_index=True,
                 height=min(740, 70 + 35 * len(df_tabela)),
@@ -6355,15 +6374,24 @@ else:
                     'Logo': st.column_config.ImageColumn(width="small"),
                     'Cotação': st.column_config.NumberColumn(format="R$ %.2f"),
                     'Var. Dia (%)': st.column_config.NumberColumn(format="%.2f%%"),
-                    'Score (Momento)': st.column_config.NumberColumn(format="%.1f"),
-                    'Score Estrutural': st.column_config.NumberColumn(format="%.1f"),
+                    'Score': st.column_config.NumberColumn(format="%.1f"),
                     'P/L': st.column_config.NumberColumn(format="%.1fx"),
                     'DY (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'ROE (%)': st.column_config.NumberColumn(format="%.1f%%"),
+                    'CAGR Lucros (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'Earnings Yield (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'TIR 2026 Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
-                    '% vs Teto': st.column_config.NumberColumn(format="%.0f%%"),
+                    'Dívida Líq/EBITDA': st.column_config.NumberColumn(format="%.1fx"),
+                    'P/FCO': st.column_config.NumberColumn(format="%.1fx"),
+                    'P/FCL': st.column_config.NumberColumn(format="%.1fx"),
+                    'Vol. Implícita (%)': st.column_config.NumberColumn(format="%.1f%%"),
                 },
+            )
+            st.caption(
+                "Score mostrado é o 'De Momento' (considera preço atual vs. teto). P/FCO e "
+                "P/FCL vêm do Fundamentei — vazios podem indicar geração de caixa fraca/"
+                "negativa no momento, ou que o dado não se aplica ao tipo de negócio "
+                "(bancos, seguradoras e holdings não têm essas métricas calculadas)."
             )
 
             st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
