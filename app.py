@@ -5777,22 +5777,28 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
         # Logo — chamada separada, não interfere nos dados acima
         logo_url = get_logo_url(row['CÓDIGO'])
 
-        # ROE e Margem Líquida: prioriza Fundamentus sobre Yahoo -- o Yahoo
-        # é inconsistente pra ações da B3 (campos de ROE vazios com
-        # frequência, principalmente fora do horário de mercado aberto),
-        # enquanto o Fundamentus é a mesma fonte já usada pra ROIC/P-L/VPA
-        # em outras partes do app. Yahoo só entra como respaldo se o
-        # Fundamentus não tiver o dado.
+        # ROE, Margem Líquida e Mínima/Máxima de 12 meses: prioriza
+        # Fundamentus sobre Yahoo -- o Yahoo é inconsistente pra ações da B3
+        # (campos vazios com frequência, principalmente fora do horário de
+        # mercado aberto), enquanto o Fundamentus é a mesma fonte já usada
+        # pra ROIC/P-L/VPA em outras partes do app. Yahoo só entra como
+        # respaldo se o Fundamentus não tiver o dado.
         ind_extras_lote, _ = get_indicadores_fundamentus(row['CÓDIGO'])
         if ind_extras_lote:
             roe_fund = _ind_buscar(ind_extras_lote, 'roe')
             marg_liq_fund = _ind_buscar(ind_extras_lote, 'marg. l', 'margem l')
+            min_52_fund = _ind_buscar(ind_extras_lote, 'min 52', 'mín 52', 'min. 52')
+            max_52_fund = _ind_buscar(ind_extras_lote, 'max 52', 'máx 52', 'max. 52')
             if roe_fund is not None:
                 roe_num_raw = roe_fund
                 roe = f"{roe_fund:.2f}%".replace('.', ',')
             if marg_liq_fund is not None:
                 margem_num_raw = marg_liq_fund
                 margem = f"{marg_liq_fund:.2f}%".replace('.', ',')
+            if min_52_fund is not None:
+                low = f"R$ {min_52_fund:.2f}".replace('.', ',')
+            if max_52_fund is not None:
+                high = f"R$ {max_52_fund:.2f}".replace('.', ',')
 
         val_entregue  = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
