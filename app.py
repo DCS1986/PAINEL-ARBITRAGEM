@@ -340,7 +340,9 @@ def consistencia_lucro(historico_lucro):
 
 def classificar_setor(setor):
     s = str(setor).lower()
-    if any(x in s for x in ['banco', 'financeiro', 'holding']):
+    if 'holding' in s:
+        return 'holding'
+    if any(x in s for x in ['banco', 'financeiro']):
         return 'banco'
     if any(x in s for x in ['seguro', 'segur']):
         return 'seguradora'
@@ -5118,7 +5120,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             # formato industrial que EBIT/EBITDA pressupõe, então o Fundamentus
             # às vezes retorna múltiplos absurdos (ex: -370x) pra esse tipo de
             # negócio. Não é erro de leitura -- é a métrica errada pro setor.
-            if _setor_cat in ('banco', 'seguradora'):
+            if _setor_cat in ('banco', 'seguradora', 'holding'):
                 _card_metric(i9, "P/EBIT", "—")
                 _card_metric(i10, "EV/EBITDA", "—")
             else:
@@ -5126,13 +5128,38 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
             _card_metric(i11, "P/VP", pvp_str if pvp_str != "-" else "—", destaque=_destaca_pvp_roe)
             _card_ind(i12, "ROA", roa_val, sufixo="%")
-            if _setor_cat in ('banco', 'seguradora'):
+            if _setor_cat in ('banco', 'seguradora', 'holding'):
                 st.caption(
-                    "P/EBIT e EV/EBITDA não aparecem pra bancos/seguradoras de propósito — "
-                    "essas empresas não têm 'Receita Líquida' no formato industrial que esses "
-                    "múltiplos pressupõem, então o número que sairia não seria confiável "
-                    "(podia vir um valor absurdo, tipo -370x, sem significado real)."
+                    "P/EBIT e EV/EBITDA não aparecem pra bancos/seguradoras/holdings de "
+                    "propósito — essas empresas não têm 'Receita Líquida' no formato "
+                    "industrial que esses múltiplos pressupõem, então o número que sairia "
+                    "não seria confiável (podia vir um valor absurdo, tipo -370x, sem "
+                    "significado real)."
                 )
+
+            # ---- P/FCO e P/FCL (via Fundamentei, fonte nova) -- mostra
+            # quanto se paga pelo fluxo de caixa de verdade gerado, não só
+            # pelo lucro contábil. Mesma exclusão de banco/seguradora/holding
+            # que P/EBIT, pelo mesmo motivo estrutural. ----
+            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+            if _setor_cat not in ('banco', 'seguradora', 'holding'):
+                _fdm_dados, _fdm_erro = get_fluxo_caixa_fundamentei(ticker)
+                i13, i14 = st.columns(2)
+                if _fdm_dados:
+                    _card_ind(i13, "P/FCO", _fdm_dados.get('p_fco'), sufixo="x")
+                    _card_ind(i14, "P/FCL", _fdm_dados.get('p_fcl'), sufixo="x")
+                    st.caption(
+                        "P/FCO e P/FCL = preço ÷ fluxo de caixa operacional/livre — mostram "
+                        "quanto se paga pelo caixa que a empresa REALMENTE gera, não pelo "
+                        "lucro contábil (que pode ter itens sem efeito caixa). Quanto menor, "
+                        "mais barata em relação à geração de caixa real. Fonte: Fundamentei. "
+                        "Se vier vazio, pode ser que a empresa esteja gerando caixa fraco/"
+                        "negativo nesse momento (ex: ciclo pesado de investimento), não "
+                        "necessariamente um erro de leitura."
+                    )
+                else:
+                    st.caption(f"P/FCO e P/FCL indisponíveis para este ativo ({_fdm_erro}).")
+
             st.caption(
                 "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros) — abaixo de 1x "
                 "geralmente indica crescimento 'baixo' em relação ao preço pago; acima de "
