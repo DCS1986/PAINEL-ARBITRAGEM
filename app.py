@@ -427,6 +427,39 @@ def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num
 
     return round(min(score, 10.0), 1)
 
+
+def aplicar_ajuste_preco(score_fundamentos, cotacao, preco_teto):
+    """Ajusta o score de fundamentos considerando o quanto a cotação ATUAL
+    está acima do Preço Teto -- sem isso, uma empresa pode ter ótimos
+    fundamentos mas estar "esticada" agora (preço já correu muito) e ainda
+    aparecer no topo do ranking, o que não ajuda na decisão de COMPRAR hoje.
+
+    - Preço abaixo do teto: sem penalidade (ainda tem desconto, no pior caso
+      o score fica como já era).
+    - Preço acima do teto: desconta proporcionalmente, mais forte quanto
+      mais esticada -- a cada 10% acima do teto, desconta 0,4 ponto, com um
+      teto de penalidade de -2,0 (pra não zerar uma empresa boa só porque a
+      ação subiu muito num curto período).
+
+    Retorna (score_ajustado, pct_acima_teto) -- pct_acima_teto é None se não
+    houver teto/cotação válidos pra calcular."""
+    try:
+        cot = float(cotacao)
+        teto = float(preco_teto)
+    except (TypeError, ValueError):
+        return score_fundamentos, None
+    if cot <= 0 or teto <= 0:
+        return score_fundamentos, None
+
+    pct_acima = ((cot - teto) / teto) * 100
+    if pct_acima <= 0:
+        return score_fundamentos, pct_acima
+
+    penalidade = min((pct_acima / 10.0) * 0.4, 2.0)
+    score_ajustado = round(max(0.0, score_fundamentos - penalidade), 1)
+    return score_ajustado, pct_acima
+
+
 def badge_score(score):
     if score >= 7:
         cor_bg, cor_txt, label = "#1a3a1a", "#22C55E", "Ótimo"
@@ -445,23 +478,83 @@ def badge_score(score):
     </div>"""
 
 
+# ---- TIR esperada para 2026 (metodologia própria do Diego) ----
+def calcular_tir_2026(row, roe_num):
+    """TIR esperada para o ano corrente, sem valor de saída/terminal --
+    metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
+    de dividendo mais o que ela reinveste a um certo ROE'. Mesma lógica que
+    bancos publicam em relatório (retorno implícito comparável a uma NTN-B):
+
+    1. Earnings Yield do ano = 1 / P-L Projetado (equivale a LL Projetado ÷
+       Valor de Mercado -- mesma coisa, P-L = Valor de Mercado / LL)
+    2. Parte que vira dividendo = Earnings Yield × Payout
+    3. Crescimento esperado (lucro retido reinvestido ao ROE atual) =
+       (1 − Payout) × ROE
+    4. TIR nominal = (2) + (3)
+    5. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
+       'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
+
+    Atualiza sozinha conforme o resultado trimestral muda o P-L Projetado,
+    o Payout e o ROE -- não precisa recalcular manualmente.
+
+    NÃO se aplica bem a empresas cíclicas, com lucro projetado negativo,
+    payout ausente/fora de faixa razoável, ou ROE não disponível -- nesses
+    casos retorna None (em vez de um número que pareceria preciso mas não
+    seria confiável)."""
+    pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
+    payout_raw = row.get('PAYOUT', '-')
+    payout_pct = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
+
+    if pl_proj <= 0 or payout_pct is None or not (0 < payout_pct <= 150) \
+            or roe_num is None or roe_num <= 0:
+        return None
+
+    payout = min(payout_pct / 100, 1.0)  # capa em 100% -- acima disso a empresa
+                                          # estaria distribuindo mais que o lucro
+    ey = 1 / pl_proj
+    g = (1 - payout) * (roe_num / 100)
+    tir_nominal = (ey * payout) + g
+
+    ipca = get_ipca_12m()
+    tir_real = (tir_nominal * 100) - ipca if ipca is not None else None
+
+    return {
+        'ey': ey * 100, 'payout_usado': payout * 100, 'g': g * 100,
+        'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
+    }
+
+
 # ---- Preço Justo Multi-Método (Bazin, Graham, Gordon) ----
-def calcular_preco_justo(row, vpa_val=None, taxa_desconto=0.12, crescimento_max=0.08):
+def calcular_preco_justo(row, vpa_val=None, taxa_desconto=None, crescimento_max=0.08,
+                         premio_risco=0.045):
     """Calcula o preço justo por 3 métodos clássicos de valuation:
-    - Bazin: dividendo projetado ÷ 6% (foco renda)
+    - Bazin: dividendo projetado ÷ taxa real do Tesouro IPCA+ de longo prazo
+      (referência de renda fixa "sem risco" indexada à inflação -- mesma
+      lógica usada por gestores profissionais pra avaliar se o yield de uma
+      ação compensa o risco extra de não ser renda fixa). ANTES usava 6% fixo
+      (convenção antiga do livro do Bazin, anos 90) -- desatualizado num
+      cenário de juros reais mais altos.
     - Graham: √(22,5 × LPA × VPA) (clássico value investing)
     - Gordon: dividendo×(1+g) ÷ (taxa_desconto−g) (crescimento de dividendos,
       g limitado a crescimento_max pra não estourar o modelo quando o CAGR
-      reportado é muito alto/instável)
+      reportado é muito alto/instável). taxa_desconto, se não informada,
+      vira taxa real do Tesouro IPCA+ + prêmio de risco (4,5 p.p. por
+      padrão) -- antes era 12% fixo, sem nenhuma âncora com a taxa de juros
+      vigente.
     Retorna dict com os 3 valores (None se não computável) + a cotação atual."""
     div_proj = limpar_valor(row.get('Dividendo por ação bruto projetado', 0))
     lpa = limpar_valor(row.get('LPA ESTIMADO', 0))
     cagr_pct = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
     cot = limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', ''))
 
-    pj_bazin = (div_proj / 0.06) if div_proj > 0 else None
+    taxa_real_pct = get_taxa_real_referencia()  # % a.a., ex: 7.85
+    taxa_real = taxa_real_pct / 100
+
+    pj_bazin = (div_proj / taxa_real) if (div_proj > 0 and taxa_real > 0) else None
     pj_graham = ((22.5 * lpa * vpa_val) ** 0.5) if (lpa and lpa > 0 and vpa_val and vpa_val > 0) else None
 
+    if taxa_desconto is None:
+        taxa_desconto = taxa_real + premio_risco
     g = min(cagr_pct / 100, crescimento_max) if cagr_pct > 0 else 0
     pj_gordon = None
     if div_proj > 0 and taxa_desconto > g:
@@ -470,6 +563,7 @@ def calcular_preco_justo(row, vpa_val=None, taxa_desconto=0.12, crescimento_max=
     return {
         'bazin': pj_bazin, 'graham': pj_graham, 'gordon': pj_gordon,
         'cotacao': cot if cot > 0 else None, 'g_usado': g,
+        'taxa_real_usada': taxa_real_pct, 'taxa_desconto_usada': taxa_desconto * 100,
     }
 
 
@@ -4127,6 +4221,25 @@ filtro_status_val = status_opcoes[filtro_status]
 
 st.sidebar.markdown("---")
 
+# Ordenação dos Cards -- não é um "ranking" separado, é só a ordem em que
+# os cards aparecem na grade. Não afeta os cards de destaque (Maior Score,
+# Maior DY, Maior Desconto P/L), que continuam mostrando o #1 absoluto
+# independente de como os cards estão ordenados na tela.
+st.sidebar.markdown("**↕️ Ordenar Cards por**")
+ordenacao_opcoes = {
+    "⭐ Maior Score":            ("score", True),
+    "📉 Menor P/L":              ("pl_num", False),
+    "🏆 Maior Dividend Yield":   ("dy_num", True),
+    "🎯 Maior TIR (2026, real)": ("tir_real", True),
+    "💰 Maior Earnings Yield":   ("earnings_yield", True),
+    "📈 Maior ROE":              ("roe_num_raw", True),
+}
+ordenar_por = st.sidebar.selectbox("", list(ordenacao_opcoes.keys()), index=0,
+                                    label_visibility="collapsed")
+_ord_campo, _ord_desc = ordenacao_opcoes[ordenar_por]
+
+st.sidebar.markdown("---")
+
 # Filtros quantitativos em expander (oculto por padrão)
 with st.sidebar.expander("⚙️ Filtros Quantitativos", expanded=False):
     ativar_filtros = st.checkbox("Ativar filtros", value=False)
@@ -4452,6 +4565,14 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         ], tamanho_linha="0.95em")
 
         _card_score_hero(r3, score)
+        _score_fund = ativo_data.get('score_fundamentos') if isinstance(ativo_data, dict) else None
+        _pct_teto_sc = ativo_data.get('pct_acima_teto') if isinstance(ativo_data, dict) else None
+        if _score_fund is not None and _pct_teto_sc is not None and _pct_teto_sc > 0 and _score_fund != score:
+            st.caption(
+                f"Score de fundamentos (sem olhar o preço): {_score_fund}/10. Como a cotação "
+                f"está {_pct_teto_sc:.0f}% acima do Preço Teto, o score final foi ajustado pra "
+                f"{score}/10 — boa empresa, mas preço esticado agora."
+            )
 
         # ---- Revisão de Estimativas (consenso de analistas) ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
@@ -4691,6 +4812,39 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "diretamente com a Selic ou outra renda fixa como referência de oportunidade."
         )
 
+        # ---- TIR esperada 2026 -- metodologia própria (sem valor de saída):
+        # Earnings Yield projetado × Payout (parte que vira dividendo) +
+        # (1-Payout) × ROE (parte reinvestida, crescendo ao ROE atual),
+        # depois descontando o IPCA pra virar retorno REAL ("IPCA + X%"). ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        _roe_tir = ativo_data.get('roe_num_raw') if isinstance(ativo_data, dict) else roe_num_raw
+        tir_dados = calcular_tir_2026(row, _roe_tir)
+        if tir_dados and tir_dados['tir_real'] is not None:
+            tir_str = f"IPCA + {tir_dados['tir_real']:.1f}%".replace(".", ",")
+            tir_cor = ("#22C55E" if tir_dados['tir_real'] >= 6
+                       else "#D4AF37" if tir_dados['tir_real'] >= 3 else "#EF4444")
+            tir1, tir2, tir3 = st.columns(3)
+            _card_metric(tir1, "TIR Esperada 2026 (real)", tir_str, cor_valor=tir_cor)
+            st.caption(
+                f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
+                f" a.a. (Earnings Yield {tir_dados['ey']:.1f}%".replace(".", ",") +
+                f" × Payout {tir_dados['payout_usado']:.0f}%".replace(".", ",") +
+                " = parte que vira dividendo, mais crescimento esperado de " +
+                f"{tir_dados['g']:.1f}%".replace(".", ",") +
+                " a.a. pelo reinvestimento do lucro retido ao ROE atual), menos IPCA " +
+                f"acumulado de {tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
+                " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
+                "mercado de renda fixa usa pra apresentar uma NTN-B. Assume que o ROE atual "
+                "se mantém estável — não é previsão garantida, é uma estimativa de "
+                "'estado estacionário' pra este ano."
+            )
+        else:
+            st.info(
+                "TIR esperada 2026 não disponível — esse modelo não se aplica bem a "
+                "empresas com lucro projetado negativo, payout ausente/fora de faixa "
+                "razoável, ou ROE indisponível (comum em cíclicas e empresas recém-listadas)."
+            )
+
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         g1, g2 = st.columns(2)
@@ -4823,12 +4977,15 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         _card_pj(pjcol2, "Graham (LPA × VPA)", pj['graham'])
         _card_pj(pjcol3, "Gordon (crescimento)", pj['gordon'])
         st.caption(
-            f"Cotação atual: R$ {cot_pj:.2f}".replace(".", ",") if cot_pj else "" +
-            " · Gordon usa taxa de desconto fixa de 12% a.a. e crescimento limitado a 8% a.a. "
-            "(evita o modelo 'explodir' com CAGRs muito altos/instáveis) — por isso costuma dar "
-            "valores mais altos que Bazin/Graham quando o crescimento reportado é forte. "
-            "Nenhum desses é uma 'verdade' — são 3 lentes diferentes; quando os 3 apontam pra "
-            "mesma direção (barato ou caro), o sinal é mais forte."
+            (f"Cotação atual: R$ {cot_pj:.2f}".replace(".", ",") if cot_pj else "") +
+            f" · Bazin usa {pj['taxa_real_usada']:.2f}%".replace(".", ",") +
+            " a.a. (taxa real do Tesouro IPCA+ de longo prazo, atualizada automaticamente — "
+            "referência de quanto a renda fixa 'sem risco' está pagando agora). Gordon usa "
+            f"essa mesma taxa + 4,5 p.p. de prêmio de risco ({pj['taxa_desconto_usada']:.1f}%".replace(".", ",") +
+            " a.a. no total) e crescimento limitado a 8% a.a. (evita o modelo 'explodir' com "
+            "CAGRs muito altos/instáveis). Nenhum desses é uma 'verdade' — são 3 lentes "
+            "diferentes; quando os 3 apontam pra mesma direção (barato ou caro), o sinal é "
+            "mais forte."
         )
 
     # ════════════════════════════════════════════════════════════════════
@@ -5318,6 +5475,87 @@ def get_selic():
         return None
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_ipca_12m():
+    """Retorna o IPCA acumulado nos últimos 12 meses (% a.a.), via série 433
+    do SGS (BCB) -- IPCA mensal, composto mês a mês (não é a série 433
+    direto, que é só a variação MENSAL; aqui pegamos os últimos 12 meses e
+    compomos: (1+m1)*(1+m2)*...*(1+m12) - 1). Usado pra converter a TIR
+    nominal de uma ação em retorno REAL, no formato 'IPCA + X%' -- igual o
+    mercado de renda fixa apresenta o retorno de uma NTN-B."""
+    try:
+        url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados/ultimos/12?formato=json"
+        r = requests.get(url, timeout=10)
+        if r.status_code != 200:
+            return None
+        dados = r.json()
+        if not dados or len(dados) < 12:
+            return None
+        acumulado = 1.0
+        for d in dados:
+            valor = d['valor']
+            v = float(valor.replace(',', '.')) if isinstance(valor, str) else float(valor)
+            acumulado *= (1 + v / 100)
+        return round((acumulado - 1) * 100, 2)
+    except Exception:
+        return None
+
+
+# ---- Taxa real livre de risco (Tesouro IPCA+ de mais longa duração) ----
+# Usada como referência pra Bazin, Gordon e comparação de TIR -- mesma
+# lógica que bancos/casas de análise usam: comparar o retorno implícito de
+# uma ação com o que a renda fixa "sem risco" (indexada à inflação) está
+# pagando agora. ANTES disso, o Bazin usava um divisor fixo de 6% (convenção
+# antiga do livro do Décio Bazin, anos 90) que não acompanha a taxa real de
+# juros de hoje -- com a Selic em ~14% e o Tesouro IPCA+ longo pagando ~8%
+# real, usar 6% deixava o preço-teto artificialmente mais alto (permissivo)
+# do que devia.
+# NUNCA TESTADO contra o token de verdade -- este endpoint da brapi.dev
+# (/api/v2/treasury) é novo pra nós; se falhar, cai no valor manual abaixo.
+TAXA_IPCA_LONGA_MANUAL = 7.85  # atualizar manualmente em tesourodireto.com.br
+                                 # se a busca automática parar de funcionar
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_taxa_ipca_longa():
+    """Busca a taxa atual (% a.a.) do Tesouro IPCA+ com Juros Semestrais de
+    maior duração disponível, via brapi.dev (mesmo token usado pros logos).
+    Retorna (taxa, descricao, erro) -- taxa é None se a busca falhar (nesse
+    caso, use TAXA_IPCA_LONGA_MANUAL como respaldo)."""
+    token = st.secrets.get("BRAPI_TOKEN", "")
+    if not token:
+        return None, None, "BRAPI_TOKEN não configurado"
+    try:
+        url = f"https://brapi.dev/api/v2/treasury/indicators?token={token}"
+        r = requests.get(url, timeout=6)
+        if r.status_code != 200:
+            return None, None, f"HTTP {r.status_code}"
+        dados = r.json().get('results', [])
+        candidatos = [
+            d for d in dados
+            if 'ipca' in str(d.get('indexer', '')).lower()
+            and 'semestra' in str(d.get('bondType', '')).lower()
+        ]
+        if not candidatos:
+            return None, None, "nenhum Tesouro IPCA+ com juros semestrais encontrado na resposta"
+        melhor = max(candidatos, key=lambda d: d.get('durationDays', 0))
+        taxa_raw = melhor.get('buyRate', melhor.get('sellRate'))
+        if taxa_raw is None:
+            return None, None, "título encontrado mas sem campo de taxa (buyRate/sellRate)"
+        taxa = float(taxa_raw) * 100 if float(taxa_raw) < 1 else float(taxa_raw)
+        descricao = f"{melhor.get('bondType', 'Tesouro IPCA+')} {melhor.get('maturityDate', '')}"
+        return taxa, descricao, None
+    except Exception as e:
+        return None, None, str(e)
+
+
+def get_taxa_real_referencia():
+    """Wrapper com fallback: tenta a busca live; se falhar, usa o valor
+    manual. Sempre retorna um número usável."""
+    taxa, _, _ = get_taxa_ipca_longa()
+    return taxa if taxa is not None else TAXA_IPCA_LONGA_MANUAL
+
+
 ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
 
@@ -5457,7 +5695,7 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
         cagr_num       = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
 
         pvp_num_raw = limpar_valor(pvp_str.replace('x','')) if pvp_str != '-' else 0
-        score = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw,
+        score_fundamentos = calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num_raw, margem_num_raw,
                                pvp_num=pvp_num_raw, setor=row.get('SETOR', ''),
                                ticker=row.get('CÓDIGO', ''), historico_lucro=historico_lucro)
 
@@ -5465,12 +5703,20 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
         target_val     = row.get('target', 0) if 'target' in row.index else limpar_valor(str(row.get('TARGET', 0)))
         st_status, st_cor, st_icone, st_desc = status_aporte(row.get('Cotação atual', 0), preco_teto_val, target_val)
 
+        score, pct_acima_teto = aplicar_ajuste_preco(score_fundamentos, row.get('Cotação atual', 0), preco_teto_val)
+
         div_safety_score, div_safety_label, div_safety_cor = calcular_dividend_safety(
             row.get('PAYOUT', '-'), div_ebitda_num, roe_num_raw, historico_lucro
         )
 
+        tir_dados_lote = calcular_tir_2026(row, roe_num_raw)
+        tir_real_lote = tir_dados_lote['tir_real'] if tir_dados_lote else None
+        earnings_yield_lote = (1 / pl_num * 100) if pl_num > 0 else None
+
         ativos_com_score.append({
             'row': row, 'score': score,
+            'score_fundamentos': score_fundamentos, 'pct_acima_teto': pct_acima_teto,
+            'tir_real': tir_real_lote, 'earnings_yield': earnings_yield_lote,
             'dy_num': dy_num, 'dy_clean': dy_clean, 'pl_num': pl_num,
             'progresso': progresso, 'porcentagem': porcentagem,
             'dt': dt, 'val': val, 'roe': roe, 'margem': margem,
@@ -5609,8 +5855,23 @@ else:
 
         # Modo Cards
         if st.session_state.modo_exibicao == 'Cards':
+            # Ordena uma CÓPIA pra exibição -- ativos_com_score continua como
+            # está (ordenado por score) pros cards de destaque acima, que
+            # dependem de [0] ser o #1 absoluto por score.
+            def _chave_ordenacao(a):
+                valor = a.get(_ord_campo)
+                # P/L <= 0 normalmente é empresa com prejuízo no período --
+                # não é "barata", é dado que não deveria ranquear como menor
+                # P/L. Trata como ausente, igual None.
+                if valor is None or (_ord_campo == 'pl_num' and valor <= 0):
+                    # sem o dado -- empurra pro fim da lista, em vez de quebrar
+                    # a ordenação ou aparecer no topo por engano
+                    return (1, 0)
+                return (0, -valor if _ord_desc else valor)
+            ativos_exibicao = sorted(ativos_com_score, key=_chave_ordenacao)
+
             cols_n = 8
-            rows_c = [ativos_com_score[i:i+cols_n] for i in range(0, len(ativos_com_score), cols_n)]
+            rows_c = [ativos_exibicao[i:i+cols_n] for i in range(0, len(ativos_exibicao), cols_n)]
             for linha in rows_c:
                 cols = st.columns(cols_n)
                 for idx, ativo in enumerate(linha):
