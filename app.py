@@ -5750,6 +5750,47 @@ def get_taxa_ipca_longa():
         return None, None, str(e)
 
 
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_fluxo_caixa_livre(ticker):
+    """Busca o Fluxo de Caixa Livre (TTM) via brapi.dev, módulo financialData
+    (fonte: CVM -- demonstrações financeiras oficiais, não Yahoo). Retorna
+    (valor_ou_None, json_bruto_ou_None, erro_ou_None) -- o json_bruto é só
+    pra diagnóstico, pra ver a resposta completa caso o nome do campo não
+    seja o que eu chutei.
+
+    NUNCA TESTADO contra o token de verdade -- além do nome do campo ser
+    incerto, a documentação da brapi.dev sugere que Fluxo de Caixa pode
+    exigir plano pago (Startup/Pro), não disponível no plano básico. Se
+    falhar, o erro retornado deve indicar o motivo (sem token, HTTP 402
+    'Payment Required' = precisa de upgrade de plano, campo ausente, etc.)."""
+    token = st.secrets.get("BRAPI_TOKEN", "")
+    if not token:
+        return None, None, "BRAPI_TOKEN não configurado"
+    try:
+        url = f"https://brapi.dev/api/quote/{ticker}?modules=financialData&token={token}"
+        r = requests.get(url, timeout=8)
+        if r.status_code == 402:
+            return None, None, "HTTP 402 (Payment Required) — esse dado provavelmente exige upgrade do plano na brapi.dev"
+        if r.status_code != 200:
+            return None, None, f"HTTP {r.status_code}"
+        dados_json = r.json()
+        resultados = dados_json.get('results', [])
+        if not resultados:
+            return None, dados_json, "resposta sem 'results'"
+        fin_data = resultados[0].get('financialData', {})
+        if not fin_data:
+            return None, dados_json, "ticker encontrado, mas sem o módulo financialData na resposta"
+        # Nome exato do campo é uma estimativa -- tentamos algumas variantes
+        # comuns (camelCase em inglês, padrão Yahoo-like que a brapi.dev
+        # costuma seguir na nomenclatura dos campos).
+        for chave in ('freeCashflow', 'freeCashFlow', 'fluxoCaixaLivre'):
+            if chave in fin_data and fin_data[chave] is not None:
+                return float(fin_data[chave]), dados_json, None
+        return None, dados_json, "módulo financialData veio, mas nenhum campo de FCL conhecido foi encontrado dentro dele"
+    except Exception as e:
+        return None, None, str(e)
+
+
 def get_taxa_real_referencia():
     """Wrapper com fallback: tenta a busca live; se falhar, usa o valor
     manual. Sempre retorna um número usável."""
@@ -5831,6 +5872,17 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 if not st.session_state.ativo_selecionado:
+    with st.expander("🔧 Diagnóstico de Fluxo de Caixa Livre (teste antes de usarmos no Score)"):
+        _ticker_teste_fcl = st.text_input("Ticker pra testar:", value="PETR4", key="ticker_teste_fcl")
+        if st.button("Testar busca de Fluxo de Caixa Livre"):
+            _fcl_val, _fcl_json, _fcl_erro = get_fluxo_caixa_livre(_ticker_teste_fcl.upper().strip())
+            if _fcl_val is not None:
+                st.success(f"Funcionou! Fluxo de Caixa Livre (TTM) de {_ticker_teste_fcl.upper()}: R$ {_fcl_val:,.0f}")
+            else:
+                st.error(f"Não funcionou: {_fcl_erro}")
+            if _fcl_json is not None:
+                with st.expander("Ver resposta completa da API (JSON)"):
+                    st.json(_fcl_json)
     tcol2, tcol3, tcol4, tcol5 = st.columns([1, 1, 1.4, 6])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
