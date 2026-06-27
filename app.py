@@ -479,48 +479,71 @@ def badge_score(score):
 
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
-def calcular_tir_2026(row, roe_num):
+def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nominal_max=0.20):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
     de dividendo mais o que ela reinveste a um certo ROE'. Mesma lógica que
     bancos publicam em relatório (retorno implícito comparável a uma NTN-B):
 
-    1. Earnings Yield do ano = 1 / P-L Projetado (equivale a LL Projetado ÷
-       Valor de Mercado -- mesma coisa, P-L = Valor de Mercado / LL)
-    2. Parte que vira dividendo = Earnings Yield × Payout
-    3. Crescimento esperado (lucro retido reinvestido ao ROE atual) =
-       (1 − Payout) × ROE
-    4. TIR nominal = (2) + (3)
-    5. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
+    1. Parte que vira dividendo = Dividend Yield bruto estimado (dy_num) --
+       o MESMO número já usado em todo o resto do app (cards, Dividendos).
+       Se não disponível, cai pro cálculo derivado (Earnings Yield × Payout)
+       como respaldo -- mas o direto é preferido porque já é validado/
+       calibrado pra cada ativo, em vez de recompor via dois números
+       separados que podem não bater exatamente (foi o que causou a TIR da
+       CXSE3 vir mais baixa do que devia: o Payout × Earnings Yield
+       derivado não reproduzia o yield real dela).
+    2. Crescimento esperado (lucro retido reinvestido ao ROE atual) =
+       (1 − Payout) × ROE, limitado a crescimento_max -- SEM esse teto, uma
+       empresa com payout baixo e ROE alto faz a conta "explodir" (ex: ROE de
+       35% com payout de 20% dava g=28%, um absurdo).
+    3. TIR nominal = (1) + (2)
+    4. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
        'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
 
-    Atualiza sozinha conforme o resultado trimestral muda o P-L Projetado,
-    o Payout e o ROE -- não precisa recalcular manualmente.
+    Atualiza sozinha conforme o resultado trimestral muda o DY, o Payout e
+    o ROE -- não precisa recalcular manualmente.
 
     NÃO se aplica bem a empresas cíclicas, com lucro projetado negativo,
-    payout ausente/fora de faixa razoável, ou ROE não disponível -- nesses
-    casos retorna None (em vez de um número que pareceria preciso mas não
-    seria confiável)."""
+    payout ausente/fora de faixa razoável, ROE não disponível, OU quando o
+    resultado nominal passa de tir_nominal_max (20% a.a. por padrão) --
+    nesses casos retorna None."""
     pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
     payout_raw = row.get('PAYOUT', '-')
     payout_pct = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
 
-    if pl_proj <= 0 or payout_pct is None or not (0 < payout_pct <= 150) \
-            or roe_num is None or roe_num <= 0:
+    if payout_pct is None or not (0 < payout_pct <= 150) or roe_num is None or roe_num <= 0:
         return None
 
     payout = min(payout_pct / 100, 1.0)  # capa em 100% -- acima disso a empresa
                                           # estaria distribuindo mais que o lucro
-    ey = 1 / pl_proj
-    g = (1 - payout) * (roe_num / 100)
-    tir_nominal = (ey * payout) + g
+
+    if dy_num and dy_num > 0:
+        parte_dividendo = dy_num / 100
+        ey_exibicao = parte_dividendo / payout * 100 if payout > 0 else None  # só pra mostrar na legenda
+    elif pl_proj > 0:
+        ey_exibicao = (1 / pl_proj) * 100
+        parte_dividendo = (1 / pl_proj) * payout
+    else:
+        return None
+
+    g = min((1 - payout) * (roe_num / 100), crescimento_max)
+    tir_nominal = parte_dividendo + g
+
+    if tir_nominal > tir_nominal_max:
+        return None
 
     ipca = get_ipca_12m()
     tir_real = (tir_nominal * 100) - ipca if ipca is not None else None
 
     return {
-        'ey': ey * 100, 'payout_usado': payout * 100, 'g': g * 100,
+        'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
+        'g': g * 100, 'dy_usado': parte_dividendo * 100,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
+        'g_no_teto': g >= crescimento_max - 1e-9,
+        'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
+                                          # de fato pago -- resultado depende mais
+                                          # de premissa de crescimento que de caixa real
     }
 
 
@@ -4811,11 +4834,11 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "Projetado tende a ficar acima do P/L Atual."
         )
 
-        # ---- Earnings Yield -- inverso do P/L Atual, em %. Mesmo cálculo
-        # já usado internamente na Fórmula Mágica (Greenblatt): quanto maior,
-        # mais "barata" a empresa em relação ao lucro que gera. Funciona pra
-        # qualquer ativo que tenha P/L Atual (Fundamentus), sem precisar
-        # buscar nenhum dado novo. ----
+        # ---- Earnings Yield (1/P-L Atual) e TIR Esperada 2026, lado a lado.
+        # TIR: Earnings Yield projetado × Payout (parte que vira dividendo) +
+        # (1-Payout) × ROE limitado a 10% a.a. (parte reinvestida, crescendo
+        # ao ROE atual), depois descontando o IPCA pra virar retorno REAL
+        # ("IPCA + X%"). ----
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
         if pl_atual_val and pl_atual_val > 0:
             ey_val = (1 / pl_atual_val) * 100
@@ -4823,46 +4846,54 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             ey_cor = "#22C55E" if ey_val >= 10 else ("#D4AF37" if ey_val >= 6 else "#EF4444")
         else:
             ey_str, ey_cor = "—", "#888"
-        ey1, ey2, ey3 = st.columns(3)
-        _card_metric(ey1, "Earnings Yield", ey_str, cor_valor=ey_cor)
-        st.caption(
-            "Earnings Yield = 1 ÷ P/L Atual, em %. Mostra quanto a empresa 'rende' em lucro "
-            "sobre o preço atual — quanto maior, mais barata em relação ao que ela gera de "
-            "resultado. É o mesmo indicador usado na Fórmula Mágica de Greenblatt, comparável "
-            "diretamente com a Selic ou outra renda fixa como referência de oportunidade."
-        )
 
-        # ---- TIR esperada 2026 -- metodologia própria (sem valor de saída):
-        # Earnings Yield projetado × Payout (parte que vira dividendo) +
-        # (1-Payout) × ROE (parte reinvestida, crescendo ao ROE atual),
-        # depois descontando o IPCA pra virar retorno REAL ("IPCA + X%"). ----
-        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         _roe_tir = ativo_data.get('roe_num_raw') if isinstance(ativo_data, dict) else roe_num_raw
-        tir_dados = calcular_tir_2026(row, _roe_tir)
+        _dy_tir = ativo_data.get('dy_num') if isinstance(ativo_data, dict) else dy_num
+        tir_dados = calcular_tir_2026(row, _roe_tir, dy_num=_dy_tir)
         if tir_dados and tir_dados['tir_real'] is not None:
             tir_str = f"IPCA + {tir_dados['tir_real']:.1f}%".replace(".", ",")
             tir_cor = ("#22C55E" if tir_dados['tir_real'] >= 6
                        else "#D4AF37" if tir_dados['tir_real'] >= 3 else "#EF4444")
-            tir1, tir2, tir3 = st.columns(3)
-            _card_metric(tir1, "TIR Esperada 2026 (real)", tir_str, cor_valor=tir_cor)
+        else:
+            tir_str, tir_cor = "—", "#888"
+
+        eytir1, eytir2, eytir3 = st.columns(3)
+        _card_metric(eytir1, "Earnings Yield", ey_str, cor_valor=ey_cor)
+        _card_metric(eytir2, "TIR Esperada 2026 (real)", tir_str, cor_valor=tir_cor)
+
+        st.caption(
+            "Earnings Yield = 1 ÷ P/L Atual. Mostra quanto a empresa 'rende' em lucro sobre "
+            "o preço atual — comparável diretamente com a Selic ou outra renda fixa."
+        )
+        if tir_dados and tir_dados['tir_real'] is not None:
+            aviso_confianca = (
+                " ⚠️ Payout baixo (boa parte do retorno vem do crescimento estimado, não do "
+                "dividendo de fato pago) — resultado menos confiável, olhe os números acima "
+                "com mais cautela." if tir_dados['payout_baixo'] else ""
+            )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
-                f" a.a. (Earnings Yield {tir_dados['ey']:.1f}%".replace(".", ",") +
-                f" × Payout {tir_dados['payout_usado']:.0f}%".replace(".", ",") +
-                " = parte que vira dividendo, mais crescimento esperado de " +
+                f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
+                " = parte que vira dividendo de fato — o mesmo número usado no resto do app, "
+                "não derivado de outra conta —, mais crescimento esperado de " +
                 f"{tir_dados['g']:.1f}%".replace(".", ",") +
-                " a.a. pelo reinvestimento do lucro retido ao ROE atual), menos IPCA " +
-                f"acumulado de {tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
+                (" (no teto de 10% a.a. — ROE atual seria mais alto que isso reinvestido pra "
+                 "sempre)" if tir_dados['g_no_teto'] else "") +
+                " a.a. pelo reinvestimento do lucro retido ao ROE atual, com Payout de " +
+                f"{tir_dados['payout_usado']:.0f}%".replace(".", ",") +
+                "), menos IPCA acumulado de " +
+                f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
                 "mercado de renda fixa usa pra apresentar uma NTN-B. Assume que o ROE atual "
-                "se mantém estável — não é previsão garantida, é uma estimativa de "
-                "'estado estacionário' pra este ano."
+                "se mantém estável — não é previsão garantida." + aviso_confianca
             )
         else:
-            st.info(
+            st.caption(
                 "TIR esperada 2026 não disponível — esse modelo não se aplica bem a "
                 "empresas com lucro projetado negativo, payout ausente/fora de faixa "
-                "razoável, ou ROE indisponível (comum em cíclicas e empresas recém-listadas)."
+                "razoável, ROE indisponível, ou quando o resultado nominal passaria de 20% "
+                "a.a. (sinal de que o modelo simplificado não está representando bem essa "
+                "empresa)."
             )
 
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
@@ -4897,10 +4928,26 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             _card_ind(i7, "VPA", vpa_val, prefixo="R$ ")
             _card_ind(i8, "PEG Ratio", peg_val, sufixo="x")
             i9, i10, i11, i12 = st.columns(4)
-            _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
-            _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
+            # P/EBIT e EV/EBITDA não existem de forma confiável pra bancos e
+            # seguradoras -- essas empresas não têm "Receita Líquida" no
+            # formato industrial que EBIT/EBITDA pressupõe, então o Fundamentus
+            # às vezes retorna múltiplos absurdos (ex: -370x) pra esse tipo de
+            # negócio. Não é erro de leitura -- é a métrica errada pro setor.
+            if _setor_cat in ('banco', 'seguradora'):
+                _card_metric(i9, "P/EBIT", "—")
+                _card_metric(i10, "EV/EBITDA", "—")
+            else:
+                _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
+                _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
             _card_metric(i11, "P/VP", pvp_str if pvp_str != "-" else "—", destaque=_destaca_pvp_roe)
             _card_ind(i12, "ROA", roa_val, sufixo="%")
+            if _setor_cat in ('banco', 'seguradora'):
+                st.caption(
+                    "P/EBIT e EV/EBITDA não aparecem pra bancos/seguradoras de propósito — "
+                    "essas empresas não têm 'Receita Líquida' no formato industrial que esses "
+                    "múltiplos pressupõem, então o número que sairia não seria confiável "
+                    "(podia vir um valor absurdo, tipo -370x, sem significado real)."
+                )
             st.caption(
                 "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros) — abaixo de 1x "
                 "geralmente indica crescimento 'baixo' em relação ao preço pago; acima de "
@@ -5756,7 +5803,7 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
             row.get('PAYOUT', '-'), div_ebitda_num, roe_num_raw, historico_lucro
         )
 
-        tir_dados_lote = calcular_tir_2026(row, roe_num_raw)
+        tir_dados_lote = calcular_tir_2026(row, roe_num_raw, dy_num=dy_num)
         tir_real_lote = tir_dados_lote['tir_real'] if tir_dados_lote else None
         earnings_yield_lote = (1 / pl_num * 100) if pl_num > 0 else None
 
