@@ -4227,7 +4227,8 @@ st.sidebar.markdown("---")
 # independente de como os cards estão ordenados na tela.
 st.sidebar.markdown("**↕️ Ordenar Cards por**")
 ordenacao_opcoes = {
-    "⭐ Maior Score":            ("score", True),
+    "⭐ Maior Score (de Momento)": ("score", True),
+    "🏛️ Maior Score Estrutural":   ("score_estrutural", True),
     "📉 Menor P/L":              ("pl_num", False),
     "🏆 Maior Dividend Yield":   ("dy_num", True),
     "🎯 Maior TIR (2026, real)": ("tir_real", True),
@@ -4516,14 +4517,25 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        def _card_score_hero(col, valor):
+        def _card_score_hero(col, valor_momento, valor_estrutural):
             col.markdown(
                 "<div style='{base}height:{altura};display:flex;flex-direction:column;"
                 "justify-content:center;align-items:center;text-align:center;box-sizing:border-box;'>"
-                "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;margin-bottom:8px;'>"
-                "⭐ Score Fundamentalista</div>"
-                "<div style='font-size:2.6em;font-weight:900;color:#D4AF37;line-height:1;'>{valor}/10</div>"
-                "</div>".format(base=card_style, altura=ALTURA_RESUMO, valor=valor),
+                "<div style='display:flex;width:100%;justify-content:space-around;'>"
+                "<div>"
+                "<div style='font-size:0.68em;color:#ccc;text-transform:uppercase;margin-bottom:6px;'>"
+                "⭐ De Momento</div>"
+                "<div style='font-size:2.0em;font-weight:900;color:#D4AF37;line-height:1;'>{momento}/10</div>"
+                "</div>"
+                "<div style='width:1px;background:rgba(255,255,255,0.12);margin:0 4px;'></div>"
+                "<div>"
+                "<div style='font-size:0.68em;color:#ccc;text-transform:uppercase;margin-bottom:6px;'>"
+                "🏛️ Estrutural</div>"
+                "<div style='font-size:2.0em;font-weight:900;color:#5B8DB8;line-height:1;'>{estrutural}/10</div>"
+                "</div>"
+                "</div>"
+                "</div>".format(base=card_style, altura=ALTURA_RESUMO, momento=valor_momento,
+                                estrutural=valor_estrutural),
                 unsafe_allow_html=True
             )
 
@@ -4564,14 +4576,22 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             ("P/L (mais barato)", _texto_rank_resumo(ativo_data.get('rank_pl'), n_pl_setor_resumo)),
         ], tamanho_linha="0.95em")
 
-        _card_score_hero(r3, score)
+        _score_estrut = ativo_data.get('score_estrutural') if isinstance(ativo_data, dict) else score
+        _card_score_hero(r3, score, _score_estrut)
         _score_fund = ativo_data.get('score_fundamentos') if isinstance(ativo_data, dict) else None
         _pct_teto_sc = ativo_data.get('pct_acima_teto') if isinstance(ativo_data, dict) else None
+        st.caption(
+            "**De Momento**: qualidade + valuation + governança + cenário cíclico 2026 + "
+            "preço atual vs. teto (pune empresa esticada agora, mesmo se for boa). "
+            "**Estrutural**: a mesma base de qualidade + valuation + governança, mas SEM o "
+            "desconto do cenário cíclico e SEM o ajuste de preço — pra não confundir 'momento "
+            "ruim do setor' com 'empresa estruturalmente fraca'."
+        )
         if _score_fund is not None and _pct_teto_sc is not None and _pct_teto_sc > 0 and _score_fund != score:
             st.caption(
                 f"Score de fundamentos (sem olhar o preço): {_score_fund}/10. Como a cotação "
-                f"está {_pct_teto_sc:.0f}% acima do Preço Teto, o score final foi ajustado pra "
-                f"{score}/10 — boa empresa, mas preço esticado agora."
+                f"está {_pct_teto_sc:.0f}% acima do Preço Teto, o score de momento foi ajustado "
+                f"pra {score}/10 — boa empresa, mas preço esticado agora."
             )
 
         # ---- Revisão de Estimativas (consenso de analistas) ----
@@ -4983,9 +5003,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "referência de quanto a renda fixa 'sem risco' está pagando agora). Gordon usa "
             f"essa mesma taxa + 4,5 p.p. de prêmio de risco ({pj['taxa_desconto_usada']:.1f}%".replace(".", ",") +
             " a.a. no total) e crescimento limitado a 8% a.a. (evita o modelo 'explodir' com "
-            "CAGRs muito altos/instáveis). Nenhum desses é uma 'verdade' — são 3 lentes "
-            "diferentes; quando os 3 apontam pra mesma direção (barato ou caro), o sinal é "
-            "mais forte."
+            "CAGRs muito altos/instáveis). São 3 modelos com premissas diferentes — não devem "
+            "ser tratados como verdade absoluta isoladamente, mas quando os 3 apontam pra "
+            "mesma direção (barato ou caro), o sinal é mais confiável do que olhar só um deles."
         )
 
     # ════════════════════════════════════════════════════════════════════
@@ -5678,6 +5698,23 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
         # Logo — chamada separada, não interfere nos dados acima
         logo_url = get_logo_url(row['CÓDIGO'])
 
+        # ROE e Margem Líquida: prioriza Fundamentus sobre Yahoo -- o Yahoo
+        # é inconsistente pra ações da B3 (campos de ROE vazios com
+        # frequência, principalmente fora do horário de mercado aberto),
+        # enquanto o Fundamentus é a mesma fonte já usada pra ROIC/P-L/VPA
+        # em outras partes do app. Yahoo só entra como respaldo se o
+        # Fundamentus não tiver o dado.
+        ind_extras_lote, _ = get_indicadores_fundamentus(row['CÓDIGO'])
+        if ind_extras_lote:
+            roe_fund = _ind_buscar(ind_extras_lote, 'roe')
+            marg_liq_fund = _ind_buscar(ind_extras_lote, 'marg. l', 'margem l')
+            if roe_fund is not None:
+                roe_num_raw = roe_fund
+                roe = f"{roe_fund:.2f}%".replace('.', ',')
+            if marg_liq_fund is not None:
+                margem_num_raw = marg_liq_fund
+                margem = f"{marg_liq_fund:.2f}%".replace('.', ',')
+
         val_entregue  = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         progresso     = float(min(val_entregue / val_projetado, 1.0)) if val_projetado > 0 else 0.0
@@ -5699,6 +5736,16 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
                                pvp_num=pvp_num_raw, setor=row.get('SETOR', ''),
                                ticker=row.get('CÓDIGO', ''), historico_lucro=historico_lucro)
 
+        # Score Estrutural: a mesma base de qualidade + valuation + governança,
+        # mas SEM os dois descontos "do momento" -- o multiplicador de outlook
+        # (que reflete o cenário cíclico de 2026, ex: juros altos pressionando
+        # consumo) e o desconto por preço esticado (que reflete o humor do
+        # mercado agora, não a qualidade da empresa). "Desfaz" o multiplicador
+        # de outlook matematicamente (é só dividir de volta), sem precisar
+        # duplicar a lógica de calcular_score.
+        _mult_outlook = penalizacao_outlook(row.get('CÓDIGO', ''))
+        score_estrutural = round(min(score_fundamentos / _mult_outlook, 10.0), 1) if _mult_outlook > 0 else score_fundamentos
+
         preco_teto_val = row.get('preco_teto', 0) if 'preco_teto' in row.index else limpar_valor(str(row.get('PREÇO TETO', 0)))
         target_val     = row.get('target', 0) if 'target' in row.index else limpar_valor(str(row.get('TARGET', 0)))
         st_status, st_cor, st_icone, st_desc = status_aporte(row.get('Cotação atual', 0), preco_teto_val, target_val)
@@ -5716,6 +5763,7 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
         ativos_com_score.append({
             'row': row, 'score': score,
             'score_fundamentos': score_fundamentos, 'pct_acima_teto': pct_acima_teto,
+            'score_estrutural': score_estrutural,
             'tir_real': tir_real_lote, 'earnings_yield': earnings_yield_lote,
             'dy_num': dy_num, 'dy_clean': dy_clean, 'pl_num': pl_num,
             'progresso': progresso, 'porcentagem': porcentagem,
