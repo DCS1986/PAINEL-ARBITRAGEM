@@ -428,6 +428,68 @@ def calcular_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num
     return round(min(score, 10.0), 1)
 
 
+def explicar_score(dy_num, pl_num, div_ebitda_num, cagr_num, roe_num, margem_num,
+                   pvp_num=0, setor='', ticker='', historico_lucro=None):
+    """Espelha EXATAMENTE a mesma lógica de calcular_score, mas devolve o
+    detalhamento ponto a ponto (de onde vem cada parte da nota) em vez de só
+    o número final -- pra responder "por que essa empresa tem nota X e
+    aquela tem nota Y" sem precisar adivinhar. Usado só pra exibição/
+    diagnóstico, não substitui calcular_score no cálculo real."""
+    categoria = classificar_setor(setor)
+    consistencia = consistencia_lucro(historico_lucro or {})
+    itens = []  # (label, pontos_obtidos, pontos_possiveis)
+
+    if categoria == 'banco':
+        itens.append(("ROE", min(roe_num / 25.0, 1.0) * 2.5, 2.5))
+        itens.append(("CAGR de Lucros", min(cagr_num / 20.0, 1.0) * 2.0, 2.0))
+        itens.append(("Consistência do Lucro", consistencia * 1.5, 1.5))
+        itens.append(("Dívida Líq/EBITDA", max(0, (4 - div_ebitda_num) / 4.0) * 1.0, 1.0))
+        itens.append(("P/VP", (max(0, (2.0 - pvp_num) / 2.0) * 1.5) if pvp_num > 0 else 0, 1.5))
+        itens.append(("P/L", (max(0, (12 - pl_num) / 12.0) * 1.0) if pl_num > 0 else 0, 1.0))
+        itens.append(("Dividend Yield", min(dy_num / 10.0, 1.0) * 0.5, 0.5))
+    elif categoria == 'seguradora':
+        itens.append(("ROE", min(roe_num / 25.0, 1.0) * 2.5, 2.5))
+        itens.append(("CAGR de Lucros", min(cagr_num / 20.0, 1.0) * 2.0, 2.0))
+        itens.append(("Consistência do Lucro", consistencia * 1.5, 1.5))
+        itens.append(("Margem Líquida", min(margem_num / 40.0, 1.0) * 1.0, 1.0))
+        itens.append(("P/L", (max(0, (15 - pl_num) / 15.0) * 1.5) if pl_num > 0 else 0, 1.5))
+        itens.append(("Dividend Yield", min(dy_num / 10.0, 1.0) * 1.5, 1.5))
+    elif categoria == 'capital_intensivo':
+        itens.append(("CAGR de Lucros", min(cagr_num / 15.0, 1.0) * 2.0, 2.0))
+        itens.append(("Consistência do Lucro", consistencia * 1.5, 1.5))
+        itens.append(("Dívida Líq/EBITDA", max(0, (4 - div_ebitda_num) / 4.0) * 2.0, 2.0))
+        itens.append(("ROE", min(roe_num / 18.0, 1.0) * 1.5, 1.5))
+        itens.append(("Dividend Yield", min(dy_num / 10.0, 1.0) * 2.0, 2.0))
+        itens.append(("P/L", (max(0, (18 - pl_num) / 18.0) * 1.0) if pl_num > 0 else 0, 1.0))
+    elif categoria == 'ciclica':
+        itens.append(("ROE", min(roe_num / 20.0, 1.0) * 2.5, 2.5))
+        itens.append(("Dívida Líq/EBITDA", max(0, (3 - div_ebitda_num) / 3.0) * 2.0, 2.0))
+        itens.append(("CAGR de Lucros", min(cagr_num / 20.0, 1.0) * 1.5, 1.5))
+        itens.append(("Consistência do Lucro", consistencia * 1.0, 1.0))
+        itens.append(("Dividend Yield", min(dy_num / 10.0, 1.0) * 1.5, 1.5))
+        itens.append(("P/VP", (max(0, (2.0 - pvp_num) / 2.0) * 1.0) if pvp_num > 0 else 0, 1.0))
+        itens.append(("P/L", (max(0, (15 - pl_num) / 15.0) * 0.5) if pl_num > 0 else 0, 0.5))
+    else:
+        itens.append(("ROE", min(roe_num / 20.0, 1.0) * 2.5, 2.5))
+        itens.append(("CAGR de Lucros", min(cagr_num / 20.0, 1.0) * 2.0, 2.0))
+        itens.append(("Consistência do Lucro", consistencia * 1.5, 1.5))
+        itens.append(("Dívida Líq/EBITDA", max(0, (5 - div_ebitda_num) / 5.0) * 1.0, 1.0))
+        itens.append(("Dividend Yield", min(dy_num / 10.0, 1.0) * 1.5, 1.5))
+        itens.append(("P/L", (max(0, (20 - pl_num) / 20.0) * 1.0) if pl_num > 0 else 0, 1.0))
+        itens.append(("P/VP", (max(0, (3 - pvp_num) / 3.0) * 0.5) if pvp_num > 0 else 0, 0.5))
+
+    subtotal = sum(i[1] for i in itens)
+    pen_gov = penalizacao_governanca(GOVERNANCA.get(ticker, {}).get('nota', 7.0))
+    mult_out = penalizacao_outlook(ticker)
+    score_fundamentos = round(min(max(0.0, subtotal + pen_gov) * mult_out, 10.0), 1)
+
+    return {
+        'categoria': categoria, 'itens': itens, 'subtotal': subtotal,
+        'pen_governanca': pen_gov, 'mult_outlook': mult_out,
+        'score_fundamentos': score_fundamentos,
+    }
+
+
 def aplicar_ajuste_preco(score_fundamentos, cotacao, preco_teto):
     """Ajusta o score de fundamentos considerando o quanto a cotação ATUAL
     está acima do Preço Teto -- sem isso, uma empresa pode ter ótimos
@@ -4643,6 +4705,46 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 f"pra {score}/10 — boa empresa, mas preço esticado agora."
             )
 
+        with st.expander("🔍 Ver de onde vem esse Score, ponto a ponto"):
+            _dy_brk = ativo_data.get('dy_num', 0) if isinstance(ativo_data, dict) else 0
+            _pl_brk = ativo_data.get('pl_num', 0) if isinstance(ativo_data, dict) else 0
+            _roe_brk = ativo_data.get('roe_num_raw', 0) if isinstance(ativo_data, dict) else 0
+            _marg_brk = ativo_data.get('margem_num_raw', 0) if isinstance(ativo_data, dict) else 0
+            _pvp_brk = ativo_data.get('pvp_num_raw', 0) if isinstance(ativo_data, dict) else 0
+            _div_eb_brk = limpar_valor(row.get('Dívida líquida/EBITDA', 0))
+            _cagr_brk = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+            _hist_brk = ativo_data.get('historico_lucro', {}) if isinstance(ativo_data, dict) else {}
+
+            _det = explicar_score(_dy_brk, _pl_brk, _div_eb_brk, _cagr_brk, _roe_brk, _marg_brk,
+                                  pvp_num=_pvp_brk, setor=row.get('SETOR', ''), ticker=ticker,
+                                  historico_lucro=_hist_brk)
+
+            st.caption(f"Categoria de setor usada: **{_det['categoria']}**")
+            for label, obtido, possivel in _det['itens']:
+                pct_barra = int((obtido / possivel) * 100) if possivel > 0 else 0
+                st.markdown(
+                    f"<div style='display:flex;justify-content:space-between;font-size:0.85em;"
+                    f"margin-bottom:2px;'><span>{label}</span>"
+                    f"<span style='color:#D4AF37;font-weight:700;'>{obtido:.2f} / {possivel:.1f}</span></div>"
+                    f"<div style='background:rgba(255,255,255,0.08);border-radius:4px;height:6px;"
+                    f"margin-bottom:10px;overflow:hidden;'>"
+                    f"<div style='background:#D4AF37;height:100%;width:{pct_barra}%;'></div></div>",
+                    unsafe_allow_html=True
+                )
+            st.markdown(
+                f"**Subtotal qualidade + valuation: {_det['subtotal']:.2f} / 10,0**  \n"
+                f"Ajuste de governança: {_det['pen_governanca']:+.2f}  \n"
+                f"Multiplicador de outlook 2026: ×{_det['mult_outlook']:.2f}  \n"
+                f"**= Score de fundamentos: {_det['score_fundamentos']}/10** "
+                f"(depois disso ainda entra o ajuste de preço vs. teto, se houver, pra "
+                f"chegar no Score de Momento mostrado acima)."
+            )
+            st.caption(
+                "Compare esse detalhamento com o de outro ativo do mesmo setor pra entender "
+                "exatamente qual componente está pesando mais — em vez de só confiar no número "
+                "final."
+            )
+
         # ---- Revisão de Estimativas (consenso de analistas) ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         rev_dados, rev_erro = get_revisao_estimativas(ticker)
@@ -5854,7 +5956,7 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
             'progresso': progresso, 'porcentagem': porcentagem,
             'dt': dt, 'val': val, 'roe': roe, 'margem': margem,
             'low': low, 'high': high,
-            'roe_num_raw': roe_num_raw,
+            'roe_num_raw': roe_num_raw, 'margem_num_raw': margem_num_raw, 'pvp_num_raw': pvp_num_raw,
             'beta': beta, 'pvp_str': pvp_str,
             'historico_dy': historico_dy,
             'historico_pl': historico_pl,
