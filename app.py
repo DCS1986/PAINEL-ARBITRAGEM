@@ -479,7 +479,7 @@ def badge_score(score):
 
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
-def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nominal_max=0.20):
+def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nominal_max=0.35):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
     de dividendo mais o quanto ela deve crescer'. Mesma lógica que bancos
@@ -511,7 +511,7 @@ def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nomin
 
     NÃO se aplica bem a empresas cíclicas, com lucro projetado negativo,
     payout ausente/fora de faixa razoável, ROE não disponível, OU quando o
-    resultado nominal passa de tir_nominal_max (20% a.a. por padrão) --
+    resultado nominal passa de tir_nominal_max (35% a.a. por padrão) --
     nesses casos retorna None."""
     pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
     payout_raw = row.get('PAYOUT', '-')
@@ -535,10 +535,19 @@ def calcular_tir_2026(row, roe_num, dy_num=None, crescimento_max=0.10, tir_nomin
     _setor_cat_tir = classificar_setor(row.get('SETOR', ''))
     _fonte_crescimento = 'reinvestimento_roe' if _setor_cat_tir == 'banco' else 'cagr_historico'
     if _fonte_crescimento == 'reinvestimento_roe':
+        # Modelo TEÓRICO (assume reinvestimento perpétuo ao ROE atual) --
+        # aqui o teto faz sentido, porque é uma extrapolação, não um dado
+        # observado.
         g = min((1 - payout) * (roe_num / 100), crescimento_max)
     else:
+        # CAGR é dado HISTÓRICO REAL (você mesmo confere e insere) -- não é
+        # uma extrapolação teórica que precisa de blindagem. Capar um número
+        # real na régua de um modelo teórico distorce a realidade, que é
+        # justamente o que não queremos. Sem teto aqui; a única blindagem é
+        # o teto geral da TIR nominal combinada (tir_nominal_max), que pega
+        # só os casos genuinamente fora da curva.
         cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
-        g = min(max(cagr_pct_tir / 100, 0), crescimento_max)
+        g = max(cagr_pct_tir / 100, 0)
 
     tir_nominal = parte_dividendo + g
 
@@ -4908,9 +4917,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             st.caption(
                 "TIR esperada 2026 não disponível — esse modelo não se aplica bem a "
                 "empresas com lucro projetado negativo, payout ausente/fora de faixa "
-                "razoável, ROE indisponível, ou quando o resultado nominal passaria de 20% "
-                "a.a. (sinal de que o modelo simplificado não está representando bem essa "
-                "empresa)."
+                "razoável, ROE indisponível, ou quando o resultado nominal passaria de 35% "
+                "a.a. (sinal de que algum dos números de entrada provavelmente está errado)."
             )
 
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
