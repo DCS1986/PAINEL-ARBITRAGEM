@@ -543,6 +543,26 @@ def badge_score(score):
     </div>"""
 
 
+# ---- Ajustes manuais na TIR -- correções pontuais de casos onde o modelo
+# automático (mesmo já corrigido com amortecimento suave) ainda erra,
+# segundo a avaliação direta do Diego sobre empresas específicas. Isso não
+# é "forçar a realidade" -- é reconhecer que pra um radar de ações já
+# filtradas como sólidas, um CAGR modesto-mas-real (como o da BBAS3, 4,8%)
+# estava sendo esmagado demais pelo fator de desconto do Outlook 🔴, que foi
+# calibrado pra corrigir CAGR INFLADO (tipo KEPL3), não CAGR já realista.
+TIR_PISO_GERAL = 4.0  # nenhum ativo do radar deveria, na prática, ficar
+                        # abaixo disso -- empresa sólida em ano difícil
+                        # ainda gera valor via dividendo/book value/caixa
+TIR_PISO_ESPECIFICO = {  # piso mais alto pra esses, perto da renda fixa --
+    "CPLE3": 7.5, "BBAS3": 7.5, "SLCE3": 7.5, "AXIA3": 7.5, "VALE3": 7.5,
+    "BRAP4": 7.5, "B3SA3": 7.5, "TAEE11": 7.5, "SANB3": 7.5, "WEGE3": 7.5,
+    "CMIG4": 7.5, "BBDC3": 7.5, "MDNE3": 7.5, "KLBN4": 7.5,
+}
+TIR_TETO_ESPECIFICO = {  # teto manual pra casos onde o CAGR de origem está
+    "VULC3": 12.0,        # quebrado (ano-base baixo) E o negócio é sensível
+}                          # a juros altos -- não deveria entregar TIR de 17%+
+
+
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
 def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_max=0.22):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
@@ -650,12 +670,23 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
     ipca = get_ipca_12m()
     tir_real = (tir_nominal * 100) - ipca if ipca is not None else None
 
+    ajuste_manual = None
+    if tir_real is not None:
+        piso_aplicavel = TIR_PISO_ESPECIFICO.get(ticker, TIR_PISO_GERAL)
+        if tir_real < piso_aplicavel:
+            tir_real = piso_aplicavel
+            ajuste_manual = 'piso'
+        teto_manual = TIR_TETO_ESPECIFICO.get(ticker)
+        if teto_manual is not None and tir_real > teto_manual:
+            tir_real = teto_manual
+            ajuste_manual = 'teto'
+
     return {
         'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
         'g': g * 100, 'dy_usado': parte_dividendo * 100, 'icone_outlook': icone_outlook,
         'teto_crescimento_usado': fator_confianca * 100,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
-        'capado_em_20': capado_em_20,
+        'capado_em_20': capado_em_20, 'ajuste_manual': ajuste_manual,
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
                                           # de fato pago -- resultado depende mais
                                           # de premissa de crescimento que de caixa real
@@ -5080,6 +5111,13 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "limitado a esse teto, porque retorno tão alto não é sustentável de forma "
                 "confiável nessa metodologia (sinal de que vale conferir o CAGR de origem)." if tir_dados['capado_em_20'] else ""
             )
+            aviso_ajuste_manual = (
+                " 🔧 Valor ajustado manualmente pra um piso mínimo — o cálculo automático "
+                "vinha baixo demais pra uma empresa desse porte/qualidade." if tir_dados['ajuste_manual'] == 'piso'
+                else " 🔧 Valor ajustado manualmente pra um teto máximo — o CAGR de origem "
+                "desse ativo está com sinais de distorção." if tir_dados['ajuste_manual'] == 'teto'
+                else ""
+            )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
                 f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
@@ -5092,7 +5130,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
                 "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." +
-                aviso_confianca + aviso_capagem
+                aviso_confianca + aviso_capagem + aviso_ajuste_manual
             )
         else:
             st.caption(
