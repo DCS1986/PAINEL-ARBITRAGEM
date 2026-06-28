@@ -672,9 +672,20 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
 
     ajuste_manual = None
     if tir_real is not None:
+        # Piso SUAVE, não um valor fixo -- um piso fixo (testamos 4%/7,5%)
+        # cria a MESMA colisão que o teto fixo já criava, só invertida: a
+        # VALE3, AXIA3, SANB3, B3SA3, BBDC3, MDNE3, WEGE3, BRAP4, SLCE3 e
+        # BBAS3 bateram TODAS no piso de 7,5% e ficaram com o valor
+        # IDÊNTICO, mesmo sendo situações bem diferentes (a SLC e a BBAS
+        # deveriam ficar embaixo desse grupo, não juntas com ele). Em vez
+        # de "subir pro piso", amortece o quanto falta pra chegar lá -- um
+        # déficit grande ainda sobe bastante, mas nunca o suficiente pra
+        # colidir com outro ativo que tinha um déficit diferente.
         piso_aplicavel = TIR_PISO_ESPECIFICO.get(ticker, TIR_PISO_GERAL)
         if tir_real < piso_aplicavel:
-            tir_real = piso_aplicavel
+            deficit = piso_aplicavel - tir_real
+            deficit_amortecido = deficit / (1 + deficit / 3.0)
+            tir_real = piso_aplicavel - deficit_amortecido
             ajuste_manual = 'piso'
         teto_manual = TIR_TETO_ESPECIFICO.get(ticker)
         if teto_manual is not None and tir_real > teto_manual:
