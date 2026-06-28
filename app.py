@@ -567,7 +567,7 @@ TIR_TETO_ESPECIFICO = {  # teto manual pra casos onde o CAGR de origem está
 
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
-def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_max=0.22):
+def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, roe_num=None, tir_total_max=0.22):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
     de dividendo mais o quanto o lucro deve crescer'. Mesma lógica que
@@ -630,28 +630,48 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
 
     cagr_pct_tir_bruto = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
     cagr_pct_tir_bruto = max(cagr_pct_tir_bruto, 0)
-    # Amortecimento SUAVE, não um teto rígido -- um teto (já tentamos 35%,
-    # antes 28%/20%) sempre junta várias empresas diferentes no MESMO valor
-    # quando o CAGR bruto de cada uma passa do teto (vimos até 457,9% na
-    # CURY3, 105,8% na VULC3 -- quebra matemática da fórmula de CAGR quando
-    # o ano-base, 5 anos atrás, teve lucro muito baixo, mesmo problema da
-    # AXIA3, só mais espalhado pela planilha do que parecia).
-    # Em vez disso: confia 100% no CAGR até 20% (limiar razoável pra
-    # crescimento real e sustentável); o que passar disso é amortecido por
-    # uma função que nunca "bate num teto" -- cada CAGR de entrada sempre
-    # produz um CAGR efetivo DIFERENTE na saída, então nunca colide com o
-    # de outra empresa, mesmo as duas tendo CAGR bruto extremo.
-    LIMIAR_CONFIAVEL = 20.0
-    if cagr_pct_tir_bruto <= LIMIAR_CONFIAVEL:
-        cagr_pct_tir = cagr_pct_tir_bruto
-    else:
-        excesso = cagr_pct_tir_bruto - LIMIAR_CONFIAVEL
-        excesso_amortecido = excesso / (1 + excesso / 15.0)
-        cagr_pct_tir = LIMIAR_CONFIAVEL + excesso_amortecido
 
+    _setor_cat_tir = classificar_setor(row.get('SETOR', ''))
     icone_outlook = OUTLOOK_2026.get(ticker, {}).get('icone', '✅')
-    fator_confianca = {'✅': 0.65, '⚠️': 0.35, '🔴': 0.12}.get(icone_outlook, 0.35)
-    g = cagr_pct_tir / 100 * fator_confianca
+
+    if _setor_cat_tir == 'banco' and roe_num is not None and roe_num > 0:
+        # PADRÃO ESPECÍFICO PRA BANCOS -- a metodologia que o próprio Diego
+        # usa pra calcular a TIR do BB manualmente: banco reinveste o lucro
+        # retido (1-Payout) ao ROE atual pra sustentar mais carteira de
+        # crédito -- isso É como banco cresce de verdade, diferente de usar
+        # CAGR histórico de 5 anos (que não captura, por exemplo, o ROE da
+        # BBAS3 ter caído de ~17% pra 7,3% por causa da crise do agro --
+        # com ROE atual, a TIR reflete o AGORA, não uma média antiga).
+        # g = (1 − Payout) × ROE atual. Sem amortecimento aqui -- ROE não
+        # tem o problema de "quebra matemática" do CAGR (não depende de
+        # comparar com um ano-base ruim de 5 anos atrás), então o número
+        # já vem naturalmente razoável.
+        g = (1 - payout) * (roe_num / 100)
+        cagr_pct_tir = None  # não usado nesse caminho
+        fonte_crescimento = 'roe_reinvestimento'
+    else:
+        # Amortecimento SUAVE, não um teto rígido -- um teto (já tentamos 35%,
+        # antes 28%/20%) sempre junta várias empresas diferentes no MESMO valor
+        # quando o CAGR bruto de cada uma passa do teto (vimos até 457,9% na
+        # CURY3, 105,8% na VULC3 -- quebra matemática da fórmula de CAGR quando
+        # o ano-base, 5 anos atrás, teve lucro muito baixo, mesmo problema da
+        # AXIA3, só mais espalhado pela planilha do que parecia).
+        # Em vez disso: confia 100% no CAGR até 20% (limiar razoável pra
+        # crescimento real e sustentável); o que passar disso é amortecido por
+        # uma função que nunca "bate num teto" -- cada CAGR de entrada sempre
+        # produz um CAGR efetivo DIFERENTE na saída, então nunca colide com o
+        # de outra empresa, mesmo as duas tendo CAGR bruto extremo.
+        LIMIAR_CONFIAVEL = 20.0
+        if cagr_pct_tir_bruto <= LIMIAR_CONFIAVEL:
+            cagr_pct_tir = cagr_pct_tir_bruto
+        else:
+            excesso = cagr_pct_tir_bruto - LIMIAR_CONFIAVEL
+            excesso_amortecido = excesso / (1 + excesso / 15.0)
+            cagr_pct_tir = LIMIAR_CONFIAVEL + excesso_amortecido
+
+        fator_confianca = {'✅': 0.65, '⚠️': 0.35, '🔴': 0.12}.get(icone_outlook, 0.35)
+        g = cagr_pct_tir / 100 * fator_confianca
+        fonte_crescimento = 'cagr_5anos'
 
     tir_nominal_bruto = parte_dividendo + g
     # Mesmo amortecimento suave no resultado FINAL combinado -- sem isso, um
@@ -704,7 +724,7 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
     return {
         'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
         'g': g * 100, 'dy_usado': parte_dividendo * 100, 'icone_outlook': icone_outlook,
-        'teto_crescimento_usado': fator_confianca * 100,
+        'fonte_crescimento': fonte_crescimento, 'roe_usado': roe_num if fonte_crescimento == 'roe_reinvestimento' else None,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
         'capado_em_20': capado_em_20, 'ajuste_manual': ajuste_manual,
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
@@ -5104,7 +5124,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             ey_str, ey_cor = "—", "#888"
 
         _dy_tir = ativo_data.get('dy_num') if isinstance(ativo_data, dict) else dy_num
-        tir_dados = calcular_tir_2026(row, ticker, dy_num=_dy_tir, historico_lucro=historico_lucro)
+        _roe_tir_calc = ativo_data.get('roe_num_raw') if isinstance(ativo_data, dict) else None
+        tir_dados = calcular_tir_2026(row, ticker, dy_num=_dy_tir, historico_lucro=historico_lucro, roe_num=_roe_tir_calc)
         if tir_dados and tir_dados['tir_real'] is not None:
             tir_str = f"IPCA + {tir_dados['tir_real']:.1f}%".replace(".", ",")
             tir_cor = ("#22C55E" if tir_dados['tir_real'] >= 6
@@ -5144,15 +5165,25 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "IPCA). A conta nominal (antes de tirar IPCA) sempre fica IGUAL ou MAIOR que "
                 "o DY puro, nunca menor, porque o crescimento nunca entra negativo aqui."
             )
+            if tir_dados['fonte_crescimento'] == 'roe_reinvestimento':
+                _texto_g = (
+                    f"pelo padrão de bancos: (1 − Payout) × ROE atual de "
+                    f"{tir_dados['roe_usado']:.1f}%".replace(".", ",") +
+                    " — reflete o ROE de AGORA, não uma média histórica de vários anos"
+                )
+            else:
+                _texto_g = (
+                    f"usando {tir_dados['teto_crescimento_usado']:.0f}%".replace(".", ",") +
+                    " do CAGR histórico desse ativo, porque o Outlook 2026 está em "
+                    f"{tir_dados['icone_outlook']} (quanto pior o momento atual, menos se "
+                    "confia no crescimento histórico se repetir este ano)"
+                )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
                 f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
                 " = parte que vira dividendo de fato, mais crescimento de " +
                 f"{tir_dados['g']:.1f}%".replace(".", ",") +
-                f" a.a. — usando {tir_dados['teto_crescimento_usado']:.0f}%".replace(".", ",") +
-                f" do CAGR histórico desse ativo, porque o Outlook 2026 está em "
-                f"{tir_dados['icone_outlook']} (quanto pior o momento atual, menos se confia no "
-                "crescimento histórico se repetir este ano)), menos IPCA acumulado de " +
+                f" a.a. — {_texto_g}), menos IPCA acumulado de " +
                 f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
                 "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." +
@@ -6157,7 +6188,7 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
             row.get('PAYOUT', '-'), div_ebitda_num, roe_num_raw, historico_lucro
         )
 
-        tir_dados_lote = calcular_tir_2026(row, row['CÓDIGO'], dy_num=dy_num, historico_lucro=historico_lucro)
+        tir_dados_lote = calcular_tir_2026(row, row['CÓDIGO'], dy_num=dy_num, historico_lucro=historico_lucro, roe_num=roe_num_raw)
         tir_real_lote = tir_dados_lote['tir_real'] if tir_dados_lote else None
         earnings_yield_lote = (1 / pl_num * 100) if pl_num > 0 else None
 
