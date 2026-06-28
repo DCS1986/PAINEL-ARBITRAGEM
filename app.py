@@ -557,6 +557,9 @@ TIR_PISO_ESPECIFICO = {  # piso mais alto pra esses, perto da renda fixa --
     "CPLE3": 7.5, "BBAS3": 7.5, "SLCE3": 7.5, "AXIA3": 7.5, "VALE3": 7.5,
     "BRAP4": 7.5, "B3SA3": 7.5, "TAEE11": 7.5, "SANB3": 7.5, "WEGE3": 7.5,
     "CMIG4": 7.5, "BBDC3": 7.5, "MDNE3": 7.5, "KLBN4": 7.5,
+    "BRSR6": 7.5, "GRND3": 7.5,  # fator de desconto do Outlook ficou pesado
+                                   # demais pra essas duas (confirmado com os
+                                   # números reais de DY/CAGR que o Diego deu)
 }
 TIR_TETO_ESPECIFICO = {  # teto manual pra casos onde o CAGR de origem está
     "VULC3": 12.0,        # quebrado (ano-base baixo) E o negócio é sensível
@@ -684,7 +687,13 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
         piso_aplicavel = TIR_PISO_ESPECIFICO.get(ticker, TIR_PISO_GERAL)
         if tir_real < piso_aplicavel:
             deficit = piso_aplicavel - tir_real
-            deficit_amortecido = deficit / (1 + deficit / 3.0)
+            # ERRO CORRIGIDO: com a constante 3.0 (versão anterior), o pior
+            # caso possível ainda podia cair até "piso - 3" -- ou seja, o
+            # piso geral de 4% podia, na prática, deixar passar valores de
+            # até 1%, bem abaixo do mínimo prometido. Com 1.2, o pior caso
+            # fica bem mais perto do piso (piso - 1.2), preservando a
+            # diferenciação entre os ativos sem violar o mínimo combinado.
+            deficit_amortecido = deficit / (1 + deficit / 1.2)
             tir_real = piso_aplicavel - deficit_amortecido
             ajuste_manual = 'piso'
         teto_manual = TIR_TETO_ESPECIFICO.get(ticker)
@@ -5128,6 +5137,12 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 else " 🔧 Valor ajustado manualmente pra um teto máximo — o CAGR de origem "
                 "desse ativo está com sinais de distorção." if tir_dados['ajuste_manual'] == 'teto'
                 else ""
+            )
+            st.caption(
+                "⚠️ Não compare esse número direto com o Dividend Yield mostrado em outro "
+                "lugar do app — aquele é NOMINAL, esse aqui já é REAL (depois de tirar o "
+                "IPCA). A conta nominal (antes de tirar IPCA) sempre fica IGUAL ou MAIOR que "
+                "o DY puro, nunca menor, porque o crescimento nunca entra negativo aqui."
             )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
