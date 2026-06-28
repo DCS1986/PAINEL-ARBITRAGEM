@@ -544,7 +544,7 @@ def badge_score(score):
 
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
-def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_max=0.28):
+def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_max=0.22):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
     de dividendo mais o quanto o lucro deve crescer'. Mesma lógica que
@@ -605,15 +605,47 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
     else:
         return None
 
-    cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+    cagr_pct_tir_bruto = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+    cagr_pct_tir_bruto = max(cagr_pct_tir_bruto, 0)
+    # Amortecimento SUAVE, não um teto rígido -- um teto (já tentamos 35%,
+    # antes 28%/20%) sempre junta várias empresas diferentes no MESMO valor
+    # quando o CAGR bruto de cada uma passa do teto (vimos até 457,9% na
+    # CURY3, 105,8% na VULC3 -- quebra matemática da fórmula de CAGR quando
+    # o ano-base, 5 anos atrás, teve lucro muito baixo, mesmo problema da
+    # AXIA3, só mais espalhado pela planilha do que parecia).
+    # Em vez disso: confia 100% no CAGR até 20% (limiar razoável pra
+    # crescimento real e sustentável); o que passar disso é amortecido por
+    # uma função que nunca "bate num teto" -- cada CAGR de entrada sempre
+    # produz um CAGR efetivo DIFERENTE na saída, então nunca colide com o
+    # de outra empresa, mesmo as duas tendo CAGR bruto extremo.
+    LIMIAR_CONFIAVEL = 20.0
+    if cagr_pct_tir_bruto <= LIMIAR_CONFIAVEL:
+        cagr_pct_tir = cagr_pct_tir_bruto
+    else:
+        excesso = cagr_pct_tir_bruto - LIMIAR_CONFIAVEL
+        excesso_amortecido = excesso / (1 + excesso / 15.0)
+        cagr_pct_tir = LIMIAR_CONFIAVEL + excesso_amortecido
+
     icone_outlook = OUTLOOK_2026.get(ticker, {}).get('icone', '✅')
     fator_confianca = {'✅': 0.65, '⚠️': 0.35, '🔴': 0.12}.get(icone_outlook, 0.35)
-    g = max(cagr_pct_tir, 0) / 100 * fator_confianca
+    g = cagr_pct_tir / 100 * fator_confianca
 
-    tir_nominal = parte_dividendo + g
-    capado_em_20 = tir_nominal > tir_total_max
-    if capado_em_20:
-        tir_nominal = tir_total_max
+    tir_nominal_bruto = parte_dividendo + g
+    # Mesmo amortecimento suave no resultado FINAL combinado -- sem isso, um
+    # teto rígido aqui (já tentamos 35%, 28%, 22%) voltava a juntar várias
+    # empresas diferentes no mesmo valor sempre que a soma (dividendo +
+    # crescimento) passava do teto. Confia 100% até 18% a.a. (já um retorno
+    # excelente); o que passar disso é amortecido sem nunca "bater num
+    # muro" -- dois resultados brutos diferentes sempre geram resultados
+    # finais diferentes, por mais que os dois sejam "altos".
+    LIMIAR_TIR = tir_total_max * (18.0 / 22.0)  # ~18% se tir_total_max=22%
+    if tir_nominal_bruto <= LIMIAR_TIR:
+        tir_nominal = tir_nominal_bruto
+    else:
+        excesso_tir = tir_nominal_bruto - LIMIAR_TIR
+        excesso_tir_amortecido = excesso_tir / (1 + excesso_tir / 0.07)
+        tir_nominal = LIMIAR_TIR + excesso_tir_amortecido
+    capado_em_20 = tir_nominal_bruto > LIMIAR_TIR
 
     ipca = get_ipca_12m()
     tir_real = (tir_nominal * 100) - ipca if ipca is not None else None
