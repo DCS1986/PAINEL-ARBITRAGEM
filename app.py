@@ -554,12 +554,15 @@ TIR_PISO_GERAL = 4.0  # nenhum ativo do radar deveria, na prática, ficar
                         # abaixo disso -- empresa sólida em ano difícil
                         # ainda gera valor via dividendo/book value/caixa
 TIR_PISO_ESPECIFICO = {  # piso mais alto pra esses, perto da renda fixa --
-    "CPLE3": 7.5, "BBAS3": 7.5, "SLCE3": 7.5, "AXIA3": 7.5, "VALE3": 7.5,
-    "BRAP4": 7.5, "B3SA3": 7.5, "TAEE11": 7.5, "SANB3": 7.5, "WEGE3": 7.5,
-    "CMIG4": 7.5, "BBDC3": 7.5, "MDNE3": 7.5, "KLBN4": 7.5,
-    "BRSR6": 7.5, "GRND3": 7.5,  # fator de desconto do Outlook ficou pesado
-                                   # demais pra essas duas (confirmado com os
-                                   # números reais de DY/CAGR que o Diego deu)
+    # bancos (BBAS3, B3SA3, SANB3, BBDC3, BRSR6) foram REMOVIDOS dessa lista
+    # de propósito -- agora usam o padrão específico de banco (ROE), que já
+    # reflete a realidade de cada um sem precisar de remendo. Deixar eles
+    # aqui faria esse piso "contaminar" o cálculo novo, que já está certo.
+    "CPLE3": 7.5, "SLCE3": 7.5, "AXIA3": 7.5, "VALE3": 7.5,
+    "BRAP4": 7.5, "TAEE11": 7.5, "WEGE3": 7.5,
+    "CMIG4": 7.5, "MDNE3": 7.5, "KLBN4": 7.5,
+    "GRND3": 7.5,  # fator de desconto do Outlook ficou pesado demais (CAGR
+                    # de origem confirmado com o Diego)
 }
 TIR_TETO_ESPECIFICO = {  # teto manual pra casos onde o CAGR de origem está
     "VULC3": 12.0,        # quebrado (ano-base baixo) E o negócio é sensível
