@@ -544,8 +544,7 @@ def badge_score(score):
 
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
-def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
-                      crescimento_max=0.08, tir_nominal_max=0.35):
+def calcular_tir_2026(row, dy_num=None, historico_lucro=None, tir_nominal_max=0.35):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
     de dividendo mais o quanto o lucro deve crescer'. Mesma lógica que
@@ -554,21 +553,25 @@ def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
     1. Parte que vira dividendo = Dividend Yield bruto estimado (dy_num) --
        o MESMO número já usado em todo o resto do app. Se não disponível,
        cai pro cálculo derivado (Earnings Yield × Payout) como respaldo.
-    2. Crescimento esperado = CAGR de lucros (últ. 5 anos) -- dado real que
-       você confere manualmente, limitado a crescimento_max nessa conta
-       específica, porque mesmo um número real e correto, ao ser tratado
-       como "a taxa de crescimento de só este ano", precisa de uma margem
-       de prudência (nenhuma taxa alta se sustenta indefinidamente quando
-       extrapolada de uma média de 5 anos pra um único ano, e a média de 5
-       anos pode estar inflada por anos passados melhores que o momento
-       atual da empresa).
-       O caminho "ano a ano" (LL Projetado ÷ último ano fechado via
-       histórico do Yahoo) que existia antes foi REMOVIDO -- o histórico
-       multi-ano do Yahoo provou ser pouco confiável pra ações da B3 (foi o
-       que causou a BBAS3 aparecer com TIR de IPCA+12% mesmo tendo o lucro
-       em queda de 53% no trimestre -- um número claramente errado vindo de
-       um dado ruim, não do CAGR real dela, que é só 4,8%).
-    3. TIR nominal = (1) + (2), limitado a tir_nominal_max
+    2. Crescimento esperado = CAGR de lucros (últ. 5 anos), SEM teto -- já
+       tentamos um teto fixo (10%, depois 12%, depois 8%) e cada valor
+       resolvia um caso e quebrava outro: KEPL3 e CXSE3 têm CAGR quase
+       idêntico (18,2% e 19,4%), mas um deveria ser tratado com cautela
+       (inflado por um boom passado do agro) e o outro não (crescimento
+       genuíno de um negócio asset-light) -- isso é julgamento sobre o
+       NEGÓCIO, que nenhum teto numérico consegue replicar. Em vez de eu
+       adivinhar, mostramos o CAGR real ao lado da TIR (já visível na
+       Tabela) pra você aplicar esse julgamento você mesmo.
+       CAGR <= 0 não esconde a TIR -- vira crescimento zero, e a TIR cai
+       pro dividendo puro (em vez de sumir inteira pra empresas cíclicas/
+       em recuperação).
+    3. TIR nominal = (1) + (2), limitado a tir_nominal_max -- esse teto
+       GERAL continua existindo só como rede de segurança contra erro de
+       dado de entrada (ex: CAGR vindo de uma conta matematicamente
+       quebrada, como aconteceu com a AXIA3 -- CAGR de 0,53% quando ela
+       saiu de prejuízo bilionário pra lucro bilionário, porque a fórmula
+       de CAGR trava quando o ano-base é negativo; isso é um problema na
+       planilha de origem, não algo que a TIR consiga corrigir sozinha).
     4. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
        'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
 
@@ -595,16 +598,11 @@ def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
     else:
         return None
 
-    g = None
-    fonte_g = None
-    ano_base = None
+    ano_base = None  # caminho "ano a ano" via Yahoo foi removido; mantido só
+                      # pra não quebrar o dict de retorno que outras partes leem
     cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
-    if cagr_pct_tir > 0:
-        g = min(cagr_pct_tir / 100, crescimento_max)
-        fonte_g = 'cagr_5anos'
-
-    if g is None:
-        return None
+    g = max(cagr_pct_tir, 0) / 100
+    fonte_g = 'cagr_5anos'
 
     tir_nominal = parte_dividendo + g
 
@@ -617,9 +615,10 @@ def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
     return {
         'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
         'g': g * 100, 'dy_usado': parte_dividendo * 100, 'ano_base': ano_base,
-        'fonte_g': fonte_g, 'crescimento_max_usado': crescimento_max * 100,
+        'fonte_g': fonte_g,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
-        'g_no_teto': g >= crescimento_max - 1e-9,
+        'g_no_teto': False,  # teto de crescimento foi removido -- mantido só
+                              # pra não quebrar a legenda que ainda lê esse campo
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
                                           # de fato pago -- resultado depende mais
                                           # de premissa de crescimento que de caixa real
@@ -5039,25 +5038,15 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "dividendo de fato pago) — resultado menos confiável, olhe os números acima "
                 "com mais cautela." if tir_dados['payout_baixo'] else ""
             )
-            if tir_dados['fonte_g'] == 'ano_a_ano':
-                _texto_g = (
-                    f"comparando o LL Projetado pra 2026 com o lucro real de "
-                    f"{tir_dados['ano_base']} (último ano fechado)"
-                )
-            else:
-                _texto_g = (
-                    "com base no CAGR de lucros dos últimos 5 anos (o histórico ano-a-ano não "
-                    "estava disponível pra esse ativo) — por ser uma média de vários anos, "
-                    f"limitamos a {tir_dados['crescimento_max_usado']:.0f}%".replace(".", ",") +
-                    " a.a. nessa conta especificamente, já que essa TIR é só pra este ano"
-                )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
                 f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
                 " = parte que vira dividendo de fato — o mesmo número usado no resto do app —, "
-                "mais crescimento esperado de " +
+                "mais o CAGR de lucros dos últimos 5 anos de " +
                 f"{tir_dados['g']:.1f}%".replace(".", ",") +
-                f" a.a., {_texto_g}), menos IPCA acumulado de " +
+                " a.a., sem nenhum teto — confira esse CAGR ao lado de outros indicadores da "
+                "empresa antes de confiar 100% num CAGR muito alto: ele pode estar inflado por "
+                "um período passado que não se repete. Menos IPCA acumulado de " +
                 f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
                 "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." + aviso_confianca
