@@ -545,7 +545,7 @@ def badge_score(score):
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
 def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
-                      crescimento_max=0.12, tir_nominal_max=0.35):
+                      crescimento_max=0.08, tir_nominal_max=0.35):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
     de dividendo mais o quanto o lucro deve crescer'. Mesma lógica que
@@ -554,30 +554,29 @@ def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
     1. Parte que vira dividendo = Dividend Yield bruto estimado (dy_num) --
        o MESMO número já usado em todo o resto do app. Se não disponível,
        cai pro cálculo derivado (Earnings Yield × Payout) como respaldo.
-    2. Crescimento esperado -- duas fontes possíveis, nessa ordem de
-       preferência:
-       a) LL Projetado (2026) ÷ lucro do último ano FECHADO − 1, quando o
-          histórico de lucro (via Yahoo) está disponível -- é a estimativa
-          mais precisa, específica de 2026, não uma média de vários anos.
-       b) CAGR de lucros (últ. 5 anos) -- usado como respaldo quando (a) não
-          está disponível (o que acontece com frequência, já que o
-          histórico multi-ano do Yahoo é inconsistente pra ações da B3).
-          É um dado real que você confere manualmente, então não o
-          descartamos -- só o limitamos a crescimento_max nessa conta
-          específica, porque mesmo um número real e correto, ao ser tratado
-          como "a taxa de crescimento de só este ano", precisa de uma
-          margem de prudência (nenhuma taxa alta se sustenta indefinidamente
-          quando extrapolada de uma média de 5 anos pra um único ano).
+    2. Crescimento esperado = CAGR de lucros (últ. 5 anos) -- dado real que
+       você confere manualmente, limitado a crescimento_max nessa conta
+       específica, porque mesmo um número real e correto, ao ser tratado
+       como "a taxa de crescimento de só este ano", precisa de uma margem
+       de prudência (nenhuma taxa alta se sustenta indefinidamente quando
+       extrapolada de uma média de 5 anos pra um único ano, e a média de 5
+       anos pode estar inflada por anos passados melhores que o momento
+       atual da empresa).
+       O caminho "ano a ano" (LL Projetado ÷ último ano fechado via
+       histórico do Yahoo) que existia antes foi REMOVIDO -- o histórico
+       multi-ano do Yahoo provou ser pouco confiável pra ações da B3 (foi o
+       que causou a BBAS3 aparecer com TIR de IPCA+12% mesmo tendo o lucro
+       em queda de 53% no trimestre -- um número claramente errado vindo de
+       um dado ruim, não do CAGR real dela, que é só 4,8%).
     3. TIR nominal = (1) + (2), limitado a tir_nominal_max
     4. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
        'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
 
     NÃO se aplica bem a empresas com lucro projetado negativo, payout
-    ausente/fora de faixa razoável, sem CAGR nem histórico de lucro
-    disponíveis, OU quando o resultado nominal passa de tir_nominal_max
-    (35% a.a. por padrão) -- nesses casos retorna None."""
+    ausente/fora de faixa razoável, sem CAGR disponível, OU quando o
+    resultado nominal passa de tir_nominal_max (35% a.a. por padrão) --
+    nesses casos retorna None."""
     pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
-    ll_proj = limpar_valor_resultado(row.get('LL PROJETADO', 0))
     payout_raw = row.get('PAYOUT', '-')
     payout_pct = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
 
@@ -599,21 +598,10 @@ def calcular_tir_2026(row, dy_num=None, historico_lucro=None,
     g = None
     fonte_g = None
     ano_base = None
-    if historico_lucro and ll_proj > 0:
-        ultimo_ano = max(historico_lucro.keys())
-        lucro_ultimo_ano = historico_lucro[ultimo_ano]
-        if lucro_ultimo_ano > 0:
-            g_calc = (ll_proj / lucro_ultimo_ano) - 1
-            if g_calc >= 0:
-                g = min(g_calc, crescimento_max)
-                fonte_g = 'ano_a_ano'
-                ano_base = ultimo_ano
-
-    if g is None:
-        cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
-        if cagr_pct_tir > 0:
-            g = min(cagr_pct_tir / 100, crescimento_max)
-            fonte_g = 'cagr_5anos'
+    cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+    if cagr_pct_tir > 0:
+        g = min(cagr_pct_tir / 100, crescimento_max)
+        fonte_g = 'cagr_5anos'
 
     if g is None:
         return None
