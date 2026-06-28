@@ -544,7 +544,7 @@ def badge_score(score):
 
 
 # ---- TIR esperada para 2026 (metodologia própria do Diego) ----
-def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_max=0.20):
+def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_max=0.28):
     """TIR esperada para o ano corrente, sem valor de saída/terminal --
     metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
     de dividendo mais o quanto o lucro deve crescer'. Mesma lógica que
@@ -553,29 +553,36 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
     1. Parte que vira dividendo = Dividend Yield bruto estimado (dy_num) --
        o MESMO número já usado em todo o resto do app. Se não disponível,
        cai pro cálculo derivado (Earnings Yield × Payout) como respaldo.
-    2. Crescimento esperado = CAGR de lucros (últ. 5 anos), moderado pelo
-       OUTLOOK 2026 já cadastrado pra cada empresa -- esse é o ajuste que
-       faltava: um teto numérico igual pra todo mundo não funciona porque
-       KEPL3 e CXSE3 têm CAGR quase idêntico (18,2% e 19,4%) mas precisam
-       de tratamento OPOSTO -- a Kepler está numa crise de agro que torna
-       esse crescimento histórico pouco confiável pra 2026 (Outlook 🔴: "2026
-       deve ser ano de contração de receita"), enquanto a CXSE3 tem
-       crescimento estrutural genuíno (Outlook ✅). Em vez de adivinhar isso
-       num número, uso o Outlook que já pesquisei pra cada empresa:
-       - 🔴 (crise/cautela, ex: agro agora): crescimento limitado a 2% --
-         reflete que é difícil essa empresa crescer de verdade no cenário
-         atual, empurrando a TIR pra perto dos títulos públicos.
-       - ⚠️ (atenção): crescimento limitado a 7%.
-       - ✅ (bom momento, ex: construtoras crescendo forte): crescimento
-         limitado a 15% -- alto, mas não os 30%+ que o CAGR bruto de uma
-         construtora sugeriria sozinho.
+    2. Crescimento esperado = CAGR de lucros (últ. 5 anos) × um fator de
+       confiança que depende do OUTLOOK 2026 já cadastrado pra cada
+       empresa -- PROPORCIONAL ao CAGR de cada uma, não um teto fixo igual
+       pra todo mundo. Um teto fixo (testamos 10%, 12%, 8%, depois 15%/7%/
+       2% por outlook) sempre colidia: várias empresas diferentes bati[am]
+       no MESMO teto ao mesmo tempo e apareciam com a TIR final IDÊNTICA,
+       mesmo sendo negócios completamente diferentes -- exatamente o
+       problema que você apontou ("parece lista mentirosa, tratando tudo
+       como padrão"). Com desconto proporcional, cada empresa mantém um
+       número que reflete o CAGR DELA, só reduzido conforme a confiança no
+       momento atual:
+       - ✅ (bom momento): usa 65% do CAGR histórico.
+       - ⚠️ (atenção): usa 35% do CAGR histórico.
+       - 🔴 (crise, ex: agro agora): usa 12% do CAGR histórico -- empurra
+         pra perto dos títulos públicos sem zerar.
        CAGR <= 0 não esconde a TIR -- vira crescimento zero, e a TIR cai
        pro dividendo puro.
-    3. TIR nominal = (1) + (2), limitado a tir_total_max (20% a.a. -- acima
-       disso, MOSTRA capado nesse valor com aviso, nunca esconde o
-       resultado por completo).
+    3. TIR nominal = (1) + (2), limitado a tir_total_max (28% a.a. -- rede
+       de segurança só pra casos genuinamente fora da curva, ex: erro no
+       dado de CAGR de origem; na prática deve raramente ser acionado,
+       diferente do teto anterior que pegava ~20 ativos ao mesmo tempo).
     4. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
        'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
+
+    LIMITAÇÃO HONESTA: isso ainda usa um CAGR de 5 anos pra estimar
+    crescimento DE UM ANO SÓ -- empresas com história forte mas CAGR
+    histórico modesto (ex: uma utility com ganho de eficiência pontual
+    esperado pra 2026, como a CPLE3) não são "turbinadas" por esse motivo
+    específico, só não são penalizadas. O modelo não tem como capturar um
+    catalisador específico de 2026 que não aparece no histórico de 5 anos.
 
     NÃO se aplica bem a empresas com payout ausente/fora de faixa razoável
     ou sem P/L Projetado nem DY disponíveis -- nesses casos retorna None."""
@@ -600,8 +607,8 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
 
     cagr_pct_tir = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
     icone_outlook = OUTLOOK_2026.get(ticker, {}).get('icone', '✅')
-    teto_crescimento_outlook = {'✅': 0.15, '⚠️': 0.07, '🔴': 0.02}.get(icone_outlook, 0.10)
-    g = min(max(cagr_pct_tir, 0) / 100, teto_crescimento_outlook)
+    fator_confianca = {'✅': 0.65, '⚠️': 0.35, '🔴': 0.12}.get(icone_outlook, 0.35)
+    g = max(cagr_pct_tir, 0) / 100 * fator_confianca
 
     tir_nominal = parte_dividendo + g
     capado_em_20 = tir_nominal > tir_total_max
@@ -614,7 +621,7 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, tir_total_
     return {
         'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
         'g': g * 100, 'dy_usado': parte_dividendo * 100, 'icone_outlook': icone_outlook,
-        'teto_crescimento_usado': teto_crescimento_outlook * 100,
+        'teto_crescimento_usado': fator_confianca * 100,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
         'capado_em_20': capado_em_20,
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
@@ -5037,19 +5044,19 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "com mais cautela." if tir_dados['payout_baixo'] else ""
             )
             aviso_capagem = (
-                " ⚠️ O cálculo bruto (dividendo + crescimento) passava de 20% a.a. — valor "
+                " ⚠️ O cálculo bruto (dividendo + crescimento) passava de 28% a.a. — valor "
                 "limitado a esse teto, porque retorno tão alto não é sustentável de forma "
-                "confiável nessa metodologia." if tir_dados['capado_em_20'] else ""
+                "confiável nessa metodologia (sinal de que vale conferir o CAGR de origem)." if tir_dados['capado_em_20'] else ""
             )
             st.caption(
                 f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
                 f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
                 " = parte que vira dividendo de fato, mais crescimento de " +
                 f"{tir_dados['g']:.1f}%".replace(".", ",") +
-                f" a.a. — limitado a {tir_dados['teto_crescimento_usado']:.0f}%".replace(".", ",") +
-                f" nessa conta porque o Outlook 2026 desse ativo está em {tir_dados['icone_outlook']}"
-                ", e o quanto confiar no CAGR histórico depende de quão bem o momento atual da "
-                "empresa sustenta esse crescimento), menos IPCA acumulado de " +
+                f" a.a. — usando {tir_dados['teto_crescimento_usado']:.0f}%".replace(".", ",") +
+                f" do CAGR histórico desse ativo, porque o Outlook 2026 está em "
+                f"{tir_dados['icone_outlook']} (quanto pior o momento atual, menos se confia no "
+                "crescimento histórico se repetir este ano)), menos IPCA acumulado de " +
                 f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
                 "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." +
