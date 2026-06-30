@@ -543,239 +543,6 @@ def badge_score(score):
     </div>"""
 
 
-# ---- Ajustes manuais na TIR -- correções pontuais de casos onde o modelo
-# automático (mesmo já corrigido com amortecimento suave) ainda erra,
-# segundo a avaliação direta do Diego sobre empresas específicas. Isso não
-# é "forçar a realidade" -- é reconhecer que pra um radar de ações já
-# filtradas como sólidas, um CAGR modesto-mas-real (como o da BBAS3, 4,8%)
-# estava sendo esmagado demais pelo fator de desconto do Outlook 🔴, que foi
-# calibrado pra corrigir CAGR INFLADO (tipo KEPL3), não CAGR já realista.
-TIR_PISO_GERAL = 4.0  # nenhum ativo do radar deveria, na prática, ficar
-                        # abaixo disso -- empresa sólida em ano difícil
-                        # ainda gera valor via dividendo/book value/caixa
-TIR_PISO_ESPECIFICO = {  # piso mais alto pra esses, perto da renda fixa --
-    # bancos (BBAS3, B3SA3, SANB3, BBDC3, BRSR6) e os tickers com CAGR
-    # negativo/zero/ausente (CPLE3, AXIA3, VALE3, BRAP4, TAEE11, WEGE3,
-    # CMIG4, MDNE3) foram REMOVIDOS dessa lista -- agora usam ROE real
-    # (próprio ou fallback), que já reflete a diferença entre eles sem
-    # precisar de remendo. Deixar eles aqui faria esse piso "contaminar"
-    # o cálculo novo, que já deveria estar mais correto organicamente.
-    "SLCE3": 7.5, "KLBN4": 7.5,
-    "GRND3": 7.5,  # CAGR de origem é positivo (9,7%) e confiável -- continua
-                    # no caminho CAGR, não ROE; piso mantido aqui por enquanto.
-}
-TIR_TETO_ESPECIFICO = {  # teto manual pra casos onde o CAGR de origem está
-    "VULC3": 12.0,        # quebrado (ano-base baixo) E o negócio é sensível
-}                          # a juros altos -- não deveria entregar TIR de 17%+
-
-
-# ---- TIR esperada para 2026 (metodologia própria do Diego) ----
-def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, roe_num=None, tir_total_max=0.22):
-    """TIR esperada para o ano corrente, sem valor de saída/terminal --
-    metodologia: 'quanto a ação rende esse ano, considerando o que ela paga
-    de dividendo mais o quanto o lucro deve crescer'. Mesma lógica que
-    bancos publicam em relatório (retorno implícito comparável a uma NTN-B):
-
-    1. Parte que vira dividendo = Dividend Yield bruto estimado (dy_num) --
-       o MESMO número já usado em todo o resto do app. Se não disponível,
-       cai pro cálculo derivado (Earnings Yield × Payout) como respaldo.
-    2. Crescimento esperado = CAGR de lucros (últ. 5 anos) × um fator de
-       confiança que depende do OUTLOOK 2026 já cadastrado pra cada
-       empresa -- PROPORCIONAL ao CAGR de cada uma, não um teto fixo igual
-       pra todo mundo. Um teto fixo (testamos 10%, 12%, 8%, depois 15%/7%/
-       2% por outlook) sempre colidia: várias empresas diferentes bati[am]
-       no MESMO teto ao mesmo tempo e apareciam com a TIR final IDÊNTICA,
-       mesmo sendo negócios completamente diferentes -- exatamente o
-       problema que você apontou ("parece lista mentirosa, tratando tudo
-       como padrão"). Com desconto proporcional, cada empresa mantém um
-       número que reflete o CAGR DELA, só reduzido conforme a confiança no
-       momento atual:
-       - ✅ (bom momento): usa 65% do CAGR histórico.
-       - ⚠️ (atenção): usa 35% do CAGR histórico.
-       - 🔴 (crise, ex: agro agora): usa 12% do CAGR histórico -- empurra
-         pra perto dos títulos públicos sem zerar.
-       CAGR <= 0 não esconde a TIR -- vira crescimento zero, e a TIR cai
-       pro dividendo puro.
-    3. TIR nominal = (1) + (2), limitado a tir_total_max (28% a.a. -- rede
-       de segurança só pra casos genuinamente fora da curva, ex: erro no
-       dado de CAGR de origem; na prática deve raramente ser acionado,
-       diferente do teto anterior que pegava ~20 ativos ao mesmo tempo).
-    4. TIR real = TIR nominal − IPCA acumulado 12 meses, apresentada como
-       'IPCA + X%' (igual o mercado de renda fixa apresenta NTN-B)
-
-    LIMITAÇÃO HONESTA: isso ainda usa um CAGR de 5 anos pra estimar
-    crescimento DE UM ANO SÓ -- empresas com história forte mas CAGR
-    histórico modesto (ex: uma utility com ganho de eficiência pontual
-    esperado pra 2026, como a CPLE3) não são "turbinadas" por esse motivo
-    específico, só não são penalizadas. O modelo não tem como capturar um
-    catalisador específico de 2026 que não aparece no histórico de 5 anos.
-
-    NÃO se aplica bem a empresas com payout ausente/fora de faixa razoável
-    ou sem P/L Projetado nem DY disponíveis -- nesses casos retorna None."""
-    pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
-    payout_raw = row.get('PAYOUT', '-')
-    payout_pct = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
-
-    if payout_pct is None or not (0 < payout_pct <= 150):
-        return None
-
-    payout = min(payout_pct / 100, 1.0)  # capa em 100% -- acima disso a empresa
-                                          # estaria distribuindo mais que o lucro
-
-    if dy_num and dy_num > 0:
-        parte_dividendo = dy_num / 100
-        ey_exibicao = parte_dividendo / payout * 100 if payout > 0 else None  # só pra mostrar na legenda
-    elif pl_proj > 0:
-        ey_exibicao = (1 / pl_proj) * 100
-        parte_dividendo = (1 / pl_proj) * payout
-    else:
-        return None
-
-    cagr_pct_tir_bruto_original = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
-    cagr_pct_tir_bruto = max(cagr_pct_tir_bruto_original, 0)
-    # CAGR <= 2% (incluindo negativo, zero ou ausente) é tratado como pouco
-    # confiável -- na prática, quase sempre reflete efeito de base (o ano de
-    # referência, 5 anos atrás, foi atipicamente bom ou ruim), não
-    # encolhimento real do negócio. Vimos isso em MDNE3 (sem CAGR), TAEE11
-    # (-6,9%), BRAP4 (-17,9%), VALE3 (-13,9%), AXIA3 (0,5%), CPLE3 (-7,2%)
-    # -- todas com ROE saudável (10-35%), claramente não são empresas em
-    # dificuldade real, mas a fórmula antiga zerava o crescimento delas e
-    # todas convergiam pro mesmo piso de emergência -- recriando a mesma
-    # colisão que já tínhamos corrigido, só que por um caminho diferente.
-    cagr_eh_confiavel = cagr_pct_tir_bruto_original > 2.0
-
-    _setor_cat_tir = classificar_setor(row.get('SETOR', ''))
-    icone_outlook = OUTLOOK_2026.get(ticker, {}).get('icone', '✅')
-
-    usar_roe = (_setor_cat_tir == 'banco' or not cagr_eh_confiavel) and roe_num is not None and roe_num > 0
-
-    if usar_roe:
-        # PADRÃO BASEADO EM ROE -- a metodologia que o próprio Diego usa pra
-        # calcular a TIR do BB manualmente: reinveste o lucro retido
-        # (1-Payout) ao ROE atual. Generalizado pra QUALQUER setor quando o
-        # CAGR de 5 anos não é confiável (não só bancos) -- ROE não tem o
-        # problema de "quebra matemática" do CAGR (não depende de comparar
-        # com um ano-base ruim de 5 anos atrás), então reflete melhor o
-        # crescimento real esperado de uma empresa saudável hoje.
-        g = (1 - payout) * (roe_num / 100)
-        if _setor_cat_tir == 'banco':
-            # Pra banco, sem desconto adicional -- o ROE de banco já é a
-            # melhor medida disponível do momento atual (lembra: foi assim
-            # que a BBAS3 caiu de ROE ~17% pra ~7% refletindo a crise do
-            # agro -- o próprio ROE já capta isso, não precisa de desconto
-            # duplo).
-            fonte_crescimento = 'roe_reinvestimento'
-        else:
-            # Fora de bancos, ROE de empresa não-financeira pode ser mais
-            # volátil entre trimestres -- ainda aplicamos o desconto do
-            # Outlook 2026, só que mais brando que no caminho de CAGR
-            # (ROE é um dado mais confiável que CAGR de 5 anos, então
-            # merece mais crédito, menos desconto).
-            fator_confianca_roe = {'✅': 0.85, '⚠️': 0.55, '🔴': 0.30}.get(icone_outlook, 0.55)
-            g = g * fator_confianca_roe
-            fonte_crescimento = 'roe_fallback'
-    else:
-        # Amortecimento SUAVE, não um teto rígido -- um teto (já tentamos 35%,
-        # antes 28%/20%) sempre junta várias empresas diferentes no MESMO valor
-        # quando o CAGR bruto de cada uma passa do teto (vimos até 457,9% na
-        # CURY3, 105,8% na VULC3 -- quebra matemática da fórmula de CAGR quando
-        # o ano-base, 5 anos atrás, teve lucro muito baixo, mesmo problema da
-        # AXIA3, só mais espalhado pela planilha do que parecia).
-        # Em vez disso: confia 100% no CAGR até 20% (limiar razoável pra
-        # crescimento real e sustentável); o que passar disso é amortecido por
-        # uma função que nunca "bate num teto" -- cada CAGR de entrada sempre
-        # produz um CAGR efetivo DIFERENTE na saída, então nunca colide com o
-        # de outra empresa, mesmo as duas tendo CAGR bruto extremo.
-        LIMIAR_CONFIAVEL = 20.0
-        if cagr_pct_tir_bruto <= LIMIAR_CONFIAVEL:
-            cagr_pct_tir = cagr_pct_tir_bruto
-        else:
-            excesso = cagr_pct_tir_bruto - LIMIAR_CONFIAVEL
-            excesso_amortecido = excesso / (1 + excesso / 15.0)
-            cagr_pct_tir = LIMIAR_CONFIAVEL + excesso_amortecido
-
-        fator_confianca = {'✅': 0.65, '⚠️': 0.35, '🔴': 0.12}.get(icone_outlook, 0.35)
-        g = cagr_pct_tir / 100 * fator_confianca
-        fonte_crescimento = 'cagr_5anos'
-
-    # Piso de crescimento pra utilities/transmissoras (capital_intensivo:
-    # energia, saneamento) -- empresas desse setor (ex: TAEE11, transmissora
-    # de energia) costumam ter Payout perto de 100%, o que zera o "g" das
-    # duas fórmulas acima (ROE×(1-Payout)=0 quando Payout=100%; CAGR também
-    # pode vir baixo). Isso é um erro conceitual, não um problema real da
-    # empresa: o crescimento dela não vem de reter lucro pra reinvestir --
-    # vem da própria receita contratada (RAP) ser CORRIGIDA PELA INFLAÇÃO
-    # todo ano por contrato, e crescer organicamente com leilões de novas
-    # linhas de transmissão, mesmo distribuindo praticamente todo o lucro.
-    # Sem esse piso, transmissoras/utilities com payout alto ficavam
-    # artificialmente baixas (foi o caso real da TAEE11: ROE de 19,7% mas
-    # "crescimento de 0,0%" só porque o payout é ~100%).
-    piso_indexacao_aplicado = False
-    if _setor_cat_tir == 'capital_intensivo' and g < 0.02:
-        g = 0.02
-        piso_indexacao_aplicado = True
-
-    tir_nominal_bruto = parte_dividendo + g
-    # Mesmo amortecimento suave no resultado FINAL combinado -- sem isso, um
-    # teto rígido aqui (já tentamos 35%, 28%, 22%) voltava a juntar várias
-    # empresas diferentes no mesmo valor sempre que a soma (dividendo +
-    # crescimento) passava do teto. Confia 100% até 18% a.a. (já um retorno
-    # excelente); o que passar disso é amortecido sem nunca "bater num
-    # muro" -- dois resultados brutos diferentes sempre geram resultados
-    # finais diferentes, por mais que os dois sejam "altos".
-    LIMIAR_TIR = tir_total_max * (18.0 / 22.0)  # ~18% se tir_total_max=22%
-    if tir_nominal_bruto <= LIMIAR_TIR:
-        tir_nominal = tir_nominal_bruto
-    else:
-        excesso_tir = tir_nominal_bruto - LIMIAR_TIR
-        excesso_tir_amortecido = excesso_tir / (1 + excesso_tir / 0.07)
-        tir_nominal = LIMIAR_TIR + excesso_tir_amortecido
-    capado_em_20 = tir_nominal_bruto > LIMIAR_TIR
-
-    ipca = get_ipca_12m()
-    tir_real = (tir_nominal * 100) - ipca if ipca is not None else None
-
-    ajuste_manual = None
-    if tir_real is not None:
-        # Piso SUAVE, não um valor fixo -- um piso fixo (testamos 4%/7,5%)
-        # cria a MESMA colisão que o teto fixo já criava, só invertida: a
-        # VALE3, AXIA3, SANB3, B3SA3, BBDC3, MDNE3, WEGE3, BRAP4, SLCE3 e
-        # BBAS3 bateram TODAS no piso de 7,5% e ficaram com o valor
-        # IDÊNTICO, mesmo sendo situações bem diferentes (a SLC e a BBAS
-        # deveriam ficar embaixo desse grupo, não juntas com ele). Em vez
-        # de "subir pro piso", amortece o quanto falta pra chegar lá -- um
-        # déficit grande ainda sobe bastante, mas nunca o suficiente pra
-        # colidir com outro ativo que tinha um déficit diferente.
-        piso_aplicavel = TIR_PISO_ESPECIFICO.get(ticker, TIR_PISO_GERAL)
-        if tir_real < piso_aplicavel:
-            deficit = piso_aplicavel - tir_real
-            # ERRO CORRIGIDO: com a constante 3.0 (versão anterior), o pior
-            # caso possível ainda podia cair até "piso - 3" -- ou seja, o
-            # piso geral de 4% podia, na prática, deixar passar valores de
-            # até 1%, bem abaixo do mínimo prometido. Com 1.2, o pior caso
-            # fica bem mais perto do piso (piso - 1.2), preservando a
-            # diferenciação entre os ativos sem violar o mínimo combinado.
-            deficit_amortecido = deficit / (1 + deficit / 1.2)
-            tir_real = piso_aplicavel - deficit_amortecido
-            ajuste_manual = 'piso'
-        teto_manual = TIR_TETO_ESPECIFICO.get(ticker)
-        if teto_manual is not None and tir_real > teto_manual:
-            tir_real = teto_manual
-            ajuste_manual = 'teto'
-
-    return {
-        'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
-        'g': g * 100, 'dy_usado': parte_dividendo * 100, 'icone_outlook': icone_outlook,
-        'fonte_crescimento': fonte_crescimento,
-        'roe_usado': roe_num if fonte_crescimento in ('roe_reinvestimento', 'roe_fallback') else None,
-        'piso_indexacao_aplicado': piso_indexacao_aplicado,
-        'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
-        'capado_em_20': capado_em_20, 'ajuste_manual': ajuste_manual,
-        'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
-                                          # de fato pago -- resultado depende mais
-                                          # de premissa de crescimento que de caixa real
-    }
-
 
 # ---- Preço Justo Multi-Método (Bazin, Graham, Gordon) ----
 def calcular_preco_justo(row, vpa_val=None, taxa_desconto=None, crescimento_max=0.08,
@@ -4534,7 +4301,6 @@ ordenacao_opcoes = {
     "🏛️ Maior Score Estrutural":   ("score_estrutural", True),
     "📉 Menor P/L":              ("pl_num", False),
     "🏆 Maior Dividend Yield":   ("dy_num", True),
-    "🎯 Maior TIR (2026, real)": ("tir_real", True),
     "💰 Maior Earnings Yield":   ("earnings_yield", True),
     "📈 Maior ROE":              ("roe_num_raw", True),
 }
@@ -5154,11 +4920,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "Projetado tende a ficar acima do P/L Atual."
         )
 
-        # ---- Earnings Yield (1/P-L Atual) e TIR Esperada 2026, lado a lado.
-        # TIR: Earnings Yield projetado × Payout (parte que vira dividendo) +
-        # (1-Payout) × ROE limitado a 10% a.a. (parte reinvestida, crescendo
-        # ao ROE atual), depois descontando o IPCA pra virar retorno REAL
-        # ("IPCA + X%"). ----
+        # ---- Earnings Yield (1/P-L Atual) ----
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
         if pl_atual_val and pl_atual_val > 0:
             ey_val = (1 / pl_atual_val) * 100
@@ -5167,94 +4929,13 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         else:
             ey_str, ey_cor = "—", "#888"
 
-        _dy_tir = ativo_data.get('dy_num') if isinstance(ativo_data, dict) else dy_num
-        _roe_tir_calc = ativo_data.get('roe_num_raw') if isinstance(ativo_data, dict) else None
-        tir_dados = calcular_tir_2026(row, ticker, dy_num=_dy_tir, historico_lucro=historico_lucro, roe_num=_roe_tir_calc)
-        if tir_dados and tir_dados['tir_real'] is not None:
-            tir_str = f"IPCA + {tir_dados['tir_real']:.1f}%".replace(".", ",")
-            tir_cor = ("#22C55E" if tir_dados['tir_real'] >= 6
-                       else "#D4AF37" if tir_dados['tir_real'] >= 3 else "#EF4444")
-        else:
-            tir_str, tir_cor = "—", "#888"
-
         eytir1, eytir2, eytir3 = st.columns(3)
         _card_metric(eytir1, "Earnings Yield", ey_str, cor_valor=ey_cor)
-        _card_metric(eytir2, "TIR Esperada 2026 (real)", tir_str, cor_valor=tir_cor)
 
         st.caption(
             "Earnings Yield = 1 ÷ P/L Atual. Mostra quanto a empresa 'rende' em lucro sobre "
             "o preço atual — comparável diretamente com a Selic ou outra renda fixa."
         )
-        if tir_dados and tir_dados['tir_real'] is not None:
-            aviso_confianca = (
-                " ⚠️ Payout baixo (boa parte do retorno vem do crescimento estimado, não do "
-                "dividendo de fato pago) — resultado menos confiável, olhe os números acima "
-                "com mais cautela." if tir_dados['payout_baixo'] else ""
-            )
-            aviso_capagem = (
-                " ⚠️ O cálculo bruto (dividendo + crescimento) passava de 28% a.a. — valor "
-                "limitado a esse teto, porque retorno tão alto não é sustentável de forma "
-                "confiável nessa metodologia (sinal de que vale conferir o CAGR de origem)." if tir_dados['capado_em_20'] else ""
-            )
-            aviso_ajuste_manual = (
-                " 🔧 Valor ajustado manualmente pra um piso mínimo — o cálculo automático "
-                "vinha baixo demais pra uma empresa desse porte/qualidade." if tir_dados['ajuste_manual'] == 'piso'
-                else " 🔧 Valor ajustado manualmente pra um teto máximo — o CAGR de origem "
-                "desse ativo está com sinais de distorção." if tir_dados['ajuste_manual'] == 'teto'
-                else ""
-            )
-            aviso_piso_indexacao = (
-                " 📐 O crescimento calculado veio próximo de zero (comum quando o Payout é "
-                "muito alto), então aplicamos um piso de 2% — utilities/transmissoras de "
-                "energia costumam crescer pela indexação contratual da receita à inflação, "
-                "não por reter lucro pra reinvestir." if tir_dados.get('piso_indexacao_aplicado') else ""
-            )
-            st.caption(
-                "⚠️ Não compare esse número direto com o Dividend Yield mostrado em outro "
-                "lugar do app — aquele é NOMINAL, esse aqui já é REAL (depois de tirar o "
-                "IPCA). A conta nominal (antes de tirar IPCA) sempre fica IGUAL ou MAIOR que "
-                "o DY puro, nunca menor, porque o crescimento nunca entra negativo aqui."
-            )
-            if tir_dados['fonte_crescimento'] == 'roe_reinvestimento':
-                _texto_g = (
-                    f"pelo padrão de bancos: (1 − Payout) × ROE atual de "
-                    f"{tir_dados['roe_usado']:.1f}%".replace(".", ",") +
-                    " — reflete o ROE de AGORA, não uma média histórica de vários anos"
-                )
-            elif tir_dados['fonte_crescimento'] == 'roe_fallback':
-                _fator_roe_usado = {'✅': 85, '⚠️': 55, '🔴': 30}.get(tir_dados['icone_outlook'], 55)
-                _texto_g = (
-                    f"o CAGR de 5 anos desse ativo veio zero/negativo/ausente (não confiável, "
-                    "geralmente efeito de base), então usamos ROE atual no lugar: "
-                    f"(1 − Payout) × ROE de {tir_dados['roe_usado']:.1f}%".replace(".", ",") +
-                    f", com {_fator_roe_usado}%".replace(".", ",") +
-                    f" de crédito por causa do Outlook 2026 estar em {tir_dados['icone_outlook']}"
-                )
-            else:
-                _fator_cagr_usado = {'✅': 65, '⚠️': 35, '🔴': 12}.get(tir_dados['icone_outlook'], 35)
-                _texto_g = (
-                    f"usando {_fator_cagr_usado}%".replace(".", ",") +
-                    " do CAGR histórico desse ativo, porque o Outlook 2026 está em "
-                    f"{tir_dados['icone_outlook']} (quanto pior o momento atual, menos se "
-                    "confia no crescimento histórico se repetir este ano)"
-                )
-            st.caption(
-                f"TIR nominal de {tir_dados['tir_nominal']:.1f}%".replace(".", ",") +
-                f" a.a. (Dividend Yield de {tir_dados['dy_usado']:.1f}%".replace(".", ",") +
-                " = parte que vira dividendo de fato, mais crescimento de " +
-                f"{tir_dados['g']:.1f}%".replace(".", ",") +
-                f" a.a. — {_texto_g}), menos IPCA acumulado de " +
-                f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
-                " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
-                "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." +
-                aviso_confianca + aviso_capagem + aviso_ajuste_manual + aviso_piso_indexacao
-            )
-        else:
-            st.caption(
-                "TIR esperada 2026 não disponível — esse modelo não se aplica bem a "
-                "empresas com payout ausente/fora de faixa razoável, ou sem P/L Projetado "
-                "nem Dividend Yield disponíveis."
-            )
 
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
@@ -5867,14 +5548,6 @@ st.markdown("""
                  color:rgba(255,255,255,0.55);">Diego Castro</span>
 </div>
 """, unsafe_allow_html=True)
-st.markdown(
-    "<div style='font-size:0.72em;color:#D4AF37;letter-spacing:1px;margin:-14px 0 16px 0;'>"
-    "🔧 VERSÃO: TIR v7 — piso de 2% de crescimento p/ utilities (energia/saneamento) "
-    "c/ Payout alto, refletindo indexação contratual de receita (caso real: TAEE11) · "
-    "se você não está vendo este texto, o app NÃO está rodando o último arquivo enviado"
-    "</div>",
-    unsafe_allow_html=True
-)
 
 if not df_f.empty:
     idx_max_dy    = df_f['dy_num'].idxmax()
@@ -6256,15 +5929,13 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
             row.get('PAYOUT', '-'), div_ebitda_num, roe_num_raw, historico_lucro
         )
 
-        tir_dados_lote = calcular_tir_2026(row, row['CÓDIGO'], dy_num=dy_num, historico_lucro=historico_lucro, roe_num=roe_num_raw)
-        tir_real_lote = tir_dados_lote['tir_real'] if tir_dados_lote else None
         earnings_yield_lote = (1 / pl_num * 100) if pl_num > 0 else None
 
         ativos_com_score.append({
             'row': row, 'score': score,
             'score_fundamentos': score_fundamentos, 'pct_acima_teto': pct_acima_teto,
             'score_estrutural': score_estrutural,
-            'tir_real': tir_real_lote, 'earnings_yield': earnings_yield_lote,
+            'earnings_yield': earnings_yield_lote,
             'dy_num': dy_num, 'dy_clean': dy_clean, 'pl_num': pl_num,
             'progresso': progresso, 'porcentagem': porcentagem,
             'dt': dt, 'val': val, 'roe': roe, 'margem': margem,
@@ -6530,7 +6201,6 @@ else:
                     'ROE (%)': a.get('roe_num_raw', 0) or None,
                     'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
-                    'TIR 2026 Real (%)': a.get('tir_real') or None,
                     'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
                     'P/FCO': (_fdm_tab or {}).get('p_fco'),
                     'P/FCL': (_fdm_tab or {}).get('p_fcl'),
@@ -6561,7 +6231,6 @@ else:
                     'ROE (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'CAGR Lucros (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'Earnings Yield (%)': st.column_config.NumberColumn(format="%.1f%%"),
-                    'TIR 2026 Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
                     'Dívida Líq/EBITDA': st.column_config.NumberColumn(format="%.1fx"),
                     'P/FCO': st.column_config.NumberColumn(format="%.1fx"),
                     'P/FCL': st.column_config.NumberColumn(format="%.1fx"),
