@@ -554,15 +554,15 @@ TIR_PISO_GERAL = 4.0  # nenhum ativo do radar deveria, na prática, ficar
                         # abaixo disso -- empresa sólida em ano difícil
                         # ainda gera valor via dividendo/book value/caixa
 TIR_PISO_ESPECIFICO = {  # piso mais alto pra esses, perto da renda fixa --
-    # bancos (BBAS3, B3SA3, SANB3, BBDC3, BRSR6) foram REMOVIDOS dessa lista
-    # de propósito -- agora usam o padrão específico de banco (ROE), que já
-    # reflete a realidade de cada um sem precisar de remendo. Deixar eles
-    # aqui faria esse piso "contaminar" o cálculo novo, que já está certo.
-    "CPLE3": 7.5, "SLCE3": 7.5, "AXIA3": 7.5, "VALE3": 7.5,
-    "BRAP4": 7.5, "TAEE11": 7.5, "WEGE3": 7.5,
-    "CMIG4": 7.5, "MDNE3": 7.5, "KLBN4": 7.5,
-    "GRND3": 7.5,  # fator de desconto do Outlook ficou pesado demais (CAGR
-                    # de origem confirmado com o Diego)
+    # bancos (BBAS3, B3SA3, SANB3, BBDC3, BRSR6) e os tickers com CAGR
+    # negativo/zero/ausente (CPLE3, AXIA3, VALE3, BRAP4, TAEE11, WEGE3,
+    # CMIG4, MDNE3) foram REMOVIDOS dessa lista -- agora usam ROE real
+    # (próprio ou fallback), que já reflete a diferença entre eles sem
+    # precisar de remendo. Deixar eles aqui faria esse piso "contaminar"
+    # o cálculo novo, que já deveria estar mais correto organicamente.
+    "SLCE3": 7.5, "KLBN4": 7.5,
+    "GRND3": 7.5,  # CAGR de origem é positivo (9,7%) e confiável -- continua
+                    # no caminho CAGR, não ROE; piso mantido aqui por enquanto.
 }
 TIR_TETO_ESPECIFICO = {  # teto manual pra casos onde o CAGR de origem está
     "VULC3": 12.0,        # quebrado (ano-base baixo) E o negócio é sensível
@@ -631,27 +631,49 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, roe_num=No
     else:
         return None
 
-    cagr_pct_tir_bruto = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
-    cagr_pct_tir_bruto = max(cagr_pct_tir_bruto, 0)
+    cagr_pct_tir_bruto_original = limpar_valor(row.get('CAGR lucros (últ. 5 anos)', 0))
+    cagr_pct_tir_bruto = max(cagr_pct_tir_bruto_original, 0)
+    # CAGR <= 2% (incluindo negativo, zero ou ausente) é tratado como pouco
+    # confiável -- na prática, quase sempre reflete efeito de base (o ano de
+    # referência, 5 anos atrás, foi atipicamente bom ou ruim), não
+    # encolhimento real do negócio. Vimos isso em MDNE3 (sem CAGR), TAEE11
+    # (-6,9%), BRAP4 (-17,9%), VALE3 (-13,9%), AXIA3 (0,5%), CPLE3 (-7,2%)
+    # -- todas com ROE saudável (10-35%), claramente não são empresas em
+    # dificuldade real, mas a fórmula antiga zerava o crescimento delas e
+    # todas convergiam pro mesmo piso de emergência -- recriando a mesma
+    # colisão que já tínhamos corrigido, só que por um caminho diferente.
+    cagr_eh_confiavel = cagr_pct_tir_bruto_original > 2.0
 
     _setor_cat_tir = classificar_setor(row.get('SETOR', ''))
     icone_outlook = OUTLOOK_2026.get(ticker, {}).get('icone', '✅')
 
-    if _setor_cat_tir == 'banco' and roe_num is not None and roe_num > 0:
-        # PADRÃO ESPECÍFICO PRA BANCOS -- a metodologia que o próprio Diego
-        # usa pra calcular a TIR do BB manualmente: banco reinveste o lucro
-        # retido (1-Payout) ao ROE atual pra sustentar mais carteira de
-        # crédito -- isso É como banco cresce de verdade, diferente de usar
-        # CAGR histórico de 5 anos (que não captura, por exemplo, o ROE da
-        # BBAS3 ter caído de ~17% pra 7,3% por causa da crise do agro --
-        # com ROE atual, a TIR reflete o AGORA, não uma média antiga).
-        # g = (1 − Payout) × ROE atual. Sem amortecimento aqui -- ROE não
-        # tem o problema de "quebra matemática" do CAGR (não depende de
-        # comparar com um ano-base ruim de 5 anos atrás), então o número
-        # já vem naturalmente razoável.
+    usar_roe = (_setor_cat_tir == 'banco' or not cagr_eh_confiavel) and roe_num is not None and roe_num > 0
+
+    if usar_roe:
+        # PADRÃO BASEADO EM ROE -- a metodologia que o próprio Diego usa pra
+        # calcular a TIR do BB manualmente: reinveste o lucro retido
+        # (1-Payout) ao ROE atual. Generalizado pra QUALQUER setor quando o
+        # CAGR de 5 anos não é confiável (não só bancos) -- ROE não tem o
+        # problema de "quebra matemática" do CAGR (não depende de comparar
+        # com um ano-base ruim de 5 anos atrás), então reflete melhor o
+        # crescimento real esperado de uma empresa saudável hoje.
         g = (1 - payout) * (roe_num / 100)
-        cagr_pct_tir = None  # não usado nesse caminho
-        fonte_crescimento = 'roe_reinvestimento'
+        if _setor_cat_tir == 'banco':
+            # Pra banco, sem desconto adicional -- o ROE de banco já é a
+            # melhor medida disponível do momento atual (lembra: foi assim
+            # que a BBAS3 caiu de ROE ~17% pra ~7% refletindo a crise do
+            # agro -- o próprio ROE já capta isso, não precisa de desconto
+            # duplo).
+            fonte_crescimento = 'roe_reinvestimento'
+        else:
+            # Fora de bancos, ROE de empresa não-financeira pode ser mais
+            # volátil entre trimestres -- ainda aplicamos o desconto do
+            # Outlook 2026, só que mais brando que no caminho de CAGR
+            # (ROE é um dado mais confiável que CAGR de 5 anos, então
+            # merece mais crédito, menos desconto).
+            fator_confianca_roe = {'✅': 0.85, '⚠️': 0.55, '🔴': 0.30}.get(icone_outlook, 0.55)
+            g = g * fator_confianca_roe
+            fonte_crescimento = 'roe_fallback'
     else:
         # Amortecimento SUAVE, não um teto rígido -- um teto (já tentamos 35%,
         # antes 28%/20%) sempre junta várias empresas diferentes no MESMO valor
@@ -727,7 +749,8 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, roe_num=No
     return {
         'ey': ey_exibicao if ey_exibicao is not None else 0, 'payout_usado': payout * 100,
         'g': g * 100, 'dy_usado': parte_dividendo * 100, 'icone_outlook': icone_outlook,
-        'fonte_crescimento': fonte_crescimento, 'roe_usado': roe_num if fonte_crescimento == 'roe_reinvestimento' else None,
+        'fonte_crescimento': fonte_crescimento,
+        'roe_usado': roe_num if fonte_crescimento in ('roe_reinvestimento', 'roe_fallback') else None,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
         'capado_em_20': capado_em_20, 'ajuste_manual': ajuste_manual,
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
@@ -5173,6 +5196,15 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     f"pelo padrão de bancos: (1 − Payout) × ROE atual de "
                     f"{tir_dados['roe_usado']:.1f}%".replace(".", ",") +
                     " — reflete o ROE de AGORA, não uma média histórica de vários anos"
+                )
+            elif tir_dados['fonte_crescimento'] == 'roe_fallback':
+                _fator_roe_usado = {'✅': 85, '⚠️': 55, '🔴': 30}.get(tir_dados['icone_outlook'], 55)
+                _texto_g = (
+                    f"o CAGR de 5 anos desse ativo veio zero/negativo/ausente (não confiável, "
+                    "geralmente efeito de base), então usamos ROE atual no lugar: "
+                    f"(1 − Payout) × ROE de {tir_dados['roe_usado']:.1f}%".replace(".", ",") +
+                    f", com {_fator_roe_usado}%".replace(".", ",") +
+                    f" de crédito por causa do Outlook 2026 estar em {tir_dados['icone_outlook']}"
                 )
             else:
                 _fator_cagr_usado = {'✅': 65, '⚠️': 35, '🔴': 12}.get(tir_dados['icone_outlook'], 35)
