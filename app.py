@@ -5175,8 +5175,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     " — reflete o ROE de AGORA, não uma média histórica de vários anos"
                 )
             else:
+                _fator_cagr_usado = {'✅': 65, '⚠️': 35, '🔴': 12}.get(tir_dados['icone_outlook'], 35)
                 _texto_g = (
-                    f"usando {tir_dados['teto_crescimento_usado']:.0f}%".replace(".", ",") +
+                    f"usando {_fator_cagr_usado}%".replace(".", ",") +
                     " do CAGR histórico desse ativo, porque o Outlook 2026 está em "
                     f"{tir_dados['icone_outlook']} (quanto pior o momento atual, menos se "
                     "confia no crescimento histórico se repetir este ano)"
