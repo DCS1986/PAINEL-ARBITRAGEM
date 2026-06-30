@@ -698,6 +698,23 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, roe_num=No
         g = cagr_pct_tir / 100 * fator_confianca
         fonte_crescimento = 'cagr_5anos'
 
+    # Piso de crescimento pra utilities/transmissoras (capital_intensivo:
+    # energia, saneamento) -- empresas desse setor (ex: TAEE11, transmissora
+    # de energia) costumam ter Payout perto de 100%, o que zera o "g" das
+    # duas fórmulas acima (ROE×(1-Payout)=0 quando Payout=100%; CAGR também
+    # pode vir baixo). Isso é um erro conceitual, não um problema real da
+    # empresa: o crescimento dela não vem de reter lucro pra reinvestir --
+    # vem da própria receita contratada (RAP) ser CORRIGIDA PELA INFLAÇÃO
+    # todo ano por contrato, e crescer organicamente com leilões de novas
+    # linhas de transmissão, mesmo distribuindo praticamente todo o lucro.
+    # Sem esse piso, transmissoras/utilities com payout alto ficavam
+    # artificialmente baixas (foi o caso real da TAEE11: ROE de 19,7% mas
+    # "crescimento de 0,0%" só porque o payout é ~100%).
+    piso_indexacao_aplicado = False
+    if _setor_cat_tir == 'capital_intensivo' and g < 0.02:
+        g = 0.02
+        piso_indexacao_aplicado = True
+
     tir_nominal_bruto = parte_dividendo + g
     # Mesmo amortecimento suave no resultado FINAL combinado -- sem isso, um
     # teto rígido aqui (já tentamos 35%, 28%, 22%) voltava a juntar várias
@@ -751,6 +768,7 @@ def calcular_tir_2026(row, ticker, dy_num=None, historico_lucro=None, roe_num=No
         'g': g * 100, 'dy_usado': parte_dividendo * 100, 'icone_outlook': icone_outlook,
         'fonte_crescimento': fonte_crescimento,
         'roe_usado': roe_num if fonte_crescimento in ('roe_reinvestimento', 'roe_fallback') else None,
+        'piso_indexacao_aplicado': piso_indexacao_aplicado,
         'tir_nominal': tir_nominal * 100, 'tir_real': tir_real, 'ipca_usado': ipca,
         'capado_em_20': capado_em_20, 'ajuste_manual': ajuste_manual,
         'payout_baixo': payout < 0.30,  # menos de 30% do retorno vem de dividendo
@@ -5185,6 +5203,12 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 "desse ativo está com sinais de distorção." if tir_dados['ajuste_manual'] == 'teto'
                 else ""
             )
+            aviso_piso_indexacao = (
+                " 📐 O crescimento calculado veio próximo de zero (comum quando o Payout é "
+                "muito alto), então aplicamos um piso de 2% — utilities/transmissoras de "
+                "energia costumam crescer pela indexação contratual da receita à inflação, "
+                "não por reter lucro pra reinvestir." if tir_dados.get('piso_indexacao_aplicado') else ""
+            )
             st.caption(
                 "⚠️ Não compare esse número direto com o Dividend Yield mostrado em outro "
                 "lugar do app — aquele é NOMINAL, esse aqui já é REAL (depois de tirar o "
@@ -5223,7 +5247,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 f"{tir_dados['ipca_usado']:.1f}%".replace(".", ",") +
                 " nos últimos 12 meses = retorno REAL esperado, no mesmo formato que o "
                 "mercado de renda fixa usa pra apresentar uma NTN-B. Não é previsão garantida." +
-                aviso_confianca + aviso_capagem + aviso_ajuste_manual
+                aviso_confianca + aviso_capagem + aviso_ajuste_manual + aviso_piso_indexacao
             )
         else:
             st.caption(
@@ -5845,7 +5869,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 st.markdown(
     "<div style='font-size:0.72em;color:#D4AF37;letter-spacing:1px;margin:-14px 0 16px 0;'>"
-    "🔧 VERSÃO: TIR v6 — ROE-fallback p/ CAGR negativo/ausente (qualquer setor) · "
+    "🔧 VERSÃO: TIR v7 — piso de 2% de crescimento p/ utilities (energia/saneamento) "
+    "c/ Payout alto, refletindo indexação contratual de receita (caso real: TAEE11) · "
     "se você não está vendo este texto, o app NÃO está rodando o último arquivo enviado"
     "</div>",
     unsafe_allow_html=True
