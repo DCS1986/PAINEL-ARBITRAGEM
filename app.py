@@ -5843,6 +5843,13 @@ st.markdown("""
                  color:rgba(255,255,255,0.55);">Diego Castro</span>
 </div>
 """, unsafe_allow_html=True)
+st.markdown(
+    "<div style='font-size:0.72em;color:#D4AF37;letter-spacing:1px;margin:-14px 0 16px 0;'>"
+    "🔧 VERSÃO: TIR v6 — ROE-fallback p/ CAGR negativo/ausente (qualquer setor) · "
+    "se você não está vendo este texto, o app NÃO está rodando o último arquivo enviado"
+    "</div>",
+    unsafe_allow_html=True
+)
 
 if not df_f.empty:
     idx_max_dy    = df_f['dy_num'].idxmax()
