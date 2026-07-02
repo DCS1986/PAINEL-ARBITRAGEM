@@ -280,14 +280,38 @@ def classificar(ticker: str) -> Optional[str]:
     return ARQUETIPO_POR_TICKER.get((ticker or "").upper())
 
 
+def _arquetipo_por_setor(setor: str) -> Optional[str]:
+    """Fallback quando o ticker nao esta no mapa: classifica pelo texto do
+    SETOR (mesma logica de setores do RADAR), pra nunca deixar um ticker
+    novo sem TIR."""
+    s = str(setor or "").lower()
+    if not s:
+        return None
+    if "holding" in s:
+        return "holding"
+    if any(x in s for x in ("constru", "incorpora", "imobili")):
+        return "incorporadora"
+    if any(x in s for x in ("elétric", "eletric", "energia", "saneamento",
+                            "transmiss", "utilities", "água", "agua", "gás", "gas")):
+        return "utility"
+    if any(x in s for x in ("papel", "celulose", "mineraç", "minera", "petról",
+                            "petro", "óleo", "oleo", "cíclic", "ciclic", "químic",
+                            "quimic", "siderur", "metalur", "borracha", "commodit",
+                            "agro", "agr")):
+        return "ciclica"
+    # banco, seguro, varejo, industrial, telecom, etc. -> qualidade (Gordon)
+    return "qualidade"
+
+
 def calcular_tir(ticker: str, dados: dict) -> ResultadoTIR:
     """
     ticker: codigo B3 (ex.: 'BBAS3').
     dados : dict com preco, pl, dy, roe, pvp (dy/roe/pvp em decimal).
-            Opcional para ciclicas: 'lucro_normalizado_pa'.
+            Opcional: 'setor' (usado como fallback de classificacao) e,
+            para ciclicas, 'lucro_normalizado_pa'.
     """
     ticker = (ticker or "").upper()
-    arq = classificar(ticker)
+    arq = classificar(ticker) or _arquetipo_por_setor(dados.get("setor"))
 
     if arq == "qualidade":
         return _tir_qualidade(dados)
@@ -301,26 +325,5 @@ def calcular_tir(ticker: str, dados: dict) -> ResultadoTIR:
         return _tir_incorporadora(dados, ticker)
 
     r = ResultadoTIR(None, "nao_classificado", "-")
-    r.alerta = f"Ticker {ticker} sem arquetipo definido - adicione ao mapa."
+    r.alerta = f"Ticker {ticker} sem arquetipo (nem por setor) - adicione ao mapa."
     return r
-
-
-# ==========================================================================
-# RENDER STREAMLIT (opcional) - caixinha ao lado do Earnings Yield + botao
-# ==========================================================================
-def render_caixa_tir(res: ResultadoTIR, key: str = "tir"):
-    """
-    Renderiza a caixinha da TIR e o botao 'Ver calculo'.
-    Substitua o st.metric abaixo pelo MESMO markup da sua caixa de Earnings Yield
-    para ficar identica. O popover e o botao com a memoria de calculo.
-    """
-    import streamlit as st
-
-    st.metric("TIR", res.tir_pct, help=res.metodo)
-
-    with st.popover("Ver calculo", use_container_width=True):
-        st.caption(f"Arquetipo: {res.arquetipo}  |  Metodo: {res.metodo}")
-        for passo in res.memoria:
-            st.write(f"**{passo.rotulo}:** {passo.valor}")
-        if res.alerta:
-            st.warning(res.alerta)
