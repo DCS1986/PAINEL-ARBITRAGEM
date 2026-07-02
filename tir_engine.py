@@ -27,7 +27,12 @@ PREMISSAS = {
     "g_nominal_max": 0.12,    # teto de crescimento sustentavel (Gordon)
     "g_nominal_min": 0.00,    # piso de crescimento
 }
-IPCA_BASE = 0.06  # inflação base pra converter TIR nominal em real (IPCA + X%)
+
+# Inflacao base pra converter a TIR NOMINAL em TIR REAL (formato "IPCA + X%",
+# igual o mercado apresenta uma NTN-B). Conversao composta:
+#   TIR real = (1 + TIR nominal) / (1 + IPCA_BASE) - 1
+IPCA_BASE = 0.06
+
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
 # O desconto e a opcionalidade (kicker se fechar); a contingencia e o risco.
 # Sao mostrados na memoria, nao embutidos num numero unico (timing incerto).
@@ -36,6 +41,7 @@ HOLDINGS = {
     "BRAP4":  {"desconto": 0.37, "contingencia_nav": 0.28, "g_subjacente": 0.045},
     "BRBI11": {"desconto": 0.15, "contingencia_nav": 0.00, "g_subjacente": 0.06},
 }
+
 # Ciclicas: fator de normalizacao do lucro (mid-cycle / trailing).
 # > 1 quando o lucro atual esta deprimido (vale do ciclo); < 1 quando no pico.
 # ESTE e o input mais sensivel do modelo - calibre por nome a cada resultado.
@@ -326,3 +332,55 @@ def calcular_tir(ticker: str, dados: dict) -> ResultadoTIR:
     r = ResultadoTIR(None, "nao_classificado", "-")
     r.alerta = f"Ticker {ticker} sem arquetipo (nem por setor) - adicione ao mapa."
     return r
+
+
+def tir_real_de(res: ResultadoTIR):
+    """Converte a TIR nominal do resultado em TIR REAL (decimal), descontando
+    o IPCA_BASE de forma composta. Retorna None se nao houver TIR."""
+    if res.tir is None:
+        return None
+    return (1 + res.tir) / (1 + IPCA_BASE) - 1
+
+
+# ==========================================================================
+# RENDER STREAMLIT - caixa da TIR REAL (identica ao _card_metric) + botao
+# ==========================================================================
+def render_tir_real(st, col_box, col_botao, res: ResultadoTIR, card_style: str):
+    """Desenha a caixa 'TIR REAL' (mesmo markup do _card_metric do app, pra
+    ficar identica a caixa de Earnings Yield) na col_box, e o botao 'Ver
+    calculo' (popover com a memoria) na col_botao. Formato: IPCA + X%."""
+    tir_real = tir_real_de(res)
+    if tir_real is not None:
+        p = tir_real * 100
+        texto = f"IPCA + {p:.1f}%".replace(".", ",")
+        cor = "#22C55E" if p >= 8 else ("#D4AF37" if p >= 4 else "#EF4444")
+    else:
+        texto, cor = "—", "#888"
+
+    col_box.markdown(
+        "<div style='{base}text-align:center;'>"
+        "<div style='font-size:0.72em;color:#ccc;text-transform:uppercase;'>TIR REAL</div>"
+        "<div style='font-size:1.25em;font-weight:900;color:{cor};'>{texto}</div>"
+        "</div>".format(base=card_style, cor=cor, texto=texto),
+        unsafe_allow_html=True
+    )
+
+    with col_botao:
+        with st.popover("🔍 Ver cálculo da TIR", use_container_width=True):
+            st.markdown(f"**Arquétipo:** {res.arquetipo}")
+            st.markdown(f"**Método:** {res.metodo}")
+            st.markdown("---")
+            for passo in res.memoria:
+                st.markdown(f"**{passo.rotulo}:** {passo.valor}")
+            if res.tir is not None:
+                st.markdown("---")
+                st.markdown(
+                    ("**Conversão pra real:** (1 + {nom:.1f}%) ÷ (1 + {ipca:.0f}%) − 1 "
+                     "= **IPCA + {real:.1f}%**").format(
+                        nom=res.tir * 100, ipca=IPCA_BASE * 100, real=tir_real * 100
+                    ).replace(".", ",")
+                )
+            if res.alerta:
+                st.warning(res.alerta)
+            if res.tir is None and not res.memoria:
+                st.caption("Sem dados suficientes para calcular a TIR deste ativo.")
