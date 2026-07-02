@@ -384,3 +384,23 @@ def render_tir_real(st, col_box, col_botao, res: ResultadoTIR, card_style: str):
                 st.warning(res.alerta)
             if res.tir is None and not res.memoria:
                 st.caption("Sem dados suficientes para calcular a TIR deste ativo.")
+
+
+def render_tir(st, col_box, col_botao, ticker, row, ativo_data,
+               pl_atual_val, dy_num, card_style, limpar_valor):
+    """Tudo em um: monta os dados a partir do row/ativo_data, calcula a TIR
+    pelo arquetipo e desenha a caixa 'TIR REAL' + o botao da memoria.
+    Basta uma unica linha de chamada no app.py."""
+    roe_raw = ativo_data.get('roe_num_raw', 0) if isinstance(ativo_data, dict) else 0
+    pvp_raw = ativo_data.get('pvp_num_raw', 0) if isinstance(ativo_data, dict) else 0
+    dados = {
+        "preco": limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', '')) or None,
+        "pl": pl_atual_val,
+        "dy": (dy_num / 100) if dy_num else None,
+        "roe": (roe_raw / 100) if roe_raw else None,
+        "pvp": pvp_raw or None,
+        "setor": row.get('SETOR', ''),
+    }
+    res = calcular_tir(ticker, dados)
+    render_tir_real(st, col_box, col_botao, res, card_style)
+    return res
