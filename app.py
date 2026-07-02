@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from ui_confluencia import render_confluencia, render_confluencia_card
 from cvm_insiders import (
     baixar_mapa_tickers, baixar_programa_recompra, programa_recompra_ativo,
-)
+) from tir_engine import calcular_tir
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -4920,7 +4920,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "Projetado tende a ficar acima do P/L Atual."
         )
 
-        # ---- Earnings Yield (1/P-L Atual) ----
+# ---- Earnings Yield (1/P-L Atual) + TIR por arquétipo ----
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
         if pl_atual_val and pl_atual_val > 0:
             ey_val = (1 / pl_atual_val) * 100
@@ -4929,12 +4929,46 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         else:
             ey_str, ey_cor = "—", "#888"
 
+        # TIR pelo método do arquétipo do ativo (ver tir_engine.py).
+        # Passa dy e roe em DECIMAL (/100); pvp e pl como estão.
+        _roe_tir = ativo_data.get('roe_num_raw', 0) if isinstance(ativo_data, dict) else 0
+        _pvp_tir = ativo_data.get('pvp_num_raw', 0) if isinstance(ativo_data, dict) else 0
+        _cot_tir = limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', ''))
+        dados_tir = {
+            "preco": _cot_tir or None,
+            "pl": pl_atual_val,
+            "dy": (dy_num / 100) if dy_num else None,
+            "roe": (_roe_tir / 100) if _roe_tir else None,
+            "pvp": _pvp_tir or None,
+            "setor": row.get('SETOR', ''),
+        }
+        res_tir = calcular_tir(ticker, dados_tir)
+        if res_tir.tir is not None:
+            tir_val = res_tir.tir * 100
+            tir_str = f"{tir_val:.1f}%".replace(".", ",")
+            tir_cor = "#22C55E" if tir_val >= 15 else ("#D4AF37" if tir_val >= 10 else "#EF4444")
+        else:
+            tir_str, tir_cor = "—", "#888"
+
         eytir1, eytir2, eytir3 = st.columns(3)
         _card_metric(eytir1, "Earnings Yield", ey_str, cor_valor=ey_cor)
+        _card_metric(eytir2, "TIR", tir_str, cor_valor=tir_cor)
+        with eytir3:
+            with st.popover("🔍 Ver cálculo da TIR", use_container_width=True):
+                st.markdown(f"**Arquétipo:** {res_tir.arquetipo}")
+                st.markdown(f"**Método:** {res_tir.metodo}")
+                st.markdown("---")
+                for passo in res_tir.memoria:
+                    st.markdown(f"**{passo.rotulo}:** {passo.valor}")
+                if res_tir.alerta:
+                    st.warning(res_tir.alerta)
+                if res_tir.tir is None and not res_tir.memoria:
+                    st.caption("Sem dados suficientes para calcular a TIR deste ativo.")
 
         st.caption(
-            "Earnings Yield = 1 ÷ P/L Atual. Mostra quanto a empresa 'rende' em lucro sobre "
-            "o preço atual — comparável diretamente com a Selic ou outra renda fixa."
+            "Earnings Yield = 1 ÷ P/L Atual (quanto a empresa rende em lucro sobre o preço). "
+            "TIR = retorno anual esperado (nominal) pelo método do arquétipo do ativo — o botão "
+            "ao lado abre a memória de cálculo, passo a passo. Compare ambas com a Selic."
         )
 
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
