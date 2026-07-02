@@ -401,9 +401,13 @@ def render_tir(st, col_box, col_botao, ticker, row, ativo_data,
     pvp_raw = ativo_data.get('pvp_num_raw', 0) if isinstance(ativo_data, dict) else 0
     payout_raw = row.get('PAYOUT', '-')
     payout_num = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
+    # P/L da planilha (PROJETADO) e a fonte confiavel do Diego; pl_atual_val
+    # (Fundamentus) fica so como fallback quando o projetado nao existir.
+    pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
+    pl_para_tir = pl_proj if (pl_proj and pl_proj > 0) else pl_atual_val
     dados = {
         "preco": limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', '')) or None,
-        "pl": pl_atual_val,
+        "pl": pl_para_tir,
         "dy": (dy_num / 100) if dy_num else None,
         "roe": (roe_raw / 100) if roe_raw else None,
         "pvp": pvp_raw or None,
