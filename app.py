@@ -9,7 +9,8 @@ from bs4 import BeautifulSoup
 from ui_confluencia import render_confluencia, render_confluencia_card
 from cvm_insiders import (
     baixar_mapa_tickers, baixar_programa_recompra, programa_recompra_ativo,
-) from tir_engine import calcular_tir
+) 
+from tir_engine import calcular_tir
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
