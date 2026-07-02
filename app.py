@@ -4943,17 +4943,19 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "pvp": _pvp_tir or None,
             "setor": row.get('SETOR', ''),
         }
-        res_tir = calcular_tir(ticker, dados_tir)
+ res_tir = calcular_tir(ticker, dados_tir)
         if res_tir.tir is not None:
-            tir_val = res_tir.tir * 100
-            tir_str = f"{tir_val:.1f}%".replace(".", ",")
-            tir_cor = "#22C55E" if tir_val >= 15 else ("#D4AF37" if tir_val >= 10 else "#EF4444")
+            from tir_engine import IPCA_BASE
+            tir_real = (1 + res_tir.tir) / (1 + IPCA_BASE) - 1
+            tir_real_pct = tir_real * 100
+            tir_str = f"IPCA + {tir_real_pct:.1f}%".replace(".", ",")
+            tir_cor = "#22C55E" if tir_real_pct >= 8 else ("#D4AF37" if tir_real_pct >= 4 else "#EF4444")
         else:
             tir_str, tir_cor = "—", "#888"
 
         eytir1, eytir2, eytir3 = st.columns(3)
         _card_metric(eytir1, "Earnings Yield", ey_str, cor_valor=ey_cor)
-        _card_metric(eytir2, "TIR", tir_str, cor_valor=tir_cor)
+        _card_metric(eytir2, "TIR REAL", tir_str, cor_valor=tir_cor)
         with eytir3:
             with st.popover("🔍 Ver cálculo da TIR", use_container_width=True):
                 st.markdown(f"**Arquétipo:** {res_tir.arquetipo}")
