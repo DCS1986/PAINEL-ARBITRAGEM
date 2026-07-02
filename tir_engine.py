@@ -24,7 +24,8 @@ from typing import Optional
 PREMISSAS = {
     "inflacao_lp":   0.045,   # inflacao de longo prazo (top-up nominal)
     "premio_risco":  0.045,   # equity risk premium (mesmo do Gordon do RADAR)
-    "g_nominal_max": 0.12,    # teto de crescimento sustentavel (Gordon)
+    "g_nominal_max": 0.12,    # teto de crescimento sustentavel (Gordon - qualidade)
+    "g_incorp_max":  0.14,    # teto de crescimento das incorporadoras (crescem mais no ciclo)
     "g_nominal_min": 0.00,    # piso de crescimento
 }
 
@@ -92,7 +93,7 @@ NOME_METODO = {
     "utility":       "Owner-yield + inflacao (proxy do DCF regulado)",
     "ciclica":       "Earnings yield sobre lucro normalizado mid-cycle",
     "holding":       "Look-through + desconto de NAV",
-    "incorporadora": "ROE sobre patrimonio ajustado pelo P/VP",
+    "incorporadora": "Gordon (DY + crescimento retido), teto de crescimento do setor",
 }
 
 
@@ -261,24 +262,45 @@ def _tir_holding(dados: dict, ticker: str) -> ResultadoTIR:
 
 
 def _tir_incorporadora(dados: dict, ticker: str) -> ResultadoTIR:
+    dy = _dec(dados.get("dy"))
     roe = _dec(dados.get("roe"))
-    pvp = dados.get("pvp")
+    pl = dados.get("pl")
+    payout_real = dados.get("payout")
     r = ResultadoTIR(None, "incorporadora", NOME_METODO["incorporadora"])
 
-    if roe is None or not pvp or pvp <= 0:
-        r.alerta = "Faltam ROE e P/VP - metodo de incorporadora depende deles."
+    if dy is None or roe is None:
+        r.alerta = "Faltam DY e ROE - metodo de incorporadora depende deles."
         return r
 
-    # P/L engana pelo timing de reconhecimento (PoC). ROE sobre patrimonio e
-    # mais estavel. Retorno do dono = ROE / (P/VP) = earnings yield suavizado.
-    tir = roe / pvp
+    # Modelo de Gordon: o lucro atual e distorcido pelo timing de PoC e o ROE
+    # e ciclico, mas o retorno do dono ainda e dividendo + crescimento retido.
+    # O crescimento (ROE x retencao) e alto e por isso levamos ao teto do setor.
+    if payout_real is not None and payout_real > 0:
+        payout = _clamp(payout_real, 0, 2.0)
+        fonte_payout = "planilha"
+    elif pl and pl > 0:
+        payout = _clamp(dy * pl, 0, 1)
+        fonte_payout = "estimado (DY x PL)"
+    else:
+        payout = 0.30                            # incorporadora paga pouco: default
+        fonte_payout = "default 30%"
+
+    retencao = max(0.0, 1 - payout)
+    g_sust = roe * retencao
+    g = _clamp(g_sust, PREMISSAS["g_nominal_min"], PREMISSAS["g_incorp_max"])
+    tir = dy + g
+
     r.tir = tir
     r.memoria = [
-        Passo("Metodo", "ROE sobre patrimonio (evita distorcao de PoC no lucro)"),
+        Passo("Metodo", "Gordon (DY + crescimento retido) - ROE ciclico, teto do setor"),
+        Passo("Dividend yield (DY)", _p(dy)),
         Passo("ROE", _p(roe)),
-        Passo("P/VP", f"{pvp:.2f}"),
-        Passo("TIR nominal = ROE / (P/VP)", _p(tir)),
-        Passo("Cuidado", "ROE de pico + landbank/VGV a vender mudam a leitura."),
+        Passo(f"Payout ({fonte_payout})", _p(payout)),
+        Passo("Retencao (1 - payout)", _p(retencao)),
+        Passo("g sustentavel (ROE x retencao)", _p(g_sust)),
+        Passo(f"g aplicado (teto setor {_p(PREMISSAS['g_incorp_max'])})", _p(g)),
+        Passo("TIR nominal = DY + g", _p(tir)),
+        Passo("Cuidado", "ROE de pico e ciclico; landbank finito limita a perpetuidade."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
