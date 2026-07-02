@@ -150,8 +150,14 @@ def _tir_qualidade(dados: dict) -> ResultadoTIR:
         return r
 
     ey = 1 / pl
-    payout = _clamp(dy * pl, 0, 1)          # payout = DPA/LPA = dy * P/L
-    retencao = 1 - payout
+    payout_real = dados.get("payout")           # payout real da planilha (ja decimal)
+    if payout_real is not None and payout_real > 0:
+        payout = _clamp(payout_real, 0, 2.0)
+        fonte_payout = "planilha"
+    else:
+        payout = _clamp(dy * pl, 0, 1)          # fallback: DPA/LPA = DY x P/L
+        fonte_payout = "estimado (DY x PL)"
+    retencao = max(0.0, 1 - payout)
     g_sust = roe * retencao
     g = _clamp(g_sust, PREMISSAS["g_nominal_min"], PREMISSAS["g_nominal_max"])
     tir = dy + g
@@ -160,7 +166,7 @@ def _tir_qualidade(dados: dict) -> ResultadoTIR:
     r.memoria = [
         Passo("Earnings yield (1/PL)", _p(ey)),
         Passo("Dividend yield (DY)", _p(dy)),
-        Passo("Payout (DY x PL)", _p(payout)),
+        Passo(f"Payout ({fonte_payout})", _p(payout)),
         Passo("Retencao (1 - payout)", _p(retencao)),
         Passo("g sustentavel (ROE x retencao)", _p(g_sust)),
         Passo(f"g aplicado (teto {_p(PREMISSAS['g_nominal_max'])})", _p(g)),
@@ -393,12 +399,15 @@ def render_tir(st, col_box, col_botao, ticker, row, ativo_data,
     Basta uma unica linha de chamada no app.py."""
     roe_raw = ativo_data.get('roe_num_raw', 0) if isinstance(ativo_data, dict) else 0
     pvp_raw = ativo_data.get('pvp_num_raw', 0) if isinstance(ativo_data, dict) else 0
+    payout_raw = row.get('PAYOUT', '-')
+    payout_num = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
     dados = {
         "preco": limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', '')) or None,
         "pl": pl_atual_val,
         "dy": (dy_num / 100) if dy_num else None,
         "roe": (roe_raw / 100) if roe_raw else None,
         "pvp": pvp_raw or None,
+        "payout": (payout_num / 100) if payout_num else None,
         "setor": row.get('SETOR', ''),
     }
     res = calcular_tir(ticker, dados)
