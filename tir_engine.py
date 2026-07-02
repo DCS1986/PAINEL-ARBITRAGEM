@@ -27,7 +27,7 @@ PREMISSAS = {
     "g_nominal_max": 0.12,    # teto de crescimento sustentavel (Gordon)
     "g_nominal_min": 0.00,    # piso de crescimento
 }
-
+IPCA_BASE = 0.06  # inflação base pra converter TIR nominal em real (IPCA + X%)
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
 # O desconto e a opcionalidade (kicker se fechar); a contingencia e o risco.
 # Sao mostrados na memoria, nao embutidos num numero unico (timing incerto).
@@ -36,7 +36,6 @@ HOLDINGS = {
     "BRAP4":  {"desconto": 0.37, "contingencia_nav": 0.28, "g_subjacente": 0.045},
     "BRBI11": {"desconto": 0.15, "contingencia_nav": 0.00, "g_subjacente": 0.06},
 }
-
 # Ciclicas: fator de normalizacao do lucro (mid-cycle / trailing).
 # > 1 quando o lucro atual esta deprimido (vale do ciclo); < 1 quando no pico.
 # ESTE e o input mais sensivel do modelo - calibre por nome a cada resultado.
