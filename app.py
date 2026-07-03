@@ -3877,12 +3877,11 @@ def get_fluxo_caixa_fundamentei(ticker):
 # Rótulos EXATOS de cada aba de Valuation do Fundamentei (o valor aparece
 # ANTES do rótulo na página). Confirmados na estrutura pública do site.
 _FUNDAMENTEI_ABAS = {
-    "VALUATION": ["P/L", "P/VPA", "P/R", "P/EBITDA", "P/FCO", "P/FCL", "VPA", "LPA"],
-    "PROFITABILITY": ["Margem EBITDA", "Margem EBIT", "Margem Líquida", "D&A/EBITDA",
-                      "Capex/Receita", "Capex/D&A", "Capex/FCO", "ROE", "ROIC"],
-    "GROWTH": ["CAGR Receita 5 anos", "CAGR Lucro Op. 5 anos", "CAGR Lucro Líq. 5 anos",
+    "VALUATION": ["P/R", "P/EBITDA"],
+    "PROFITABILITY": ["Margem EBITDA", "Margem EBIT", "D&A/EBITDA",
+                      "Capex/Receita", "Capex/D&A", "Capex/FCO"],
+    "GROWTH": ["CAGR Receita 5 anos", "CAGR Lucro Op. 5 anos",
                "CAGR LPA 5 anos", "CAGR FCO 5 anos"],
-    "LEVERAGE": ["Dív. Líq./EBITDA", "Dívida/Patrimônio Líq."],
 }
 
 
@@ -5093,6 +5092,44 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             if erro_ind:
                 st.caption(f"🔧 Detalhe técnico: {erro_ind}")
 
+        # ---- Indicadores adicionais (só os que não existem em outra fonte):
+        # P/R, P/EBITDA, margens EBITDA/EBIT, D&A e Capex, e os CAGRs extras. ----
+        _ind_add, _ = get_indicadores_fundamentei(ticker)
+        if _ind_add:
+            _ia_nome = {
+                "CAGR Receita 5 anos": "CAGR Receita",
+                "CAGR Lucro Op. 5 anos": "CAGR Lucro Op.",
+                "CAGR LPA 5 anos": "CAGR LPA",
+                "CAGR FCO 5 anos": "CAGR FCO",
+            }
+
+            def _fmt_ia(rotulo, val):
+                if val is None:
+                    return "—"
+                if rotulo.startswith("P/"):
+                    return f"{val:.1f}x".replace(".", ",")
+                return f"{val:.1f}%".replace(".", ",")
+
+            _ia_blocos = [
+                ("Valuation", ["P/R", "P/EBITDA"]),
+                ("Rentabilidade", ["Margem EBITDA", "Margem EBIT", "D&A/EBITDA",
+                                   "Capex/Receita", "Capex/D&A", "Capex/FCO"]),
+                ("Crescimento (5 anos)", ["CAGR Receita 5 anos", "CAGR Lucro Op. 5 anos",
+                                          "CAGR LPA 5 anos", "CAGR FCO 5 anos"]),
+            ]
+            for _tit, _rots in _ia_blocos:
+                st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+                st.markdown(
+                    f"<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>{_tit}</span>",
+                    unsafe_allow_html=True,
+                )
+                for _k in range(0, len(_rots), 4):
+                    _linha = _rots[_k:_k + 4]
+                    _cols = st.columns(4)
+                    for _idx, _rot in enumerate(_linha):
+                        _card_metric(_cols[_idx], _ia_nome.get(_rot, _rot),
+                                     _fmt_ia(_rot, _ind_add.get(_rot)))
+
         # ---- Percentil Setorial ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         st.markdown("#### 🎯 Posição no Setor")
@@ -5189,46 +5226,6 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "ser tratados como verdade absoluta isoladamente, mas quando os 3 apontam pra "
             "mesma direção (barato ou caro), o sinal é mais confiável do que olhar só um deles."
         )
-
-        # ──────────────────────────────────────────────────────────────
-        # Indicadores do Fundamentei (teste) — Valuation, Rentabilidade,
-        # Crescimento e Alavancagem. Estrutura provisória pra validação.
-        # ──────────────────────────────────────────────────────────────
-        st.markdown("---")
-        st.markdown("##### 📊 Indicadores Fundamentei")
-        _fmei_ind, _fmei_err = get_indicadores_fundamentei(ticker)
-        if not _fmei_ind:
-            st.caption(f"Não foi possível carregar os indicadores do Fundamentei agora. {_fmei_err or ''}")
-        else:
-            def _fmt_fmei(rotulo, val):
-                if val is None:
-                    return "—"
-                if rotulo in ("VPA", "LPA"):
-                    return f"{val:.2f}".replace(".", ",")
-                if rotulo.startswith("P/") or rotulo.startswith("Dív. Líq"):
-                    return f"{val:.1f}x".replace(".", ",")
-                # margens, ROE, ROIC, CAGRs, Capex, D&A, Dívida/PL -> %
-                return f"{val:.1f}%".replace(".", ",")
-
-            _fmei_blocos = [
-                ("Valuation", ["P/L", "P/VPA", "P/R", "P/EBITDA", "P/FCO", "P/FCL", "VPA", "LPA"]),
-                ("Rentabilidade", ["Margem EBITDA", "Margem EBIT", "Margem Líquida", "ROE",
-                                   "ROIC", "D&A/EBITDA", "Capex/Receita", "Capex/D&A", "Capex/FCO"]),
-                ("Crescimento (5 anos)", ["CAGR Receita 5 anos", "CAGR Lucro Op. 5 anos",
-                                          "CAGR Lucro Líq. 5 anos", "CAGR LPA 5 anos", "CAGR FCO 5 anos"]),
-                ("Alavancagem", ["Dívida/Patrimônio Líq."]),
-            ]
-            for _titulo_bloco, _rotulos in _fmei_blocos:
-                st.markdown(f"**{_titulo_bloco}**")
-                for _k in range(0, len(_rotulos), 4):
-                    _linha = _rotulos[_k:_k + 4]
-                    _cols = st.columns(4)
-                    for _idx, _rot in enumerate(_linha):
-                        _card_metric(_cols[_idx], _rot, _fmt_fmei(_rot, _fmei_ind.get(_rot)))
-            st.caption(
-                "Fonte: Fundamentei (tier gratuito — valor atual; alguns indicadores vêm "
-                "arredondados). Estrutura provisória, vamos reorganizar depois."
-            )
 
     # ════════════════════════════════════════════════════════════════════
     # ABA: DIVIDENDOS
