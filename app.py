@@ -6271,6 +6271,10 @@ else:
                 r = a['row']
                 tk = r['CÓDIGO']
                 _fdm_tab, _ = get_fluxo_caixa_fundamentei(tk)
+                _ind_tab, _ = get_indicadores_fundamentus(tk)
+                _pl_at_tab = _ind_buscar(_ind_tab, 'p/l', 'p / l') if _ind_tab else None
+                if _pl_at_tab is not None and (_pl_at_tab <= 0 or _pl_at_tab > 300):
+                    _pl_at_tab = None
                 _vol_tab = _vol_dados_tabela.get(tk, {})
                 linhas_tabela.append({
                     'Logo': a.get('logo_url', '') or None,
@@ -6285,7 +6289,7 @@ else:
                     'ROE (%)': a.get('roe_num_raw', 0) or None,
                     'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
-                    'TIR Real (%)': tir_real_valor(tk, r, a, limpar_valor),
+                    'TIR Real (%)': tir_real_valor(tk, r, a, limpar_valor, pl_atual_val=_pl_at_tab),
                     'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
                     'P/FCO': (_fdm_tab or {}).get('p_fco'),
                     'P/FCL': (_fdm_tab or {}).get('p_fcl'),

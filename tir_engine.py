@@ -22,11 +22,10 @@ from typing import Optional
 # PREMISSAS CENTRAIS (edite aqui - valem para todos os ativos do arquetipo)
 # ==========================================================================
 PREMISSAS = {
-    "inflacao_lp":   0.045,   # inflacao de longo prazo (top-up nominal)
-    "premio_risco":  0.045,   # equity risk premium (mesmo do Gordon do RADAR)
-    "g_nominal_max": 0.12,    # teto de crescimento sustentavel (Gordon - qualidade)
-    "g_incorp_max":  0.14,    # teto de crescimento das incorporadoras (crescem mais no ciclo)
-    "g_nominal_min": 0.00,    # piso de crescimento
+    "inflacao_lp":   0.045,   # inflacao de longo prazo
+    "premio_risco":  0.045,   # equity risk premium
+    "g_teto":        0.15,    # teto do crescimento (so corta absurdo; projecao conservadora fala)
+    "g_piso":        0.00,    # piso (projecao/CAGR negativo nao vira encolhimento perpetuo)
 }
 
 # Inflacao base pra converter a TIR NOMINAL em TIR REAL (formato "IPCA + X%",
@@ -36,7 +35,7 @@ IPCA_BASE = 0.06
 
 # Carimbo de versao - aparece na caixa de calculo. Se o app nao mostrar esta
 # versao, o engine novo NAO esta no ar (arquivo duplicado ou cache do deploy).
-VERSION = "v7 (TIR na Tabela Completa)"
+VERSION = "v9 (formula por setor: banco/seguradora/qualidade/ciclica/utility/holding)"
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
 # O desconto e a opcionalidade (kicker se fechar); a contingencia e o risco.
@@ -68,36 +67,43 @@ ALERTAS = {
 # MAPA DE ARQUETIPOS
 # ==========================================================================
 ARQUETIPO_POR_TICKER = {
-    # 1) Qualidade previsivel -> Gordon / Owner's earnings
-    **{t: "qualidade" for t in [
-        "WEGE3", "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6",
-        "SANB3", "BMGB4", "B3SA3", "BBSE3", "PSSA3", "CXSE3", "IRBR3",
-        "GRND3", "LEVE3", "POMO4", "VULC3", "SHUL4", "CGRA4", "LREN3",
+    # 1) Banco -> DY + ROE x retencao (cresce retendo capital)
+    **{t: "banco" for t in [
+        "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6", "SANB3", "BMGB4",
     ]},
-    # 2) Utility / contratada -> proxy owner-yield + inflacao (ideal: DCF regulado)
+    # 2) Seguradora -> DY + crescimento projetado (capital-light, payout ~100%)
+    **{t: "seguradora" for t in ["BBSE3", "PSSA3", "CXSE3", "IRBR3"]},
+    # 3) Qualidade / crescimento -> DY + crescimento projetado (motor: reinvestir)
+    **{t: "qualidade" for t in [
+        "WEGE3", "B3SA3", "GRND3", "LEVE3", "POMO4", "VULC3", "SHUL4",
+        "CGRA4", "LREN3",
+    ]},
+    # 4) Utility / contratada -> DY + inflacao (receita regulada indexada)
     **{t: "utility" for t in [
         "SBSP3", "CSMG3", "SAPR4", "TAEE11", "EGIE3", "CPFE3", "CPLE3",
         "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3",
     ]},
-    # 3) Ciclica de commodity -> lucro normalizado mid-cycle
+    # 5) Ciclica de commodity -> DY + inflacao (lucro/FCL nao extrapolado)
     **{t: "ciclica" for t in [
         "VALE3", "PETR4", "PRIO3", "CMIN3", "KLBN4", "RANI3", "SLCE3",
-        "KEPL3", "FESA4",
+        "KEPL3", "FESA4", "SUZB3",
     ]},
-    # 4) Holding -> look-through + desconto de NAV
+    # 6) Holding -> look-through + desconto de NAV
     **{t: "holding" for t in ["ITSA4", "BRAP4", "BRBI11"]},
-    # 5) Incorporadora / imobiliario -> ROE sobre patrimonio (nao P/L)
+    # 7) Incorporadora / imobiliario -> DY + crescimento projetado
     **{t: "incorporadora" for t in [
         "CYRE3", "CURY3", "DIRR3", "JHSF3", "MDNE3", "ALOS3",
     ]},
 }
 
 NOME_METODO = {
-    "qualidade":     "Gordon (DY + g), g calibrado por ROE",
-    "utility":       "Owner-yield + inflacao (proxy do DCF regulado)",
-    "ciclica":       "Earnings yield sobre lucro normalizado mid-cycle",
-    "holding":       "Look-through + desconto de NAV",
-    "incorporadora": "Gordon (DY + crescimento retido), teto de crescimento do setor",
+    "banco":         "DY + ROE x retencao (cresce retendo capital)",
+    "seguradora":    "DY + crescimento projetado (capital-light, payout alto)",
+    "qualidade":     "DY + crescimento projetado (motor: reinvestimento)",
+    "utility":       "DY + inflacao (receita regulada; real ~= DY)",
+    "ciclica":       "DY + inflacao (lucro/FCL ciclico nao extrapolado)",
+    "holding":       "DY look-through + inflacao (desconto de NAV a parte)",
+    "incorporadora": "DY + crescimento projetado",
 }
 
 
@@ -144,113 +150,134 @@ def _p(v: float) -> str:
 # ==========================================================================
 # METODOS POR ARQUETIPO
 # ==========================================================================
-def _tir_qualidade(dados: dict) -> ResultadoTIR:
-    pl = dados.get("pl")
-    dy = _dec(dados.get("dy"))
+def _g_projetado(dados: dict):
+    """Crescimento a partir da SUA projecao (conservadora): implicito no P/L
+    atual vs P/L projetado -> g = P/L atual / P/L projetado - 1. Se voce projeta
+    o lucro caindo (ex.: BBSE), o g sai baixo/zero sozinho. Fallback: CAGR."""
+    pl_atual = dados.get("pl_atual")
+    pl_proj = dados.get("pl")            # P/L PROJETADO da planilha
+    if pl_atual and pl_atual > 0 and pl_proj and pl_proj > 0:
+        g = pl_atual / pl_proj - 1
+        return _clamp(g, PREMISSAS["g_piso"], PREMISSAS["g_teto"]), "projecao (P/L atual vs projetado)"
+    cagr = _dec(dados.get("cagr"))
+    if cagr is not None:
+        return _clamp(cagr, PREMISSAS["g_piso"], PREMISSAS["g_teto"]), "CAGR de lucros (fallback)"
+    return IPCA_BASE, "inflacao (sem projecao)"
+
+
+def _tir_banco(dados: dict) -> ResultadoTIR:
+    dy = _dec(dados.get("dy")) or 0.0
     roe = _dec(dados.get("roe"))
-    r = ResultadoTIR(None, "qualidade", NOME_METODO["qualidade"])
-
-    if not pl or pl <= 0 or dy is None or roe is None:
-        r.alerta = "Faltam dados (P/L>0, DY, ROE) ou lucro negativo - Gordon nao se aplica."
+    payout_real = dados.get("payout")
+    r = ResultadoTIR(None, "banco", NOME_METODO["banco"])
+    if roe is None:
+        r.alerta = "Sem ROE - metodo de banco depende do ROE."
         return r
-
-    ey = 1 / pl
-    payout_real = dados.get("payout")           # payout real da planilha (ja decimal)
-    if payout_real is not None and payout_real > 0:
-        payout = _clamp(payout_real, 0, 2.0)
-        fonte_payout = "planilha"
-    else:
-        payout = _clamp(dy * pl, 0, 1)          # fallback: DPA/LPA = DY x P/L
-        fonte_payout = "estimado (DY x PL)"
+    payout = _clamp(payout_real, 0, 1) if (payout_real and payout_real > 0) else 0.40
+    fonte = "planilha" if (payout_real and payout_real > 0) else "default 40%"
     retencao = max(0.0, 1 - payout)
-    g_sust = roe * retencao
-    g = _clamp(g_sust, PREMISSAS["g_nominal_min"], PREMISSAS["g_nominal_max"])
+    g = _clamp(roe * retencao, PREMISSAS["g_piso"], PREMISSAS["g_teto"])
     tir = dy + g
-
     r.tir = tir
     r.memoria = [
-        Passo("Earnings yield (1/PL)", _p(ey)),
         Passo("Dividend yield (DY)", _p(dy)),
-        Passo(f"Payout ({fonte_payout})", _p(payout)),
+        Passo("ROE", _p(roe)),
+        Passo(f"Payout ({fonte})", _p(payout)),
         Passo("Retencao (1 - payout)", _p(retencao)),
-        Passo("g sustentavel (ROE x retencao)", _p(g_sust)),
-        Passo(f"g aplicado (teto {_p(PREMISSAS['g_nominal_max'])})", _p(g)),
+        Passo(f"g = ROE x retencao (teto {_p(PREMISSAS['g_teto'])})", _p(g)),
         Passo("TIR nominal = DY + g", _p(tir)),
     ]
     return r
 
 
-def _tir_utility(dados: dict, ticker: str) -> ResultadoTIR:
-    pl = dados.get("pl")
-    dy = _dec(dados.get("dy"))
-    infl = PREMISSAS["inflacao_lp"]
-    r = ResultadoTIR(None, "utility", NOME_METODO["utility"])
-
-    if dy is None or dy <= 0:
-        r.alerta = "Sem DY confiavel - proxy de utility depende do dividendo."
-        return r
-
-    # Receita regulada/contratada e indexada a inflacao: crescimento real ~ 0.
-    g = infl
+def _tir_seguradora(dados: dict, ticker: str) -> ResultadoTIR:
+    dy = _dec(dados.get("dy")) or 0.0
+    r = ResultadoTIR(None, "seguradora", NOME_METODO["seguradora"])
+    g, fonte_g = _g_projetado(dados)
     tir = dy + g
     r.tir = tir
     r.memoria = [
         Passo("Dividend yield (DY)", _p(dy)),
-        Passo("Earnings yield (1/PL)", _p(1 / pl) if pl and pl > 0 else "n/d"),
-        Passo("g = inflacao (receita indexada, real ~0)", _p(g)),
-        Passo("TIR nominal = DY + inflacao", _p(tir)),
-        Passo("Obs.", "Proxy. Ideal: DCF do fluxo regulado (WACC vs TIR indexada)."),
+        Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
+        Passo("TIR nominal = DY + g", _p(tir)),
+        Passo("Obs.", "Capital-light: cresce sem reter. Sua projecao ja embute o cenario."),
+    ]
+    r.alerta = ALERTAS.get(ticker, "")
+    return r
+
+
+def _tir_qualidade(dados: dict) -> ResultadoTIR:
+    dy = _dec(dados.get("dy")) or 0.0
+    r = ResultadoTIR(None, "qualidade", NOME_METODO["qualidade"])
+    g, fonte_g = _g_projetado(dados)
+    tir = dy + g
+    r.tir = tir
+    r.memoria = [
+        Passo("Dividend yield (DY)", _p(dy)),
+        Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
+        Passo("TIR nominal = DY + g", _p(tir)),
+        Passo("Obs.", "Motor e o crescimento (reinvestimento), nao o dividendo."),
+    ]
+    return r
+
+
+def _tir_incorporadora(dados: dict, ticker: str) -> ResultadoTIR:
+    dy = _dec(dados.get("dy")) or 0.0
+    r = ResultadoTIR(None, "incorporadora", NOME_METODO["incorporadora"])
+    g, fonte_g = _g_projetado(dados)
+    tir = dy + g
+    r.tir = tir
+    r.memoria = [
+        Passo("Dividend yield (DY)", _p(dy)),
+        Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
+        Passo("TIR nominal = DY + g", _p(tir)),
+        Passo("Cuidado", "Lucro (P/L) distorcido por PoC; a projecao capta o crescimento real."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
 
 
 def _tir_ciclica(dados: dict, ticker: str) -> ResultadoTIR:
-    pl = dados.get("pl")
-    preco = dados.get("preco")
-    override = dados.get("lucro_normalizado_pa")
-    fator = NORMALIZACAO_CICLICA.get(ticker, 1.0)
+    dy = _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "ciclica", NOME_METODO["ciclica"])
-
-    if override:                                   # lucro normalizado informado direto
-        if not preco or preco <= 0:
-            r.alerta = "Sem preco para o lucro normalizado informado."
-            return r
-        ey_norm = override / preco
-        base = f"lucro normalizado informado (R$ {override:.2f}/acao)"
-    elif pl and pl > 0:
-        ey_norm = fator / pl                       # (LPA x fator) / preco = fator / PL
-        base = f"trailing x fator {fator:g}"
-    else:
-        r.alerta = "Lucro atual negativo - informe 'lucro_normalizado_pa' para ciclica."
-        return r
-
-    tir = ey_norm   # ja nominal; nao soma inflacao (preco de commodity ja e nominal)
+    g = IPCA_BASE   # nao extrapola lucro/FCL de commodity; assume manter valor real
+    tir = dy + g
     r.tir = tir
     r.memoria = [
-        Passo("Metodo", "Earnings yield sobre lucro MID-CYCLE, nao trailing"),
-        Passo("Base do lucro normalizado", base),
-        Passo("Earnings yield normalizado", _p(ey_norm)),
-        Passo("TIR nominal (economica)", _p(tir)),
-        Passo("Cuidado", "Trailing engana no vale/pico do ciclo. Calibre o fator."),
+        Passo("Dividend yield (DY)", _p(dy)),
+        Passo("g = inflacao (nao extrapola lucro ciclico)", _p(g)),
+        Passo("TIR nominal = DY + inflacao", _p(tir)),
+        Passo("Cuidado", "Ciclica: P/L e CAGR de lucro ignorados - enganam no pico/vale. Real ~= DY."),
+    ]
+    r.alerta = ALERTAS.get(ticker, "")
+    return r
+
+
+def _tir_utility(dados: dict, ticker: str) -> ResultadoTIR:
+    dy = _dec(dados.get("dy")) or 0.0
+    r = ResultadoTIR(None, "utility", NOME_METODO["utility"])
+    g = IPCA_BASE   # receita regulada indexada a inflacao: crescimento real ~ 0
+    tir = dy + g
+    r.tir = tir
+    r.memoria = [
+        Passo("Dividend yield (DY)", _p(dy)),
+        Passo("g = inflacao (receita regulada indexada)", _p(g)),
+        Passo("TIR nominal = DY + inflacao", _p(tir)),
+        Passo("Obs.", "Real ~= DY. Ideal futuro: DCF do fluxo regulado (WACC vs TIR indexada)."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
 
 
 def _tir_holding(dados: dict, ticker: str) -> ResultadoTIR:
-    dy = _dec(dados.get("dy"))
+    dy = _dec(dados.get("dy")) or 0.0
     info = HOLDINGS.get(ticker, {"desconto": 0.0, "contingencia_nav": 0.0,
-                                 "g_subjacente": PREMISSAS["inflacao_lp"]})
+                                 "g_subjacente": IPCA_BASE})
     r = ResultadoTIR(None, "holding", NOME_METODO["holding"])
-
-    if dy is None or dy <= 0:
+    if dy <= 0:
         r.alerta = "Sem DY - holding depende do dividendo look-through."
         return r
-
-    # O DY reportado ja embute o desconto (dividendo / preco de mercado).
-    # TIR de renda = DY reportado + crescimento da controlada.
-    g = info["g_subjacente"]
+    g = info.get("g_subjacente", IPCA_BASE)
     tir = dy + g
     r.tir = tir
     r.memoria = [
@@ -260,51 +287,6 @@ def _tir_holding(dados: dict, ticker: str) -> ResultadoTIR:
         Passo("Desconto de NAV (kicker se fechar)", _p(info["desconto"])),
         Passo("Contingencias / NAV (risco, cauda esquerda)", _p(info["contingencia_nav"])),
         Passo("Obs.", "P/L contabil ignorado - contaminado por equivalencia patrimonial."),
-    ]
-    r.alerta = ALERTAS.get(ticker, "")
-    return r
-
-
-def _tir_incorporadora(dados: dict, ticker: str) -> ResultadoTIR:
-    dy = _dec(dados.get("dy"))
-    roe = _dec(dados.get("roe"))
-    pl = dados.get("pl")
-    payout_real = dados.get("payout")
-    r = ResultadoTIR(None, "incorporadora", NOME_METODO["incorporadora"])
-
-    if dy is None or roe is None:
-        r.alerta = "Faltam DY e ROE - metodo de incorporadora depende deles."
-        return r
-
-    # Modelo de Gordon: o lucro atual e distorcido pelo timing de PoC e o ROE
-    # e ciclico, mas o retorno do dono ainda e dividendo + crescimento retido.
-    # O crescimento (ROE x retencao) e alto e por isso levamos ao teto do setor.
-    if payout_real is not None and payout_real > 0:
-        payout = _clamp(payout_real, 0, 2.0)
-        fonte_payout = "planilha"
-    elif pl and pl > 0:
-        payout = _clamp(dy * pl, 0, 1)
-        fonte_payout = "estimado (DY x PL)"
-    else:
-        payout = 0.30                            # incorporadora paga pouco: default
-        fonte_payout = "default 30%"
-
-    retencao = max(0.0, 1 - payout)
-    g_sust = roe * retencao
-    g = _clamp(g_sust, PREMISSAS["g_nominal_min"], PREMISSAS["g_incorp_max"])
-    tir = dy + g
-
-    r.tir = tir
-    r.memoria = [
-        Passo("Metodo", "Gordon (DY + crescimento retido) - ROE ciclico, teto do setor"),
-        Passo("Dividend yield (DY)", _p(dy)),
-        Passo("ROE", _p(roe)),
-        Passo(f"Payout ({fonte_payout})", _p(payout)),
-        Passo("Retencao (1 - payout)", _p(retencao)),
-        Passo("g sustentavel (ROE x retencao)", _p(g_sust)),
-        Passo(f"g aplicado (teto setor {_p(PREMISSAS['g_incorp_max'])})", _p(g)),
-        Passo("TIR nominal = DY + g", _p(tir)),
-        Passo("Cuidado", "ROE de pico e ciclico; landbank finito limita a perpetuidade."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
@@ -336,7 +318,11 @@ def _arquetipo_por_setor(setor: str) -> Optional[str]:
                             "quimic", "siderur", "metalur", "borracha", "commodit",
                             "agro", "agr")):
         return "ciclica"
-    # banco, seguro, varejo, industrial, telecom, etc. -> qualidade (Gordon)
+    if any(x in s for x in ("seguro", "segur", "previd", "capitaliz", "resseg")):
+        return "seguradora"
+    if any(x in s for x in ("banco", "banc", "financeir", "cred")):
+        return "banco"
+    # varejo, industrial, telecom, bens, etc. -> qualidade (crescimento projetado)
     return "qualidade"
 
 
@@ -350,6 +336,10 @@ def calcular_tir(ticker: str, dados: dict) -> ResultadoTIR:
     ticker = (ticker or "").upper()
     arq = classificar(ticker) or _arquetipo_por_setor(dados.get("setor"))
 
+    if arq == "banco":
+        return _tir_banco(dados)
+    if arq == "seguradora":
+        return _tir_seguradora(dados, ticker)
     if arq == "qualidade":
         return _tir_qualidade(dados)
     if arq == "utility":
@@ -429,6 +419,8 @@ def montar_dados_tir(row, ativo_data, limpar_valor, pl_atual_val=None, dy_num=No
         dy_num = ativo_data.get('dy_num', 0) if isinstance(ativo_data, dict) else 0
     payout_raw = row.get('PAYOUT', '-')
     payout_num = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
+    cagr_raw = row.get('CAGR lucros (últ. 5 anos)', row.get('CAGR lucros (últimos 5 anos)', None))
+    cagr_num = limpar_valor(cagr_raw) if cagr_raw not in (None, '-', '') else None
     # P/L da planilha (PROJETADO) e a fonte confiavel; pl_atual_val (Fundamentus)
     # so como fallback quando o projetado nao existir.
     pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
@@ -436,10 +428,12 @@ def montar_dados_tir(row, ativo_data, limpar_valor, pl_atual_val=None, dy_num=No
     return {
         "preco": limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', '')) or None,
         "pl": pl_para_tir,
+        "pl_atual": pl_atual_val,
         "dy": (dy_num / 100) if dy_num else None,
         "roe": (roe_raw / 100) if roe_raw else None,
         "pvp": pvp_raw or None,
         "payout": (payout_num / 100) if payout_num else None,
+        "cagr": (cagr_num / 100) if cagr_num is not None else None,
         "setor": row.get('SETOR', ''),
     }
 
