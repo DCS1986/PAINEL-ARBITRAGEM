@@ -5020,115 +5020,93 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         st.markdown("#### 🔎 Indicadores")
 
-        # ---- Demais indicadores (Operacional + Fundamentus, unificados) ----
-        def _card_ind(col, titulo, valor, sufixo="", prefixo="", fmt="{:.2f}"):
-            texto = (prefixo + fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
-            _card_metric(col, titulo, texto)
+        # ---- Indicadores unificados, agrupados por categoria ----
+        def _f1(v, suf="", pre=""):
+            return (pre + f"{v:.1f}{suf}").replace(".", ",") if v is not None else "\u2014"
 
-        i1, i2, i3, i4 = st.columns(4)
-        _card_metric(i1, "Dívida Líq/EBITDA", row.get('Dívida líquida/EBITDA', '-'), destaque=_destaca_div_ebitda)
-        _card_metric(i2, "CAGR Lucros", row.get('CAGR lucros (últ. 5 anos)', '-'))
-        _card_metric(i3, "ROE", roe, destaque=_destaca_pvp_roe)
-        _card_metric(i4, "Margem Líq.", margem)
-        i5, i6, i7, i8 = st.columns(4)
-        _card_metric(i5, "Beta (vs IBOV)", beta)
-        if ind_extras:
-            _card_ind(i6, "ROIC", roic_val, sufixo="%")
-            _card_ind(i7, "VPA", vpa_val, prefixo="R$ ")
-            _card_ind(i8, "PEG Ratio", peg_val, sufixo="x")
-            i9, i10, i11, i12 = st.columns(4)
-            # P/EBIT e EV/EBITDA não existem de forma confiável pra bancos e
-            # seguradoras -- essas empresas não têm "Receita Líquida" no
-            # formato industrial que EBIT/EBITDA pressupõe, então o Fundamentus
-            # às vezes retorna múltiplos absurdos (ex: -370x) pra esse tipo de
-            # negócio. Não é erro de leitura -- é a métrica errada pro setor.
-            if _setor_cat in ('banco', 'seguradora', 'holding'):
-                _card_metric(i9, "P/EBIT", "—")
-                _card_metric(i10, "EV/EBITDA", "—")
-            else:
-                _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
-                _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
-            _card_metric(i11, "P/VP", pvp_str if pvp_str != "-" else "—", destaque=_destaca_pvp_roe)
-            _card_ind(i12, "ROA", roa_val, sufixo="%")
-            if _setor_cat in ('banco', 'seguradora', 'holding'):
-                st.caption(
-                    "P/EBIT e EV/EBITDA não aparecem pra bancos/seguradoras/holdings de "
-                    "propósito — essas empresas não têm 'Receita Líquida' no formato "
-                    "industrial que esses múltiplos pressupõem, então o número que sairia "
-                    "não seria confiável (podia vir um valor absurdo, tipo -370x, sem "
-                    "significado real)."
-                )
+        def _f2(v, suf="", pre=""):
+            return (pre + f"{v:.2f}{suf}").replace(".", ",") if v is not None else "\u2014"
 
-            # ---- P/FCO e P/FCL (via Fundamentei, fonte nova) -- mostra
-            # quanto se paga pelo fluxo de caixa de verdade gerado, não só
-            # pelo lucro contábil. Mesma exclusão de banco/seguradora/holding
-            # que P/EBIT, pelo mesmo motivo estrutural. ----
-            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-            if _setor_cat not in ('banco', 'seguradora', 'holding'):
-                _fdm_dados, _fdm_erro = get_fluxo_caixa_fundamentei(ticker)
-                i13, i14 = st.columns(2)
-                if _fdm_dados:
-                    _card_ind(i13, "P/FCO", _fdm_dados.get('p_fco'), sufixo="x")
-                    _card_ind(i14, "P/FCL", _fdm_dados.get('p_fcl'), sufixo="x")
-                    st.caption(
-                        "P/FCO e P/FCL = preço ÷ fluxo de caixa operacional/livre — mostram "
-                        "quanto se paga pelo caixa que a empresa REALMENTE gera, não pelo "
-                        "lucro contábil (que pode ter itens sem efeito caixa). Quanto menor, "
-                        "mais barata em relação à geração de caixa real. Fonte: Fundamentei. "
-                        "Se vier vazio, pode ser que a empresa esteja gerando caixa fraco/"
-                        "negativo nesse momento (ex: ciclo pesado de investimento), não "
-                        "necessariamente um erro de leitura."
-                    )
-                else:
-                    st.caption(f"P/FCO e P/FCL indisponíveis para este ativo ({_fdm_erro}).")
+        _sem_ebitda = _setor_cat in ('banco', 'seguradora', 'holding')
 
-            st.caption(
-                "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros) — abaixo de 1x "
-                "geralmente indica crescimento 'baixo' em relação ao preço pago; acima de "
-                "2x pode indicar preço esticado frente ao crescimento."
-            )
-        else:
-            st.info("Indicadores extras indisponíveis para este ativo.")
-            if erro_ind:
-                st.caption(f"🔧 Detalhe técnico: {erro_ind}")
+        _fdm_dados = None
+        if not _sem_ebitda:
+            _fdm_dados, _fdm_erro = get_fluxo_caixa_fundamentei(ticker)
+        _fco = (_fdm_dados or {}).get('p_fco')
+        _fcl = (_fdm_dados or {}).get('p_fcl')
 
-        # ---- Indicadores adicionais (só os que não existem em outra fonte):
-        # P/R, P/EBITDA, margens EBITDA/EBIT, D&A e Capex, e os CAGRs extras. ----
         _ind_add, _ = get_indicadores_fundamentei(ticker)
-        if _ind_add:
-            _ia_nome = {
-                "CAGR Receita 5 anos": "CAGR Receita",
-                "CAGR Lucro Op. 5 anos": "CAGR Lucro Op.",
-                "CAGR LPA 5 anos": "CAGR LPA",
-                "CAGR FCO 5 anos": "CAGR FCO",
-            }
+        _ia = _ind_add or {}
 
-            def _fmt_ia(rotulo, val):
-                if val is None:
-                    return "—"
-                if rotulo.startswith("P/"):
-                    return f"{val:.1f}x".replace(".", ",")
-                return f"{val:.1f}%".replace(".", ",")
+        _grupos_ind = [
+            ("Valuation", [
+                ("P/VP", pvp_str if pvp_str != "-" else "\u2014", _destaca_pvp_roe, True),
+                ("P/R", _f1(_ia.get('P/R'), "x"), False, True),
+                ("P/EBIT", _f1(p_ebit_val, "x"), False, not _sem_ebitda),
+                ("P/EBITDA", _f1(_ia.get('P/EBITDA'), "x"), False, not _sem_ebitda),
+                ("EV/EBITDA", _f1(ev_ebitda_val, "x"), False, not _sem_ebitda),
+                ("P/FCO", _f1(_fco, "x"), False, not _sem_ebitda),
+                ("P/FCL", _f1(_fcl, "x"), False, not _sem_ebitda),
+                ("PEG Ratio", _f1(peg_val, "x"), False, True),
+                ("VPA", _f2(vpa_val, "", "R$ "), False, True),
+            ]),
+            ("Rentabilidade", [
+                ("ROE", roe, _destaca_pvp_roe, True),
+                ("ROIC", _f1(roic_val, "%"), False, True),
+                ("ROA", _f1(roa_val, "%"), False, True),
+                ("Margem Liq.", margem, False, True),
+                ("Margem EBITDA", _f1(_ia.get('Margem EBITDA'), "%"), False, not _sem_ebitda),
+                ("Margem EBIT", _f1(_ia.get('Margem EBIT'), "%"), False, not _sem_ebitda),
+            ]),
+            ("Capex & Fluxo de Caixa", [
+                ("D&A/EBITDA", _f1(_ia.get('D&A/EBITDA'), "%"), False, not _sem_ebitda),
+                ("Capex/Receita", _f1(_ia.get('Capex/Receita'), "%"), False, not _sem_ebitda),
+                ("Capex/D&A", _f1(_ia.get('Capex/D&A'), "%"), False, not _sem_ebitda),
+                ("Capex/FCO", _f1(_ia.get('Capex/FCO'), "%"), False, not _sem_ebitda),
+            ]),
+            ("Crescimento (5 anos)", [
+                ("CAGR Lucros", row.get('CAGR lucros (\u00faltimos 5 anos)', row.get('CAGR lucros (\u00falt. 5 anos)', '-')), False, True),
+                ("CAGR Receita", _f1(_ia.get('CAGR Receita 5 anos'), "%"), False, True),
+                ("CAGR Lucro Op.", _f1(_ia.get('CAGR Lucro Op. 5 anos'), "%"), False, True),
+                ("CAGR LPA", _f1(_ia.get('CAGR LPA 5 anos'), "%"), False, True),
+                ("CAGR FCO", _f1(_ia.get('CAGR FCO 5 anos'), "%"), False, True),
+            ]),
+            ("Endividamento & Risco", [
+                ("Divida Liq/EBITDA", row.get('D\u00edvida l\u00edquida/EBITDA', '-'), _destaca_div_ebitda, True),
+                ("Divida/Patrim.", _f2(div_liq_patrim_val), False, True),
+                ("Beta (vs IBOV)", beta, False, True),
+            ]),
+        ]
 
-            _ia_blocos = [
-                ("Valuation", ["P/R", "P/EBITDA"]),
-                ("Rentabilidade", ["Margem EBITDA", "Margem EBIT", "D&A/EBITDA",
-                                   "Capex/Receita", "Capex/D&A", "Capex/FCO"]),
-                ("Crescimento (5 anos)", ["CAGR Receita 5 anos", "CAGR Lucro Op. 5 anos",
-                                          "CAGR LPA 5 anos", "CAGR FCO 5 anos"]),
-            ]
-            for _tit, _rots in _ia_blocos:
-                st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
-                st.markdown(
-                    f"<span style='font-size:0.8em;color:#ccc;font-weight:bold;'>{_tit}</span>",
-                    unsafe_allow_html=True,
-                )
-                for _k in range(0, len(_rots), 4):
-                    _linha = _rots[_k:_k + 4]
-                    _cols = st.columns(4)
-                    for _idx, _rot in enumerate(_linha):
-                        _card_metric(_cols[_idx], _ia_nome.get(_rot, _rot),
-                                     _fmt_ia(_rot, _ind_add.get(_rot)))
+        for _nome_g, _cards in _grupos_ind:
+            _vis = [c for c in _cards if c[3]]
+            if not _vis:
+                continue
+            st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+            st.markdown(
+                f"<span style='font-size:0.8em;color:#D4AF37;font-weight:bold;"
+                f"text-transform:uppercase;letter-spacing:0.5px;'>{_nome_g}</span>",
+                unsafe_allow_html=True,
+            )
+            for _k in range(0, len(_vis), 4):
+                _linha = _vis[_k:_k + 4]
+                _cols = st.columns(4)
+                for _idx, (_tit, _txt, _dest, _) in enumerate(_linha):
+                    _card_metric(_cols[_idx], _tit, _txt, destaque=_dest)
+
+        st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
+        if _sem_ebitda:
+            st.caption(
+                "Para bancos, seguradoras e holdings, os m\u00faltiplos e margens baseados em "
+                "EBITDA/Capex s\u00e3o omitidos de prop\u00f3sito \u2014 n\u00e3o fazem sentido para o modelo "
+                "de neg\u00f3cio desses setores (sairiam valores sem significado real)."
+            )
+        st.caption(
+            "PEG Ratio = P/L Projetado \u00f7 CAGR de Lucros. Abaixo de 1x costuma indicar "
+            "crescimento barato frente ao pre\u00e7o; acima de 2x, pre\u00e7o esticado."
+        )
+        if not ind_extras and erro_ind:
+            st.caption(f"Alguns indicadores (ROIC, VPA, etc.) est\u00e3o indispon\u00edveis agora ({erro_ind}).")
 
         # ---- Percentil Setorial ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
