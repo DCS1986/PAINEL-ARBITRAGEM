@@ -10,7 +10,7 @@ from ui_confluencia import render_confluencia, render_confluencia_card
 from cvm_insiders import (
     baixar_mapa_tickers, baixar_programa_recompra, programa_recompra_ativo,
 ) 
-from tir_engine import calcular_tir, render_tir
+from tir_engine import calcular_tir, render_tir, tir_real_valor
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -6204,6 +6204,7 @@ else:
                     'ROE (%)': a.get('roe_num_raw', 0) or None,
                     'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
+                    'TIR Real (%)': tir_real_valor(tk, r, a, limpar_valor),
                     'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
                     'P/FCO': (_fdm_tab or {}).get('p_fco'),
                     'P/FCL': (_fdm_tab or {}).get('p_fcl'),
@@ -6234,6 +6235,7 @@ else:
                     'ROE (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'CAGR Lucros (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'Earnings Yield (%)': st.column_config.NumberColumn(format="%.1f%%"),
+                    'TIR Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
                     'Dívida Líq/EBITDA': st.column_config.NumberColumn(format="%.1fx"),
                     'P/FCO': st.column_config.NumberColumn(format="%.1fx"),
                     'P/FCL': st.column_config.NumberColumn(format="%.1fx"),

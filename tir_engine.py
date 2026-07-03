@@ -34,6 +34,10 @@ PREMISSAS = {
 #   TIR real = (1 + TIR nominal) / (1 + IPCA_BASE) - 1
 IPCA_BASE = 0.06
 
+# Carimbo de versao - aparece na caixa de calculo. Se o app nao mostrar esta
+# versao, o engine novo NAO esta no ar (arquivo duplicado ou cache do deploy).
+VERSION = "v7 (TIR na Tabela Completa)"
+
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
 # O desconto e a opcionalidade (kicker se fechar); a contingencia e o risco.
 # Sao mostrados na memoria, nao embutidos num numero unico (timing incerto).
@@ -412,22 +416,24 @@ def render_tir_real(st, col_box, col_botao, res: ResultadoTIR, card_style: str):
                 st.warning(res.alerta)
             if res.tir is None and not res.memoria:
                 st.caption("Sem dados suficientes para calcular a TIR deste ativo.")
+            st.caption(f"engine {VERSION}")
 
 
-def render_tir(st, col_box, col_botao, ticker, row, ativo_data,
-               pl_atual_val, dy_num, card_style, limpar_valor):
-    """Tudo em um: monta os dados a partir do row/ativo_data, calcula a TIR
-    pelo arquetipo e desenha a caixa 'TIR REAL' + o botao da memoria.
-    Basta uma unica linha de chamada no app.py."""
+def montar_dados_tir(row, ativo_data, limpar_valor, pl_atual_val=None, dy_num=None):
+    """Monta o dict de entrada da TIR a partir do row (planilha) e do
+    ativo_data. Fonte unica, usada tanto pelo card quanto pela tabela, pra
+    os dois nunca divergirem."""
     roe_raw = ativo_data.get('roe_num_raw', 0) if isinstance(ativo_data, dict) else 0
     pvp_raw = ativo_data.get('pvp_num_raw', 0) if isinstance(ativo_data, dict) else 0
+    if dy_num is None:
+        dy_num = ativo_data.get('dy_num', 0) if isinstance(ativo_data, dict) else 0
     payout_raw = row.get('PAYOUT', '-')
     payout_num = limpar_valor(payout_raw) if payout_raw not in (None, '-', '') else None
-    # P/L da planilha (PROJETADO) e a fonte confiavel do Diego; pl_atual_val
-    # (Fundamentus) fica so como fallback quando o projetado nao existir.
+    # P/L da planilha (PROJETADO) e a fonte confiavel; pl_atual_val (Fundamentus)
+    # so como fallback quando o projetado nao existir.
     pl_proj = limpar_valor(row.get('P/L PROJETADO', 0))
     pl_para_tir = pl_proj if (pl_proj and pl_proj > 0) else pl_atual_val
-    dados = {
+    return {
         "preco": limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', '')) or None,
         "pl": pl_para_tir,
         "dy": (dy_num / 100) if dy_num else None,
@@ -436,6 +442,23 @@ def render_tir(st, col_box, col_botao, ticker, row, ativo_data,
         "payout": (payout_num / 100) if payout_num else None,
         "setor": row.get('SETOR', ''),
     }
+
+
+def tir_real_valor(ticker, row, ativo_data, limpar_valor, pl_atual_val=None, dy_num=None):
+    """Retorna a TIR REAL em pontos percentuais (ex.: 12.3) ou None.
+    Para uso na Tabela Completa (coluna numerica, ordenavel)."""
+    dados = montar_dados_tir(row, ativo_data, limpar_valor, pl_atual_val, dy_num)
+    res = calcular_tir(ticker, dados)
+    tr = tir_real_de(res)
+    return round(tr * 100, 1) if tr is not None else None
+
+
+def render_tir(st, col_box, col_botao, ticker, row, ativo_data,
+               pl_atual_val, dy_num, card_style, limpar_valor):
+    """Tudo em um: monta os dados a partir do row/ativo_data, calcula a TIR
+    pelo arquetipo e desenha a caixa 'TIR REAL' + o botao da memoria.
+    Basta uma unica linha de chamada no app.py."""
+    dados = montar_dados_tir(row, ativo_data, limpar_valor, pl_atual_val, dy_num)
     res = calcular_tir(ticker, dados)
     render_tir_real(st, col_box, col_botao, res, card_style)
     return res
