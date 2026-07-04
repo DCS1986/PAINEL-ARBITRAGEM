@@ -3366,6 +3366,72 @@ PANORAMA_EMPRESA = {
 }
 
 
+# Conteúdo qualitativo sobre o negócio — alimentado empresa por empresa.
+# Formato: lista de blocos {"titulo": str, "texto": str}.
+# Adicione novos tickers aqui à medida que forem sendo estudados.
+SOBRE_NEGOCIO = {
+    "CXSE3": [
+        {
+            "titulo": "Modelo de negócio",
+            "texto": (
+                "Distribui seguros, previdência e capitalização exclusivamente pela rede da "
+                "Caixa Econômica Federal — mais de 4.000 agências, 13.000 lotéricas e "
+                "correspondentes bancários. Não assume risco de subscrição: as seguradoras "
+                "parceiras assumem o risco e pagam comissão de distribuição e taxa de uso de "
+                "marca. É uma máquina de distribuição, não uma seguradora tradicional."
+            ),
+        },
+        {
+            "titulo": "O efeito empilhamento — a grande vantagem invisível",
+            "texto": (
+                "Todo financiamento imobiliário no Brasil exige por lei dois seguros "
+                "obrigatórios: MIP (Morte e Invalidez Permanente) e DFI (Danos Físicos ao "
+                "Imóvel). Ambos são embutidos na parcela e cobrados durante todo o prazo do "
+                "contrato — que pode durar de 10 a 35 anos. Cada novo financiamento "
+                "contratado na CEF empilha mais um contrato de seguro na carteira. Esses "
+                "contratos não vencem no mês seguinte: ficam gerando receita por décadas. "
+                "A base de recorrência cresce enquanto os financiamentos anteriores ainda "
+                "estão ativos e os novos continuam chegando."
+            ),
+        },
+        {
+            "titulo": "Motor de crescimento",
+            "texto": (
+                "A CEF superou R$ 1 trilhão em carteira de crédito imobiliário. Cada "
+                "financiamento habitacional gera automaticamente seguro prestamista e seguro "
+                "habitacional — o crescimento do crédito alimenta diretamente o crescimento "
+                "dos prêmios, sem necessidade de captação ativa de clientes."
+            ),
+        },
+        {
+            "titulo": "Liderança de mercado",
+            "texto": (
+                "Mais de 60% de market share em seguro habitacional no Brasil. O contrato "
+                "de exclusividade com a CEF e a distribuição capilar são praticamente "
+                "inreplicáveis por qualquer seguradora privada."
+            ),
+        },
+        {
+            "titulo": "Dinâmica atual",
+            "texto": (
+                "O segmento de acumulação (previdência, capitalização e consórcio) vem "
+                "surpreendendo positivamente. O prestamista segue pressionado pelos juros "
+                "altos — menos crédito consignado e pessoal — mas o resultado financeiro "
+                "(a própria Selic rendendo no float da operação) tem compensado."
+            ),
+        },
+        {
+            "titulo": "Risco principal",
+            "texto": (
+                "100% dependente da CEF como controladora e canal de distribuição. "
+                "Interferência política, mudança na estratégia habitacional do governo ou "
+                "alteração nas condições do FGTS afetam diretamente os resultados. "
+                "É o preço pelo monopólio de distribuição."
+            ),
+        },
+    ],
+}
+
 ESTUDOS_ESPECIFICOS = {
     "BBAS3": {
         "titulo": "P/VP raramente abaixo de 0,50x",
@@ -4579,8 +4645,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.session_state.aba_ativa = "📊 Visão Geral"
         st.session_state.aba_ativa_ticker = ticker
 
-    _NOMES_ABAS = ["📊 Visão Geral", "🧭 Panorama", "💰 Valuation", "📈 Dividendos",
-                   "👤 Movimentação", "📑 Resultado", "📐 Vol. / Gráfico"]
+    _NOMES_ABAS = ["📊 Visão Geral", "💰 Valuation", "📈 Dividendos",
+                   "👤 Movimentação", "📑 Resultado", "🧠 Tese"]
     _cols_abas = st.columns(len(_NOMES_ABAS))
     for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
         with _col:
@@ -4811,11 +4877,64 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             if rev_erro:
                 st.caption(f"🔧 Detalhe técnico: {rev_erro}")
 
+        # ---- Volatilidade Implícita / IV Rank / IV Percentil ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<span style='font-size:0.8em;color:#D4AF37;font-weight:bold;"
+            "text-transform:uppercase;letter-spacing:0.5px;'>Volatilidade Implícita</span>",
+            unsafe_allow_html=True,
+        )
+        with st.spinner(""):
+            _vol_vg, _erro_vg = get_volatilidade_ticker(ticker)
+        if _vol_vg is not None:
+            _vi  = _vol_vg['vol_implicita']
+            _rnk = _vol_vg['iv_rank']
+            _pct = _vol_vg['iv_percentil']
+            _cor_vg = "#EF4444" if (_rnk or 0) >= 70 else ("#D4AF37" if (_rnk or 0) >= 30 else "#22C55E")
+            _vc1, _vc2, _vc3 = st.columns(3)
+            for _col_vg, _lbl_vg, _val_vg in [
+                (_vc1, "Vol. Implícita", f"{_vi:.2f}%".replace(".", ",") if _vi is not None else "—"),
+                (_vc2, "IV Rank",        f"{_rnk:.0f}%".replace(".", ",") if _rnk is not None else "—"),
+                (_vc3, "IV Percentil",   f"{_pct:.0f}%".replace(".", ",") if _pct is not None else "—"),
+            ]:
+                _col_vg.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>{lbl}</div>"
+                    "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{val}</div>"
+                    "</div>".format(base=card_style, cor=_cor_vg, lbl=_lbl_vg, val=_val_vg),
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.caption("Volatilidade implícita indisponível para este ativo.")
+
     # ════════════════════════════════════════════════════════════════════
-    # ABA: PANORAMA (orientação pra quem não conhece a empresa)
+    # ABA: TESE (qualitativo: sobre o negócio, governança, outlook,
+    # estudo específico, panorama da empresa, par-a-par)
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "🧭 Panorama":
-        # ---- Governança e Outlook -- mudaram de Visão Geral pra aqui:
+    if aba_ativa == "🧠 Tese":
+        # ---- Sobre o Negócio (alimentado empresa por empresa) ----
+        _sobre = SOBRE_NEGOCIO.get(ticker)
+        if _sobre:
+            st.markdown(
+                "<span style='font-size:0.8em;color:#D4AF37;font-weight:bold;"
+                "text-transform:uppercase;letter-spacing:0.5px;'>Sobre o Negócio</span>",
+                unsafe_allow_html=True,
+            )
+            for _bloco in _sobre:
+                st.markdown(
+                    "<div style='{base}margin-bottom:10px;'>"
+                    "<div style='font-size:0.78em;color:#D4AF37;font-weight:700;"
+                    "text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;'>"
+                    "{titulo}</div>"
+                    "<div style='font-size:0.92em;color:#ddd;line-height:1.65;'>{texto}</div>"
+                    "</div>".format(base=card_style, titulo=_bloco["titulo"],
+                                   texto=_bloco["texto"]),
+                    unsafe_allow_html=True,
+                )
+            st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+            st.markdown("---")
+
+        # ---- Governança e Outlook ----
         # são texto descritivo/estrutural sobre a empresa, não status de
         # mercado do dia, então combinam mais com o espírito do Panorama. ----
         gov = GOVERNANCA.get(ticker, {})
@@ -5543,7 +5662,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: GRÁFICO (candlestick + volatilidade implícita)
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "📐 Vol. / Gráfico":
+    if False:  # Vol./Gráfico removido -- vol está na Visão Geral
         with st.spinner("Buscando volatilidade implícita..."):
             vol_info, erro_vol = get_volatilidade_ticker(ticker)
 
