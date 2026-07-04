@@ -36,7 +36,7 @@ IPCA_BASE = 0.06
 
 # Carimbo de versao - aparece na caixa de calculo. Se o app nao mostrar esta
 # versao, o engine novo NAO esta no ar (arquivo duplicado ou cache do deploy).
-VERSION = "v10 (incorporadora: DY normalizado 2-3a + crescimento projetado)"
+VERSION = "v11 (retorno composto: (1+DY)x(1+g)-1, igual ao modelo da foto)"
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
 # O desconto e a opcionalidade (kicker se fechar); a contingencia e o risco.
@@ -171,6 +171,12 @@ def _g_projetado(dados: dict):
     return IPCA_BASE, "inflacao (sem projecao confiavel)"
 
 
+def _tir_nominal(dy: float, g: float) -> float:
+    """Retorno nominal composto: (1+DY) x (1+g) - 1.
+    Matematicamente correto — DY+g e apenas aproximacao para numeros pequenos."""
+    return (1 + dy) * (1 + g) - 1
+
+
 def _tir_banco(dados: dict) -> ResultadoTIR:
     dy = _dec(dados.get("dy")) or 0.0
     roe = _dec(dados.get("roe"))
@@ -183,7 +189,7 @@ def _tir_banco(dados: dict) -> ResultadoTIR:
     fonte = "planilha" if (payout_real and payout_real > 0) else "default 40%"
     retencao = max(0.0, 1 - payout)
     g = _clamp(roe * retencao, PREMISSAS["g_piso"], PREMISSAS["g_teto"])
-    tir = dy + g
+    tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
         Passo("Dividend yield (DY)", _p(dy)),
@@ -191,7 +197,7 @@ def _tir_banco(dados: dict) -> ResultadoTIR:
         Passo(f"Payout ({fonte})", _p(payout)),
         Passo("Retencao (1 - payout)", _p(retencao)),
         Passo(f"g = ROE x retencao (teto {_p(PREMISSAS['g_teto'])})", _p(g)),
-        Passo("TIR nominal = DY + g", _p(tir)),
+        Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
     ]
     return r
 
@@ -200,13 +206,14 @@ def _tir_seguradora(dados: dict, ticker: str) -> ResultadoTIR:
     dy = _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "seguradora", NOME_METODO["seguradora"])
     g, fonte_g = _g_projetado(dados)
-    tir = dy + g
+    tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
-        Passo("Dividend yield (DY)", _p(dy)),
+        Passo("Earning yield (1/PL)", _p(1/dados["pl"]) if dados.get("pl") else "n/d"),
+        Passo("Dividend yield = EY x payout", _p(dy)),
         Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
-        Passo("TIR nominal = DY + g", _p(tir)),
-        Passo("Obs.", "Capital-light: cresce sem reter. Sua projecao ja embute o cenario."),
+        Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
+        Passo("Obs.", "Capital-light: cresce sem reter. Projecao ja embute o cenario."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
@@ -216,12 +223,12 @@ def _tir_qualidade(dados: dict) -> ResultadoTIR:
     dy = _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "qualidade", NOME_METODO["qualidade"])
     g, fonte_g = _g_projetado(dados)
-    tir = dy + g
+    tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
         Passo("Dividend yield (DY)", _p(dy)),
         Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
-        Passo("TIR nominal = DY + g", _p(tir)),
+        Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
         Passo("Obs.", "Motor e o crescimento (reinvestimento), nao o dividendo."),
     ]
     return r
@@ -229,18 +236,18 @@ def _tir_qualidade(dados: dict) -> ResultadoTIR:
 
 def _tir_incorporadora(dados: dict, ticker: str) -> ResultadoTIR:
     dy_atual = _dec(dados.get("dy")) or 0.0
-    dy_norm  = dados.get("dy_norm")              # media 2-3 anos (suaviza pico de ciclo)
+    dy_norm  = dados.get("dy_norm")
     dy       = dy_norm if dy_norm is not None else dy_atual
     r = ResultadoTIR(None, "incorporadora", NOME_METODO["incorporadora"])
     g, fonte_g = _g_projetado(dados)
-    tir = dy + g
+    tir = _tir_nominal(dy, g)
     r.tir = tir
     fonte_dy = "DY normalizado (media 2-3 anos)" if dy_norm is not None else "DY atual"
     r.memoria = [
         Passo(f"DY usado ({fonte_dy})", _p(dy)),
         Passo("DY atual (referencia)", _p(dy_atual)),
         Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
-        Passo("TIR nominal = DY + g", _p(tir)),
+        Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
         Passo("Cuidado", "Dividendo suavizado para nao creditar pico de ciclo como recorrente."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
@@ -250,14 +257,14 @@ def _tir_incorporadora(dados: dict, ticker: str) -> ResultadoTIR:
 def _tir_ciclica(dados: dict, ticker: str) -> ResultadoTIR:
     dy = _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "ciclica", NOME_METODO["ciclica"])
-    g = IPCA_BASE   # nao extrapola lucro/FCL de commodity; assume manter valor real
-    tir = dy + g
+    g = IPCA_BASE
+    tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
         Passo("Dividend yield (DY)", _p(dy)),
         Passo("g = inflacao (nao extrapola lucro ciclico)", _p(g)),
-        Passo("TIR nominal = DY + inflacao", _p(tir)),
-        Passo("Cuidado", "Ciclica: P/L e CAGR de lucro ignorados - enganam no pico/vale. Real ~= DY."),
+        Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
+        Passo("Cuidado", "Ciclica: P/L e CAGR ignorados — enganam no pico/vale. Real ~= DY."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
@@ -266,14 +273,14 @@ def _tir_ciclica(dados: dict, ticker: str) -> ResultadoTIR:
 def _tir_utility(dados: dict, ticker: str) -> ResultadoTIR:
     dy = _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "utility", NOME_METODO["utility"])
-    g = IPCA_BASE   # receita regulada indexada a inflacao: crescimento real ~ 0
-    tir = dy + g
+    g = IPCA_BASE
+    tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
         Passo("Dividend yield (DY)", _p(dy)),
         Passo("g = inflacao (receita regulada indexada)", _p(g)),
-        Passo("TIR nominal = DY + inflacao", _p(tir)),
-        Passo("Obs.", "Real ~= DY. Ideal futuro: DCF do fluxo regulado (WACC vs TIR indexada)."),
+        Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
+        Passo("Obs.", "Real ~= DY. Ideal futuro: DCF do fluxo regulado."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
@@ -288,24 +295,20 @@ def _tir_holding(dados: dict, ticker: str) -> ResultadoTIR:
         r.alerta = "Sem DY - holding depende do dividendo look-through."
         return r
     g = info.get("g_subjacente", IPCA_BASE)
-    tir = dy + g
+    tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
         Passo("DY reportado (ja amplificado pelo desconto)", _p(dy)),
         Passo("g da controlada", _p(g)),
-        Passo("TIR de renda = DY + g", _p(tir)),
+        Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
         Passo("Desconto de NAV (kicker se fechar)", _p(info["desconto"])),
         Passo("Contingencias / NAV (risco, cauda esquerda)", _p(info["contingencia_nav"])),
-        Passo("Obs.", "P/L contabil ignorado - contaminado por equivalencia patrimonial."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
 
 
-# ==========================================================================
-# API PUBLICA
-# ==========================================================================
-def classificar(ticker: str) -> Optional[str]:
+def classificar(ticker: str):
     return ARQUETIPO_POR_TICKER.get((ticker or "").upper())
 
 
