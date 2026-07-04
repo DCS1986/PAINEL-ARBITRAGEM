@@ -25,7 +25,8 @@ PREMISSAS = {
     "inflacao_lp":   0.045,   # inflacao de longo prazo
     "premio_risco":  0.045,   # equity risk premium
     "g_teto":        0.15,    # teto do crescimento (so corta absurdo; projecao conservadora fala)
-    "g_piso":        0.00,    # piso (projecao/CAGR negativo nao vira encolhimento perpetuo)
+    "g_piso":        0.06,    # piso = inflacao: todo negocio ao menos mantem valor real
+    #                          (com isso a TIR real nunca cai abaixo do proprio DY)
 }
 
 # Inflacao base pra converter a TIR NOMINAL em TIR REAL (formato "IPCA + X%",
@@ -35,7 +36,7 @@ IPCA_BASE = 0.06
 
 # Carimbo de versao - aparece na caixa de calculo. Se o app nao mostrar esta
 # versao, o engine novo NAO esta no ar (arquivo duplicado ou cache do deploy).
-VERSION = "v9 (formula por setor: banco/seguradora/qualidade/ciclica/utility/holding)"
+VERSION = "v10 (incorporadora: DY normalizado 2-3a + crescimento projetado)"
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
 # O desconto e a opcionalidade (kicker se fechar); a contingencia e o risco.
@@ -151,18 +152,23 @@ def _p(v: float) -> str:
 # METODOS POR ARQUETIPO
 # ==========================================================================
 def _g_projetado(dados: dict):
-    """Crescimento a partir da SUA projecao (conservadora): implicito no P/L
-    atual vs P/L projetado -> g = P/L atual / P/L projetado - 1. Se voce projeta
-    o lucro caindo (ex.: BBSE), o g sai baixo/zero sozinho. Fallback: CAGR."""
+    """Crescimento a partir da SUA projecao: implicito no P/L atual vs P/L
+    projetado -> g = P/L atual / P/L projetado - 1. So vale quando os dois P/L
+    estao na MESMA base (ambos por lucro liquido). Se a razao explode, e sinal
+    de base diferente (ex.: projetado por EBITDA numa ciclica, ou P/L atual
+    distorcido por LL negativo/cambio) -> a comparacao nao vale, cai no CAGR."""
     pl_atual = dados.get("pl_atual")
     pl_proj = dados.get("pl")            # P/L PROJETADO da planilha
     if pl_atual and pl_atual > 0 and pl_proj and pl_proj > 0:
-        g = pl_atual / pl_proj - 1
-        return _clamp(g, PREMISSAS["g_piso"], PREMISSAS["g_teto"]), "projecao (P/L atual vs projetado)"
+        g_raw = pl_atual / pl_proj - 1
+        # Trava de sanidade: crescimento anual plausivel entre -40% e +80%.
+        # Fora disso os dois P/L nao sao comparaveis (bases distintas).
+        if -0.40 <= g_raw <= 0.80:
+            return _clamp(g_raw, PREMISSAS["g_piso"], PREMISSAS["g_teto"]), "projecao (P/L atual vs projetado)"
     cagr = _dec(dados.get("cagr"))
     if cagr is not None:
         return _clamp(cagr, PREMISSAS["g_piso"], PREMISSAS["g_teto"]), "CAGR de lucros (fallback)"
-    return IPCA_BASE, "inflacao (sem projecao)"
+    return IPCA_BASE, "inflacao (sem projecao confiavel)"
 
 
 def _tir_banco(dados: dict) -> ResultadoTIR:
@@ -222,16 +228,20 @@ def _tir_qualidade(dados: dict) -> ResultadoTIR:
 
 
 def _tir_incorporadora(dados: dict, ticker: str) -> ResultadoTIR:
-    dy = _dec(dados.get("dy")) or 0.0
+    dy_atual = _dec(dados.get("dy")) or 0.0
+    dy_norm  = dados.get("dy_norm")              # media 2-3 anos (suaviza pico de ciclo)
+    dy       = dy_norm if dy_norm is not None else dy_atual
     r = ResultadoTIR(None, "incorporadora", NOME_METODO["incorporadora"])
     g, fonte_g = _g_projetado(dados)
     tir = dy + g
     r.tir = tir
+    fonte_dy = "DY normalizado (media 2-3 anos)" if dy_norm is not None else "DY atual"
     r.memoria = [
-        Passo("Dividend yield (DY)", _p(dy)),
+        Passo(f"DY usado ({fonte_dy})", _p(dy)),
+        Passo("DY atual (referencia)", _p(dy_atual)),
         Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
         Passo("TIR nominal = DY + g", _p(tir)),
-        Passo("Cuidado", "Lucro (P/L) distorcido por PoC; a projecao capta o crescimento real."),
+        Passo("Cuidado", "Dividendo suavizado para nao creditar pico de ciclo como recorrente."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
@@ -409,6 +419,26 @@ def render_tir_real(st, col_box, col_botao, res: ResultadoTIR, card_style: str):
             st.caption(f"engine {VERSION}")
 
 
+def _dy_normalizado(ativo_data):
+    """DY normalizado: media dos ultimos 2-3 anos COMPLETOS (exclui o ano
+    corrente, que costuma estar parcial). Suaviza o dividendo de pico das
+    ciclicas/incorporadoras sem carregar o passado magro de 5 anos. Retorna
+    decimal (ex.: 0.055) ou None se nao houver historico."""
+    import datetime
+    hist = ativo_data.get('historico_dy', {}) if isinstance(ativo_data, dict) else {}
+    if not hist:
+        return None
+    ano_atual = datetime.datetime.now().year
+    anos = sorted(a for a in hist.keys() if isinstance(a, int) and a < ano_atual)
+    if not anos:
+        anos = sorted(a for a in hist.keys() if isinstance(a, int))
+    ult = anos[-3:]                              # ate 3 anos completos mais recentes
+    vals = [hist[a] for a in ult if hist.get(a)]
+    if not vals:
+        return None
+    return (sum(vals) / len(vals)) / 100.0       # historico_dy em %, retorna decimal
+
+
 def montar_dados_tir(row, ativo_data, limpar_valor, pl_atual_val=None, dy_num=None):
     """Monta o dict de entrada da TIR a partir do row (planilha) e do
     ativo_data. Fonte unica, usada tanto pelo card quanto pela tabela, pra
@@ -430,6 +460,7 @@ def montar_dados_tir(row, ativo_data, limpar_valor, pl_atual_val=None, dy_num=No
         "pl": pl_para_tir,
         "pl_atual": pl_atual_val,
         "dy": (dy_num / 100) if dy_num else None,
+        "dy_norm": _dy_normalizado(ativo_data),
         "roe": (roe_raw / 100) if roe_raw else None,
         "pvp": pvp_raw or None,
         "payout": (payout_num / 100) if payout_num else None,
