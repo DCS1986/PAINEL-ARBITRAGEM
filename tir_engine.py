@@ -45,7 +45,7 @@ TICKERS_TIR_CONFIRMADA = {
     # Seguradoras com formula individual validada
     "BBSE3",   # yield-only (g=inflacao, TIR real = DY)
     "CXSE3",   # DY + 10% de crescimento
-    "PSSA3",   # framework seguradora (g projetado)
+    "PSSA3",   # Porto: EY*payout=DY, g=ROE*retencao (formula banco — validada no print)
     # Telecom
     "TIMS3",   # cenario medio: DY + 7% crescimento
 }
@@ -83,9 +83,10 @@ ARQUETIPO_POR_TICKER = {
     # 1) Banco -> DY + ROE x retencao (cresce retendo capital)
     **{t: "banco" for t in [
         "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6", "SANB3", "BMGB4",
+        "PSSA3",  # Porto: payout 50%, g=ROE*retencao — mesma formula dos bancos
     ]},
-    # 2) Seguradora -> DY + crescimento projetado (capital-light, payout ~100%)
-    **{t: "seguradora" for t in ["BBSE3", "PSSA3", "CXSE3", "IRBR3"]},
+    # 2) Seguradora -> DY + crescimento especifico (capital-light, payout alto)
+    **{t: "seguradora" for t in ["BBSE3", "CXSE3", "IRBR3"]},
     # 3) Qualidade / crescimento -> DY + crescimento projetado (motor: reinvestir)
     **{t: "qualidade" for t in [
         "WEGE3", "B3SA3", "GRND3", "LEVE3", "POMO4", "VULC3", "SHUL4",
