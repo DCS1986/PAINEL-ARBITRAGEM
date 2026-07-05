@@ -36,7 +36,17 @@ IPCA_BASE = 0.06
 
 # Carimbo de versao - aparece na caixa de calculo. Se o app nao mostrar esta
 # versao, o engine novo NAO esta no ar (arquivo duplicado ou cache do deploy).
-VERSION = "v11 (retorno composto: (1+DY)x(1+g)-1, igual ao modelo da foto)"
+VERSION = "v12 (bancos: EY*payout=DY, g=ROE*ret; BBSE yield-only; CXSE +10%)"
+
+# Tickers com TIR calculada com formula validada — exibidos em verde na tabela
+TICKERS_TIR_CONFIRMADA = {
+    # Bancos: formula EY*payout=DY, g=ROE*retencao
+    "ITUB4", "BBAS3", "BBDC3", "BPAC11", "SANB3", "ABCB4", "BRSR6", "BMGB4",
+    # Seguradoras com formula individual validada
+    "BBSE3",   # yield-only (g=inflacao, TIR real = DY)
+    "CXSE3",   # DY + 10% de crescimento
+    "PSSA3",   # framework seguradora (g projetado)
+}
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
 # O desconto e a opcionalidade (kicker se fechar); a contingencia e o risco.
@@ -178,23 +188,28 @@ def _tir_nominal(dy: float, g: float) -> float:
 
 
 def _tir_banco(dados: dict) -> ResultadoTIR:
-    dy = _dec(dados.get("dy")) or 0.0
-    roe = _dec(dados.get("roe"))
+    """Formula do print: EY = 1/PL_projetado, DY = EY x payout, g = (1-payout) x ROE_atual."""
+    pl   = dados.get("pl")       # P/L PROJETADO da planilha
+    roe  = _dec(dados.get("roe"))
     payout_real = dados.get("payout")
     r = ResultadoTIR(None, "banco", NOME_METODO["banco"])
-    if roe is None:
-        r.alerta = "Sem ROE - metodo de banco depende do ROE."
+    if roe is None or not pl or pl <= 0:
+        r.alerta = "Faltam PL projetado e/ou ROE."
         return r
     payout = _clamp(payout_real, 0, 1) if (payout_real and payout_real > 0) else 0.40
-    fonte = "planilha" if (payout_real and payout_real > 0) else "default 40%"
+    fonte_p = "planilha" if (payout_real and payout_real > 0) else "default 40%"
+    ey      = 1.0 / pl                          # Earning Yield = 1 / PL projetado
+    dy      = ey * payout                        # DY = EY x payout
     retencao = max(0.0, 1 - payout)
     g = _clamp(roe * retencao, PREMISSAS["g_piso"], PREMISSAS["g_teto"])
     tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
-        Passo("Dividend yield (DY)", _p(dy)),
-        Passo("ROE", _p(roe)),
-        Passo(f"Payout ({fonte})", _p(payout)),
+        Passo("P/L projetado (planilha)", f"{pl:.1f}x".replace(".", ",")),
+        Passo("Earning yield (EY = 1/PL)", _p(ey)),
+        Passo(f"Payout ({fonte_p})", _p(payout)),
+        Passo("Dividend yield = EY x payout", _p(dy)),
+        Passo("ROE atual", _p(roe)),
         Passo("Retencao (1 - payout)", _p(retencao)),
         Passo(f"g = ROE x retencao (teto {_p(PREMISSAS['g_teto'])})", _p(g)),
         Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
@@ -202,18 +217,32 @@ def _tir_banco(dados: dict) -> ResultadoTIR:
     return r
 
 
+# Crescimento fixo por ticker para seguradoras com formula validada
+_G_OVERRIDE_SEGURADORA = {
+    "BBSE3": IPCA_BASE,   # g = inflacao → TIR real = DY (sem crescimento real projetado)
+    "CXSE3": 0.10,        # g = 10% (crescimento validado pelo modelo do analista)
+}
+
+
 def _tir_seguradora(dados: dict, ticker: str) -> ResultadoTIR:
     dy = _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "seguradora", NOME_METODO["seguradora"])
-    g, fonte_g = _g_projetado(dados)
+    # Override: BBSE e CXSE usam crescimento fixo validado
+    if ticker in _G_OVERRIDE_SEGURADORA:
+        g = _G_OVERRIDE_SEGURADORA[ticker]
+        if ticker == "BBSE3":
+            fonte_g = "inflacao (sem crescimento real projetado para 2026)"
+        else:
+            fonte_g = "10% (crescimento validado)"
+    else:
+        g, fonte_g = _g_projetado(dados)
     tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
-        Passo("Earning yield (1/PL)", _p(1/dados["pl"]) if dados.get("pl") else "n/d"),
-        Passo("Dividend yield = EY x payout", _p(dy)),
-        Passo(f"g projetado ({fonte_g}, teto {_p(PREMISSAS['g_teto'])})", _p(g)),
+        Passo("Dividend yield (DY)", _p(dy)),
+        Passo(f"g ({fonte_g})", _p(g)),
         Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
-        Passo("Obs.", "Capital-light: cresce sem reter. Projecao ja embute o cenario."),
+        Passo("Obs.", "Capital-light: cresce sem reter capital."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r
