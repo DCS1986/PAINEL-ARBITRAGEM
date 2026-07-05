@@ -36,7 +36,7 @@ IPCA_BASE = 0.06
 
 # Carimbo de versao - aparece na caixa de calculo. Se o app nao mostrar esta
 # versao, o engine novo NAO esta no ar (arquivo duplicado ou cache do deploy).
-VERSION = "v12 (bancos: EY*payout=DY, g=ROE*ret; BBSE yield-only; CXSE +10%)"
+VERSION = "v12 (bancos: EY*payout=DY, g=ROE*ret; BBSE yield-only; CXSE +10%; TIMS g=7%)"
 
 # Tickers com TIR calculada com formula validada — exibidos em verde na tabela
 TICKERS_TIR_CONFIRMADA = {
@@ -45,7 +45,9 @@ TICKERS_TIR_CONFIRMADA = {
     # Seguradoras com formula individual validada
     "BBSE3",   # yield-only (g=inflacao, TIR real = DY)
     "CXSE3",   # DY + 10% de crescimento
-    "PSSA3",   # framework seguradora (g projetado)
+    "PSSA3",   # Porto: EY*payout=DY, g=ROE*retencao (formula banco — validada no print)
+    # Telecom
+    "TIMS3",   # cenario medio: DY + 7% crescimento
 }
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
@@ -81,9 +83,10 @@ ARQUETIPO_POR_TICKER = {
     # 1) Banco -> DY + ROE x retencao (cresce retendo capital)
     **{t: "banco" for t in [
         "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6", "SANB3", "BMGB4",
+        "PSSA3",  # Porto: payout 50%, g=ROE*retencao — mesma formula dos bancos
     ]},
-    # 2) Seguradora -> DY + crescimento projetado (capital-light, payout ~100%)
-    **{t: "seguradora" for t in ["BBSE3", "PSSA3", "CXSE3", "IRBR3"]},
+    # 2) Seguradora -> DY + crescimento especifico (capital-light, payout alto)
+    **{t: "seguradora" for t in ["BBSE3", "CXSE3", "IRBR3"]},
     # 3) Qualidade / crescimento -> DY + crescimento projetado (motor: reinvestir)
     **{t: "qualidade" for t in [
         "WEGE3", "B3SA3", "GRND3", "LEVE3", "POMO4", "VULC3", "SHUL4",
@@ -299,17 +302,27 @@ def _tir_ciclica(dados: dict, ticker: str) -> ResultadoTIR:
     return r
 
 
+# Crescimento validado por ticker para utilities com formula confirmada
+_G_OVERRIDE_UTILITY = {
+    "TIMS3": 0.07,   # cenario medio do modelo do analista (DY ~10.7% + g 7% = 18.5% embutido)
+}
+
+
 def _tir_utility(dados: dict, ticker: str) -> ResultadoTIR:
     dy = _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "utility", NOME_METODO["utility"])
-    g = IPCA_BASE
+    if ticker in _G_OVERRIDE_UTILITY:
+        g = _G_OVERRIDE_UTILITY[ticker]
+        fonte_g = f"{int(g*100)}% (cenario medio validado)"
+    else:
+        g = IPCA_BASE
+        fonte_g = "inflacao (receita regulada indexada)"
     tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
         Passo("Dividend yield (DY)", _p(dy)),
-        Passo("g = inflacao (receita regulada indexada)", _p(g)),
+        Passo(f"g = {fonte_g}", _p(g)),
         Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
-        Passo("Obs.", "Real ~= DY. Ideal futuro: DCF do fluxo regulado."),
     ]
     r.alerta = ALERTAS.get(ticker, "")
     return r

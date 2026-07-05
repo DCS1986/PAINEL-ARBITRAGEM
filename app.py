@@ -3366,6 +3366,72 @@ PANORAMA_EMPRESA = {
 }
 
 
+# Conteúdo qualitativo sobre o negócio — alimentado empresa por empresa.
+# Formato: lista de blocos {"titulo": str, "texto": str}.
+# Adicione novos tickers aqui à medida que forem sendo estudados.
+SOBRE_NEGOCIO = {
+    "CXSE3": [
+        {
+            "titulo": "Modelo de negócio",
+            "texto": (
+                "Distribui seguros, previdência e capitalização exclusivamente pela rede da "
+                "Caixa Econômica Federal — mais de 4.000 agências, 13.000 lotéricas e "
+                "correspondentes bancários. Não assume risco de subscrição: as seguradoras "
+                "parceiras assumem o risco e pagam comissão de distribuição e taxa de uso de "
+                "marca. É uma máquina de distribuição, não uma seguradora tradicional."
+            ),
+        },
+        {
+            "titulo": "O efeito empilhamento — a grande vantagem invisível",
+            "texto": (
+                "Todo financiamento imobiliário no Brasil exige por lei dois seguros "
+                "obrigatórios: MIP (Morte e Invalidez Permanente) e DFI (Danos Físicos ao "
+                "Imóvel). Ambos são embutidos na parcela e cobrados durante todo o prazo do "
+                "contrato — que pode durar de 10 a 35 anos. Cada novo financiamento "
+                "contratado na CEF empilha mais um contrato de seguro na carteira. Esses "
+                "contratos não vencem no mês seguinte: ficam gerando receita por décadas. "
+                "A base de recorrência cresce enquanto os financiamentos anteriores ainda "
+                "estão ativos e os novos continuam chegando."
+            ),
+        },
+        {
+            "titulo": "Motor de crescimento",
+            "texto": (
+                "A CEF superou R$ 1 trilhão em carteira de crédito imobiliário. Cada "
+                "financiamento habitacional gera automaticamente seguro prestamista e seguro "
+                "habitacional — o crescimento do crédito alimenta diretamente o crescimento "
+                "dos prêmios, sem necessidade de captação ativa de clientes."
+            ),
+        },
+        {
+            "titulo": "Liderança de mercado",
+            "texto": (
+                "Mais de 60% de market share em seguro habitacional no Brasil. O contrato "
+                "de exclusividade com a CEF e a distribuição capilar são praticamente "
+                "inreplicáveis por qualquer seguradora privada."
+            ),
+        },
+        {
+            "titulo": "Dinâmica atual",
+            "texto": (
+                "O segmento de acumulação (previdência, capitalização e consórcio) vem "
+                "surpreendendo positivamente. O prestamista segue pressionado pelos juros "
+                "altos — menos crédito consignado e pessoal — mas o resultado financeiro "
+                "(a própria Selic rendendo no float da operação) tem compensado."
+            ),
+        },
+        {
+            "titulo": "Risco principal",
+            "texto": (
+                "100% dependente da CEF como controladora e canal de distribuição. "
+                "Interferência política, mudança na estratégia habitacional do governo ou "
+                "alteração nas condições do FGTS afetam diretamente os resultados. "
+                "É o preço pelo monopólio de distribuição."
+            ),
+        },
+    ],
+}
+
 ESTUDOS_ESPECIFICOS = {
     "BBAS3": {
         "titulo": "P/VP raramente abaixo de 0,50x",
@@ -3873,6 +3939,71 @@ def get_fluxo_caixa_fundamentei(ticker):
     except Exception as e:
         return None, str(e)
 
+
+# Rótulos EXATOS de cada aba de Valuation do Fundamentei (o valor aparece
+# ANTES do rótulo na página). Confirmados na estrutura pública do site.
+_FUNDAMENTEI_ABAS = {
+    "VALUATION": ["P/R", "P/EBITDA"],
+    "PROFITABILITY": ["Margem EBITDA", "Margem EBIT", "D&A/EBITDA",
+                      "Capex/Receita", "Capex/D&A", "Capex/FCO"],
+    "GROWTH": ["CAGR Receita 5 anos", "CAGR Lucro Op. 5 anos",
+               "CAGR LPA 5 anos", "CAGR FCO 5 anos"],
+}
+
+
+def _fmei_num(txt):
+    """Converte texto do Fundamentei ('8,2%', '12,5', '—', '1.234,5') em
+    float ou None. Trata '%', traço de indisponível e formato BR."""
+    if txt is None:
+        return None
+    s = str(txt).strip().replace('%', '').replace('R$', '').strip()
+    if s in ('—', '-', '', 'N/A', 'n/a', 'nan'):
+        return None
+    s = s.replace('.', '').replace(',', '.')
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_indicadores_fundamentei(ticker):
+    """Raspa os indicadores das 4 abas de Valuation do Fundamentei (Valuation,
+    Lucratividade, Crescimento, Alavancagem). Retorna (dict rótulo->float|None,
+    erro). O valor vem ANTES do rótulo na página, então buscamos pra trás nos
+    1-2 elementos anteriores (evita pegar número de outro indicador)."""
+    resultado = {}
+    erro = None
+    for aba, rotulos in _FUNDAMENTEI_ABAS.items():
+        try:
+            url = f"https://fundamentei.com/br/{ticker.lower()}/valuation?tab={aba}"
+            r = requests.get(url, timeout=12, headers=_FUNDAMENTUS_HEADERS)
+            if r.status_code != 200:
+                erro = f"HTTP {r.status_code} ({aba})"
+                for rot in rotulos:
+                    resultado.setdefault(rot, None)
+                continue
+            soup = BeautifulSoup(r.text, 'html.parser')
+            textos = [t.strip() for t in soup.stripped_strings]
+            for rotulo in rotulos:
+                valor = None
+                for i, txt in enumerate(textos):
+                    if txt == rotulo:
+                        for j in range(i - 1, max(i - 3, -1), -1):
+                            v = _fmei_num(textos[j])
+                            if v is not None:
+                                valor = v
+                                break
+                        break
+                resultado[rotulo] = valor
+        except Exception as e:
+            erro = str(e)
+            for rot in rotulos:
+                resultado.setdefault(rot, None)
+
+    if not any(v is not None for v in resultado.values()):
+        return None, (erro or "nenhum indicador encontrado")
+    return resultado, erro
 
 
 # ---- Indicadores extras (ROIC, VPA, P/EBIT, EV/EBITDA, margens, liquidez) ----
@@ -4514,8 +4645,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.session_state.aba_ativa = "📊 Visão Geral"
         st.session_state.aba_ativa_ticker = ticker
 
-    _NOMES_ABAS = ["📊 Visão Geral", "🧭 Panorama", "💰 Valuation", "📈 Dividendos",
-                   "👤 Movimentação", "📑 Resultado", "📐 Vol. / Gráfico"]
+    _NOMES_ABAS = ["📊 Visão Geral", "💰 Valuation", "📈 Dividendos",
+                   "👤 Movimentação", "📑 Resultado", "🧠 Tese"]
     _cols_abas = st.columns(len(_NOMES_ABAS))
     for _col, _nome in zip(_cols_abas, _NOMES_ABAS):
         with _col:
@@ -4746,11 +4877,64 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             if rev_erro:
                 st.caption(f"🔧 Detalhe técnico: {rev_erro}")
 
+        # ---- Volatilidade Implícita / IV Rank / IV Percentil ----
+        st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<span style='font-size:0.8em;color:#D4AF37;font-weight:bold;"
+            "text-transform:uppercase;letter-spacing:0.5px;'>Volatilidade Implícita</span>",
+            unsafe_allow_html=True,
+        )
+        with st.spinner(""):
+            _vol_vg, _erro_vg = get_volatilidade_ticker(ticker)
+        if _vol_vg is not None:
+            _vi  = _vol_vg['vol_implicita']
+            _rnk = _vol_vg['iv_rank']
+            _pct = _vol_vg['iv_percentil']
+            _cor_vg = "#EF4444" if (_rnk or 0) >= 70 else ("#D4AF37" if (_rnk or 0) >= 30 else "#22C55E")
+            _vc1, _vc2, _vc3 = st.columns(3)
+            for _col_vg, _lbl_vg, _val_vg in [
+                (_vc1, "Vol. Implícita", f"{_vi:.2f}%".replace(".", ",") if _vi is not None else "—"),
+                (_vc2, "IV Rank",        f"{_rnk:.0f}%".replace(".", ",") if _rnk is not None else "—"),
+                (_vc3, "IV Percentil",   f"{_pct:.0f}%".replace(".", ",") if _pct is not None else "—"),
+            ]:
+                _col_vg.markdown(
+                    "<div style='{base}text-align:center;'>"
+                    "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>{lbl}</div>"
+                    "<div style='font-size:1.4em;font-weight:900;color:{cor};'>{val}</div>"
+                    "</div>".format(base=card_style, cor=_cor_vg, lbl=_lbl_vg, val=_val_vg),
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.caption("Volatilidade implícita indisponível para este ativo.")
+
     # ════════════════════════════════════════════════════════════════════
-    # ABA: PANORAMA (orientação pra quem não conhece a empresa)
+    # ABA: TESE (qualitativo: sobre o negócio, governança, outlook,
+    # estudo específico, panorama da empresa, par-a-par)
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "🧭 Panorama":
-        # ---- Governança e Outlook -- mudaram de Visão Geral pra aqui:
+    if aba_ativa == "🧠 Tese":
+        # ---- Sobre o Negócio (alimentado empresa por empresa) ----
+        _sobre = SOBRE_NEGOCIO.get(ticker)
+        if _sobre:
+            st.markdown(
+                "<span style='font-size:0.8em;color:#D4AF37;font-weight:bold;"
+                "text-transform:uppercase;letter-spacing:0.5px;'>Sobre o Negócio</span>",
+                unsafe_allow_html=True,
+            )
+            for _bloco in _sobre:
+                st.markdown(
+                    "<div style='{base}margin-bottom:10px;'>"
+                    "<div style='font-size:0.78em;color:#D4AF37;font-weight:700;"
+                    "text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;'>"
+                    "{titulo}</div>"
+                    "<div style='font-size:0.92em;color:#ddd;line-height:1.65;'>{texto}</div>"
+                    "</div>".format(base=card_style, titulo=_bloco["titulo"],
+                                   texto=_bloco["texto"]),
+                    unsafe_allow_html=True,
+                )
+            st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+            st.markdown("---")
+
+        # ---- Governança e Outlook ----
         # são texto descritivo/estrutural sobre a empresa, não status de
         # mercado do dia, então combinam mais com o espírito do Panorama. ----
         gov = GOVERNANCA.get(ticker, {})
@@ -4921,7 +5105,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "Projetado tende a ficar acima do P/L Atual."
         )
 
-# ---- Earnings Yield (1/P-L Atual) + TIR por arquétipo ----
+        # ---- Earnings Yield (1/P-L Atual) + TIR REAL por arquétipo ----
         st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
         if pl_atual_val and pl_atual_val > 0:
             ey_val = (1 / pl_atual_val) * 100
@@ -4930,48 +5114,14 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         else:
             ey_str, ey_cor = "—", "#888"
 
-        # TIR pelo método do arquétipo do ativo (ver tir_engine.py).
-        # Passa dy e roe em DECIMAL (/100); pvp e pl como estão.
-        _roe_tir = ativo_data.get('roe_num_raw', 0) if isinstance(ativo_data, dict) else 0
-        _pvp_tir = ativo_data.get('pvp_num_raw', 0) if isinstance(ativo_data, dict) else 0
-        _cot_tir = limpar_valor(str(row.get('Cotação atual', 0)).replace('R$', ''))
-        dados_tir = {
-            "preco": _cot_tir or None,
-            "pl": pl_atual_val,
-            "dy": (dy_num / 100) if dy_num else None,
-            "roe": (_roe_tir / 100) if _roe_tir else None,
-            "pvp": _pvp_tir or None,
-            "setor": row.get('SETOR', ''),
-        }
-        res_tir = calcular_tir(ticker, dados_tir)
-        if res_tir.tir is not None:
-            from tir_engine import IPCA_BASE
-            tir_real = (1 + res_tir.tir) / (1 + IPCA_BASE) - 1
-            tir_real_pct = tir_real * 100
-            tir_str = f"IPCA + {tir_real_pct:.1f}%".replace(".", ",")
-            tir_cor = "#22C55E" if tir_real_pct >= 8 else ("#D4AF37" if tir_real_pct >= 4 else "#EF4444")
-        else:
-            tir_str, tir_cor = "—", "#888"
-
         eytir1, eytir2, eytir3 = st.columns(3)
         _card_metric(eytir1, "Earnings Yield", ey_str, cor_valor=ey_cor)
-        _card_metric(eytir2, "TIR REAL", tir_str, cor_valor=tir_cor)
-        with eytir3:
-            with st.popover("🔍 Ver cálculo da TIR", use_container_width=True):
-                st.markdown(f"**Arquétipo:** {res_tir.arquetipo}")
-                st.markdown(f"**Método:** {res_tir.metodo}")
-                st.markdown("---")
-                for passo in res_tir.memoria:
-                    st.markdown(f"**{passo.rotulo}:** {passo.valor}")
-                if res_tir.alerta:
-                    st.warning(res_tir.alerta)
-                if res_tir.tir is None and not res_tir.memoria:
-                    st.caption("Sem dados suficientes para calcular a TIR deste ativo.")
+        render_tir(st, eytir2, eytir3, ticker, row, ativo_data, pl_atual_val, dy_num, card_style, limpar_valor)
 
         st.caption(
-            "Earnings Yield = 1 ÷ P/L Atual (quanto a empresa rende em lucro sobre o preço). "
-            "TIR = retorno anual esperado (nominal) pelo método do arquétipo do ativo — o botão "
-            "ao lado abre a memória de cálculo, passo a passo. Compare ambas com a Selic."
+            "Earnings Yield = 1 ÷ P/L Atual. TIR REAL = retorno anual real (nominal "
+            "descontado o IPCA base de 6%), no formato IPCA + X%, pelo método do arquétipo "
+            "do ativo — o botão ao lado abre a memória de cálculo, passo a passo."
         )
 
         # ---- Os 2 graficos lado a lado, cada um ocupando metade da pagina ----
@@ -4989,77 +5139,93 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
         st.markdown("#### 🔎 Indicadores")
 
-        # ---- Demais indicadores (Operacional + Fundamentus, unificados) ----
-        def _card_ind(col, titulo, valor, sufixo="", prefixo="", fmt="{:.2f}"):
-            texto = (prefixo + fmt.format(valor) + sufixo).replace(".", ",") if valor is not None else "—"
-            _card_metric(col, titulo, texto)
+        # ---- Indicadores unificados, agrupados por categoria ----
+        def _f1(v, suf="", pre=""):
+            return (pre + f"{v:.1f}{suf}").replace(".", ",") if v is not None else "\u2014"
 
-        i1, i2, i3, i4 = st.columns(4)
-        _card_metric(i1, "Dívida Líq/EBITDA", row.get('Dívida líquida/EBITDA', '-'), destaque=_destaca_div_ebitda)
-        _card_metric(i2, "CAGR Lucros", row.get('CAGR lucros (últ. 5 anos)', '-'))
-        _card_metric(i3, "ROE", roe, destaque=_destaca_pvp_roe)
-        _card_metric(i4, "Margem Líq.", margem)
-        i5, i6, i7, i8 = st.columns(4)
-        _card_metric(i5, "Beta (vs IBOV)", beta)
-        if ind_extras:
-            _card_ind(i6, "ROIC", roic_val, sufixo="%")
-            _card_ind(i7, "VPA", vpa_val, prefixo="R$ ")
-            _card_ind(i8, "PEG Ratio", peg_val, sufixo="x")
-            i9, i10, i11, i12 = st.columns(4)
-            # P/EBIT e EV/EBITDA não existem de forma confiável pra bancos e
-            # seguradoras -- essas empresas não têm "Receita Líquida" no
-            # formato industrial que EBIT/EBITDA pressupõe, então o Fundamentus
-            # às vezes retorna múltiplos absurdos (ex: -370x) pra esse tipo de
-            # negócio. Não é erro de leitura -- é a métrica errada pro setor.
-            if _setor_cat in ('banco', 'seguradora', 'holding'):
-                _card_metric(i9, "P/EBIT", "—")
-                _card_metric(i10, "EV/EBITDA", "—")
-            else:
-                _card_ind(i9, "P/EBIT", p_ebit_val, sufixo="x")
-                _card_ind(i10, "EV/EBITDA", ev_ebitda_val, sufixo="x")
-            _card_metric(i11, "P/VP", pvp_str if pvp_str != "-" else "—", destaque=_destaca_pvp_roe)
-            _card_ind(i12, "ROA", roa_val, sufixo="%")
-            if _setor_cat in ('banco', 'seguradora', 'holding'):
-                st.caption(
-                    "P/EBIT e EV/EBITDA não aparecem pra bancos/seguradoras/holdings de "
-                    "propósito — essas empresas não têm 'Receita Líquida' no formato "
-                    "industrial que esses múltiplos pressupõem, então o número que sairia "
-                    "não seria confiável (podia vir um valor absurdo, tipo -370x, sem "
-                    "significado real)."
-                )
+        def _f2(v, suf="", pre=""):
+            return (pre + f"{v:.2f}{suf}").replace(".", ",") if v is not None else "\u2014"
 
-            # ---- P/FCO e P/FCL (via Fundamentei, fonte nova) -- mostra
-            # quanto se paga pelo fluxo de caixa de verdade gerado, não só
-            # pelo lucro contábil. Mesma exclusão de banco/seguradora/holding
-            # que P/EBIT, pelo mesmo motivo estrutural. ----
-            st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-            if _setor_cat not in ('banco', 'seguradora', 'holding'):
-                _fdm_dados, _fdm_erro = get_fluxo_caixa_fundamentei(ticker)
-                i13, i14 = st.columns(2)
-                if _fdm_dados:
-                    _card_ind(i13, "P/FCO", _fdm_dados.get('p_fco'), sufixo="x")
-                    _card_ind(i14, "P/FCL", _fdm_dados.get('p_fcl'), sufixo="x")
-                    st.caption(
-                        "P/FCO e P/FCL = preço ÷ fluxo de caixa operacional/livre — mostram "
-                        "quanto se paga pelo caixa que a empresa REALMENTE gera, não pelo "
-                        "lucro contábil (que pode ter itens sem efeito caixa). Quanto menor, "
-                        "mais barata em relação à geração de caixa real. Fonte: Fundamentei. "
-                        "Se vier vazio, pode ser que a empresa esteja gerando caixa fraco/"
-                        "negativo nesse momento (ex: ciclo pesado de investimento), não "
-                        "necessariamente um erro de leitura."
-                    )
-                else:
-                    st.caption(f"P/FCO e P/FCL indisponíveis para este ativo ({_fdm_erro}).")
+        _sem_ebitda = _setor_cat in ('banco', 'seguradora', 'holding')
 
-            st.caption(
-                "PEG Ratio é calculado (P/L Projetado ÷ CAGR de Lucros) — abaixo de 1x "
-                "geralmente indica crescimento 'baixo' em relação ao preço pago; acima de "
-                "2x pode indicar preço esticado frente ao crescimento."
+        _fdm_dados = None
+        if not _sem_ebitda:
+            _fdm_dados, _fdm_erro = get_fluxo_caixa_fundamentei(ticker)
+        _fco = (_fdm_dados or {}).get('p_fco')
+        _fcl = (_fdm_dados or {}).get('p_fcl')
+
+        _ind_add, _ = get_indicadores_fundamentei(ticker)
+        _ia = _ind_add or {}
+
+        _grupos_ind = [
+            ("Valuation", [
+                ("P/VP", pvp_str if pvp_str != "-" else "\u2014", _destaca_pvp_roe, True),
+                ("P/R", _f1(_ia.get('P/R'), "x"), False, True),
+                ("P/EBIT", _f1(p_ebit_val, "x"), False, not _sem_ebitda),
+                ("P/EBITDA", _f1(_ia.get('P/EBITDA'), "x"), False, not _sem_ebitda),
+                ("EV/EBITDA", _f1(ev_ebitda_val, "x"), False, not _sem_ebitda),
+                ("P/FCO", _f1(_fco, "x"), False, not _sem_ebitda),
+                ("P/FCL", _f1(_fcl, "x"), False, not _sem_ebitda),
+                ("PEG Ratio", _f1(peg_val, "x"), False, True),
+                ("VPA", _f2(vpa_val, "", "R$ "), False, True),
+            ]),
+            ("Rentabilidade", [
+                ("ROE", roe, _destaca_pvp_roe, True),
+                ("ROIC", _f1(roic_val, "%"), False, True),
+                ("ROA", _f1(roa_val, "%"), False, True),
+                ("Margem Liq.", margem, False, True),
+                ("Margem EBITDA", _f1(_ia.get('Margem EBITDA'), "%"), False, not _sem_ebitda),
+                ("Margem EBIT", _f1(_ia.get('Margem EBIT'), "%"), False, not _sem_ebitda),
+            ]),
+            ("Capex & Fluxo de Caixa", [
+                ("D&A/EBITDA", _f1(_ia.get('D&A/EBITDA'), "%"), False, not _sem_ebitda),
+                ("Capex/Receita", _f1(_ia.get('Capex/Receita'), "%"), False, not _sem_ebitda),
+                ("Capex/D&A", _f1(_ia.get('Capex/D&A'), "%"), False, not _sem_ebitda),
+                ("Capex/FCO", _f1(_ia.get('Capex/FCO'), "%"), False, not _sem_ebitda),
+            ]),
+            ("Crescimento (5 anos)", [
+                ("CAGR Lucros", row.get('CAGR lucros (\u00faltimos 5 anos)', row.get('CAGR lucros (\u00falt. 5 anos)', '-')), False, True),
+                ("CAGR Receita", _f1(_ia.get('CAGR Receita 5 anos'), "%"), False, True),
+                ("CAGR Lucro Op.", _f1(_ia.get('CAGR Lucro Op. 5 anos'), "%"), False, True),
+                ("CAGR LPA", _f1(_ia.get('CAGR LPA 5 anos'), "%"), False, True),
+                ("CAGR FCO", _f1(_ia.get('CAGR FCO 5 anos'), "%"), False, True),
+            ]),
+            ("Endividamento & Risco", [
+                ("Divida Liq/EBITDA", row.get('D\u00edvida l\u00edquida/EBITDA', '-'), _destaca_div_ebitda, True),
+                ("Divida/Patrim.", _f2(div_liq_patrim_val), False, True),
+                ("Beta (vs IBOV)", beta, False, True),
+            ]),
+        ]
+
+        for _nome_g, _cards in _grupos_ind:
+            _vis = [c for c in _cards if c[3]]
+            if not _vis:
+                continue
+            st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+            st.markdown(
+                f"<span style='font-size:0.8em;color:#D4AF37;font-weight:bold;"
+                f"text-transform:uppercase;letter-spacing:0.5px;'>{_nome_g}</span>",
+                unsafe_allow_html=True,
             )
-        else:
-            st.info("Indicadores extras indisponíveis para este ativo.")
-            if erro_ind:
-                st.caption(f"🔧 Detalhe técnico: {erro_ind}")
+            for _k in range(0, len(_vis), 4):
+                _linha = _vis[_k:_k + 4]
+                _cols = st.columns(4)
+                for _idx, (_tit, _txt, _dest, _) in enumerate(_linha):
+                    _card_metric(_cols[_idx], _tit, _txt, destaque=_dest)
+
+        st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
+        if _sem_ebitda:
+            st.caption(
+                "Para bancos, seguradoras e holdings, os m\u00faltiplos e margens baseados em "
+                "EBITDA/Capex s\u00e3o omitidos de prop\u00f3sito \u2014 n\u00e3o fazem sentido para o modelo "
+                "de neg\u00f3cio desses setores (sairiam valores sem significado real)."
+            )
+        st.caption(
+            "PEG Ratio = P/L Projetado \u00f7 CAGR de Lucros. Abaixo de 1x costuma indicar "
+            "crescimento barato frente ao pre\u00e7o; acima de 2x, pre\u00e7o esticado."
+        )
+        if not ind_extras and erro_ind:
+            st.caption(f"Alguns indicadores (ROIC, VPA, etc.) est\u00e3o indispon\u00edveis agora ({erro_ind}).")
 
         # ---- Percentil Setorial ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
@@ -5496,7 +5662,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # ════════════════════════════════════════════════════════════════════
     # ABA: GRÁFICO (candlestick + volatilidade implícita)
     # ════════════════════════════════════════════════════════════════════
-    if aba_ativa == "📐 Vol. / Gráfico":
+    if False:  # Vol./Gráfico removido -- vol está na Visão Geral
         with st.spinner("Buscando volatilidade implícita..."):
             vol_info, erro_vol = get_volatilidade_ticker(ticker)
 
@@ -6224,15 +6390,11 @@ else:
                 r = a['row']
                 tk = r['CÓDIGO']
                 _fdm_tab, _ = get_fluxo_caixa_fundamentei(tk)
-                _vol_tab = _vol_dados_tabela.get(tk, {})
-                # P/L atual do Fundamentus (para o motor de banco: EY = 1/PL)
                 _ind_tab, _ = get_indicadores_fundamentus(tk)
-                _pl_at_tab  = _ind_buscar(_ind_tab, 'p/l', 'p / l') if _ind_tab else None
+                _pl_at_tab = _ind_buscar(_ind_tab, 'p/l', 'p / l') if _ind_tab else None
                 if _pl_at_tab is not None and (_pl_at_tab <= 0 or _pl_at_tab > 300):
                     _pl_at_tab = None
-                _tir_val = tir_real_valor(tk, r, a, limpar_valor,
-                                          pl_atual_val=_pl_at_tab,
-                                          dy_num=a.get('dy_num'))
+                _vol_tab = _vol_dados_tabela.get(tk, {})
                 linhas_tabela.append({
                     'Logo': a.get('logo_url', '') or None,
                     'Ticker': tk,
@@ -6246,12 +6408,12 @@ else:
                     'ROE (%)': a.get('roe_num_raw', 0) or None,
                     'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
-                    'TIR Real (%)': _tir_val,
+                    'TIR Real (%)': tir_real_valor(tk, r, a, limpar_valor, pl_atual_val=_pl_at_tab),
+                    '_confirmada': tk in TICKERS_TIR_CONFIRMADA,
                     'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
                     'P/FCO': (_fdm_tab or {}).get('p_fco'),
                     'P/FCL': (_fdm_tab or {}).get('p_fcl'),
                     'Vol. Implícita (%)': _vol_tab.get('vol_implicita'),
-                    '_confirmada': tk in TICKERS_TIR_CONFIRMADA,
                 })
             df_tabela = pd.DataFrame(linhas_tabela)
 
@@ -6261,40 +6423,13 @@ else:
                 cor = "#22C55E" if v > 0 else ("#EF4444" if v < 0 else "#D4AF37")
                 return f"color: {cor}; font-weight: 700;"
 
-            def _cor_tir_confirmada(v):
-                """Verde para TIR calculada com formula validada."""
-                if pd.isna(v) or v is None:
-                    return ''
-                return "color: #22C55E; font-weight: 700;"
-
-            # Aplicar verde só nas linhas com TIR confirmada
-            def _style_tir(row):
-                styles = [''] * len(row)
-                if row.get('_confirmada') and pd.notna(row.get('TIR Real (%)')):
-                    idx = list(row.index).index('TIR Real (%)')
-                    styles[idx] = "color: #22C55E; font-weight: 700;"
-                return styles
-
-            styler_tabela = (
-                df_tabela.drop(columns=['_confirmada'])
-                .style
-                .map(_cor_variacao_tabela, subset=['Var. Dia (%)'])
-                .apply(_style_tir, axis=1,
-                       subset=pd.IndexSlice[:, ['TIR Real (%)']])
-            )
-            # Reintroduz a coluna _confirmada como referência para o apply
-            styler_tabela = (
-                df_tabela.drop(columns=['_confirmada'])
-                .style
-                .map(_cor_variacao_tabela, subset=['Var. Dia (%)'])
-            )
-            # Colorir TIR verde para tickers confirmados
-            tir_col = 'TIR Real (%)'
-            confirmadas_mask = df_tabela['_confirmada'] & df_tabela[tir_col].notna()
+            confirmadas_mask = df_tabela['_confirmada'] & df_tabela['TIR Real (%)'].notna()
+            styler_tabela = df_tabela.drop(columns=['_confirmada']).style.map(
+                _cor_variacao_tabela, subset=['Var. Dia (%)'])
             if confirmadas_mask.any():
                 styler_tabela = styler_tabela.map(
                     lambda v: "color: #22C55E; font-weight: 700;",
-                    subset=pd.IndexSlice[confirmadas_mask[confirmadas_mask].index, [tir_col]]
+                    subset=pd.IndexSlice[confirmadas_mask[confirmadas_mask].index, ['TIR Real (%)']]
                 )
 
             st.dataframe(
@@ -6312,6 +6447,7 @@ else:
                     'ROE (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'CAGR Lucros (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'Earnings Yield (%)': st.column_config.NumberColumn(format="%.1f%%"),
+                    'TIR Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
                     'TIR Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
                     'Dívida Líq/EBITDA': st.column_config.NumberColumn(format="%.1fx"),
                     'P/FCO': st.column_config.NumberColumn(format="%.1fx"),
