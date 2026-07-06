@@ -2159,40 +2159,59 @@ PANORAMA_EMPRESA = {
                      "crescimento orgânico forte.",
     },
     "BBSE3": {
-        "o_que_faz": "A BB Seguridade é uma holding de seguros, previdência e "
-                     "capitalização ligada ao Banco do Brasil — não vende diretamente, usa "
-                     "a rede de agências do BB pra distribuir os produtos das suas "
-                     "controladas/joint ventures (Brasilseg, Brasilprev, Brasilcap, "
-                     "Brasildental).",
+        "o_que_faz": "A BB Seguridade (BB Seguros) é a maior empresa de seguros da América "
+                     "Latina em valor de mercado. Holding que detém 100% da BB Seguros "
+                     "(que controla Brasilseg, Brasilprev, Brasilcap e Brasildental) e 100% "
+                     "da BB Corretora. Não assume risco de subscrição — distribui produtos "
+                     "dos parceiros (Mapfre, Principal Financial Group) pela rede do Banco "
+                     "do Brasil, com +91 milhões de clientes. Lucro recorrente R$9,1bi em "
+                     "2025 (CAGR +19% em 5 anos). Desde o IPO em 2013, distribuiu "
+                     "R$61,6bi em dividendos — 1,8x o valor de mercado. Ação +472% desde "
+                     "o IPO vs IBOV +242%.",
         "segmentos": [
-            ("Seguro Rural (Brasilseg)", "35,9% do lucro — a maior fatia, maior até que "
-             "previdência ou vida. Líder absoluta com 62,9% de market share, mas só ~7% "
-             "da área agrícola brasileira tem seguro."),
-            ("Previdência (Brasilprev)", "22,6% do lucro — maior empresa de previdência "
-             "privada do país, R$484bi em reservas."),
-            ("Prestamista", "15,4% do lucro — seguro que protege operações de crédito, "
-             "crescendo junto com o crédito brasileiro."),
-            ("Vida e Capitalização", "13,2% + 6% do lucro — segmentos mais estáveis e "
-             "diversificadores."),
+            ("Seguro Rural (Brasilseg) — 35,9% do resultado", "Leader absoluta: 62,9% de "
+             "market share em seguros rurais. Produtos: agrícola (contra intempéries e queda "
+             "de preço), penhor rural (ativo em garantia) e vida produtor rural. CAGR +11% "
+             "em prêmios. Contrato até 06/2031. Risco: só 7% da área agrícola tem seguro — "
+             "enorme potencial, mas exposição a El Niño e ciclo do agro."),
+            ("Previdência (Brasilprev) — 22,6% do resultado", "Maior gestora de previdência "
+             "privada do Brasil: 38,4% market share em contribuições e 26,6% em reservas. "
+             "Reservas de R$484bi (CAGR +10%). PGBL e VGBL distribuídos na rede BB. "
+             "Lucro CAGR +19%. Contrato até 10/2032."),
+            ("Prestamista (Brasilseg) — 15,4% do resultado", "12,6% de market share — "
+             "líder no segmento. Seguro que garante pagamento de dívida em caso de morte "
+             "do mutuário. Cresce com o crédito consignado. Contrato até 06/2031."),
+            ("Vida (Brasilseg) — 13,2% do resultado", "9,5% de market share (3º lugar). "
+             "Produto não-cumulativo — se o cliente para de pagar, cobertura é suspensa "
+             "sem reversão de valor. Sinistralidade caiu 11,6 pp nos últimos 5 anos."),
+            ("Capitalização (Brasilcap) — 6,0% do resultado", "25,5% market share em "
+             "reservas e 20,7% em arrecadação. Lucro CAGR +208%. Reservas R$11,4bi. "
+             "Beneficiado pela Selic alta."),
+            ("BB Corretora — distribuição", "Margem líquida de 61,7% no 1T26. Receita "
+             "de corretagem CAGR +9%. Contrato até 01/2033. É o 'sistema nervoso' que "
+             "conecta os produtos de seguros à rede BB."),
         ],
-        "insight_chave": "A maior fatia do lucro da BB Seguridade não vem de previdência "
-                     "nem de seguro de vida — vem do Seguro Rural (35,9%). Isso significa "
-                     "que o resultado da empresa está mais ligado à saúde do agronegócio "
-                     "brasileiro (safra, clima, crédito rural) do que a maioria das pessoas "
-                     "imagina quando pensa numa 'seguradora ligada a banco'. Foi exatamente "
-                     "isso que pressionou o resultado no 1T26: os prêmios do segmento "
-                     "agrícola caíram 27,9% A/A por causa de um agro mais fraco. Ao mesmo "
-                     "tempo, a empresa avalia que só 7% da área agrícola tem seguro hoje — "
-                     "vê isso como o segmento com mais espaço pra crescer no longo prazo, "
-                     "mesmo sendo o mais sensível no curto prazo.",
-        "setor_dinamica": "Seguros e previdência distribuídos via rede bancária — modelo "
-                     "de baixíssimo custo de aquisição (usa a estrutura do Banco do Brasil, "
-                     "que é também o controlador com 68% do capital). Receitas diferidas "
-                     "(R$14,9bi em prêmios + R$6,3bi em comissões a apropriar) funcionam "
-                     "como um 'colchão' que reduz a volatilidade trimestre a trimestre. O "
-                     "resultado tem dupla blindagem: em cenário de juros altos, o resultado "
-                     "financeiro (rendimento das reservas) compensa um resultado "
-                     "operacional mais fraco — foi exatamente o que sustentou o 1T26.",
+        "insight_chave": "O 'contrato até 2033' que o mercado teme esconde a realidade: "
+                     "os contratos são DIFERENTES por subsidiária. Brasilseg e Prestamista "
+                     "vão até 2031, Brasilprev até 2032, BB Corretora até 2033 e "
+                     "Brasildental até 2035. A renovação acontece de forma escalonada, "
+                     "não de uma vez só — e a empresa já renovou e reestruturou contratos "
+                     "historicamente (parceria com Mapfre reformulada em 2019 para focar "
+                     "no canal bancário). Além disso, o guidance 2026 projeta queda de "
+                     "resultado operacional (-7% a -3%), mas o 1T26 já entregou +1,3% — "
+                     "à frente do guidance. O resultado financeiro (Selic rendendo nas "
+                     "reservas) foi R$507mi no 1T26, +58,5% A/A — representa 22,8% do "
+                     "resultado total e atua como 'colchão' quando o operacional fraqueja.",
+        "setor_dinamica": "O Brasil tem uma das menores penetrações de seguros do mundo "
+                     "(prêmios/PIB de 3,4% vs 12,7% nos EUA e 11,8% no Reino Unido). "
+                     "Apenas 7% da área agrícola está segurada. A combinação de renda "
+                     "crescente, formalização do crédito e baixa penetração cria um runway "
+                     "secular de crescimento para seguros no Brasil. O modelo bancassurance "
+                     "(distribuição via banco) é o mais eficiente: custo de aquisição "
+                     "quase zero, já que a rede do BB é paga para servir ao cliente "
+                     "de qualquer forma. A receita diferida (R$14,9bi em prêmios + "
+                     "R$6,3bi em comissões a apropriar) funciona como colchão: em ciclos "
+                     "ruins, a empresa apropia receitas já contratadas.",
     },
     "ITUB4": {
         "o_que_faz": "O Itaú Unibanco é o maior banco privado da América Latina, com "
@@ -6543,9 +6562,8 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        # PANORAMA_EMPRESA só exibe se não há PERFIL_EMPRESA (dossiê)
-        # para evitar duplicação de receita e informações divergentes
-        panorama = PANORAMA_EMPRESA.get(ticker) if not _perfil else None
+        # PANORAMA_EMPRESA sempre exibido quando existir — é conteúdo diferente do PERFIL
+        panorama = PANORAMA_EMPRESA.get(ticker)
         if panorama:
             st.markdown(
                 "<div style='font-size:1.05em;color:#F1EFE8;line-height:1.65;"
