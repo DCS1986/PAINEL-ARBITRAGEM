@@ -7741,6 +7741,15 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
     for a in ativos_com_score:
         a['score'] = round(min(a['score'], 9.5), 1)
 
+    # Pré-carregar Fundamentei em background para que a tabela abra rápido.
+    # Como get_fluxo_caixa_fundamentei tem cache de 24h, a segunda chamada
+    # (na tabela) retorna instantaneamente do cache.
+    for a in ativos_com_score:
+        try:
+            get_fluxo_caixa_fundamentei(a['row']['CÓDIGO'])
+        except Exception:
+            pass
+
     return ativos_com_score
 
 
@@ -7953,8 +7962,8 @@ else:
                 r = a['row']
                 tk = r['CÓDIGO']
                 _fdm_tab, _ = get_fluxo_caixa_fundamentei(tk)
-                _ind_tab, _ = get_indicadores_fundamentus(tk)
-                _pl_at_tab = _ind_buscar(_ind_tab, 'p/l', 'p / l') if _ind_tab else None
+                # P/L já está em a['pl_num'] — sem chamar Fundamentus de novo
+                _pl_at_tab = a.get('pl_num') or None
                 if _pl_at_tab is not None and (_pl_at_tab <= 0 or _pl_at_tab > 300):
                     _pl_at_tab = None
                 _vol_tab = _vol_dados_tabela.get(tk, {})
