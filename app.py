@@ -3370,68 +3370,1532 @@ PANORAMA_EMPRESA = {
 # Formato: lista de blocos {"titulo": str, "texto": str}.
 # Adicione novos tickers aqui à medida que forem sendo estudados.
 SOBRE_NEGOCIO = {
+    "ABCB4": [
+        {"titulo": "Como funciona o negócio", "texto": "O ABC Brasil é o mais puro exemplo de especialização no setor bancário brasileiro. Não tem agência para pessoa física. Não tem conta corrente de varejo. Não tem cartão de crédito PF. Atende exclusivamente médias e grandes empresas (segmento middle market, corporate e large corporate) com crédito, trade finance (financiamento ao comércio exterior), câmbio, derivativos, banco de investimento e seguros corporativos. Controlado pelo Arab Banking Corporation (banco árabe do Barein), tem acesso facilitado a funding internacional e a uma rede de relacionamentos no Oriente Médio que nenhum banco brasileiro replica. A inadimplência histórica abaixo de 1% é o resultado de 35 anos atendendo quem tem balanço para mostrar — empresas com faturamento mínimo de R$30 mi anuais."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Margem com clientes (crédito corporativo):</b> spread sobre carteira de R$32+ bi<br><b>~20% — Margem com mercado e tesouraria:</b> PL remunerado ao CDI + operações de mercado<br><b>~15% — Receitas de serviços:</b> banco de investimento, tarifas, câmbio<br><b>~10% — Seguros e outros:</b> "},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Inadimplência histórica < 1% — resultado de 35 anos emprestando apenas para empresas com balanço<br>✦ Sem exposição ao varejo PF: não sofre com inadimplência de cartão, crédito pessoal ou PME de baixa renda<br>✦ Funding internacional (via Arab Banking Corp) com custo menor que captação doméstica — vantagem de spread<br>✦ Modelo de negócio simples, previsível e escalável — sem a complexidade operacional de um banco universal<br>✦ Alta correlação de receitas com o CDI: PL remunerado a CDI + margem com clientes = proteção natural em juro alto"},
+        {"titulo": "Riscos principais", "texto": "⚠ Concentração: poucas carteiras grandes — uma inadimplência relevante pontual impacta mais que num banco pulverizado<br>⚠ Crescimento limitado: não tem varejo para escalar rapidamente — cresce no ritmo das empresas que serve<br>⚠ Controlador estrangeiro: decisões podem ser influenciadas por dinâmicas do Arab Banking Corporation<br>⚠ Exposição ao ciclo corporativo: recessão severa aumenta inadimplência mesmo no atacado"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 35 anos de relacionamento com o middle e large corporate brasileiro. Empresa de faturamento R$300 mi não troca de banco por conveniência — o relacionamento, o limite de crédito aprovado e as operações estruturadas em curso criam um lock-in real. Mais o funding árabe, que nenhum banco brasileiro vai replicar."},
+    ],
+    "ALOS3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Allos nasceu da fusão entre a Aliansce Shopping Centers e a Sonae Sierra Brasil em 2019, e foi renomeada em 2022 para refletir o reposicionamento estratégico. Com 44 shoppings e mais de 11.000 lojas, é o maior portfólio do Brasil em número de ativos. A estratégia é de escala e diversificação geográfica: presente em todas as regiões, com shoppings de médio e grande porte que atendem diferentes perfis de consumidor. Além do aluguel tradicional, a Allos tem dois vetores de crescimento adicionais: a Helloo (plataforma de mídia em shoppings — painéis, aeroportos, mídia digital), que cresce rápido e tem margens melhores que o aluguel; e um pipeline de expansão via ABL incremental nos shoppings existentes. Em 2026, o incêndio no Shopping Tijuca (janeiro) impactou ~6% da receita de aluguel temporariamente — o ativo operou com capacidade reduzida no 1T26."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Aluguel mínimo garantido:</b> base fixa dos contratos de locação, reajustada por IGP-M/IPCA<br><b>~20% — Aluguel variável (% das vendas):</b> percentual sobre vendas dos lojistas — cresce com SSS<br><b>~12% — Estacionamento e serviços:</b> receita de rotatividade e serviços aos lojistas<br><b>~8% — Helloo (mídia em shoppings e aeroportos):</b> crescimento acelerado; margens superiores ao aluguel<br><b>~5% — Cessão de direito e outros:</b> key money e receitas imobiliárias não recorrentes"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ 44 shoppings: maior diversificação geográfica do setor — nenhum ativo representa mais de 10% da receita<br>✦ Helloo: plataforma de mídia em crescimento com margens superiores ao aluguel e receitas crescentes<br>✦ DY de ~9% em 2026: alta distribuição de FCL atrativa para investidores de renda<br>✦ Valuation com desconto (10x FFO) vs Multiplan — potencial de re-rating se qualidade do portfólio melhorar<br>✦ Recompras de ações ativas: programa de buyback aumenta o FFO por ação sem crescimento operacional"},
+        {"titulo": "Riscos principais", "texto": "⚠ Portfólio de qualidade média: 58% da receita vem de shoppings com vendas < R$1 bi/ano<br>⚠ Incêndio no Tijuca (jan/2026): impacto temporário mas real de ~6% da receita<br>⚠ Selic alta comprime o valuation: shopping é ativo de duration longa — taxa de desconto importa<br>⚠ Conversão de 9,6%: menor poder de precificação vs Multiplan — lojistas pagam menos por real de venda<br>⚠ Integração ainda em andamento: fusão de 2019 ainda sendo otimizada em sistemas e processos"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 44 concessões em pontos estratégicos das cidades. Um shopping bem localizado é inreplicável — não se constrói outro no mesmo quarteirão. O custo de construção de um shopping novo (R$500 mi a R$2 bi) e o tempo de maturação (5-7 anos para atingir ocupação plena) criam uma barreira de entrada altíssima. A Helloo adiciona uma barreira de rede: 44 shoppings + aeroportos criam escala de mídia que anunciantes pagam prêmio para acessar."},
+    ],
+    "ALUP11": [
+        {"titulo": "Como funciona o negócio", "texto": "A Alupar é uma holding privada de controle nacional que opera transmissão e geração no Brasil e na América Latina. No Brasil, detém 9.576 km de linhas de transmissão em 42 sistemas — a terceira maior transmissora privada do país em RAP. No exterior, opera no Peru (6 projetos de transmissão + 1 PCH), na Colômbia (PCH Morro Azul + 2 transmissoras, incluindo concessão VITALÍCIA) e no Chile. O modelo é transmissão como core (~75% do EBITDA, RAP previsível) complementado por geração (4 UHEs, 4 PCHs, 7 eólicos, 1 solar — 798 MW). A geração serve para complementar, não como motor principal. O grande diferencial: com 17% das receitas em USD após os projetos do Peru, a Alupar reduz a exposição à regulação brasileira. Está em ciclo pesado de capex (R$9 bi no ciclo atual), o que comprime o DY hoje mas cria o pipeline de crescimento para os próximos 5-7 anos."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~65% — RAP de transmissão Brasil:</b> 42 sistemas; IPCA e IGPM; projetos entrando até 2029<br><b>~20% — Geração renovável Brasil:</b> hídrica, eólica, PCH, solar — 798 MW; PPAs de longo prazo<br><b>~15% — Transmissão e geração América Latina:</b> Peru, Colômbia, Chile — crescente; parte em USD"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Controle 100% nacional: fundadores operam e são donos — alinhamento total de interesses<br>✦ Concessão vitalícia na Colômbia: ativo único no setor — RAP sem prazo de vencimento<br>✦ Expansão em USD (Peru): hedge natural contra depreciação do real<br>✦ Pipeline de entrada operacional: projetos entram até 2029 gerando RAP incremental<br>✦ TIR real implícita de ~8,1%: superior à Taesa (~4,7%) e próxima da ISA (~7,7%)"},
+        {"titulo": "Riscos principais", "texto": "⚠ Alavancagem em pico de ~4x: capex de R$9 bi nos próximos anos pressiona o balanço<br>⚠ Risco regulatório externo: Peru, Colômbia e Chile têm marcos menos previsíveis que o Brasil<br>⚠ DY atual baixo (~3%): ciclo de capex comprime dividendo; investidor de renda pode se frustrar<br>⚠ Curtailment na geração eólica: afeta receita do segmento de geração<br>⚠ Execução simultânea: 12 projetos em andamento, 9 fora do Brasil — gestão complexa"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Concessões de 30 anos — e na Colômbia, vitalícia. A capacidade de executar transmissão em países com regulação distinta é expertise que poucos têm e que anos de presença no exterior constroem. A escala de 9.576 km de linhas abre portas em leilões onde operadores menores não conseguem participar. E o controle familiar alinhado garante que o retorno ao acionista é o objetivo, não objetivos políticos."},
+    ],
+    "AXIA3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Axia é a antiga Eletrobras — a maior empresa do setor elétrico brasileiro, com cerca de 30 GW de capacidade instalada e participação em dezenas de concessões de geração e transmissão. A privatização de 2022 foi o maior evento do setor em décadas, mas a transição ainda está sendo digerida. O portfólio tem uma peculiaridade: parte significativa das usinas opera em 'regime de cotas' — um modelo regulatório onde a energia é dividida entre distribuidoras a preço fixo, tirando a geração do mercado livre. O processo de 'descotização' (sair das cotas) está em andamento mas é lento, o que significa que o portfólio ainda é menos lucrativo do que poderia ser. Em 2025 concluiu a migração para o Novo Mercado da B3, simplificou a estrutura acionária e iniciou a venda de ativos não-estratégicos — são os primeiros sinais de que a gestão privada está gerando valor."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~50% — Geração hídrica em cotas:</b> preço regulado; menos lucrativo que o mercado livre<br><b>~30% — Geração hídrica em ACL (mercado livre):</b> preço de mercado — potencial de crescimento com descotização<br><b>~15% — Transmissão (RAP):</b> concessões de transmissão em diversas regiões<br><b>~5% — Outros (comercialização, participações):</b> "},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Maior empresa do setor — presença em praticamente todos os grandes projetos hídricos do Brasil<br>✦ TIR real implícita de ~10%: bem acima de pares de transmissão (~7-8%)<br>✦ Descotização: cada usina que sai das cotas entra no mercado livre a preço melhor — upside de longo prazo<br>✦ Novo Mercado: governança melhorando, estrutura acionária simplificada<br>✦ Custo de geração entre os mais baixos do mundo (hídrica velha = sem depreciação relevante)"},
+        {"titulo": "Riscos principais", "texto": "⚠ Risco político: governo ainda questiona aspectos do acordo de privatização; risco de revisão de termos<br>⚠ Portfólio mais descontratado: menos energia comprometida em contratos de longo prazo vs pares<br>⚠ Descotização é lenta: upside real ainda depende de decisões regulatórias e políticas<br>⚠ Complexidade: dezenas de subsidiárias, concessões e participações — difícil de analisar<br>⚠ GSF: maior exposição hídrica do setor = mais vulnerável à seca"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 São décadas de concessões hídrica em rios que já foram inventariados — Tucuruí, Balbina, Itaipu (participação), Angra (nuclear): ativos que jamais serão licenciados de novo. A escala de 30 GW e o papel sistêmico no SIN (o ONS não opera sem a Axia) criam uma barreira que é, na prática, o próprio Brasil."},
+    ],
+    "BBAS3": [
+        {"titulo": "Como funciona o negócio", "texto": "O BB tem três pilares que nenhum banco privado consegue replicar: o crédito rural (53% do crédito agro brasileiro passa pelo BB, com funding subsidiado via FCO e PRONAF), o funcionalismo público (processa metade das folhas do setor público federal e estadual — base de consignado captiva), e o Tesouro Nacional (agente financeiro do governo federal). Fora isso, é um banco universal com seguros (BB Seguridade, controlada listada separadamente) e gestão de ativos. O problema de 2025-2026 é exatamente essa concentração: o agro sofreu com El Niño, preços baixos de grãos e endividamento acumulado. A inadimplência rural saltou de 1% para 6%, o lucro caiu 54% no 1T26 e o ROE colapsou para 7,3%. A BB Seguridade, contudo, continua entregando — o banco dentro do banco que o mercado frequentemente esquece."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~45% — Margem financeira (NII):</b> crédito rural + consignado + corporate<br><b>~20% — BB Seguridade (resultado de equivalência patrimonial):</b> seguros, previdência e capitalização<br><b>~20% — Receitas de serviços e tarifas:</b> folha de pagamento, asset management, tarifas<br><b>~15% — Tesouraria e mercado:</b> títulos públicos e operações com o governo"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Monopólio prático no crédito agro — nenhum banco privado tem a rede, o funding subsidiado e a expertise<br>✦ Folha do setor público: base captiva de consignado com inadimplência próxima de zero<br>✦ BB Seguridade: motor de resultado capital-light e recorrente dentro do conglomerado<br>✦ Valuation de desconto (P/L ~4x, P/VP ~0,6x) embute a percepção de risco estatal<br>✦ Gestão de ativos: 24,9% de market share — o maior gestor de recursos do Brasil"},
+        {"titulo": "Riscos principais", "texto": "⚠ Interferência política: governo pode forçar crédito subsidiado, reduzir spread e comprometer rentabilidade<br>⚠ Concentração no agro: ciclos negativos (clima, preço de commodities) impactam desproporcionalmente<br>⚠ Inadimplência rural 2025-2026: ainda longe do pico — pode demorar 2-3 anos para normalizar<br>⚠ Menor eficiência operacional que bancos privados — custo de servir é mais alto"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O acesso ao funding subsidiado (FCO, PRONAF, recursos do Tesouro) é uma barreira que nenhum banco privado pode replicar. Quem financia agricultura a taxa de 7-8% a.a. quando o custo de mercado é 14%+ está usando um subsídio que só o banco estatal acessa. Isso cria uma vantagem competitiva no agro que é, literalmente, impossível de replicar sem ser banco público."},
+    ],
+    "BBDC3": [
+        {"titulo": "Como funciona o negócio", "texto": "O Bradesco é o único entre os grandes privados que foi construído de dentro para fora do Brasil — nasceu em Marília (SP) e cresceu pelo interior antes de chegar às capitais. Essa origem explica sua exposição à massa e às PMEs do interior, que são mais vulneráveis a ciclos de juros altos. Em 2022-2024, o banco pagou o preço: inadimplência subindo, provisões estourando, ROE colapsando para abaixo do custo de capital. A reestruturação de Marcelo Noronha (CEO desde 2023) levou o banco a ser mais seletivo no crédito, a fechar agências, digitalizar e focar em alta renda e crédito com garantia. O resultado começou a aparecer em 2025: lucro crescendo, ROE recuperando, ação subindo 60% no ano. Em 2026, a tese é de quanto esse ROE ainda pode subir — e se chegará ao nível de Itaú, ou ficará estacionado nos 15-17%."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~50% — Margem financeira (NII):</b> spread de crédito PF + PME + corporativo<br><b>~20% — Seguros (Bradesco Seguros):</b> vida, saúde, automóvel — joint venture com Munich Re<br><b>~18% — Receitas de serviços e tarifas:</b> cartão, previdência, corretagem<br><b>~12% — Outros:</b> mercado de capitais, câmbio, gestão de ativos"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Bradesco Seguros: uma das maiores seguradoras do Brasil — negócio capital-light com margens altas<br>✦ Rede capilar no interior: presença onde grandes bancos e fintechs chegam com mais dificuldade<br>✦ Reestruturação em curso: se o ROE normalizar para 18-20%, o valuation atual (P/L ~6x) está barato<br>✦ Cielo integrada: adquirência + produtos bancários criam potencial de cross-sell"},
+        {"titulo": "Riscos principais", "texto": "⚠ Execução: a reestruturação pode demorar mais ou entregar menos que o prometido<br>⚠ Concorrência de fintechs no varejo massificado — o segmento que o Bradesco depende mais<br>⚠ Exposição residual à massa de baixa renda, mais sensível a inadimplência em juro alto<br>⚠ Valuation não é mais óbvio — após alta de 60% em 2025, o desconto já fechou parcialmente"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A rede de distribuição no interior do Brasil é o ativo mais difícil de replicar. Cidades de 30.000 habitantes onde o Bradesco é o único banco presente — e onde a fintech não chega sem agência ou correspondente. Mais a Bradesco Seguros, que tem escala e relacionamento de décadas com corretores."},
+    ],
+    "BBSE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A BB Seguridade não assume risco de seguro. Ela distribui seguros, previdência e capitalização pela rede do Banco do Brasil — 70 milhões de clientes, mais de 3.500 pontos de atendimento — e cobra comissão. O risco de sinistro fica com os parceiros: Mapfre (seguros, JV 74,9% BB + 25,1% Mapfre) e Principal Financial Group (previdência, via Brasilprev). Estrutura capital-light com payout de ~85% — não precisa reter capital para cobrir sinistros. O resultado tem dois motores: operacional (prêmios, corretagem, sinistralidade das parceiras) e financeiro (reservas técnicas da Brasilprev e Brasilcap investidas na Selic). Em juro alto o segundo motor turbina o lucro: no 1T26 foi +58,5% a/a e representou 23% do total. O detalhe que muda tudo: o contrato de distribuição com o BB vai até 2033. O mercado desconta esse risco no valuation — e o P/L de 8x vs. 13-14x histórico do mercado é basicamente o 'preço' que o investidor paga pela incerteza de renovação."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~40% — Corretagem e distribuição (BB Corretora):</b> comissão sobre todos os produtos vendidos pela rede BB<br><b>~25% — Previdência (BrasilPrev):</b> taxa de gestão + resultado financeiro das reservas PGBL/VGBL — turbinado pela Selic<br><b>~14% — Seguros rurais (Brasilseg):</b> maior linha individual; sensível ao agro, El Niño e inadimplência rural<br><b>~17% — Seguros vida e prestamista (Brasilseg):</b> prestamista ligado ao consignado — sofre com juro alto; vida é base estável<br><b>~4% — Capitalização (Brasilcap):</b> títulos de capitalização — beneficiado pela Selic alta"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Modelo capital-light: não assume risco de sinistro → payout de 85% → DY de 11-12%<br>✦ Canal exclusivo com 70 milhões de clientes do BB — custo de aquisição praticamente zero<br>✦ Brasilprev: líder em previdência privada no Brasil; reservas crescendo 10% a/a<br>✦ Resultado financeiro expressivo: Selic alta turbina o float das reservas de previdência e capitalização<br>✦ P/L de 8x — desconto histórico vs. média do mercado (13-14x)"},
+        {"titulo": "Riscos principais", "texto": "⚠ Contrato 2033: o acordo de distribuição com o BB vence daqui a ~7 anos — renovação, condições e custo são incertos; é o maior risco estrutural<br>⚠ Selic caindo: resultado financeiro (23% do lucro em 1T26) cai imediatamente; recuperação operacional leva trimestres<br>⚠ Seguro rural (~35% dos prêmios): El Niño, seca e inadimplência rural pressionaram a Brasilseg em 2024-2026<br>⚠ Prestamista em queda: ligado ao crédito consignado — juro alto reduz tomada de crédito e, com ela, o seguro<br>⚠ Guidance 2026 conservador: própria empresa projeta resultado operacional de -7% a -3% vs. 2025"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O contrato de exclusividade com o BB e o tamanho da base de clientes são inreplicáveis. Nenhuma seguradora privada tem acesso a 70 milhões de clientes com custo de aquisição zero. Brasilprev é a maior gestora de previdência privada do Brasil — liderança construída em décadas. O problema é que toda essa vantagem depende de um contrato com o estado."},
+    ],
+    "BMGB4": [
+        {"titulo": "Como funciona o negócio", "texto": "O BMG é o banco mais nichado desta lista: 88% da carteira de crédito é formada por aposentados e pensionistas do INSS. O produto central é o empréstimo consignado, onde as parcelas são descontadas diretamente do benefício do INSS — a inadimplência é estruturalmente baixa porque o pagador não é a pessoa, é o governo federal. A distribuição é feita por correspondentes bancários (terceiros que originam o crédito), lojas próprias 'help! Loja de Crédito' (na cor laranja, reconhecível pelo público), e canais digitais. O desafio é que o governo regula a taxa máxima (hoje 1,85%/mês para o empréstimo e 2,46%/mês para o cartão). Quando a Selic sobe, o custo de captação sobe, mas o teto de taxa não — o spread comprime. Em 2025-2026, a CPI do INSS investigando fraudes no consignado criou obrigação de biometria facial para cada contratação — adiciona fricção e pode frear a originação."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Empréstimo consignado INSS:</b> produto principal — taxa máxima 1,85%/mês<br><b>~25% — Cartão consignado INSS:</b> desconto direto no benefício — taxa máxima 2,46%/mês<br><b>~10% — Consignado privado (CLT):</b> iniciado em 2025 — menor escala, maior risco<br><b>~10% — Seguros e outros produtos:</b> Bmg Seguradora — vida, acidentes pessoais"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Inadimplência estruturalmente baixa: parcelas descontadas direto do INSS — o devedor não pode deixar de pagar<br>✦ Base de aposentados é demograficamente crescente — 35 milhões de beneficiários do INSS e crescendo<br>✦ Reconhecimento de marca no público INSS: a cor laranja é sinônimo de consignado no interior do Brasil<br>✦ Correspondentes bancários capilarizados onde bancos tradicionais não chegam"},
+        {"titulo": "Riscos principais", "texto": "⚠ Teto regulatório de taxa: Selic sobe, mas o banco não consegue repassar — spread comprime estruturalmente<br>⚠ CPI do INSS e fraudes no consignado: biometria obrigatória adiciona fricção e pode reduzir origação<br>⚠ Concentração extrema em um segmento: qualquer mudança regulatória no consignado INSS impacta 88% da carteira<br>⚠ ROE limitado pelo teto de taxa: difícil escalar margem acima de 12-14% com spread comprimido<br>⚠ Consignado privado (CLT) em expansão — risco maior que o INSS, e o banco ainda está aprendendo o segmento"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O reconhecimento de marca no público INSS e a rede de correspondentes são difíceis de replicar. O aposentado do interior que reconhece a loja laranja e confia no 'consignado BMG' não troca facilmente de banco. Além disso, os correspondentes que originam crédito têm relacionamentos de anos com o BMG — e comissões que constroem lealdade. A barreira não é tecnológica; é de relacionamento e presença física em regiões remotas."},
+    ],
+    "BPAC11": [
+        {"titulo": "Como funciona o negócio", "texto": "O BTG é estruturalmente diferente dos outros: não tem agência, não quer o cliente de massa, não cresce emprestando para pessoa física no cartão. Ele ganha dinheiro sendo o intermediário entre quem tem capital (grandes fortunas, fundos) e quem precisa de capital (grandes empresas, governos). A receita tem seis pilares: corporate lending (crédito para grandes empresas, ~R$2,3 bi/tri), sales & trading (mesa proprietária e corretagem institucional), investment banking (IPOs, M&As, emissões), asset management (R$2,5 tri sob gestão/administração), wealth management (R$1,28 tri — clientes private) e consumer finance (Banco PAN + Too Seguros, consignado privado). No 1T26 entregou lucro de R$4,8 bi (+42% a/a) e ROAE de 26,6%. O modelo de partnership (sócios compram ações — alinhamento total) é um diferencial cultural único."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~23% — Corporate Lending:</b> crédito corporativo de alta qualidade — crescimento de 22% a/a<br><b>~15% — Wealth Management:</b> R$ 1,28 tri sob gestão — crescimento recorde<br><b>~19% — Sales & Trading:</b> mesa proprietária + corretagem institucional — volátil<br><b>~12% — Asset Management:</b> R$ 2,5 tri total — taxas de gestão e performance<br><b>~11% — Consumer Finance & Banking:</b> Banco PAN + Too Seguros — consignado privado<br><b>~10% — Investment Banking:</b> IPOs, M&As, emissões de dívida — cíclico<br><b>~10% — Outros (juros e outros):</b> "},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Modelo de partnership: sócios são donos — incentivos alinhados, execução consistente há 40 anos<br>✦ Wealth Management: R$1,28 tri em assets com crescimento de 44,6% a/a — receita recorrente e crescente<br>✦ Corporate Lending: inadimplência próxima de zero em crédito para grandes empresas com garantias robustas<br>✦ Marca BTG no mercado de capitais: quando uma empresa quer captar R$1 bi+, o BTG está na lista curta<br>✦ Único entre os grandes a ter ROE acima de 26% de forma sustentada"},
+        {"titulo": "Riscos principais", "texto": "⚠ Valuation elevado (P/VP ~9x) não tolera desaceleração — crescimento tem que ser entregue<br>⚠ Investment banking é cíclico — em mercados fechados (sem IPOs, sem M&A), essa linha murcha<br>⚠ Dividend yield baixo (~2%) — não é banco de renda; é banco de crescimento e reinvestimento<br>⚠ Risco-chave concentrado em poucos sócios-chave — risco de sucessão no longo prazo"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A marca e o relacionamento de décadas com os grandes CEOs e CFOs do Brasil. Não é possível construir isso da noite para o dia. Quando a Vale vai emitir uma debênture ou o governo quer estruturar um projeto de infraestrutura, o BTG está na mesa. Isso vem de 40 anos de execução impecável e de uma cultura de partnership que atrai os melhores profissionais do mercado financeiro."},
+    ],
+    "BRAP4": [
+        {"titulo": "Como funciona o negócio", "texto": "A Bradespar é uma holding de participações controlada pelo banco Bradesco. Seu único ativo relevante é uma participação de ~4,5% na Vale. Não opera mina, não tem receita operacional, não tem funcionários de mineração. O resultado é o dividendo recebido da Vale, menos as despesas da holding. A tese de investimento é simples: a Bradespar negocia com desconto de NAV (valor de mercado < valor das ações da Vale que ela possui). Por que o desconto existe? Custos da holding, liquidez menor que a Vale, risco de governança (Bradesco decide o que fazer com a participação) e impostos sobre o dividendo ao longo da cadeia. Quando o desconto se fecha — por buyback, venda de ações ou elevação do dividendo — o acionista da Bradespar captura um retorno extra além da variação da Vale."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~95% — Dividendos e JCP da Vale:</b> proporcional à participação de ~4,5% e ao dividendo declarado pela Vale<br><b>~5% — Resultado financeiro e outros:</b> caixa próprio aplicado em renda fixa"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Desconto de NAV: comprar Bradespar = comprar Vale mais barato que o mercado<br>✦ DY amplificado pelo desconto: o yield efetivo sobre o NAV é maior que comprar Vale direto<br>✦ Exposição indireta ao cobre/níquel via Vale: tese de transição energética embutida<br>✦ Simplicidade: não tem risco operacional, ambiental nem de produção — só participação financeira"},
+        {"titulo": "Riscos principais", "texto": "⚠ Desconto de NAV pode persistir ou ampliar: holding costuma negociar com desconto estrutural<br>⚠ Custos da holding corroem o NAV: despesas administrativas e impostos reduzem o retorno líquido<br>⚠ Decisão do Bradesco: controlador pode vender a participação na Vale em momento ruim<br>⚠ Dupla tributação: dividendo da Vale → Bradespar → acionista tem mais um passo tributário<br>⚠ Liquidez menor que Vale: spread bid/ask maior; mais difícil de sair em momentos de estresse"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A barreira da Bradespar é o próprio desconto de NAV — quem quer comprar Vale com desconto precisa comprar a Bradespar. Mas não é uma barreira de negócio: qualquer um pode comprar Vale diretamente. A tese funciona enquanto o desconto existir e enquanto a Vale pagar dividendos. Se o desconto fechar, a vantagem da Bradespar desaparece."},
+    ],
+    "BRAV3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Brava Energia nasceu em setembro de 2024 da fusão entre a 3R Petroleum (campos maduros onshore e offshore) e a Enauta (campo de Atlanta). Atlanta é o ativo premium da empresa: óleo leve de altíssima qualidade, offshore no Espírito Santo, com menor desconto no Brent. Os campos de Papa-Terra (óleo pesado, Bacia de Campos) e de gás (Peroá e Manati, offshore) completam o portfólio. Em janeiro de 2026, comprou 50% de Tartaruga Verde e Espadarte por US$450 mi — campos operados pela Petrobras com 14 poços produtores e produção de ~55 kboed a 100%. Em maio de 2026, a Ecopetrol (estatal colombiana) lançou OPA para assumir 51% da empresa a R$23/ação (prêmio de até 28%). A operação aguarda aprovação do CADE e da ANP — e muda completamente o perfil de risco da empresa se concluída."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~35% — Atlanta (óleo leve offshore):</b> óleo premium; menor desconto vs Brent; principal ativo da Enauta<br><b>~25% — Papa-Terra (óleo pesado offshore):</b> FPSO P-63; óleo viscoso com maior desconto no Brent<br><b>~15% — Tartaruga Verde + Espadarte (novo):</b> 50% adquiridos em 2026; operado pela Petrobras; 14 poços<br><b>~15% — Gás natural (Peroá, Manati):</b> offshore ES/BA; escoamento via gasodutos<br><b>~10% — Campos onshore 3R:</b> herdados da 3R; menor prioridade estratégica"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Atlanta: óleo leve de alta qualidade — menor desconto vs Brent, maior preço realizado<br>✦ 2ª maior independente em reservas: escala que abre portas em desinvestimentos de grandes petroleiras<br>✦ OPA Ecopetrol a R$23: piso de preço no curto prazo com prêmio de 28%<br>✦ Tartaruga Verde: 14 poços produtores, operado pela Petrobras — produção previsível e já funcionando<br>✦ Diversificação de portfólio: onshore + offshore + gás + óleo leve + óleo pesado"},
+        {"titulo": "Riscos principais", "texto": "⚠ Integração pós-fusão não provada: 3R e Enauta tinham culturas e sistemas operacionais distintos<br>⚠ Alavancagem alta: dívida da fusão + US$450 mi de Tartaruga Verde = balanço apertado<br>⚠ OPA Ecopetrol incerta: aprovação de CADE e ANP pode demorar ou não acontecer<br>⚠ Papa-Terra: óleo pesado = maior desconto no Brent e campo operacionalmente mais complexo<br>⚠ FCF neutro em 2026: alta produção, mas capex pesado e dívida consomem o caixa"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Atlanta é o principal ativo de barreira — campo de óleo leve offshore que a Enauta levou anos para desenvolver e que poucos independentes conseguiriam financiar. O know-how da Enauta em desenvolvimento greenfield offshore é raro no Brasil fora da Petrobras. Mas a Brava ainda está construindo sua identidade pós-fusão — a barreira real ainda está sendo testada na execução."},
+    ],
+    "BRSR6": [
+        {"titulo": "Como funciona o negócio", "texto": "O Banrisul é um banco estatal regional — o que significa que seu modelo de negócio é fundamentalmente diferente de todos os outros nesta lista. Ele existe porque o governo do RS quer um banco público estadual. O coração do negócio é a folha de pagamento dos servidores públicos gaúchos: 294 mil servidores ativos, inativos e pensionistas cujo salário passa pelo Banrisul, gerando uma base captiva de consignado, conta corrente e produtos financeiros. Em julho de 2026, renovou esse contrato por R$1,26 bi — pago à vista, reconhecido como intangível e amortizado ao longo de 5 anos. O custo dobrou em relação à renovação anterior (que era de 10 anos). Fora a folha, atende PMEs gaúchas e o varejo do RS. Toda a sua força e seu risco estão concentrados em um único estado."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~40% — Crédito consignado público (servidores RS):</b> base captiva da folha estadual<br><b>~35% — Varejo PF e PME gaúcha:</b> clientes pessoas físicas e pequenas empresas do RS<br><b>~15% — Receitas de serviços:</b> tarifas, previdência, seguros<br><b>~10% — Tesouraria:</b> títulos públicos e operações de mercado"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Base captiva de consignado público — 294 mil servidores estaduais com desconto em folha<br>✦ Valuation muito barato (P/VP ~0,5x, P/L ~3x) — desconta o risco político e o ROE baixo<br>✦ Dividend yield alto (~9-11%) — governo precisa do dividendo do banco para compor receitas estaduais<br>✦ Presença capilar no interior do RS onde os grandes bancos privados não chegam"},
+        {"titulo": "Riscos principais", "texto": "⚠ 100% concentrado no RS — enchentes, seca, recessão regional batem direto no resultado<br>⚠ Dependência do contrato de folha: renovado a custo crescente (dobrou por ano de contrato na última renovação)<br>⚠ ROE cronicamente baixo (~7-9%) — estruturalmente abaixo do custo de capital<br>⚠ Risco político: troca de governo estadual pode mudar a relação ou condições do contrato<br>⚠ Qualidade de crédito pressionada em PF e PME, com inadimplência subindo em 2026"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O contrato com o governo do RS é a barreira — e também o risco. Nenhum banco privado vai entrar no estado para fazer o que o Banrisul faz sem o benefício do funding barato do servidor e a capilaridade de 500+ agências no interior. Mas essa barreira tem preço: R$1,26 bi a cada 5 anos só para manter o que já tem."},
+    ],
+    "CMIG4": [
+        {"titulo": "Como funciona o negócio", "texto": "A Cemig é uma holding integrada — opera distribuição (Cemig D), geração e transmissão (Cemig GT) e tem participações em outras empresas do setor. É a maior distribuidora do Brasil em número de municípios atendidos e a quarta em transmissão. Controlada pelo Estado de Minas Gerais (50,97% das ONs), sofre com o conflito clássico do estatal: o governo quer dividendos para fechar as contas do estado, mas também quer tarifas baixas para os eleitores. Em 2025, gerou discussão sobre possível federalização como parte do acordo da dívida de MG com o governo federal — um risco que assusta o mercado mas ainda não se concretizou."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Distribuição Minas Gerais (Cemig D):</b> maior distribuidora do Brasil em cobertura geográfica<br><b>~30% — Geração hídrica e eólica (Cemig GT):</b> portfólio diversificado, mas com exposição hídrica<br><b>~10% — Transmissão:</b> 4ª maior do Brasil<br><b>~5% — Participações e comercialização:</b> "},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Escala: maior distribuidora em municípios atendidos — MG tem 853 municípios<br>✦ DY alto (8-12%): governo precisa de dividendo para fechar as contas do estado<br>✦ Valuation descontado pelo risco político: quem acredita no desconto pode se beneficiar<br>✦ Portfólio diversificado: geração + transmissão + distribuição reduz concentração em um segmento"},
+        {"titulo": "Riscos principais", "texto": "⚠ Risco político: governo MG intervém em gestão, tarifa e alocação de capital<br>⚠ Debate de federalização: dívida de MG com a União pode levar à transferência do controle<br>⚠ Posição vendida em energia: Cemig ficou descoberta em contratos de energia, gerando prejuízo<br>⚠ Alavancagem ~2,3-2,5x: não é crítico mas limita flexibilidade<br>⚠ Eficiência abaixo de privados: custo de servir mais alto por natureza estatal"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A concessão de distribuição em Minas Gerais — o estado mais rico em recursos naturais e o terceiro maior estado em PIB do Brasil. O portfólio de usinas hidrelétricas em rios mineiros é inreplicável. O problema: a barreira é do Estado de MG, não da empresa — e o controlador pode usá-la para objetivos políticos em vez de econômicos."},
+    ],
+    "CMIN3": [
+        {"titulo": "Como funciona o negócio", "texto": "A CSN Mineração é a operação de mineração da CSN (Companhia Siderúrgica Nacional), separada em empresa independente e aberta em IPO em 2021. Opera no Quadrilátero Ferrífero (MG), na mina Casa de Pedra — uma das maiores minas a céu aberto do Brasil. O modelo é simples e direto: extrai minério de ferro (62% Fe), transporta via MRS Logística até o Terminal de Carvão (TECAR) no Porto de Itaguaí (RJ) e exporta, principalmente para a China. Uma parte significativa do minério abastece a própria CSN (que produz aço e precisa de minério) — captivo interno com preço de mercado. Produziu recorde de 45,5 milhões de toneladas em 2025 (+4,6% acima do guidance). Custo C1 de US$23,1/t no 1T26 — competitivo, mas sem o prêmio de qualidade da Vale."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~70% — Exportação de minério de ferro (62% Fe):</b> China é o principal destino; preço benchmark 62% Fe CFR<br><b>~20% — Vendas para CSN (mercado interno):</b> captivo — a controladora usa o minério para produzir aço<br><b>~10% — Pelotas e outros produtos:</b> valor agregado sobre o minério bruto"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Custo C1 competitivo (~US$23/t): eficiência operacional que sustenta margem mesmo com minério deprimido<br>✦ Produção recorde em 2025: 45,5 mi t — prova de capacidade operacional crescente<br>✦ Logística integrada via MRS até Itaguaí: escoamento eficiente sem gargalo logístico<br>✦ Captivo interno (CSN): parte da receita não depende do mercado internacional<br>✦ Alavancagem baixa: balanço saudável que permite dividendos mesmo em ciclo fraco"},
+        {"titulo": "Riscos principais", "texto": "⚠ Ferro puro sem diversificação: 100% do resultado depende do preço do minério 62% Fe<br>⚠ Sem prêmio de qualidade: vende ao benchmark — não tem o diferencial da Vale em Carajás<br>⚠ Controladora CSN (78%): conflito de interesse potencial — CSN pode extrair caixa da CMIN em detrimento de minoritários<br>⚠ Dependência da China: perfil de exportação muito concentrado no mercado asiático<br>⚠ FCF volátil: capex de crescimento e compras de minério de terceiros criam oscilações no caixa"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Casa de Pedra é uma das maiores reservas de minério de ferro do Quadrilátero Ferrífero. Mas a barreira da CMIN é menor que a da Vale — o minério 62% Fe é mais padronizado e os produtores australianos (Rio Tinto, BHP) têm custo C1 de US$18-20/t, abaixo da CMIN. A barreira real é operacional: a logística via MRS + Itaguaí e a integração com a CSN criam um sistema que funciona há décadas e não é fácil de desmontar."},
+    ],
+    "CPFE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A CPFL é uma das maiores empresas do setor elétrico brasileiro, com presença em distribuição (14% do mercado nacional, 10,3 mi de clientes em 687 municípios), geração (4.411 MW, entre as maiores privadas) e transmissão. Controlada desde 2017 pela State Grid Corporation of China — a maior empresa de energia do mundo, atendendo 1,1 bilhão de pessoas. O controlador quer estabilidade e dividendos, não aventura: o plano de R$29,8 bi para 2025-2029 foca em modernizar a distribuição existente (R$24,7 bi em distribuição), não em crescer por aquisições agressivas. Em maio de 2026, renovou as concessões das três distribuidoras principais (CPFL Paulista, Piratininga, RGE) por mais 30 anos — uma redução relevante de risco de prazo que o mercado subestimou."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~65% — Distribuição de energia (CPFL Paulista, Piratininga, RGE, Santa Cruz):</b> 2ª maior distribuidora do Brasil em volume<br><b>~25% — Geração (hídrica + eólica + solar + biomassa):</b> 4.411 MW de capacidade instalada<br><b>~8% — Transmissão (CPFL Transmissão):</b> RAP de linhas de transmissão<br><b>~2% — Comercialização e serviços:</b> "},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Concessões renovadas por 30 anos em 2026: risco de prazo eliminado para as principais distribuidoras<br>✦ State Grid como controlador: acesso a capital barato (empréstimo em RMB do NDB), tecnologia chinesa e planejamento de longo prazo<br>✦ 2ª maior distribuidora em volume: escala que poucos concorrentes têm no Sudeste<br>✦ DY consistente de 8-9%: controlador quer dividendo; payout de 78% é sustentável<br>✦ Gestão operacional eficiente: CPFL tem histórico de índices de qualidade acima da média do setor"},
+        {"titulo": "Riscos principais", "texto": "⚠ Controlador chinês: geopolítica pode criar ruído regulatório ou político no futuro<br>⚠ Revisão tarifária: WACC regulatório da ANEEL define a rentabilidade da distribuição — risco periódico<br>⚠ Alavancagem moderada e capex de R$29,8 bi: FCF comprometido para crescimento, não para DY extra<br>⚠ Exposição ao Sudeste: crescimento da GD (painéis solares) pode reduzir consumo faturado das distribuidoras<br>⚠ Mercado Livre: migração de grandes clientes para ACL reduz base de consumidores cativos"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 687 municípios com concessão exclusiva de distribuição no Sudeste e Sul. Nenhum concorrente entra nesse território — a concessão é de 30 anos, renovada. A combinação de escala, capilaridade e o apoio da maior empresa de energia do mundo como controlador cria uma posição que é inatingível por qualquer novo entrante."},
+    ],
+    "CPLE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Copel é a empresa integrada de energia do Paraná — geração (hídrica no rio Iguaçu e afluentes), transmissão e distribuição. Em 2023, foi privatizada pelo governo do Paraná, encerrando 70 anos como estatal. A privatização abriu espaço para buscar eficiência operacional, reduzir custos e orientar a gestão para retorno ao acionista em vez de objetivos políticos. Diferente da Cemig (que ainda é estatal), a Copel já não tem o risco de interferência política do governo. Mas ainda está no processo de ajuste pós-privatização: normalização do resultado financeiro, revisão de contratos e alinhamento da cultura organizacional ao modelo privado leva tempo."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Distribuição Paraná (Copel DIS):</b> distribuição regulada em todo o estado do Paraná<br><b>~30% — Geração hídrica + eólica (Copel GeT):</b> Iguaçu, Jordão e complexos eólicos<br><b>~12% — Transmissão (Copel Transmissão):</b> RAP de linhas em todo o Brasil<br><b>~3% — Telecomunicações (Copel Telecom):</b> fibra óptica no Paraná — diferencial único"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Privatização recente: gestão privada ainda capturando eficiência que o estado não priorizou<br>✦ Única utility listada com braço de telecom próprio: Copel Telecom é diferencial raro no setor<br>✦ Paraná: estado com melhor qualidade de crédito e menor inadimplência do Brasil — base de consumidores sólida<br>✦ Geração hídrica no Iguaçu: hidrologia de boa qualidade no Sul (diferente do Sudeste/Nordeste)"},
+        {"titulo": "Riscos principais", "texto": "⚠ Resultado pós-privatização ainda normalizando: curva de aprendizado da gestão privada<br>⚠ Alavancagem: ciclo de investimentos pós-privatização pressiona o balanço<br>⚠ Hidrologia Sul: enchentes no RS/SC em 2024 mostraram que o Sul também tem risco climático<br>⚠ Copel Telecom: negócio diferente do core elétrico, exige expertise e capex específicos"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Concessão exclusiva de distribuição em todo o Paraná — um estado de 11 mi de habitantes e PIB relevante. As usinas do rio Iguaçu são um dos maiores sistemas hídricos do Sul e são inreplicáveis. A rede de transmissão de fibra óptica da Copel Telecom seria levada décadas para ser construída por qualquer entrante. Pós-privatização, o risco de interferência política foi eliminado — a barreira ficou mais limpa."},
+    ],
+    "CSMG3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Copasa atende Minas Gerais — o maior estado do Brasil em extensão territorial, com importantes economias agropecuária, industrial e mineral. Em junho de 2026, o governo de MG concluiu a privatização: a Equatorial assumiu ~30% como investidora de referência, em operação estimada em R$8-10 bi. O diferencial estrutural da Copasa vs Sabesp: o WACC regulatório. A ARSAE (agência mineira) fixou WACC real de ~9,42% vs ~7,86% da ARSESP. Isso significa que MG remunera cada real de ativo regulatório a uma taxa 20% maior que São Paulo — mesmo com BRR menor, a rentabilidade por real investido é superior. O playbook é idêntico ao da Sabesp: turnaround operacional (EBITDA projetado de R$3,5 bi em 2026 para R$6,1 bi em 2028, CAGR de 30%+), aceleração de capex (R$3,1 bi em 2026 a R$4,5 bi em 2030) e crescimento da BRR de R$15,5 bi para R$36+ bi até 2030."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~60% — Água — tarifa regulada (ARSAE/MG):</b> abastecimento em MG; 3ª revisão tarifária com reajuste de 6,56% em 2026<br><b>~38% — Esgoto — tarifa regulada:</b> cobertura de esgoto ainda abaixo da média nacional — maior espaço de crescimento<br><b>~2% — Resíduos e outros:</b> coleta e tratamento de resíduos industriais; serviços complementares"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ WACC regulatório de 9,42% real: 20% maior que Sabesp — maior retorno por real de ativo reconhecido<br>✦ Maior crescimento relativo da BRR: de R$15,5 bi para R$36 bi até 2030 (vs crescimento proporcionalmente menor da Sabesp)<br>✦ Mesmo controlador da Sabesp: Equatorial com playbook comprovado — menos incerteza de execução<br>✦ Valuation ainda atrativo: ação subiu 126% em 12 meses mas ainda negocia abaixo de pares privatizados equivalentes<br>✦ MG tem grande déficit de esgoto: enorme runway de universalização = décadas de crescimento da BRR"},
+        {"titulo": "Riscos principais", "texto": "⚠ Turnaround ainda no início: privatização concluída em junho — ganhos de eficiência ainda a capturar<br>⚠ Concessionamento de BH: renovação do contrato com Belo Horizonte foi condição da privatização — qualquer ajuste impacta a base<br>⚠ Regulação mineira: ARSAE pode ser mais conservadora que ARSESP no reconhecimento de investimentos<br>⚠ Risco político residual: Estado de MG retém 5% + golden share — ainda pode interferir em decisões estratégicas<br>⚠ Valuation precificou boa parte: ação já subiu muito com expectativa de privatização; execução precisa corresponder"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Monopólio regulado em Minas Gerais — mesmo modelo da Sabesp. Mas a Copasa tem uma vantagem adicional: o WACC mais alto da ARSAE cria uma 'vantagem regulatória' estrutural que não depende de gestão, mas de metodologia da agência. E com a Equatorial como controladora — que já provou em 7 distribuidoras de energia que consegue transformar ativos ineficientes em geradores de valor — a tese de turnaround tem o executor mais credenciado do setor."},
+    ],
+    "CURY3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Cury é uma das mais puras histórias de foco do mercado imobiliário brasileiro. Em 63 anos de história, atua quase exclusivamente no MCMV — em São Paulo e Rio de Janeiro metropolitano, nas faixas mais altas do programa. O modelo tem três vantagens estruturais que se reforçam mutuamente. Primeiro, o crédito: FGTS a 4-10,5% ao ano não muda com a Selic — quando o mercado de médio padrão desacelera, a Cury continua vendendo. Segundo, a localização: empreendimentos em áreas centrais próximas a metrô e serviços, diferente de concorrentes que vão para a periferia mais barata. Terceiro, o método construtivo: alvenaria estrutural (blocos de concreto) permite flexibilidade de planta, custo controlado e velocidade de entrega. O resultado: ROE de 79,5% no 1T26 — o mais alto do setor — mesmo com caixa líquido positivo, o que demonstra que a geração de caixa é real, não alavancada. Entre 2020 e 2025, multiplicou receita em 5x, VGV em 5,5x e lucro em 5,7x."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~65% — MCMV faixas 2, 3 e 4 — São Paulo:</b> principal mercado; áreas centrais com transporte; ticket médio crescente<br><b>~35% — MCMV faixas 2, 3 e 4 — Rio de Janeiro:</b> segundo mercado; expansão acelerada nos últimos 3 anos"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ ROE de 79,5% (1T26) — o mais alto do setor, mesmo sendo caixa líquido positivo<br>✦ MCMV imune à Selic: crédito a 4-10,5% via FGTS não muda com a taxa de mercado<br>✦ Localização diferenciada: empreendimentos próximos ao metrô em SP/RJ — demanda captiva<br>✦ Landbank de R$24,9 bi com 3+ anos de visibilidade — crescimento previsível<br>✦ Velocidade de vendas (VSO) de 46% no 1T26 — a mais alta do setor"},
+        {"titulo": "Riscos principais", "texto": "⚠ Zero diversificação: qualquer mudança nas regras do MCMV ou FGTS impacta 100% da receita<br>⚠ Concentração em SP e RJ: dois mercados, sem diversificação geográfica<br>⚠ Escassez de mão de obra: causou atrasos em obras em 2025; produtividade em recuperação em 2026<br>⚠ Sucessão executiva: modelo de Co-CEO anunciado em 2026 — transição de gestão é risco de curto prazo<br>⚠ Valuation esticado: P/L de 7-8x para uma empresa de MCMV é acima da média histórica do setor"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 63 anos construindo para o mesmo público no mesmo mercado. A Cury conhece cada zona de uso de São Paulo e Rio de Janeiro como ninguém. Sabe onde tem metro previsto, onde vai ter densificação, onde o terreno ainda está barato. Esse banco de dados de décadas de relacionamento com prefeituras, vendedores de terreno e a Caixa Econômica Federal é inreplicável. Qualquer entrante levaria anos para construir a rede de relacionamentos que permite a Cury comprar terreno antes do concorrente saber que está à venda."},
+    ],
     "CXSE3": [
-        {
-            "titulo": "Modelo de negócio",
-            "texto": (
-                "Distribui seguros, previdência e capitalização exclusivamente pela rede da "
-                "Caixa Econômica Federal — mais de 4.000 agências, 13.000 lotéricas e "
-                "correspondentes bancários. Não assume risco de subscrição: as seguradoras "
-                "parceiras assumem o risco e pagam comissão de distribuição e taxa de uso de "
-                "marca. É uma máquina de distribuição, não uma seguradora tradicional."
-            ),
-        },
-        {
-            "titulo": "O efeito empilhamento — a grande vantagem invisível",
-            "texto": (
-                "Todo financiamento imobiliário no Brasil exige por lei dois seguros "
-                "obrigatórios: MIP (Morte e Invalidez Permanente) e DFI (Danos Físicos ao "
-                "Imóvel). Ambos são embutidos na parcela e cobrados durante todo o prazo do "
-                "contrato — que pode durar de 10 a 35 anos. Cada novo financiamento "
-                "contratado na CEF empilha mais um contrato de seguro na carteira. Esses "
-                "contratos não vencem no mês seguinte: ficam gerando receita por décadas. "
-                "A base de recorrência cresce enquanto os financiamentos anteriores ainda "
-                "estão ativos e os novos continuam chegando."
-            ),
-        },
-        {
-            "titulo": "Motor de crescimento",
-            "texto": (
-                "A CEF superou R$ 1 trilhão em carteira de crédito imobiliário. Cada "
-                "financiamento habitacional gera automaticamente seguro prestamista e seguro "
-                "habitacional — o crescimento do crédito alimenta diretamente o crescimento "
-                "dos prêmios, sem necessidade de captação ativa de clientes."
-            ),
-        },
-        {
-            "titulo": "Liderança de mercado",
-            "texto": (
-                "Mais de 60% de market share em seguro habitacional no Brasil. O contrato "
-                "de exclusividade com a CEF e a distribuição capilar são praticamente "
-                "inreplicáveis por qualquer seguradora privada."
-            ),
-        },
-        {
-            "titulo": "Dinâmica atual",
-            "texto": (
-                "O segmento de acumulação (previdência, capitalização e consórcio) vem "
-                "surpreendendo positivamente. O prestamista segue pressionado pelos juros "
-                "altos — menos crédito consignado e pessoal — mas o resultado financeiro "
-                "(a própria Selic rendendo no float da operação) tem compensado."
-            ),
-        },
-        {
-            "titulo": "Risco principal",
-            "texto": (
-                "100% dependente da CEF como controladora e canal de distribuição. "
-                "Interferência política, mudança na estratégia habitacional do governo ou "
-                "alteração nas condições do FGTS afetam diretamente os resultados. "
-                "É o preço pelo monopólio de distribuição."
-            ),
-        },
+        {"titulo": "Como funciona o negócio", "texto": "A lógica da CXSE é idêntica à da BBSE: distribui seguros pela rede da Caixa Econômica Federal e recebe comissão sem assumir o risco de sinistro. Mas o produto-âncora é diferente — e mais defensivo. Todo financiamento imobiliário no Brasil exige por lei dois seguros obrigatórios: MIP (Morte e Invalidez) e DFI (Danos Físicos ao Imóvel). São embutidos na parcela e cobrados por 10 a 35 anos. Cada novo financiamento da Caixa (que detém mais de R$1 tri em carteira imobiliária) gera automaticamente mais um contrato de seguro que dura décadas — é o efeito empilhamento. A base de recorrência cresce enquanto os contratos antigos ainda estão ativos e os novos chegam. No 1T26 entregou lucro de ~R$1,14 bi (+ROE de 65,9%) e DY projetado de ~7-8% para 2026."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Seguro habitacional (MIP + DFI):</b> obrigatório por lei — base recorrente e crescente<br><b>~20% — Prestamista e vida:</b> seguro do crédito consignado e pessoal da Caixa<br><b>~15% — Previdência e capitalização:</b> produtos financeiros da rede Caixa<br><b>~10% — Residencial e outros:</b> seguros patrimoniais para clientes da Caixa"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Efeito empilhamento: cada financiamento gera contrato de 10-35 anos — recorrência que cresce automaticamente<br>✦ Seguro habitacional é obrigatório por lei — não há opção de 'não comprar' para quem financia<br>✦ Mais de 60% de market share em seguro habitacional — posição de dominância que nenhum concorrente replica<br>✦ Canal com 4.000 agências + 13.000 lotéricas — capilaridade ímpar para o público de menor renda<br>✦ ROE de 65,9% no 1T26 — extraordinário para qualquer empresa, de qualquer setor"},
+        {"titulo": "Riscos principais", "texto": "⚠ 100% dependente da Caixa como canal e controladora — risco político estatal elevado<br>⚠ Prestamista pressionado: juros altos reduzem crédito consignado e pessoal<br>⚠ Resultado financeiro ajuda hoje (Selic alta), mas perde força quando os juros caírem<br>⚠ Valuation mais esticado que BBSE — P/L de 11-13x já precifica boa parte da qualidade<br>⚠ Qualquer mudança na política habitacional federal (FGTS, Minha Casa) impacta diretamente"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A exclusividade com a Caixa + a lei que obriga o seguro habitacional = monopólio prático. Nenhuma seguradora privada consegue entrar nesse mercado sem ser o parceiro oficial da CEF. E o efeito empilhamento cria uma receita que cresce por décadas sem esforço de vendas adicional — é o modelo mais defensivo e previsível de toda a lista."},
+    ],
+    "CYRE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Cyrela é a empresa mais complexa do setor listado. Opera com três marcas próprias (Cyrela para alto padrão, Living para médio, Vivaz para MCMV) e tem participação em cinco JVs listadas na B3 (Lavvi, Plano&Plano, Cury, entre outras). O core é o alto padrão em São Paulo — onde projetos de R$2+ bi de VGV como o Epic by Pininfarina (210 metros, maior residencial de SP) definem a marca. A estratégia funciona em ciclos de juros baixos: o comprador de luxo financia parte do imóvel, e com crédito barato aumenta o poder de compra. Em juros altos, o efeito inverte. Em 2026, os lançamentos de alto padrão caíram 71% — o mercado esperou. A Vivaz (MCMV) compensa parcialmente, mas com margem e ROE muito menores. As JVs listadas (especialmente Cury) criam valor que não aparece no P/L da Cyrela."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~51% — Alto padrão — marca Cyrela:</b> São Paulo; projetos icônicos de R$500 mil a R$5 mi por unidade<br><b>~23% — Médio padrão — marca Living:</b> classe média SP e outras praças; mais sensível à Selic<br><b>~26% — MCMV — marca Vivaz:</b> parceria com Caixa; crescendo para compensar o alto padrão"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Marca premium de 60 anos: 'Cyrela' é sinônimo de qualidade na cabeça do comprador de alto padrão em SP<br>✦ Projetos icônicos: Epic by Pininfarina (VGV R$2 bi) — não é construção, é obra de arte vendável<br>✦ JVs listadas (Cury, Lavvi): participação em empresas de alto crescimento que criam valor não precificado<br>✦ Diversificação de segmento: quando o alto padrão desacelera, Vivaz sustenta a operação<br>✦ Geração de caixa sólida: mesmo com ROE baixo, converte bem lucro em caixa"},
+        {"titulo": "Riscos principais", "texto": "⚠ ROE de 11% no 1T26 — muito abaixo dos pares MCMV (Cury 79%, Direcional 44%)<br>⚠ Alto padrão sensível à Selic: lançamentos caíram 71% no 1T26 com juros altos<br>⚠ Concorrência crescente no luxo: JHSF, Lavvi e incorporadoras internacionais disputam o mesmo público<br>⚠ Vivaz com margem menor: o crescimento que compensa o alto padrão vem com ROE inferior<br>⚠ Mercado concentrado em SP: 60%+ do resultado vem de uma única praça"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A marca Cyrela é a barreira — e é uma barreira cultural, não financeira. Um comprador que paga R$3 mi por um apartamento compra o endereço, o nome do arquiteto e o status da construtora. 60 anos construindo em São Paulo com qualidade consistente criam um ativo intangível que nenhum novo entrante replica em menos de duas décadas. E a carteira de JVs com incorporadoras de crescimento (Cury, Lavvi) cria um portfólio diversificado que o mercado ainda não precifica corretamente."},
+    ],
+    "DIRR3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Direcional tem um modelo operacional de eficiência industrial. Opera em dois segmentos: a marca Direcional (MCMV faixas 2 e 3 — baixa renda) e a marca Riva (médio-baixo padrão, apartamentos até R$500 mil — que passou a ser enquadrada no MCMV faixa 4 em 2026). Presente em 8 estados e no DF, é a maior construtora em área do Brasil. O que diferencia a Direcional dos concorrentes é a combinação de três fatores. Primeiro, o método construtivo industrializado com formas de alumínio — encurta o ciclo de obra, reduz desperdício e viabiliza escala nacional. Segundo, o modelo de permuta: 86% do landbank é adquirido via permuta — o terreno entra como pagamento de unidades futuras, sem desembolso de caixa. Terceiro, o crédito associativo: no MCMV, o risco de inadimplência transfere para o banco financiador na assinatura do contrato — a Direcional recebe sem risco de o comprador não pagar. No 1T26: receita de R$1,2 bi (+30% a/a), lucro de R$200 mi (+27%), margem bruta ajustada de 42,9% — a maior do setor."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Direcional (MCMV faixas 2 e 3):</b> 8 estados e DF; método industrializado; alta escala<br><b>~45% — Riva (médio-baixo, até R$500 mi):</b> enquadrada no MCMV faixa 4 em 2026; VGV +20% no 1T26"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Landbank de R$51,3 bi com 8+ anos de visibilidade — o maior do setor<br>✦ 86% do landbank via permuta: o maior banco de terrenos sem desembolso de caixa<br>✦ Formas de alumínio: método industrializado que reduz prazo de entrega e custo<br>✦ Riva na faixa 4 do MCMV: a subsidiária de médio padrão passou a ter acesso ao crédito subsidiado<br>✦ Maior construtora em área do Brasil — escala que gera poder de negociação com fornecedores"},
+        {"titulo": "Riscos principais", "texto": "⚠ Concentração no MCMV: dependência do FGTS e do orçamento público habitacional<br>⚠ Riva sensível à Selic: crédito SBPE mais caro afeta clientes de médio padrão fora do MCMV<br>⚠ INCC pressionando: custo de construção acima da inflação desde 2025<br>⚠ Dois segmentos, dois riscos: gestão de marcas com públicos diferentes exige execução cuidadosa<br>⚠ Alavancagem subindo: geração de caixa sólida mas pagamento de R$804 mi em dividendos em 2025 elevou endividamento"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 40 anos de MCMV e o maior landbank do setor formam a barreira. Nenhum novo entrante consegue replicar R$51 bi de terrenos já aprovados e identificados em 8 estados sem anos de trabalho. As formas de alumínio (método construtivo industrializado) vieram de décadas de aprendizado operacional — não se compra só o equipamento, compra-se o know-how de como usá-lo com escala. E o relacionamento de 40 anos com prefeituras do interior do Brasil para aprovação de empreendimentos é impossível de acelerar."},
+    ],
+    "EGIE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Engie Brasil é a maior empresa privada de geração de energia do país, com ~12,9 GW de capacidade instalada em 145 usinas. O portfólio é 100% renovável: hidrelétricas (~70%), eólicas, solares e biomassa. Além disso, é sócia da TAG — a maior malha de transporte de gás natural do Brasil, com 4.500 km em 10 estados. O modelo de receita combina PPAs (contratos de longo prazo, indexados ao IPCA) com exposição ao mercado livre (PLD spot). O desafio atual: curtailment crescente (26% projetado em 2026, 32% em 2027) — o ONS corta a geração renovável em momentos de sobreoferta. A estratégia de resposta é migrar parte do portfólio para transmissão, que gera RAP previsível e não sofre curtailment. Em 2025, venceu lotes de transmissão nos leilões da ANEEL — a diversificação está em andamento."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~60% — PPAs de longo prazo (geração hídrica + eólica):</b> contratos indexados ao IPCA com distribuidoras e grandes consumidores<br><b>~20% — TAG (transporte de gás, participação ~32%):</b> RAP regulada — receita previsível, sem exposição a preço de gás<br><b>~15% — Mercado livre de energia (ACL):</b> preço spot variável — mais volátil<br><b>~5% — Transmissão nascente + outros:</b> RAP de novos projetos em construção (Asa Branca, Graúna)"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Controladora Engie (França): acesso a tecnologia, capital barato e modelo global de energia renovável<br>✦ TAG: ativo de transmissão de gás com receita regulada — reduz a volatilidade da geração<br>✦ 100% renovável: posicionamento ESG premium para contratos com multinacionais exigentes<br>✦ Maior geradora privada: escala garante acesso aos melhores PPAs e aos maiores leilões<br>✦ Expansão em transmissão: diversifica para ativos de menor volatilidade"},
+        {"titulo": "Riscos principais", "texto": "⚠ Curtailment: 26-32% projetado para 2026-2027 — energia produzida mas não vendida<br>⚠ Dependência hídrica (~70%): secas ou GSF negativo afetam diretamente a geração<br>⚠ Ciclo de capex pesado: Jirau, Asa Branca, Graúna — R$6 bi investidos em 2025 pressionam o FCF<br>⚠ Payout reduzido para mínimo de 55% no ciclo de capex — DY caiu vs histórico<br>⚠ Selic alta + alavancagem acima de 2,5x: pressão financeira em ciclo de investimento"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Concessões hidrelétricas são praticamente inreplicáveis — os melhores rios já têm dono. Quem tem Itá, Machadinho, Estreito e Jaguara tem ativos que não se licenciam mais hoje. A TAG é a única malha de transporte de gás em 10 estados — monopólio natural regulado. E a marca Engie com 30 anos no Brasil abre portas que novos entrantes levariam décadas para abrir."},
+    ],
+    "EQTL3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Equatorial não é uma distribuidora comum — é uma operadora especializada em turnaround de distribuidoras. O modelo é simples de explicar e difícil de executar: compra distribuidoras com altíssima inadimplência, furto e ineficiência (pagando barato por isso), reduz as perdas, melhora a cobrança, normativa os índices de qualidade e passa a extrair margem de uma operação que estava destruindo valor. Fez isso com a Eletrobras/CEMAR (Maranhão), com a CELPA (Pará), com a COELCE (Ceará), com a CELG-D (Goiás), com a CEA (Amapá) e com a CEPISA (Piauí). Cada aquisição foi uma aposta que o mercado duvidou e a Equatorial executou. Em 2025, entrou no saneamento (15% da Sabesp) e já tem posições em saneamento em outros estados. DY baixo porque reinveste quase tudo — mas valorização histórica é a melhor do setor por décadas."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~75% — Distribuição de energia (6 estados):</b> MA, PA, CE, GO, AP, PI — foco em Norte/Nordeste onde havia mais potencial<br><b>~15% — Saneamento (Sabesp 15% + outros):</b> novo vetor de crescimento — mesma lógica de turnaround<br><b>~10% — Geração, transmissão e telecom:</b> ativos complementares vendidos quando maduros"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Track record de turnaround: cada aquisição que o mercado duvidou, a Equatorial executou<br>✦ Gestão de perdas superior: reduz inadimplência e furto nos níveis que distribuidoras estatais nunca conseguiram<br>✦ Regiões de maior potencial: Norte e Nordeste têm mais espaço para redução de perdas que Sudeste já maduro<br>✦ Expansão em saneamento: a mesma lógica de turnaround aplicada a um setor ainda mais ineficiente<br>✦ TIR real de 11,1% implícita: premium justificado pelo histórico e pelo pipeline de crescimento"},
+        {"titulo": "Riscos principais", "texto": "⚠ Alavancagem de 3,5x em fase de expansão — cada nova aquisição pressiona mais o balanço<br>⚠ Sabesp (15%): primeira entrada no saneamento de grande escala — execução ainda não provada<br>⚠ Não é banco de renda: DY de 2-4% decepciona investidores que buscam renda mensal<br>⚠ Regulação adversa: WACC regulatório menor ou opex regulatório mais restritivo comprimir margens<br>⚠ Integração de múltiplos ativos simultâneos: complexidade operacional cresce com o portfólio"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A capacidade de executar turnaround é a barreira — e ela não se compra, se constrói em décadas. A Equatorial tem um playbook testado, uma equipe que já fez isso 6 vezes e relacionamentos com reguladores e comunidades locais que constroem confiança. Nenhum concorrente combina o histórico de execução com o acesso a capital e a disposição de atuar em regiões que outros evitam. É o modelo mais difícil de imitar no setor."},
+    ],
+    "IRBR3": [
+        {"titulo": "Como funciona o negócio", "texto": "O IRB é uma resseguradora — uma categoria completamente diferente das outras três. Quando a Porto vende um seguro de carro de R$200.000, ela pode não querer carregar 100% desse risco no balanço. Então ela 'cede' parte do risco ao IRB, pagando um prêmio de resseguro. Se o carro for roubado, a Porto paga ao cliente e o IRB ressarce parte para a Porto. O IRB não tem cliente pessoa física. Seus clientes são as seguradoras (chamadas de 'cedentes'). A métrica-rei é o Combined Ratio — se for abaixo de 100%, a operação de subscrição dá lucro. O IRB passou por uma crise grave em 2020 (fraude contábil, Combined Ratio de 140%+). Desde 2022 está em turnaround: Combined Ratio voltou para ~85-90%, resultado de subscrição cresceu 74,5% no 1T26, sinistralidade doméstica caiu para 35%. Em 2026 anunciou expansão para seguro direto (criação de duas seguradoras próprias) — é uma mudança estrutural do modelo que o mercado ainda está digerindo."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~53% — Resultado de subscrição (prêmios - sinistros - despesas):</b> coração do negócio — R$180 mi no 1T26, +74,5% a/a<br><b>~47% — Resultado financeiro (float das reservas):</b> reservas técnicas investidas rendendo a Selic"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Único ressegurador de grande porte listado na B3 — sem comparável doméstico<br>✦ Turnaround concluído: Combined Ratio de 140%+ em 2020 para ~85-90% em 2026<br>✦ Solvência regulatória de 287% — capital de sobra para crescer e distribuir dividendos<br>✦ Mercado de resseguro no Brasil cresceu 7,1% no 1T26 — vento a favor estrutural<br>✦ A partir de 2027, reforma tributária (CBS/IBS) zera alíquota do resseguro — potencial ganho de rentabilidade<br>✦ Base de dados técnicos de 80+ anos de riscos brasileiros — vantagem de subscrição inreplicável"},
+        {"titulo": "Riscos principais", "texto": "⚠ Catástrofes de grande escala: enchente, furacão, acidente de aviação podem gerar perda pontual enorme<br>⚠ Histórico de fraude contábil em 2020 — credibilidade ainda em reconstrução com investidores institucionais<br>⚠ Expansão para seguro direto em 2026 é aposta não provada — pode consumir capital e desviar foco<br>⚠ Sinistralidade internacional elevada (~93%) — mercado externo é menos lucrativo que o doméstico<br>⚠ Dividend yield baixo (~3%) — turnaround recente limita distribuição; ainda não é banco de renda"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 80 anos de base de dados técnicos de risco no Brasil. Uma resseguradora nova levaria décadas para ter a confiança técnica para assumir resseguros de aviação, petróleo ou grandes riscos industriais. O IRB sabe exatamente quanto custa um incêndio numa plataforma de petróleo no Brasil — e essa informação vale mais do que qualquer capital. Mais o oligopólio regulatório: a SUSEP controla a abertura de novas resseguradoras."},
+    ],
+    "ISAE4": [
+        {"titulo": "Como funciona o negócio", "texto": "A ISA Energia é a segunda maior transmissora privada do Brasil, com foco no Sudeste. Controlada pela ISA Interconexión Eléctrica S.A. (Colombia), uma das maiores empresas de transmissão da América Latina. O diferencial da ISA vs Taesa está na qualidade do portfólio: as concessões são predominantemente de categoria II e III, com metodologia regulatória mais moderna e transparente — menos risco de surpresas na revisão de RAP. Menor alavancagem que a Taesa, TIR real implícita de ~7,7%, o que a coloca em posição mais defensiva no setor. Também tem participação minoritária da Axia Energia (ex-Eletrobras) em algumas concessões, o que cria uma relação estratégica com a maior geradora do país."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~98% — RAP de transmissão:</b> receita contratada por 30 anos, predominantemente indexada ao IPCA<br><b>~2% — Outros serviços:</b> operação e manutenção de terceiros"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Portfólio de concessões modernas (cat. II/III): menor risco regulatório vs Taesa<br>✦ Menor alavancagem: mais espaço para novos leilões sem pressionar o balanço<br>✦ TIR real implícita de ~7,7% — bem acima da NTN-B de prazo semelhante<br>✦ Controlador com track record: ISA Colombia opera transmissão em 6 países com excelência<br>✦ Zero risco climático — mesmo modelo de receita da Taesa"},
+        {"titulo": "Riscos principais", "texto": "⚠ Controlador colombiano: decisões vêm de fora do Brasil — alinhamento com minoritários nem sempre é total<br>⚠ Selic alta comprime valuation como em qualquer transmissora de duration longa<br>⚠ Menor liquidez que Taesa na B3 — spread bid/ask maior para investidores institucionais<br>⚠ Depende de novos leilões para crescer — mercado de transmissão é competitivo"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Idem à Taesa: exclusividade regulatória de 30 anos e custo proibitivo de infraestrutura. Adicionalmente, o relacionamento com a Axia e a presença no Sudeste (onde está a maior demanda do país) são vantagens geográficas e de relacionamento difíceis de replicar."},
+    ],
+    "ITUB4": [
+        {"titulo": "Como funciona o negócio", "texto": "O Itaú opera em quatro frentes: varejo (conta corrente, cartão, crédito e seguros para pessoas físicas), atacado (crédito para grandes empresas, mercado de capitais, tesouraria), gestão de ativos (fundos, previdência) e atividades internacionais (América Latina). O diferencial não é o tamanho — é a seletividade. O Itaú deliberadamente abandonou segmentos de menor renda e maior inadimplência, concentrando a carteira em alta e média renda. 6 de cada 10 brasileiros de alta renda têm relacionamento com o banco. Isso gera spreads melhores, inadimplência menor e fee de serviços mais alto (asset management, corretagem, seguros). No 1T26 entregou lucro recorrente de R$ 12,3 bi e ROE de 24,8% — o mais alto entre os incumbentes."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~50% — Margem financeira (NII):</b> spread de crédito e resultado de tesouraria<br><b>~25% — Receitas de serviços e tarifas:</b> cartão, asset management, advisory, corretagem<br><b>~12% — Seguros:</b> Itaú Seguros — vida, prestamista, imobiliário<br><b>~13% — Outros:</b> câmbio, derivativos, international"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Melhor ROE entre os bancões incumbentes (~24-26%) — sustentado por décadas, não é pico de ciclo<br>✦ Foco na alta renda cria um flywheel: menor inadimplência → menor provisão → mais capital disponível para crescer<br>✦ Escala de distribuição: rede própria + parcerias + digital permitem cross-sell sem aumentar custo proporcional<br>✦ Transformação digital avançada — 75% das transações já são digitais, com meta de 75% dos clientes em modelo digital-first até 2027<br>✦ Seguros e asset management são negócios capital-light dentro do banco, com margens muito mais altas que o crédito"},
+        {"titulo": "Riscos principais", "texto": "⚠ Valuation premium (P/L ~8x, P/VP ~2x) não tolera decepções — qualquer deterioração é punida<br>⚠ Competição crescente de BTG no wealth management e de fintechs no varejo digital<br>⚠ Regulação bancária pode aumentar requisitos de capital, pressionando distribuição de dividendos<br>⚠ Expansão na América Latina (Chile, Argentina, Colômbia) adiciona risco cambial e político"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A combinação de marca, rede de distribuição, base de dados de clientes e capital regulatório cria uma barreira de entrada que nenhuma fintech conseguiu transpor em décadas. Nubank chegou a 100 milhões de clientes — mas em rentabilidade por cliente ainda está longe do Itaú."},
+    ],
+    "KEPL3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Kepler Weber não é autopeça — é uma empresa de bens de capital para o agronegócio. Fabrica silos (metálicos e de concreto), secadores de grãos, transportadores (elevadores de canecas, correias) e sistemas de controle para armazenagem de soja, milho, trigo e outros grãos. É líder absoluta no Brasil com ~80% de market share em silos metálicos — o produto mais vendido do portfólio. O mercado-alvo são produtores rurais individuais, cooperativas e tradings (Bunge, ADM, Cargill, LDC). O diferencial do modelo: o Brasil tem grave déficit de armazenagem. A capacidade estática nacional é de ~175 milhões de toneladas, enquanto a produção de grãos superou 320 milhões em 2025. Cada tonelada de grão produzida sem armazém adequado é prejuízo para o produtor. Isso cria demanda estrutural que não depende do ciclo econômico convencional — depende do ciclo do agronegócio."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Silos metálicos e acessórios:</b> produto principal; liderança de 80% de mercado; vende a produtores e cooperativas<br><b>~20% — Secadores de grãos:</b> equipamento crítico pós-colheita; crescimento com qualidade exigida para exportação<br><b>~15% — Sistemas de transporte (elevadores, correias):</b> logística interna do silo — cross-sell natural com a venda do silo<br><b>~10% — Exportação e serviços:</b> América do Sul, África e outros; instalação e manutenção"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ 80% de market share em silos: nenhum concorrente chega perto — liderança consolidada em décadas<br>✦ Déficit estrutural de armazenagem: Brasil produz 320 mi t de grãos com capacidade de 175 mi t — runway de crescimento secular<br>✦ Câmbio positivo por proxy: cliente rural vende soja em dólar — dólar alto dá mais poder de compra para investir em armazenagem<br>✦ Carteira de pedidos de 12+ meses: visibilidade de receita acima da média industrial<br>✦ Panambi como polo: 100 anos de know-how em equipamentos agroindustriais no RS — cluster com fornecedores especializados"},
+        {"titulo": "Riscos principais", "texto": "⚠ Ciclicidade do agro: safra ruim + queda de commodity = produtor adia investimento em armazenagem<br>⚠ Aço como matéria-prima: preço internacional afeta custo dos silos; repasse ao cliente tem defasagem<br>⚠ Concentração geográfica: RS como base industrial — enchentes de 2024 impactaram operações<br>⚠ Concorrência de importados: silos chineses entram via dumping em períodos de câmbio apreciado"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 100 anos de know-how e 80% de mercado criam uma barreira quase intransponível. O produtor rural que vai comprar um silo de R$500 mil não arrisca com um fornecedor desconhecido — ele quer quem estará lá para dar assistência em 10 anos. A Kepler tem rede de revendedores e assistência técnica em todo o Brasil agrícola — um entrante precisaria de décadas para construir esse canal. E a posição de liderança cria um efeito de rede: cooperativa que já tem silos Kepler compra mais Kepler porque os sistemas são integrados."},
+    ],
+    "KLBN4": [
+        {"titulo": "Como funciona o negócio", "texto": "A Klabin é a empresa mais complexa do trio. Planta pinus (fibra longa) e eucalipto (fibra curta), produz celulose, papel e embalagens — e converte parte em produtos acabados como sacos industriais, caixas de papelão e cartões. Vende celulose para exportação, mas uma fatia relevante da receita é embalagem doméstica, o que amortece o ciclo de commodity. É a maior produtora e exportadora de papel para embalagem do Brasil."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~45% — Embalagens (papelão ondulado, caixas):</b> mercado doméstico, relativamente estável<br><b>~25% — Papel para embalagem (kraft, cartão):</b> Brasil e exportação<br><b>~20% — Celulose (fibra longa e fluff):</b> exportação, commodity<br><b>~10% — Sacos industriais:</b> cimento, fertilizante, Brasil"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Única produtora de pinus em escala industrial no Brasil — fibra longa que ninguém mais tem<br>✦ Diversificação de produto: embalagem amorte o ciclo de celulose<br>✦ Integração vertical completa: da floresta ao produto acabado<br>✦ Celulose fluff (para fraldas e absorventes) — nicho de margem alta e demanda crescente"},
+        {"titulo": "Riscos principais", "texto": "⚠ Capex intensivo e constante — projetos de expansão pressionam caixa por anos seguidos<br>⚠ Alavancagem historicamente alta (4–5x EBITDA em fases de investimento)<br>⚠ Complexidade operacional: 23 plantas, múltiplos produtos, margens diferentes por linha<br>⚠ Pinus tem ciclo de 15 anos — planejamento florestal é de altíssimo prazo"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O pinus. Ninguém mais tem floresta de pinus em escala no Brasil. Plantar hoje para colher em 15 anos é uma barreira de entrada que efetivamente fecha o mercado para novos entrantes na fibra longa."},
+    ],
+    "LEVE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Mahle Metal Leve é a subsidiária brasileira do grupo Mahle — um dos maiores fabricantes de componentes automotivos do mundo, com sede em Stuttgart, Alemanha. No Brasil, fabrica pistões, anéis de segmento, buchas, filtros (óleo, ar, combustível) e velas de ignição. O modelo tem duas frentes: OEM (~30%), onde vende diretamente para GM, Ford, Stellantis e Volkswagen que montam os carros novos; e aftermarket (~70%), onde vende para distribuidores e mecânicas que trocam peças em carros usados. O aftermarket é o diferencial: com frota média de 11+ anos no Brasil, cada motor exige troca de pistão, filtro ou vela em média a cada 2-3 anos. Quanto mais velha a frota, mais demanda — é anticíclico por natureza. A controladora alemã custeia o P&D global (€1 bi/ano em inovação) e o Brasil se beneficia do know-how sem pagar por isso diretamente. Exporta componentes para Europa e América do Norte, capturando o câmbio favorável."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Aftermarket Brasil:</b> mecânicas, distribuidores, varejo de autopeças — anticíclico e recorrente<br><b>~25% — OEM Brasil (montadoras):</b> GM, Ford, Stellantis, VW — segue produção de veículos novos<br><b>~20% — Exportação (OEM global):</b> componentes para Europa e EUA; dólar alto melhora margens"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Aftermarket anticíclico: frota velha gera demanda constante independente do PIB<br>✦ P&D financiado pela matriz: Mahle alemã investe €1 bi/ano em inovação — LEVE3 acessa sem pagar<br>✦ Margem bruta de 38-40%: entre as mais altas do setor industrial — brand reconhecido pelo mecânico<br>✦ Exportação em dólar: ~20% das receitas em moeda forte protege em desvalorizações do real<br>✦ Único papel do grupo Mahle listado fora da Alemanha: acesso a gestão global com liquidez local"},
+        {"titulo": "Riscos principais", "texto": "⚠ Eletrificação da frota: carro elétrico não tem pistão, filtro de óleo nem vela — ameaça estrutural de 10-20 anos<br>⚠ Concentração no motor a combustão: 90%+ das receitas dependem de tecnologia em transição<br>⚠ OEM sujeito ao ciclo automotivo: montadoras param produção em crise e afeta 25% da receita<br>⚠ Controladora estrangeira: dividendo certo, mas decisões estratégicas vêm de Stuttgart — potencial de conflito com minoritários"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Marca reconhecida pelo mecânico. No aftermarket, quem decide a peça é o mecânico — não o dono do carro. E o mecânico de Franca, Uberlândia ou Manaus conhece e confia na Mahle há décadas. Construir essa confiança com 50.000 mecânicos no Brasil inteiro é um ativo invisível que nenhum concorrente recompra. Mais o know-how técnico da matriz alemã: qualidade de produto que importados asiáticos ainda não replicam no motor."},
+    ],
+    "MDNE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Moura Dubeux tem um modelo diferente de todas as outras incorporadoras listadas. Além da incorporação tradicional, opera o chamado 'modelo de condomínio': os clientes compram cotas do terreno coletivamente, formam um condomínio, e a MD constrói por conta do condomínio cobrando taxa de administração mensal. Isso gera receita recorrente durante a obra e reduz o risco de crédito (o cliente paga mensalmente conforme a obra avança). Em 2026, reorganizou-se como holding MDNE com três marcas: Moura Dubeux (alto padrão e luxo + segunda residência), Mood (médio padrão, lançada em 2023) e Ún1ca (MCMV no Nordeste, em parceria com a Direcional — joint venture chamada Ún1ca para o segmento econômico nordestino). Opera em 7 estados nordestinos, com liderança de mercado absoluta na região — 260 empreendimentos entregues em 42 anos e VGV lançado de R$5,5 bi projetados para 2026."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Alto padrão e luxo — marca Moura Dubeux:</b> Recife, Fortaleza, Natal, João Pessoa; segunda residência na costa nordestina<br><b>~30% — Médio padrão — marca Mood:</b> lançada em 2023; crescendo rápido; primeira residência classe média<br><b>~15% — MCMV — marca Ún1ca (JV com Direcional):</b> iniciada em 2025; em crescimento acelerado; acesso ao FGTS"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Monopólio regional: 42 anos de liderança no Nordeste — nenhum concorrente nacional tem a mesma escala regional<br>✦ Modelo de condomínio: receita recorrente durante a obra + risco de crédito menor<br>✦ DY de 17%: alta distribuição de lucros; P/L de 5,79x — um dos mais baratos do setor<br>✦ Nordeste com demanda reprimida: menos saturado que SP; cliente de alto padrão regional tem menos opções<br>✦ Ún1ca (MCMV): diversificação que protege em ciclo de juro alto; JV com Direcional traz expertise"},
+        {"titulo": "Riscos principais", "texto": "⚠ Concentração no Nordeste: PIB regional mais fraco — recessão nacional impacta mais<br>⚠ Três marcas recentes: Mood (2023) e Ún1ca (2025) ainda em maturação — execução simultânea é risco<br>⚠ Alto padrão sensível à Selic: o core do negócio sofre quando crédito encarece<br>⚠ Small cap: liquidez menor (R$8 mi/dia) — spread bid/ask maior, menos cobertura de analistas<br>⚠ Dependência familiar: empresa fundada pela família Dubeux — risco de governança em eventual transição"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 42 anos de presença dominante no Nordeste. O comprador de alto padrão em Recife não compra da Cyrela — compra da Moura Dubeux. Essa confiança de marca regional, construída empreendimento a empreendimento em uma região onde poucos nacionais apostaram, é inreplicável no curto prazo. O modelo de condomínio é outro diferencial que os concorrentes não dominam — o cliente nordestino está habituado a esse modelo e o prefere. E o banco de terrenos de décadas na costa nordestina, em regiões que valorizaram com o turismo interno pós-pandemia, é uma posição que nenhum novo entrante vai encontrar disponível."},
+    ],
+    "MULT3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Multiplan foi fundada por José Isaac Peres em 1974 e construiu ao longo de 50 anos um portfólio de 20 shoppings concentrados em localidades premium: BarraShopping (RJ), MorumbiShopping (SP), ParkShopping (BSB), BH Shopping (MG), entre outros. A estratégia é o oposto da Allos: poucos ativos, mas os melhores. 73% do portfólio tem vendas anuais superiores a R$1 bilhão — o melhor índice do setor. Isso se traduz na maior conversão de vendas em aluguel: 10,5% vs 9,6% da Allos. Em termos práticos: para cada R$100 que o lojista vende, a Multiplan captura R$10,50 em aluguel. Esse poder de precificação vem da qualidade — lojista que está no MorumbiShopping não tem alternativa de mesma qualidade próxima. A Multiplan também tem um componente imobiliário relevante: desenvolve apartamentos e escritórios no entorno dos shoppings — o projeto de cidade completa ao redor do shopping (multimix)."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~52% — Aluguel mínimo garantido:</b> base fixa reajustada por IGP-DI/IPCA; portfólio premium permite mínimos maiores<br><b>~22% — Aluguel variável (% das vendas):</b> maior percentual variável que os pares — reflexo da qualidade do lojista<br><b>~13% — Estacionamento:</b> alto fluxo de veículos em shoppings premium — receita relevante<br><b>~8% — Desenvolvimento imobiliário (multimix):</b> apartamentos e escritórios no entorno dos shoppings — ciclo mais longo<br><b>~5% — Cessão de direito e outros:</b> key money e receitas não recorrentes"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ 73% do portfólio com vendas > R$1 bi/ano: qualidade de ativo incomum — lojistas pagam prêmio para estar lá<br>✦ 10,5% de conversão: maior poder de precificação do setor — cada real de venda gera mais aluguel<br>✦ Vendas/m² cresceram 10,9% em 2025: maior taxa de crescimento entre os pares<br>✦ 50 anos de track record: Multiplan construiu shoppings que viraram referência de consumo nas suas cidades<br>✦ Multimix: desenvolvimento imobiliário ao redor cria ecossistema de valor que valoriza o próprio shopping"},
+        {"titulo": "Riscos principais", "texto": "⚠ Valuation de prêmio (12x FFO): não tolera decepção — qualquer desaceleração é punida no preço<br>⚠ Concentração geográfica: forte em SP, RJ e Sul — recessão regional impacta mais que portfólio nacional<br>⚠ Selic alta é o maior inimigo: duration longa do ativo = valuation comprimido em cenário de juro alto<br>⚠ DY mais baixo (~5-6%): reinveste mais; para investidores de renda pura, a Allos é mais atrativa<br>⚠ Expansão limitada: portfólio premium tem menos oportunidades de crescimento via novos shoppings"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 50 anos de curadoria de localização e de mix de lojistas. O MorumbiShopping em São Paulo ou o BarraShopping no Rio têm listas de espera de lojistas que querem entrar. Quando o Zara, a Apple ou a Nike quer estar em São Paulo, o MorumbiShopping está na lista curta — e a Multiplan sabe negociar esse poder de escassez em aluguel. Isso é uma vantagem competitiva de marca que levou meio século para construir e que nenhum shopping novo replica mesmo com capital infinito."},
+    ],
+    "PETR4": [
+        {"titulo": "Como funciona o negócio", "texto": "A Petrobras é uma empresa integrada de petróleo e gás — extrai no pré-sal, refina nas suas refinarias e vende combustível e derivados para o mercado brasileiro e para exportação. Com meta de 3,4 milhões de boed até 2028 e custo de extração abaixo de US$6/barril, é uma das operações de mais baixo custo do planeta. O pré-sal brasileiro — especialmente Búzios, com reservas gigantescas na Bacia de Santos — é o coração do negócio: óleo leve de alta qualidade, em águas profundas, com FPSOs que chegam a produzir 200 mil barris/dia cada. O plano 2026-2030 prevê US$109 bi de investimento, 62% no pré-sal, com 8 novos sistemas de produção até 2030, sendo 7 já contratados. A integração com o refino funciona como amortecedor: quando o Brent cai, o refino compra petróleo barato e sustenta margens. O custo total médio de produção (incluindo royalties e participações governamentais) é de US$30,4/boe no quinquênio — muito abaixo do preço de equilíbrio do mercado."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~60% — E&P (exploração e produção):</b> pré-sal é o motor; <US$6/bbl de lifting cost; 8 novos FPSOs até 2030<br><b>~30% — Refino, Transporte e Comercialização:</b> 1,8 mi bpd de capacidade; expansão para 2,1 mi até 2030<br><b>~7% — Gás natural e energia:</b> TAG, transporte de gás, termelétricas<br><b>~3% — Outros (fertilizantes, biocombustíveis):</b> biorrefino em expansão; US$1,2 bi aprovado em 2026"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Pré-sal: custo <US$6/bbl — um dos mais baixos do mundo; óleo leve de alta qualidade<br>✦ Búzios: maior reservatório offshore fora do Oriente Médio — reservas imensas, produção crescente por décadas<br>✦ Integração E&P + refino: proteção natural quando o Brent cai (refino compra barato)<br>✦ Dividendo garantido: política de 45% do FCF; governo precisa do dividendo — alinhamento forçado<br>✦ Escala operacional: única operadora de FPSOs em águas ultra-profundas no Brasil; know-how inreplicável"},
+        {"titulo": "Riscos principais", "texto": "⚠ Risco político: CEO indicado pelo governo; preços de combustíveis como instrumento político<br>⚠ Refino pressionado: governo quer gasolina barata — comprime margens do segmento<br>⚠ Margem Equatorial: nova fronteira exploratória com licenciamento ambiental incerto (IBAMA)<br>⚠ Brent estruturalmente mais baixo: plano assume US$63/bbl em 2026; abaixo disso, capex é revisto<br>⚠ Transição energética: portfólio de longo prazo concentrado em hidrocarbonetos"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O pré-sal é a barreira mais alta do setor de petróleo no mundo. Operar FPSOs em águas de 2.000-3.000 metros, perfurar poços de 6.000-7.000 metros passando pela camada de sal, é um desafio de engenharia que só meia dúzia de empresas no planeta domina — e a Petrobras é operadora de praticamente todos. Ninguém entra no pré-sal sem ela, e ela tem mais de 70 anos de know-how local."},
+    ],
+    "POMO4": [
+        {"titulo": "Como funciona o negócio", "texto": "A Marcopolo não fabrica o chassi do ônibus — fabrica a carroceria. O chassi vem da Volvo, Mercedes ou Scania; a Marcopolo coloca em cima a estrutura de passageiros (o que o passageiro vê e sente). É a maior fabricante de carrocerias de ônibus do mundo em volume. Opera em dois mercados distintos: Brasil (~50% da receita), onde os clientes são prefeituras (ônibus urbano), empresas de turismo e fretamento; e exterior (~50%), onde exporta para América Latina, África, Índia, Austrália e Europa, com fabricação local em alguns países. O produto é customizado — cada pedido tem especificações diferentes. Isso cria barreiras de engenharia e relacionamento com o cliente que produtos padronizados não têm. Em 2025-2026, o BRT (Bus Rapid Transit) nas capitais brasileiras e o programa de eletrificação de frotas municipais são os maiores catalisadores. A Marcopolo já fabrica carrocerias para ônibus elétricos — é uma das poucas do setor que mitigou o risco de eletrificação."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~30% — Ônibus urbano — Brasil:</b> prefeituras e operadoras; BRT e eletrificação são catalisadores 2025-2026<br><b>~20% — Ônibus rodoviário e turismo — Brasil:</b> empresas de fretamento e turismo; ciclo ligado à economia<br><b>~35% — Exportação (América Latina + África + outros):</b> dólar/euro nas receitas; margens melhores que o mercado doméstico<br><b>~15% — Fabricação local no exterior (JVs):</b> Índia, Austrália, Colômbia — receita em moeda local"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Líder mundial em carrocerias de ônibus: escala que nenhum concorrente brasileiro alcança<br>✦ 50% de exportação: diversificação geográfica que suaviza o ciclo doméstico<br>✦ Produto customizado: cada ônibus é um projeto — barreiras de engenharia e relacionamento<br>✦ Já fabrica para elétricos: adaptação estratégica que evita a armadilha da eletrificação<br>✦ Caxias do Sul: cluster industrial gaúcho com fornecedores especializados e mão de obra qualificada"},
+        {"titulo": "Riscos principais", "texto": "⚠ Dependência de orçamento público: prefeituras compram quando têm verba — ciclo político afeta demanda doméstica<br>⚠ Eletrificação em andamento: BYD e Volvo Elétrico competem pela carroceria de ônibus elétrico<br>⚠ Câmbio de dois gumes: exportação beneficia margem, mas matéria-prima importada sobe junto<br>⚠ Enchentes RS (2024): sede em Caxias do Sul sofreu impacto operacional — risco geográfico concentrado"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 75 anos de know-how em engenharia de carrocerias de ônibus. O ônibus urbano de São Paulo, de Lagos, de Melbourne e de Montevidéu pode ser da Marcopolo — e cada cidade tem normas técnicas, dimensões e especificações diferentes. Dominar isso em 100+ países é uma barreira de conhecimento técnico e relacionamento institucional que nenhum entrante replica em menos de décadas."},
+    ],
+    "PRIO3": [
+        {"titulo": "Como funciona o negócio", "texto": "A PRIO tem um modelo único e comprovado: compra campos de petróleo maduros que grandes petroleiras decidiram abandonar, assume a operação, corta custos e aumenta a recuperação dos reservatórios. Fez isso com Frade (da Chevron), Albacora Leste (da Petrobras), cluster Polvo+Tubarão Martelo (da Dommo) e, mais recentemente, Peregrino (da Equinor) — o maior campo da empresa, 100% adquirido em 2025. O resultado: de 5 mil barris/dia e custo de US$35/bbl em 2015 para +190 mil barris/dia e custo de US$9/bbl em 2026. Wahoo é o próximo capítulo: primeiro campo desenvolvido do zero pela PRIO, conectado ao FPSO Valente via tieback de Frade, com custo marginal de apenas US$1/bbl (usa infraestrutura existente) e capacidade de 40 kboed. Peregrino, que a Equinor operava a US$500 mi/ano de custo, já está sendo operado pela PRIO a US$370 mi e deve chegar a US$250 mi quando o gasoduto de gás for reativado em 2026 — US$250 mi de ganho anual."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~40% — Peregrino:</b> campo pesado da Equinor; PRIO cortou custo de US$500 mi para meta US$250 mi/ano<br><b>~30% — Frade + Wahoo:</b> Wahoo a 40 kboed com custo marginal de US$1/bbl — maior catalisador de 2026<br><b>~15% — Albacora Leste:</b> campo da Petrobras revendido; PRIO aumentou produção e eficiência<br><b>~15% — Polvo + Tubarão Martelo + outros:</b> cluster offshore menor na Bacia de Campos"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Modelo de revitalização comprovado: compra barato, corta custo, aumenta produção — 100% de execução<br>✦ Lifting cost ~US$9/bbl (meta US$7): margem expressiva mesmo com Brent a US$50<br>✦ Zero risco político: privada, independente, sem governo determinando preços ou CEO<br>✦ Wahoo: custo marginal de US$1/bbl por usar infraestrutura do Frade — puro upside<br>✦ Peregrino: sinergias de US$250 mi/ano vs Equinor — maior captura de valor de campo único"},
+        {"titulo": "Riscos principais", "texto": "⚠ Brent é tudo: sem refino para amortecer — cada US$1 de queda vai direto no EBITDA<br>⚠ Alavancagem pós-Peregrino: US$3 bi de aquisição; meta 1x dívida/EBITDA até 2027 a US$60<br>⚠ Declínio natural: campos maduros declinam — precisa de perfurações contínuas (Albacora Leste+30 kboed)<br>⚠ Ramp-up de Wahoo: GOR (razão gás-óleo) alto; cada poço precisa de 10 dias de estabilização<br>⚠ Concentração na Bacia de Campos: todos os ativos offshore no RJ — risco operacional concentrado"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O know-how de revitalização de campos maduros é a barreira. A PRIO desenvolveu metodologias próprias para extrair mais petróleo de reservatórios dados como esgotados. Isso se combina com uma cultura de custo obsessiva — cortou o OpEx de Peregrino pela metade em menos de um ano. E a reputação junto às grandes petroleiras que querem desinvestir é a maior vantagem competitiva: quando a Chevron, Equinor ou Petrobras quer vender um campo, a PRIO está na lista curta dos compradores."},
+    ],
+    "PSSA3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Porto é a única seguradora real desta lista — ela assume risco, subscreve apólices, paga sinistros. Não é distribuidora de banco. Nasceu em 1945 como seguradora de automóveis e por décadas foi sinônimo de 'seguro de carro'. O problema: auto tinha sinistralidade alta e margens comprimidas. A virada estratégica foi deliberada: diluir o auto (que era 90% da receita) e crescer nas verticais mais rentáveis. Em 2025, auto era apenas 39%. Hoje opera em quatro verticais: Porto Seguro (auto, residencial, empresarial), Porto Saúde (planos de saúde e odonto, crescendo forte), Porto Bank (cartão de crédito, consórcio) e Porto Serviços (assistências). A parceria com o Itaú (exclusividade para auto e residencial nos canais do banco) é uma alavanca de distribuição que nenhum concorrente tem — o Itaú Seguro de Auto é, na prática, operado pela Porto."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~39% — Auto (Porto Seguro + Itaú + Azul Seguros):</b> era 90% em 2010 — deliberadamente diluído; sinistralidade alta e margens comprimidas<br><b>~25% — Porto Saúde (planos de saúde e odonto):</b> vertical mais rentável e em crescimento — margens superiores ao auto<br><b>~15% — Residencial e empresarial:</b> cross-sell com auto e parceria Itaú — sinistralidade mais baixa<br><b>~12% — Porto Bank (cartão, consórcio, financiamento):</b> crescendo via base de 18 mi de clientes — sem custo de aquisição<br><b>~9% — Porto Serviços (assistências):</b> assistências 24h e serviços domésticos — fidelização e receita recorrente"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Diversificação real: auto 39% da receita — se o mercado de carros parar, a Porto não para<br>✦ Porto Saúde crescendo com margens superiores ao auto — driver estrutural dos próximos anos<br>✦ Exclusividade nos canais do Itaú: acesso a mais de 50 milhões de clientes com custo de aquisição reduzido<br>✦ Taxa de renovação 10 pp acima da média do mercado — fidelidade de cliente acima da concorrência<br>✦ 18 milhões de clientes únicos — base para cross-sell de saúde, banco e serviços"},
+        {"titulo": "Riscos principais", "texto": "⚠ Sinistralidade alta: ela paga o que a natureza e os acidentes custam — granizo, enchente, fraude<br>⚠ Competição agressiva em auto: concorrentes praticando preços baixos para ganhar mercado<br>⚠ Porto Saúde: custo dos planos de saúde cresce sistematicamente acima da inflação<br>⚠ DY menor (~5-6%) — reinveste mais para crescer; não é banco de renda no curto prazo<br>⚠ Valuation mais alto (P/L ~10x) após forte valorização — margem de segurança menor"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A exclusividade no Itaú + 80 anos de marca + rede de 46.000 corretores. Um novo entrante levaria décadas para construir a confiança que um corretor tem com a Porto. O contrato com o Itaú é uma alavanca que qualquer outra seguradora pagaria bilhões para ter. E a liderança em auto (com a sinistralidade controlada que têm) cria um banco de dados de risco que é vantagem competitiva de subscrição."},
+    ],
+    "RANI3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Irani não é uma produtora de celulose de mercado. É uma fabricante de embalagens que produz sua própria celulose — e usa tudo internamente. Pega aparas (papel reciclado descartado por supermercados, e-commerce e frigoríficos), transforma em papel kraft e papelão ondulado, e vende para o mercado doméstico. Também tem florestas próprias de pinus no Sul (SC e RS), de onde extrai fibra virgem para complementar a produção e resina de terebintina como subproduto (usada em tintas a óleo)."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~57% — Embalagens de papelão ondulado:</b> frigoríficos, agro, e-commerce, alimentos<br><b>~37% — Papel para embalagens (kraft):</b> sacolas, sacos, papel multiwall — Brasil e 15% exportação<br><b>~6% — Resinas e madeira:</b> terebintina e venda de madeira — subproduto do pinus"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Zero exposição ao câmbio e ao ciclo global de celulose — negócio 100% doméstico<br>✦ Demanda por embalagem de papelão cresceu 2–5%/ano mesmo em recessão — setor defensivo<br>✦ Floresta própria de pinus garante parte do custo estável e previsível<br>✦ Capacidade de repasse de preço: quem compra caixa de papelão não tem substituto fácil<br>✦ Plataforma Gaia (>R$1 bi investido): ganhos de eficiência ainda sendo colhidos"},
+        {"titulo": "Riscos principais", "texto": "⚠ Preço das aparas (OCC): insumo externo que representa ~30% do custo — variou de R$610 a R$1.300/t<br>⚠ Eventos climáticos no Sul (enchentes RS/SC) disruptam o fornecimento de aparas<br>⚠ Small cap — menor liquidez, menor cobertura de analistas, mais suscetível a humor de mercado<br>⚠ Capex pesado recente (Gaia) ainda sendo digerido; FCF pressiona no curto prazo"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Integração + localização + relacionamento com clientes industriais. No mercado de embalagens, o cliente (frigorífico, agro) não troca de fornecedor facilmente — logística, especificação técnica e volume criam um lock-in operacional relevante."},
+    ],
+    "SANB3": [
+        {"titulo": "Como funciona o negócio", "texto": "O Santander é um banco universal (PF + PME + atacado), mas com uma particularidade: é subsidiária de um grupo global espanhol. Isso tem vantagens (acesso a tecnologia, melhores práticas globais, plataforma de câmbio internacional) e desvantagens (decisões estratégicas feitas em Madri podem não se adaptar à realidade brasileira, e parte do lucro 'vaza' para a matriz). Historicamente, o Santander teve dificuldade de encontrar seu nicho no Brasil: não tem o foco em alta renda do Itaú, não tem o agro do BB, não tem o interior do Bradesco, não tem o atacado do BTG. Em 2026, está buscando diferenciação em crédito imobiliário, alta renda e PME. O ROE ainda é o mais baixo entre os grandes privados — o mercado cobra prova."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~52% — Margem financeira (NII):</b> crédito PF + PME + corporate<br><b>~22% — Receitas de serviços e tarifas:</b> cartão, seguros, corretagem<br><b>~12% — Seguros e previdência:</b> <br><b>~14% — Mercado de capitais e câmbio:</b> "},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Plataforma global: câmbio, trade finance e operações internacionais para clientes com negócios no exterior<br>✦ Acesso à tecnologia e melhores práticas do grupo global — Openbank (banco digital do grupo) chegando ao Brasil<br>✦ Valuation descontado em relação aos pares: se o ROE normalizar, há upside relevante<br>✦ Histórico consistente de pagamento de JCP — yield atrativo dado o valuation baixo"},
+        {"titulo": "Riscos principais", "texto": "⚠ ROE estruturalmente mais baixo que os pares privados — sem nicho definido que justifique prêmio<br>⚠ Decisões estratégicas dependem da matriz espanhola — nem sempre otimizadas para o Brasil<br>⚠ Exposição a PME e varejo de menor renda em ciclo de juro alto e inadimplência elevada<br>⚠ Competição intensa: Itaú na alta renda, BTG no atacado, Nubank/Inter no varejo digital"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 A plataforma global é a barreira real. Para uma empresa brasileira que exporta, importa ou tem sócios internacionais, ter um banco com presença em 10 países na mesa é conveniente. Mas no varejo PF doméstico, essa vantagem não aparece — o que explica o ROE mais baixo: a barreira não se traduz em rentabilidade no negócio principal."},
+    ],
+    "SAPR4": [
+        {"titulo": "Como funciona o negócio", "texto": "A Sanepar é a empresa de saneamento do Paraná — controlada pelo governo estadual. Opera 346 concessões municipais, com cobertura de água já alta historicamente (Paraná tem índices acima da média nacional). O foco atual é expansão de esgoto e modernização das redes. Diferente das pares privatizadas, a Sanepar não passou por turnaround — já era uma empresa relativamente eficiente. O grande evento de 2026 foi a decisão da AGEPAR sobre os R$4 bi de precatórios (dinheiro recebido via vitória judicial): a agência regulatória determinou que o valor será repassado aos consumidores via redução de tarifa, e não distribuído como dividendo extraordinário. O mercado frustrado explica a queda de ~8% das ações em 2026. Também em 2026, a revisão tarifária entregou apenas 2,49% (IRT) — bem abaixo da inflação — comprimindo margens e frustrou as expectativas."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Água — tarifa regulada (AGEPAR/PR):</b> cobertura histórica alta no PR; crescimento via novos usuários e reajuste tarifário<br><b>~43% — Esgoto — tarifa regulada:</b> déficit de esgoto no Paraná ainda a ser endereçado — maior runway de crescimento<br><b>~2% — Outros serviços:</b> resíduos industriais; serviços técnicos para municípios"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Operação madura e eficiente: sem o 'mato alto' das estatais que vão para privatização — base operacional sólida<br>✦ Cobertura alta de água: menor risco operacional e de qualidade; Paraná tem melhores indicadores do setor<br>✦ Dívida controlada: dívida líquida/EBITDA de 0,71x — folga para investimento sem comprometer a estrutura financeira<br>✦ P/VP abaixo de 1x: negocia abaixo do valor patrimonial — piso de proteção para o investidor<br>✦ Estado do Paraná: melhor qualidade de crédito entre os estados brasileiros — menor risco de interferência política irresponsável"},
+        {"titulo": "Riscos principais", "texto": "⚠ Precatórios para consumidores: R$4 bi que o mercado esperava como dividendo foram para os usuários — frustrou a tese de dividendo extraordinário<br>⚠ Revisão tarifária conservadora: IRT 2026 de 2,49% (abaixo da inflação) comprime receita real<br>⚠ Sem catalisador de privatização: governo do PR não sinaliza privatização; sem repricing de múltiplo no horizonte<br>⚠ Crescimento limitado: empresa mais madura = menor crescimento de BRR = menor expansão de receita vs pares<br>⚠ Lucro pressionado: 1T26 com queda de 70,8% (efeito base de comparação alta + itens não recorrentes de 2025)"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 346 concessões municipais no Paraná — o mesmo monopólio regulado dos pares. A Sanepar tem uma vantagem específica: décadas de relacionamento com os municípios paranaenses e um histórico de qualidade de serviço que reduz o risco de revogação de concessões. O Paraná tem o melhor perfil de pagadores do Brasil — inadimplência menor, consumo per capita maior, renda acima da média. A barreira aqui é mais operacional do que de turnaround: quem tentasse entrar não teria como competir por concessões já consolidadas."},
+    ],
+    "SBSP3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Sabesp é um monopólio de saneamento no estado de São Paulo — atende 375 municípios, incluindo a capital e a Grande São Paulo, que sozinhas concentram 22% da população brasileira e 31% do PIB nacional. Em julho de 2024, o governo de SP vendeu 32% das ações por R$14,8 bi — a maior oferta de saneamento da história do Brasil (demanda de R$187 bi). A Equatorial pagou R$6,9 bi por 15% e assumiu como investidora de referência. O modelo pós-privatização tem três vetores: (1) turnaround operacional (opex cortou R$3 bi em 2025 — de R$11,8 para R$8,8 bi); (2) aceleração de capex (R$20 bi em 2026, quase 3x o histórico anual); (3) universalização e crescimento da BRR. Cada real investido e reconhecido pela ARSESP vira receita regulatória futura — o motor de valorização de longo prazo. O CEO Carlos Piani (ex-Equatorial Maranhão) declarou: 'Estamos à frente das metas, o que nos permite sonhar' — sinalizando possível expansão para outras concessões."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~65% — Água — tarifa regulada:</b> distribuição de água tratada para 375 municípios paulistas<br><b>~33% — Esgoto — tarifa regulada:</b> coleta e tratamento; meta de 90% de cobertura até 2033<br><b>~2% — Outros serviços:</b> resíduos, construção para terceiros, serviços técnicos"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Melhor área de concessão do Brasil: SP concentra 22% da população e 31% do PIB — demanda e renda acima da média<br>✦ Turnaround comprovado: R$3 bi de opex cortados em 1 ano — a Equatorial provou que consegue fazer em saneamento o que fez em energia<br>✦ BRR crescendo de R$88 bi para R$158 bi até 2030 — cada real de capex vira receita regulatória futura<br>✦ Política de dividendos crescente: 50% do lucro em 2026-27, chegando a 100% a partir de 2030<br>✦ Revisão tarifária anual até 2030 — ciclo curto reduz o risco de investimento não reconhecido"},
+        {"titulo": "Riscos principais", "texto": "⚠ Execução do capex de R$70 bi: quase 3x o histórico — escassez de empreiteiros, licenças e pessoal capacitado<br>⚠ Revisão tarifária politicamente sensível: Tarcísio de Freitas com agenda eleitoral em 2026 pode pressionar tarifas<br>⚠ Residências irregulares incluídas na universalização: custo e operacionalização incertos<br>⚠ Valuation já captura parte da transformação: ação subiu muito desde a privatização — margem de segurança menor<br>⚠ Lock-up da Equatorial até 2029: limitação de liquidez do controlador no curto prazo"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O monopólio regulado é a barreira definitiva. Nenhuma empresa entra em São Paulo para concorrer com a Sabesp — a concessão vai até 2060 em contrato único com 375 municípios. Quem quer saneamento na região metropolitana de SP, paga para a Sabesp. E com a aceleração do capex e o reconhecimento tarifário anual, cada ano que passa aumenta os ativos da base regulatória — criando uma barreira de ativos que vai crescendo com o tempo."},
+    ],
+    "SHUL4": [
+        {"titulo": "Como funciona o negócio", "texto": "A Schuler é uma OEM pura — fabrica exclusivamente para montadoras. O produto são peças estampadas de aço: portas, capôs, para-lamas, reforços estruturais de chassi, componentes de suspensão. É o que o cliente nunca vê, mas que está em todo veículo. A demanda segue diretamente a produção de veículos no Brasil — quando as montadoras produzem mais, a Schuler fatura mais; quando param (crise de semicondutores, recessão), a Schuler para junto. A matéria-prima principal é o aço plano — cujo preço é cotado internacionalmente e tem componente de câmbio, criando risco de margem quando o real desvaloriza sem que o cliente (montadora) aceite reajuste imediato. Opera em Santa Catarina, com uma estrutura industrial robusta e relacionamento de décadas com as principais montadoras do Brasil."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~60% — Peças estampadas para carros de passeio:</b> GM, Ford, Stellantis, VW, Toyota — clientes concentrados<br><b>~30% — Peças para veículos comerciais e pesados:</b> caminhões e ônibus — ciclo diferente do passeio<br><b>~10% — Ferramental e outros serviços:</b> matrizes e ferramentas para clientes industriais"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Relacionamento de décadas com montadoras: trocam de fornecedor raramente — custo de mudança é enorme<br>✦ Santa Catarina: polo industrial consolidado com fornecedores especializados e logística para portos<br>✦ Especialização técnica: estampagem de alta precisão é barreira de processo que startups não replicam<br>✦ Veículos comerciais: diversificação com caminhões e ônibus que têm ciclo diferente do passeio"},
+        {"titulo": "Riscos principais", "texto": "⚠ OEM 100%: qualquer queda na produção de veículos impacta diretamente a receita<br>⚠ Concentração de clientes: poucos clientes grandes — perder um é perder fatia relevante<br>⚠ Aço como risco: commodity internacional com componente cambial; repricing com montadora é lento<br>⚠ Eletrificação: carros elétricos têm menos peças estampadas de aço (estrutura diferente) — risco de médio prazo"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 O processo de qualificação de um novo fornecedor numa montadora leva 2-3 anos de testes, auditorias e certificações. A Schuler já passou por esse processo com todos os clientes — a barreira de entrada não é o equipamento (pode-se comprar uma prensa), mas o histórico de qualidade que dá confiança à montadora para homologar. E São Bento do Sul concentra um cluster de indústrias de metal-mecânica que cria um ambiente de fornecedores especializados difícil de replicar."},
+    ],
+    "SLCE3": [
+        {"titulo": "Como funciona o negócio", "texto": "Produtora pura de commodities — não beneficia nem exporta diretamente. Opera ~18 fazendas em 7 estados do Cerrado. ~70% das áreas são arrendadas em sacos de soja/hectare: quando o preço cai, o custo cai junto — proteção automática de margem. Em 2025-2026, queda de ~20% no preço da soja e câmbio mais forte pressionaram margens vs o pico de 2022-2023."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Soja:</b> principal cultura; exportada via tradings<br><b>~30% — Algodão:</b> maior margem unitária; demanda global crescente<br><b>~15% — Milho (safrinha):</b> segunda safra no mesmo solo — custo marginal menor"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Maior produtora listada: escala de 700 mil ha gera poder de negociação com fornecedores<br>✦ Arrendamento como hedge: custo em sacos de soja cai quando preço cai automaticamente<br>✦ Cerrado: produtividade acima da média nacional; logística para exportação otimizada<br>✦ Diversificação: soja + milho + algodão suaviza dependência de uma única commodity"},
+        {"titulo": "Riscos principais", "texto": "⚠ Preço de soja: queda de 20% no preço reduz receita proporcionalmente<br>⚠ Câmbio apreciado: real forte comprime margens da receita em dólar<br>⚠ Clima: seca ou excesso de chuva impacta produção nas 18 fazendas<br>⚠ Arrendamento renovável: risco de não renovação ou aumento de custo pelo dono da terra"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 40 anos de relacionamento com donos de terra para arrendamento de longo prazo. Gestão de 18 fazendas em 7 estados com agricultura de precisão é operação que levou décadas para construir. Novo entrante precisaria de capital, terra disponível e reputação ao mesmo tempo."},
+    ],
+    "SUZB3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Suzano planta eucalipto, processa em celulose de fibra curta (BHKP) e exporta praticamente tudo em dólar. O produto é commodity global — o preço é dado pelo mercado internacional, não pela empresa. Sua vantagem é ser a produtora de menor custo do mundo, graças à produtividade do eucalipto brasileiro (o mais rápido do planeta — 7 anos do plantio ao corte) e à escala das operações após a fusão com a Fibria em 2019."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~85% — Celulose BHKP:</b> fibra curta de eucalipto, commodity global<br><b>~10% — Papel:</b> papel para imprimir/escrever e tissue<br><b>~5% — Outros:</b> energia, madeira, derivados"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Menor custo de produção de celulose do mundo — floresta tropical de crescimento ultrarrápido<br>✦ Escala de 10,9 milhões de toneladas/ano — nenhum concorrente chega perto no eucalipto<br>✦ Hedge natural: receita em dólar vs. custos em real<br>✦ Certificação FSC de toda a base florestal — acesso a mercados premium na Europa"},
+        {"titulo": "Riscos principais", "texto": "⚠ Preço da celulose cai 30–40% num ciclo negativo — resultado despenca junto<br>⚠ Dívida em dólar: variação cambial pode gerar prejuízo contábil mesmo com caixa saudável<br>⚠ Projeto Cerrado (nova fábrica em GO) aumentou alavancagem — deleveraging levará anos<br>⚠ Produto único: sem diversificação que amortize o ciclo"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Escala e custo. Construir uma fábrica de celulose de 2 milhões de toneladas custa ~US$ 5 bilhões e leva 5 anos. Nenhum novo entrante consegue competir no custo sem décadas de plantio próprio."},
+    ],
+    "TAEE11": [
+        {"titulo": "Como funciona o negócio", "texto": "A Taesa é a transmissora pura mais conhecida da B3. Opera mais de 13.000 km de linhas de transmissão e 109 subestações em 18 estados. O modelo é simples e poderoso: vence um leilão da ANEEL, constrói a linha e passa a receber a RAP (Receita Anual Permitida) por 30 anos. A RAP não depende de quanto energia flui pela linha — só de a linha estar disponível dentro dos parâmetros técnicos (parâmetros de indisponibilidade geram desconto na RAP, chamado de Parcela Variável). Com receita indexada à inflação (60% IGPM + 40% IPCA), payout de 100% e sem risco climático, a Taesa é comparada a uma NTN-B de longo prazo. O que diferencia dos títulos públicos: risco de renovação de concessões antigas com metodologia menos favorável, e alavancagem de 4,7x que limita novos investimentos."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~95% — RAP de transmissão:</b> receita contratada por 30 anos, reajustada por IGPM/IPCA<br><b>~5% — Reforços e melhorias autorizados:</b> RAP adicional por obras autorizadas na concessão"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Zero risco climático: transmissão não gera energia — chuva, seca, vento não importam<br>✦ RAP indexada à inflação: receita do próximo ano é basicamente conhecida hoje<br>✦ Payout de ~100% do lucro regulatório: quem compra recebe praticamente todo o lucro<br>✦ Portfólio de categoria II/III (mais transparente): menor risco de surpresa regulatória nas concessões novas<br>✦ Quando o IGPM supera o IPCA: receita cresce mais que os custos — assimetria positiva"},
+        {"titulo": "Riscos principais", "texto": "⚠ Alavancagem de 4,7x dívida líquida/EBITDA — a maior entre as transmissoras da B3<br>⚠ Concessões antigas têm metodologia diferente: revisão pode reduzir 15-20% da RAP dessas linhas<br>⚠ Capex pendente de R$2,2 bi em projetos — a empresa precisa captar e construir<br>⚠ IGPM negativo (já aconteceu em 2017) reduz a receita das concessões indexadas a esse índice<br>⚠ Selic alta eleva o custo da dívida e comprime o valuation (duration muito longa)"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Uma vez vencido o leilão, a concessão é exclusiva por 30 anos. Ninguém constrói uma linha de transmissão paralela — o regulador não autoriza. O custo de construção da infraestrutura e a exclusividade regulatória criam um monopólio natural de altíssima barreira. O desafio não é a concorrência — é vencer o próximo leilão a uma RAP que ainda dê retorno."},
+    ],
+    "VALE3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Vale é uma das cinco maiores empresas de mineração do mundo e a maior exportadora de minério de ferro do planeta. Opera em dois grandes segmentos: Metais Ferrosos (~70% do EBITDA) e Metais Básicos (~15%). O coração do negócio é o Sistema Norte — a mina de Carajás, no Pará. Carajás tem o maior depósito de minério de ferro de alta qualidade do mundo: reservas de ~7 bilhões de toneladas com teor médio de 67% Fe (benchmark é 62%). A qualidade superior gera prêmio de preço de US$5-15/t. A logística é integrada: ferrovia EFC (Estrada de Ferro Carajás, 892 km) leva o minério diretamente ao Porto do Itaqui (MA) — sem baldeação, sem intermediário, menor custo. Em metais básicos, a Vale tem níquel no Canadá (Voisey's Bay) e cobre em projetos de desenvolvimento. Com a transição energética, cobre e níquel ganham relevância — o Sossego e o Salobo (cobre no PA) são apostas de longo prazo."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~55% — Minério de ferro e pelotas (Sistema Norte — Carajás):</b> 67% Fe; premium sobre benchmark; EFC + Porto Itaqui<br><b>~20% — Minério de ferro (Sistema Sudeste — MG):</b> 62-63% Fe; Quadrilátero Ferrífero; sistema mais antigo e caro<br><b>~12% — Níquel e subprodutos (cobre, cobalto, platina):</b> Canadá, Brasil, Indonesia; metal da bateria EV<br><b>~8% — Cobre (Sossego, Salobo — PA):</b> crescimento acelerado; apoio da transição energética<br><b>~5% — Outros (manganês, ferroligas, logística):</b> "},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Carajás: o melhor minério do mundo em qualidade e reservas — inreplicável em qualquer outra jurisdição<br>✦ Custo C1 entre os mais baixos do planeta: ~US$23-25/t vs produtores marginais a US$80+/t<br>✦ Logística própria (EFC + Porto Itaqui): controle do custo de ponta a ponta sem dependência de terceiros<br>✦ Diversificação em metais da transição: cobre e níquel crescem em relevância com veículos elétricos<br>✦ Sem controlador majoritário: gestão profissional com foco em retorno ao acionista"},
+        {"titulo": "Riscos principais", "texto": "⚠ China: 70% das exportações vão para a China — qualquer desaceleração afeta diretamente<br>⚠ Brumadinho: passivo ambiental e reputacional em curso desde 2019 — provisões continuam pesando<br>⚠ Metais básicos: cobre e níquel ainda não são escala suficiente para compensar volatilidade do ferro<br>⚠ Produção de Carajás com metas ambiciosas: execução de S11D a plena capacidade é desafio logístico<br>⚠ Câmbio apreciado comprime margens em reais mesmo sem queda do preço do minério"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Carajás é a barreira definitiva. O depósito foi descoberto em 1967 por geólogos da Vale e da US Steel — e nunca se encontrou outro igual no mundo em qualidade e escala. Quem não tem Carajás não tem o mesmo produto. Adicione a ferrovia de 892 km e o porto próprio: construir essa logística hoje custaria US$15-20 bi e levaria 10-15 anos. A Vale tem isso funcionando há décadas."},
+    ],
+    "VULC3": [
+        {"titulo": "Como funciona o negócio", "texto": "A Vulcabras é a maior fabricante de calçados esportivos do Brasil — em volume de produção, não em receita de marca. Opera com duas marcas: Olympikus (própria, focada em performance popular) e Under Armour (licença exclusiva para o Brasil — fabrica, distribui e vende). A fábrica principal fica em Horizonte (CE) — maior complexo industrial de calçados do hemisfério sul, com mais de 13.000 funcionários. O Nordeste tem dois benefícios estruturais: custo de mão de obra menor e incentivos fiscais do estado do Ceará. O modelo de licença da Under Armour é o diferencial: a Vulcabras paga royalty (em dólar, um custo), mas recebe o brand premium de uma marca global de alta performance que ela não precisaria construir do zero. Vende via varejo (Renner, Riachuelo), e-commerce e lojas multimarcas."},
+        {"titulo": "De onde vem a receita", "texto": "<b>~48% — Under Armour Brasil (licença):</b> marca premium — maior ticket médio; paga royalty em dólar; contrato vigente<br><b>~40% — Olympikus:</b> marca própria — boa penetração no interior e classes B/C; maior margem líquida<br><b>~12% — Outros (exportação, private label):</b> exportação para América Latina; produção para terceiros"},
+        {"titulo": "Vantagens competitivas", "texto": "✦ Maior complexo industrial de calçados do hemisfério sul: escala de 50 mi de pares/ano gera custo unitário imbatível<br>✦ Under Armour: brand premium sem o risco de construir uma marca global do zero<br>✦ Nordeste: custo de mão de obra menor + incentivos fiscais do Ceará = estrutura de custo competitiva<br>✦ Margem bruta 42-45%: a mais alta do grupo — mix de marca premium com produção eficiente<br>✦ Olympikus como proteção: marca própria cresce sem depender de contrato de licença"},
+        {"titulo": "Riscos principais", "texto": "⚠ Renovação do contrato Under Armour: se perder a licença, perde ~48% da receita do dia para a noite<br>⚠ Royalty em dólar: custo da licença sobe com o dólar — margem comprimida em desvalorizações do real<br>⚠ Importados asiáticos: concorrência de calçados chineses e vietnamitas comprime preços no varejo<br>⚠ Exposição à renda da classe C: Olympikus e Under Armour entry-level sensíveis a crises de renda"},
+        {"titulo": "Barreira de entrada", "texto": "🔒 Escala industrial e a licença Under Armour. Construir um complexo de 13.000 funcionários especializados em calçados esportivos leva décadas — e criar o conhecimento técnico de solado, espuma de amortecimento e cabedal esportivo é barreira de processo. A Under Armour escolheu a Vulcabras porque ela é a única no Brasil com capacidade de produzir em escala e qualidade para uma marca premium global."},
     ],
 }
-
+PERFIL_EMPRESA = {
+    "ABCB4": {
+        "nome": "ABC Brasil",
+        "fundacao": "1989",
+        "sede": "São Paulo, SP",
+        "tagline": "O banco que nunca atendeu pessoa física. 100% atacado, 100% foco em empresa — e a menor inadimplência do setor.",
+        "modelo": "O ABC Brasil é o mais puro exemplo de especialização no setor bancário brasileiro.  Não tem agência para pessoa física. Não tem conta corrente de varejo. Não tem cartão de crédito PF.  Atende exclusivamente médias e grandes empresas (segmento middle market, corporate e large corporate)  com crédito, trade finance (financiamento ao comércio exterior), câmbio, derivativos,  banco de investimento e seguros corporativos.  Controlado pelo Arab Banking Corporation (banco árabe do Barein), tem acesso facilitado  a funding internacional e a uma rede de relacionamentos no Oriente Médio que  nenhum banco brasileiro replica.  A inadimplência histórica abaixo de 1% é o resultado de 35 anos atendendo quem  tem balanço para mostrar — empresas com faturamento mínimo de R$30 mi anuais.",
+        "receita": [
+            ("Margem com clientes (crédito corporativo)", "~55%", "spread sobre carteira de R$32+ bi"),
+            ("Margem com mercado e tesouraria", "~20%", "PL remunerado ao CDI + operações de mercado"),
+            ("Receitas de serviços", "~15%", "banco de investimento, tarifas, câmbio"),
+        ],
+        "vantagens": [
+            "Inadimplência histórica < 1% — resultado de 35 anos emprestando apenas para empresas com balanço",
+            "Sem exposição ao varejo PF: não sofre com inadimplência de cartão, crédito pessoal ou PME de baixa renda",
+            "Funding internacional (via Arab Banking Corp) com custo menor que captação doméstica — vantagem de spread",
+            "Modelo de negócio simples, previsível e escalável — sem a complexidade operacional de um banco universal",
+            "Alta correlação de receitas com o CDI: PL remunerado a CDI + margem com clientes = proteção natural em juro alto",
+        ],
+        "riscos": [
+            "Concentração: poucas carteiras grandes — uma inadimplência relevante pontual impacta mais que num banco pulverizado",
+            "Crescimento limitado: não tem varejo para escalar rapidamente — cresce no ritmo das empresas que serve",
+            "Controlador estrangeiro: decisões podem ser influenciadas por dinâmicas do Arab Banking Corporation",
+            "Exposição ao ciclo corporativo: recessão severa aumenta inadimplência mesmo no atacado",
+        ],
+        "barreira": "35 anos de relacionamento com o middle e large corporate brasileiro.  Empresa de faturamento R$300 mi não troca de banco por conveniência —  o relacionamento, o limite de crédito aprovado e as operações estruturadas em curso  criam um lock-in real. Mais o funding árabe, que nenhum banco brasileiro vai replicar.",
+    },
+    "ALOS3": {
+        "nome": "Allos S.A.",
+        "fundacao": "2019 (fusão Aliansce + Sonae Sierra Brasil; renomeada Allos em 2022)",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "A maior plataforma de shoppings do Brasil em número de ativos. 44 shoppings, diversificação nacional e a Helloo como motor de receita de mídia.",
+        "modelo": "A Allos nasceu da fusão entre a Aliansce Shopping Centers e a Sonae Sierra Brasil em 2019,  e foi renomeada em 2022 para refletir o reposicionamento estratégico.  Com 44 shoppings e mais de 11.000 lojas, é o maior portfólio do Brasil em número de ativos.  A estratégia é de escala e diversificação geográfica: presente em todas as regiões,  com shoppings de médio e grande porte que atendem diferentes perfis de consumidor.  Além do aluguel tradicional, a Allos tem dois vetores de crescimento adicionais:  a Helloo (plataforma de mídia em shoppings — painéis, aeroportos, mídia digital),  que cresce rápido e tem margens melhores que o aluguel;  e um pipeline de expansão via ABL incremental nos shoppings existentes.  Em 2026, o incêndio no Shopping Tijuca (janeiro) impactou ~6% da receita de aluguel  temporariamente — o ativo operou com capacidade reduzida no 1T26.",
+        "receita": [
+            ("Aluguel mínimo garantido", "~55%", "base fixa dos contratos de locação, reajustada por IGP-M/IPCA"),
+            ("Aluguel variável (% das vendas)", "~20%", "percentual sobre vendas dos lojistas — cresce com SSS"),
+            ("Estacionamento e serviços", "~12%", "receita de rotatividade e serviços aos lojistas"),
+            ("Helloo (mídia em shoppings e aeroportos)", "~8%", "crescimento acelerado; margens superiores ao aluguel"),
+            ("Cessão de direito e outros", "~5%", "key money e receitas imobiliárias não recorrentes"),
+        ],
+        "vantagens": [
+            "44 shoppings: maior diversificação geográfica do setor — nenhum ativo representa mais de 10% da receita",
+            "Helloo: plataforma de mídia em crescimento com margens superiores ao aluguel e receitas crescentes",
+            "DY de ~9% em 2026: alta distribuição de FCL atrativa para investidores de renda",
+            "Valuation com desconto (10x FFO) vs Multiplan — potencial de re-rating se qualidade do portfólio melhorar",
+            "Recompras de ações ativas: programa de buyback aumenta o FFO por ação sem crescimento operacional",
+        ],
+        "riscos": [
+            "Portfólio de qualidade média: 58% da receita vem de shoppings com vendas < R$1 bi/ano",
+            "Incêndio no Tijuca (jan/2026): impacto temporário mas real de ~6% da receita",
+            "Selic alta comprime o valuation: shopping é ativo de duration longa — taxa de desconto importa",
+            "Conversão de 9,6%: menor poder de precificação vs Multiplan — lojistas pagam menos por real de venda",
+            "Integração ainda em andamento: fusão de 2019 ainda sendo otimizada em sistemas e processos",
+        ],
+        "barreira": "44 concessões em pontos estratégicos das cidades.  Um shopping bem localizado é inreplicável — não se constrói outro no mesmo quarteirão.  O custo de construção de um shopping novo (R$500 mi a R$2 bi) e o tempo de maturação  (5-7 anos para atingir ocupação plena) criam uma barreira de entrada altíssima.  A Helloo adiciona uma barreira de rede: 44 shoppings + aeroportos criam escala de mídia  que anunciantes pagam prêmio para acessar.",
+    },
+    "ALUP11": {
+        "nome": "Alupar Investimento",
+        "fundacao": "2000 (holding formalizada em 2007)",
+        "sede": "São Paulo, SP",
+        "tagline": "A transmissora com ambição latino-americana. Controle 100% nacional, expansão no Peru e Colômbia, e a única com concessão vitalícia no exterior.",
+        "modelo": "A Alupar é uma holding privada de controle nacional que opera transmissão e geração  no Brasil e na América Latina. No Brasil, detém 9.576 km de linhas de transmissão  em 42 sistemas — a terceira maior transmissora privada do país em RAP.  No exterior, opera no Peru (6 projetos de transmissão + 1 PCH), na Colômbia  (PCH Morro Azul + 2 transmissoras, incluindo concessão VITALÍCIA) e no Chile.  O modelo é transmissão como core (~75% do EBITDA, RAP previsível)  complementado por geração (4 UHEs, 4 PCHs, 7 eólicos, 1 solar — 798 MW).  A geração serve para complementar, não como motor principal.  O grande diferencial: com 17% das receitas em USD após os projetos do Peru,  a Alupar reduz a exposição à regulação brasileira.  Está em ciclo pesado de capex (R$9 bi no ciclo atual), o que comprime o DY  hoje mas cria o pipeline de crescimento para os próximos 5-7 anos.",
+        "receita": [
+            ("RAP de transmissão Brasil", "~65%", "42 sistemas; IPCA e IGPM; projetos entrando até 2029"),
+            ("Geração renovável Brasil", "~20%", "hídrica, eólica, PCH, solar — 798 MW; PPAs de longo prazo"),
+            ("Transmissão e geração América Latina", "~15%", "Peru, Colômbia, Chile — crescente; parte em USD"),
+        ],
+        "vantagens": [
+            "Controle 100% nacional: fundadores operam e são donos — alinhamento total de interesses",
+            "Concessão vitalícia na Colômbia: ativo único no setor — RAP sem prazo de vencimento",
+            "Expansão em USD (Peru): hedge natural contra depreciação do real",
+            "Pipeline de entrada operacional: projetos entram até 2029 gerando RAP incremental",
+            "TIR real implícita de ~8,1%: superior à Taesa (~4,7%) e próxima da ISA (~7,7%)",
+        ],
+        "riscos": [
+            "Alavancagem em pico de ~4x: capex de R$9 bi nos próximos anos pressiona o balanço",
+            "Risco regulatório externo: Peru, Colômbia e Chile têm marcos menos previsíveis que o Brasil",
+            "DY atual baixo (~3%): ciclo de capex comprime dividendo; investidor de renda pode se frustrar",
+            "Curtailment na geração eólica: afeta receita do segmento de geração",
+            "Execução simultânea: 12 projetos em andamento, 9 fora do Brasil — gestão complexa",
+        ],
+        "barreira": "Concessões de 30 anos — e na Colômbia, vitalícia.  A capacidade de executar transmissão em países com regulação distinta é expertise  que poucos têm e que anos de presença no exterior constroem.  A escala de 9.576 km de linhas abre portas em leilões onde operadores menores  não conseguem participar. E o controle familiar alinhado  garante que o retorno ao acionista é o objetivo, não objetivos políticos.",
+    },
+    "AXIA3": {
+        "nome": "Axia Energia (ex-Eletrobras)",
+        "fundacao": "1961 (como Eletrobras); privatizada em 2022; renomeada Axia Energia em 2025",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "A maior empresa do setor elétrico brasileiro. Privatizada em 2022, ainda digerindo a transição. TIR implícita de 10% real.",
+        "modelo": "A Axia é a antiga Eletrobras — a maior empresa do setor elétrico brasileiro,  com cerca de 30 GW de capacidade instalada e participação em dezenas de  concessões de geração e transmissão. A privatização de 2022 foi o maior evento  do setor em décadas, mas a transição ainda está sendo digerida.  O portfólio tem uma peculiaridade: parte significativa das usinas opera em 'regime de cotas'  — um modelo regulatório onde a energia é dividida entre distribuidoras a preço fixo,  tirando a geração do mercado livre. O processo de 'descotização' (sair das cotas)  está em andamento mas é lento, o que significa que o portfólio ainda é menos  lucrativo do que poderia ser.  Em 2025 concluiu a migração para o Novo Mercado da B3, simplificou a estrutura  acionária e iniciou a venda de ativos não-estratégicos — são os primeiros sinais  de que a gestão privada está gerando valor.",
+        "receita": [
+            ("Geração hídrica em cotas", "~50%", "preço regulado; menos lucrativo que o mercado livre"),
+            ("Geração hídrica em ACL (mercado livre)", "~30%", "preço de mercado — potencial de crescimento com descotização"),
+            ("Transmissão (RAP)", "~15%", "concessões de transmissão em diversas regiões"),
+        ],
+        "vantagens": [
+            "Maior empresa do setor — presença em praticamente todos os grandes projetos hídricos do Brasil",
+            "TIR real implícita de ~10%: bem acima de pares de transmissão (~7-8%)",
+            "Descotização: cada usina que sai das cotas entra no mercado livre a preço melhor — upside de longo prazo",
+            "Novo Mercado: governança melhorando, estrutura acionária simplificada",
+            "Custo de geração entre os mais baixos do mundo (hídrica velha = sem depreciação relevante)",
+        ],
+        "riscos": [
+            "Risco político: governo ainda questiona aspectos do acordo de privatização; risco de revisão de termos",
+            "Portfólio mais descontratado: menos energia comprometida em contratos de longo prazo vs pares",
+            "Descotização é lenta: upside real ainda depende de decisões regulatórias e políticas",
+            "Complexidade: dezenas de subsidiárias, concessões e participações — difícil de analisar",
+            "GSF: maior exposição hídrica do setor = mais vulnerável à seca",
+        ],
+        "barreira": "São décadas de concessões hídrica em rios que já foram inventariados —  Tucuruí, Balbina, Itaipu (participação), Angra (nuclear): ativos que jamais serão  licenciados de novo. A escala de 30 GW e o papel sistêmico no SIN  (o ONS não opera sem a Axia) criam uma barreira que é, na prática, o próprio Brasil.",
+    },
+    "BBAS3": {
+        "nome": "Banco do Brasil",
+        "fundacao": "1808 (fundado por Dom João VI)",
+        "sede": "Brasília, DF",
+        "tagline": "O banco do agro e do funcionalismo. Líder incontestável no crédito rural, mas pagando o preço de uma carteira concentrada.",
+        "modelo": "O BB tem três pilares que nenhum banco privado consegue replicar: o crédito rural (53% do crédito  agro brasileiro passa pelo BB, com funding subsidiado via FCO e PRONAF), o funcionalismo público  (processa metade das folhas do setor público federal e estadual — base de consignado captiva), e o  Tesouro Nacional (agente financeiro do governo federal). Fora isso, é um banco universal com  seguros (BB Seguridade, controlada listada separadamente) e gestão de ativos. O problema de 2025-2026  é exatamente essa concentração: o agro sofreu com El Niño, preços baixos de grãos e endividamento  acumulado. A inadimplência rural saltou de 1% para 6%, o lucro caiu 54% no 1T26 e o ROE colapsou  para 7,3%. A BB Seguridade, contudo, continua entregando — o banco dentro do banco que o mercado  frequentemente esquece.",
+        "receita": [
+            ("Margem financeira (NII)", "~45%", "crédito rural + consignado + corporate"),
+            ("BB Seguridade (resultado de equivalência patrimonial)", "~20%", "seguros, previdência e capitalização"),
+            ("Receitas de serviços e tarifas", "~20%", "folha de pagamento, asset management, tarifas"),
+            ("Tesouraria e mercado", "~15%", "títulos públicos e operações com o governo"),
+        ],
+        "vantagens": [
+            "Monopólio prático no crédito agro — nenhum banco privado tem a rede, o funding subsidiado e a expertise",
+            "Folha do setor público: base captiva de consignado com inadimplência próxima de zero",
+            "BB Seguridade: motor de resultado capital-light e recorrente dentro do conglomerado",
+            "Valuation de desconto (P/L ~4x, P/VP ~0,6x) embute a percepção de risco estatal",
+            "Gestão de ativos: 24,9% de market share — o maior gestor de recursos do Brasil",
+        ],
+        "riscos": [
+            "Interferência política: governo pode forçar crédito subsidiado, reduzir spread e comprometer rentabilidade",
+            "Concentração no agro: ciclos negativos (clima, preço de commodities) impactam desproporcionalmente",
+            "Inadimplência rural 2025-2026: ainda longe do pico — pode demorar 2-3 anos para normalizar",
+            "Menor eficiência operacional que bancos privados — custo de servir é mais alto",
+        ],
+        "barreira": "O acesso ao funding subsidiado (FCO, PRONAF, recursos do Tesouro) é uma barreira que nenhum banco  privado pode replicar. Quem financia agricultura a taxa de 7-8% a.a. quando o custo de mercado é 14%+  está usando um subsídio que só o banco estatal acessa. Isso cria uma vantagem competitiva no agro  que é, literalmente, impossível de replicar sem ser banco público.",
+    },
+    "BBDC3": {
+        "nome": "Bradesco",
+        "fundacao": "1943",
+        "sede": "Osasco, SP",
+        "tagline": "O gigante em reestruturação. Construído no interior do Brasil, foi o maior banco privado por décadas — agora recupera a rentabilidade.",
+        "modelo": "O Bradesco é o único entre os grandes privados que foi construído de dentro para fora do Brasil —  nasceu em Marília (SP) e cresceu pelo interior antes de chegar às capitais. Essa origem explica  sua exposição à massa e às PMEs do interior, que são mais vulneráveis a ciclos de juros altos.  Em 2022-2024, o banco pagou o preço: inadimplência subindo, provisões estourando, ROE colapsando  para abaixo do custo de capital. A reestruturação de Marcelo Noronha (CEO desde 2023) levou o banco  a ser mais seletivo no crédito, a fechar agências, digitalizar e focar em alta renda e crédito  com garantia. O resultado começou a aparecer em 2025: lucro crescendo, ROE recuperando, ação  subindo 60% no ano. Em 2026, a tese é de quanto esse ROE ainda pode subir — e se chegará ao  nível de Itaú, ou ficará estacionado nos 15-17%.",
+        "receita": [
+            ("Margem financeira (NII)", "~50%", "spread de crédito PF + PME + corporativo"),
+            ("Seguros (Bradesco Seguros)", "~20%", "vida, saúde, automóvel — joint venture com Munich Re"),
+            ("Receitas de serviços e tarifas", "~18%", "cartão, previdência, corretagem"),
+            ("Outros", "~12%", "mercado de capitais, câmbio, gestão de ativos"),
+        ],
+        "vantagens": [
+            "Bradesco Seguros: uma das maiores seguradoras do Brasil — negócio capital-light com margens altas",
+            "Rede capilar no interior: presença onde grandes bancos e fintechs chegam com mais dificuldade",
+            "Reestruturação em curso: se o ROE normalizar para 18-20%, o valuation atual (P/L ~6x) está barato",
+            "Cielo integrada: adquirência + produtos bancários criam potencial de cross-sell",
+        ],
+        "riscos": [
+            "Execução: a reestruturação pode demorar mais ou entregar menos que o prometido",
+            "Concorrência de fintechs no varejo massificado — o segmento que o Bradesco depende mais",
+            "Exposição residual à massa de baixa renda, mais sensível a inadimplência em juro alto",
+            "Valuation não é mais óbvio — após alta de 60% em 2025, o desconto já fechou parcialmente",
+        ],
+        "barreira": "A rede de distribuição no interior do Brasil é o ativo mais difícil de replicar.  Cidades de 30.000 habitantes onde o Bradesco é o único banco presente — e onde  a fintech não chega sem agência ou correspondente. Mais a Bradesco Seguros, que tem  escala e relacionamento de décadas com corretores.",
+    },
+    "BBSE3": {
+        "nome": "BB Seguridade",
+        "fundacao": "2012 (IPO)",
+        "sede": "Brasília, DF",
+        "tagline": "O maior pagador de dividendos do setor. Uma distribuidora de seguros disfarçada de seguradora — e isso é exatamente o que a torna tão lucrativa.",
+        "modelo": "A BB Seguridade não assume risco de seguro. Ela distribui seguros, previdência e capitalização  pela rede do Banco do Brasil — 70 milhões de clientes, mais de 3.500 pontos de atendimento —  e cobra comissão. O risco de sinistro fica com os parceiros: Mapfre (seguros, JV 74,9% BB + 25,1% Mapfre)  e Principal Financial Group (previdência, via Brasilprev).  Estrutura capital-light com payout de ~85% — não precisa reter capital para cobrir sinistros.  O resultado tem dois motores: operacional (prêmios, corretagem, sinistralidade das parceiras)  e financeiro (reservas técnicas da Brasilprev e Brasilcap investidas na Selic).  Em juro alto o segundo motor turbina o lucro: no 1T26 foi +58,5% a/a e representou 23% do total.  O detalhe que muda tudo: o contrato de distribuição com o BB vai até 2033.  O mercado desconta esse risco no valuation — e o P/L de 8x vs. 13-14x histórico do mercado  é basicamente o 'preço' que o investidor paga pela incerteza de renovação.",
+        "receita": [
+            ("Corretagem e distribuição (BB Corretora)", "~40%", "comissão sobre todos os produtos vendidos pela rede BB"),
+            ("Previdência (BrasilPrev)", "~25%", "taxa de gestão + resultado financeiro das reservas PGBL/VGBL — turbinado pela Selic"),
+            ("Seguros rurais (Brasilseg)", "~14%", "maior linha individual; sensível ao agro, El Niño e inadimplência rural"),
+            ("Seguros vida e prestamista (Brasilseg)", "~17%", "prestamista ligado ao consignado — sofre com juro alto; vida é base estável"),
+            ("Capitalização (Brasilcap)", "~4%", "títulos de capitalização — beneficiado pela Selic alta"),
+        ],
+        "vantagens": [
+            "Modelo capital-light: não assume risco de sinistro → payout de 85% → DY de 11-12%",
+            "Canal exclusivo com 70 milhões de clientes do BB — custo de aquisição praticamente zero",
+            "Brasilprev: líder em previdência privada no Brasil; reservas crescendo 10% a/a",
+            "Resultado financeiro expressivo: Selic alta turbina o float das reservas de previdência e capitalização",
+            "P/L de 8x — desconto histórico vs. média do mercado (13-14x)",
+        ],
+        "riscos": [
+            "Contrato 2033: o acordo de distribuição com o BB vence daqui a ~7 anos — renovação, condições e custo são incertos; é o maior risco estrutural",
+            "Selic caindo: resultado financeiro (23% do lucro em 1T26) cai imediatamente; recuperação operacional leva trimestres",
+            "Seguro rural (~35% dos prêmios): El Niño, seca e inadimplência rural pressionaram a Brasilseg em 2024-2026",
+            "Prestamista em queda: ligado ao crédito consignado — juro alto reduz tomada de crédito e, com ela, o seguro",
+            "Guidance 2026 conservador: própria empresa projeta resultado operacional de -7% a -3% vs. 2025",
+        ],
+        "barreira": "O contrato de exclusividade com o BB e o tamanho da base de clientes são inreplicáveis.  Nenhuma seguradora privada tem acesso a 70 milhões de clientes com custo de aquisição zero.  Brasilprev é a maior gestora de previdência privada do Brasil — liderança construída em décadas.  O problema é que toda essa vantagem depende de um contrato com o estado.",
+    },
+    "BMGB4": {
+        "nome": "Banco BMG",
+        "fundacao": "1930 (família Pentagna Guimarães)",
+        "sede": "Belo Horizonte, MG",
+        "tagline": "O especialista em consignado INSS. Enquanto outros bancões atendem todo mundo, o BMG só atende aposentado — e isso é sua maior força.",
+        "modelo": "O BMG é o banco mais nichado desta lista: 88% da carteira de crédito é formada  por aposentados e pensionistas do INSS.  O produto central é o empréstimo consignado, onde as parcelas são descontadas  diretamente do benefício do INSS — a inadimplência é estruturalmente baixa porque  o pagador não é a pessoa, é o governo federal.  A distribuição é feita por correspondentes bancários (terceiros que originam o crédito),  lojas próprias 'help! Loja de Crédito' (na cor laranja, reconhecível pelo público),  e canais digitais.  O desafio é que o governo regula a taxa máxima (hoje 1,85%/mês para o empréstimo e  2,46%/mês para o cartão). Quando a Selic sobe, o custo de captação sobe,  mas o teto de taxa não — o spread comprime.  Em 2025-2026, a CPI do INSS investigando fraudes no consignado criou obrigação de  biometria facial para cada contratação — adiciona fricção e pode frear a originação.",
+        "receita": [
+            ("Empréstimo consignado INSS", "~55%", "produto principal — taxa máxima 1,85%/mês"),
+            ("Cartão consignado INSS", "~25%", "desconto direto no benefício — taxa máxima 2,46%/mês"),
+            ("Consignado privado (CLT)", "~10%", "iniciado em 2025 — menor escala, maior risco"),
+            ("Seguros e outros produtos", "~10%", "Bmg Seguradora — vida, acidentes pessoais"),
+        ],
+        "vantagens": [
+            "Inadimplência estruturalmente baixa: parcelas descontadas direto do INSS — o devedor não pode deixar de pagar",
+            "Base de aposentados é demograficamente crescente — 35 milhões de beneficiários do INSS e crescendo",
+            "Reconhecimento de marca no público INSS: a cor laranja é sinônimo de consignado no interior do Brasil",
+            "Correspondentes bancários capilarizados onde bancos tradicionais não chegam",
+        ],
+        "riscos": [
+            "Teto regulatório de taxa: Selic sobe, mas o banco não consegue repassar — spread comprime estruturalmente",
+            "CPI do INSS e fraudes no consignado: biometria obrigatória adiciona fricção e pode reduzir origação",
+            "Concentração extrema em um segmento: qualquer mudança regulatória no consignado INSS impacta 88% da carteira",
+            "ROE limitado pelo teto de taxa: difícil escalar margem acima de 12-14% com spread comprimido",
+            "Consignado privado (CLT) em expansão — risco maior que o INSS, e o banco ainda está aprendendo o segmento",
+        ],
+        "barreira": "O reconhecimento de marca no público INSS e a rede de correspondentes são difíceis de replicar.  O aposentado do interior que reconhece a loja laranja e confia no 'consignado BMG'  não troca facilmente de banco. Além disso, os correspondentes que originam crédito  têm relacionamentos de anos com o BMG — e comissões que constroem lealdade.  A barreira não é tecnológica; é de relacionamento e presença física em regiões remotas.",
+    },
+    "BPAC11": {
+        "nome": "BTG Pactual",
+        "fundacao": "1983",
+        "sede": "São Paulo, SP",
+        "tagline": "O maior banco de investimento da América Latina. Não é um banco de varejo — é uma máquina de alocar capital.",
+        "modelo": "O BTG é estruturalmente diferente dos outros: não tem agência, não quer o cliente de massa,  não cresce emprestando para pessoa física no cartão. Ele ganha dinheiro sendo o intermediário  entre quem tem capital (grandes fortunas, fundos) e quem precisa de capital (grandes empresas, governos).  A receita tem seis pilares: corporate lending (crédito para grandes empresas, ~R$2,3 bi/tri),  sales & trading (mesa proprietária e corretagem institucional), investment banking (IPOs, M&As, emissões),  asset management (R$2,5 tri sob gestão/administração), wealth management (R$1,28 tri — clientes private)  e consumer finance (Banco PAN + Too Seguros, consignado privado).  No 1T26 entregou lucro de R$4,8 bi (+42% a/a) e ROAE de 26,6%.  O modelo de partnership (sócios compram ações — alinhamento total) é um diferencial cultural único.",
+        "receita": [
+            ("Corporate Lending", "~23%", "crédito corporativo de alta qualidade — crescimento de 22% a/a"),
+            ("Wealth Management", "~15%", "R$ 1,28 tri sob gestão — crescimento recorde"),
+            ("Sales & Trading", "~19%", "mesa proprietária + corretagem institucional — volátil"),
+            ("Asset Management", "~12%", "R$ 2,5 tri total — taxas de gestão e performance"),
+            ("Consumer Finance & Banking", "~11%", "Banco PAN + Too Seguros — consignado privado"),
+            ("Investment Banking", "~10%", "IPOs, M&As, emissões de dívida — cíclico"),
+        ],
+        "vantagens": [
+            "Modelo de partnership: sócios são donos — incentivos alinhados, execução consistente há 40 anos",
+            "Wealth Management: R$1,28 tri em assets com crescimento de 44,6% a/a — receita recorrente e crescente",
+            "Corporate Lending: inadimplência próxima de zero em crédito para grandes empresas com garantias robustas",
+            "Marca BTG no mercado de capitais: quando uma empresa quer captar R$1 bi+, o BTG está na lista curta",
+            "Único entre os grandes a ter ROE acima de 26% de forma sustentada",
+        ],
+        "riscos": [
+            "Valuation elevado (P/VP ~9x) não tolera desaceleração — crescimento tem que ser entregue",
+            "Investment banking é cíclico — em mercados fechados (sem IPOs, sem M&A), essa linha murcha",
+            "Dividend yield baixo (~2%) — não é banco de renda; é banco de crescimento e reinvestimento",
+            "Risco-chave concentrado em poucos sócios-chave — risco de sucessão no longo prazo",
+        ],
+        "barreira": "A marca e o relacionamento de décadas com os grandes CEOs e CFOs do Brasil.  Não é possível construir isso da noite para o dia. Quando a Vale vai emitir uma debênture  ou o governo quer estruturar um projeto de infraestrutura, o BTG está na mesa.  Isso vem de 40 anos de execução impecável e de uma cultura de partnership que  atrai os melhores profissionais do mercado financeiro.",
+    },
+    "BRAP4": {
+        "nome": "Bradespar S.A.",
+        "fundacao": "2000 (spin-off do Bradesco para concentrar participações industriais)",
+        "sede": "São Paulo, SP",
+        "tagline": "A forma de ter Vale com desconto. Holding que detém ~4,5% da Vale — sem operar uma única mina. O rendimento é o dividendo da Vale amplificado pelo desconto de NAV.",
+        "modelo": "A Bradespar é uma holding de participações controlada pelo banco Bradesco.  Seu único ativo relevante é uma participação de ~4,5% na Vale.  Não opera mina, não tem receita operacional, não tem funcionários de mineração.  O resultado é o dividendo recebido da Vale, menos as despesas da holding.  A tese de investimento é simples: a Bradespar negocia com desconto de NAV  (valor de mercado < valor das ações da Vale que ela possui).  Por que o desconto existe? Custos da holding, liquidez menor que a Vale,  risco de governança (Bradesco decide o que fazer com a participação)  e impostos sobre o dividendo ao longo da cadeia.  Quando o desconto se fecha — por buyback, venda de ações ou elevação do dividendo —  o acionista da Bradespar captura um retorno extra além da variação da Vale.",
+        "receita": [
+            ("Dividendos e JCP da Vale", "~95%", "proporcional à participação de ~4,5% e ao dividendo declarado pela Vale"),
+            ("Resultado financeiro e outros", "~5%", "caixa próprio aplicado em renda fixa"),
+        ],
+        "vantagens": [
+            "Desconto de NAV: comprar Bradespar = comprar Vale mais barato que o mercado",
+            "DY amplificado pelo desconto: o yield efetivo sobre o NAV é maior que comprar Vale direto",
+            "Exposição indireta ao cobre/níquel via Vale: tese de transição energética embutida",
+            "Simplicidade: não tem risco operacional, ambiental nem de produção — só participação financeira",
+        ],
+        "riscos": [
+            "Desconto de NAV pode persistir ou ampliar: holding costuma negociar com desconto estrutural",
+            "Custos da holding corroem o NAV: despesas administrativas e impostos reduzem o retorno líquido",
+            "Decisão do Bradesco: controlador pode vender a participação na Vale em momento ruim",
+            "Dupla tributação: dividendo da Vale → Bradespar → acionista tem mais um passo tributário",
+            "Liquidez menor que Vale: spread bid/ask maior; mais difícil de sair em momentos de estresse",
+        ],
+        "barreira": "A barreira da Bradespar é o próprio desconto de NAV —  quem quer comprar Vale com desconto precisa comprar a Bradespar.  Mas não é uma barreira de negócio:  qualquer um pode comprar Vale diretamente.  A tese funciona enquanto o desconto existir e enquanto a Vale pagar dividendos.  Se o desconto fechar, a vantagem da Bradespar desaparece.",
+    },
+    "BRAV3": {
+        "nome": "Brava Energia",
+        "fundacao": "2024 (fusão 3R Petroleum + Enauta)",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "A junior oil em consolidação. Nasceu da fusão de dois modelos distintos — ainda provando que o todo vale mais que as partes. OPA da Ecopetrol coloca o horizonte em suspenso.",
+        "modelo": "A Brava Energia nasceu em setembro de 2024 da fusão entre a 3R Petroleum  (campos maduros onshore e offshore) e a Enauta (campo de Atlanta).  Atlanta é o ativo premium da empresa: óleo leve de altíssima qualidade,  offshore no Espírito Santo, com menor desconto no Brent.  Os campos de Papa-Terra (óleo pesado, Bacia de Campos) e de gás  (Peroá e Manati, offshore) completam o portfólio.  Em janeiro de 2026, comprou 50% de Tartaruga Verde e Espadarte por US$450 mi  — campos operados pela Petrobras com 14 poços produtores e produção  de ~55 kboed a 100%.  Em maio de 2026, a Ecopetrol (estatal colombiana) lançou OPA  para assumir 51% da empresa a R$23/ação (prêmio de até 28%).  A operação aguarda aprovação do CADE e da ANP — e muda completamente  o perfil de risco da empresa se concluída.",
+        "receita": [
+            ("Atlanta (óleo leve offshore)", "~35%", "óleo premium; menor desconto vs Brent; principal ativo da Enauta"),
+            ("Papa-Terra (óleo pesado offshore)", "~25%", "FPSO P-63; óleo viscoso com maior desconto no Brent"),
+            ("Tartaruga Verde + Espadarte (novo)", "~15%", "50% adquiridos em 2026; operado pela Petrobras; 14 poços"),
+            ("Gás natural (Peroá, Manati)", "~15%", "offshore ES/BA; escoamento via gasodutos"),
+            ("Campos onshore 3R", "~10%", "herdados da 3R; menor prioridade estratégica"),
+        ],
+        "vantagens": [
+            "Atlanta: óleo leve de alta qualidade — menor desconto vs Brent, maior preço realizado",
+            "2ª maior independente em reservas: escala que abre portas em desinvestimentos de grandes petroleiras",
+            "OPA Ecopetrol a R$23: piso de preço no curto prazo com prêmio de 28%",
+            "Tartaruga Verde: 14 poços produtores, operado pela Petrobras — produção previsível e já funcionando",
+            "Diversificação de portfólio: onshore + offshore + gás + óleo leve + óleo pesado",
+        ],
+        "riscos": [
+            "Integração pós-fusão não provada: 3R e Enauta tinham culturas e sistemas operacionais distintos",
+            "Alavancagem alta: dívida da fusão + US$450 mi de Tartaruga Verde = balanço apertado",
+            "OPA Ecopetrol incerta: aprovação de CADE e ANP pode demorar ou não acontecer",
+            "Papa-Terra: óleo pesado = maior desconto no Brent e campo operacionalmente mais complexo",
+            "FCF neutro em 2026: alta produção, mas capex pesado e dívida consomem o caixa",
+        ],
+        "barreira": "Atlanta é o principal ativo de barreira — campo de óleo leve offshore  que a Enauta levou anos para desenvolver e que poucos independentes  conseguiriam financiar.  O know-how da Enauta em desenvolvimento greenfield offshore  é raro no Brasil fora da Petrobras.  Mas a Brava ainda está construindo sua identidade pós-fusão —  a barreira real ainda está sendo testada na execução.",
+    },
+    "BRSR6": {
+        "nome": "Banrisul",
+        "fundacao": "1928",
+        "sede": "Porto Alegre, RS",
+        "tagline": "O banco do Rio Grande do Sul. Seu destino é o destino do RS — e do contrato com o governo estadual.",
+        "modelo": "O Banrisul é um banco estatal regional — o que significa que seu modelo de negócio  é fundamentalmente diferente de todos os outros nesta lista.  Ele existe porque o governo do RS quer um banco público estadual.  O coração do negócio é a folha de pagamento dos servidores públicos gaúchos:  294 mil servidores ativos, inativos e pensionistas cujo salário passa pelo Banrisul,  gerando uma base captiva de consignado, conta corrente e produtos financeiros.  Em julho de 2026, renovou esse contrato por R$1,26 bi — pago à vista, reconhecido como  intangível e amortizado ao longo de 5 anos. O custo dobrou em relação à renovação  anterior (que era de 10 anos). Fora a folha, atende PMEs gaúchas e o varejo do RS.  Toda a sua força e seu risco estão concentrados em um único estado.",
+        "receita": [
+            ("Crédito consignado público (servidores RS)", "~40%", "base captiva da folha estadual"),
+            ("Varejo PF e PME gaúcha", "~35%", "clientes pessoas físicas e pequenas empresas do RS"),
+            ("Receitas de serviços", "~15%", "tarifas, previdência, seguros"),
+            ("Tesouraria", "~10%", "títulos públicos e operações de mercado"),
+        ],
+        "vantagens": [
+            "Base captiva de consignado público — 294 mil servidores estaduais com desconto em folha",
+            "Valuation muito barato (P/VP ~0,5x, P/L ~3x) — desconta o risco político e o ROE baixo",
+            "Dividend yield alto (~9-11%) — governo precisa do dividendo do banco para compor receitas estaduais",
+            "Presença capilar no interior do RS onde os grandes bancos privados não chegam",
+        ],
+        "riscos": [
+            "100% concentrado no RS — enchentes, seca, recessão regional batem direto no resultado",
+            "Dependência do contrato de folha: renovado a custo crescente (dobrou por ano de contrato na última renovação)",
+            "ROE cronicamente baixo (~7-9%) — estruturalmente abaixo do custo de capital",
+            "Risco político: troca de governo estadual pode mudar a relação ou condições do contrato",
+            "Qualidade de crédito pressionada em PF e PME, com inadimplência subindo em 2026",
+        ],
+        "barreira": "O contrato com o governo do RS é a barreira — e também o risco.  Nenhum banco privado vai entrar no estado para fazer o que o Banrisul faz  sem o benefício do funding barato do servidor e a capilaridade de 500+ agências no interior.  Mas essa barreira tem preço: R$1,26 bi a cada 5 anos só para manter o que já tem.",
+    },
+    "CMIG4": {
+        "nome": "Cemig",
+        "fundacao": "1952 (por Juscelino Kubitschek)",
+        "sede": "Belo Horizonte, MG",
+        "tagline": "A estatal integrada de Minas Gerais. Maior distribuidora do Brasil, com risco político que o mercado desconta no preço.",
+        "modelo": "A Cemig é uma holding integrada — opera distribuição (Cemig D),  geração e transmissão (Cemig GT) e tem participações em outras empresas do setor.  É a maior distribuidora do Brasil em número de municípios atendidos e a quarta  em transmissão. Controlada pelo Estado de Minas Gerais (50,97% das ONs),  sofre com o conflito clássico do estatal: o governo quer dividendos para fechar  as contas do estado, mas também quer tarifas baixas para os eleitores.  Em 2025, gerou discussão sobre possível federalização como parte do acordo  da dívida de MG com o governo federal — um risco que assusta o mercado  mas ainda não se concretizou.",
+        "receita": [
+            ("Distribuição Minas Gerais (Cemig D)", "~55%", "maior distribuidora do Brasil em cobertura geográfica"),
+            ("Geração hídrica e eólica (Cemig GT)", "~30%", "portfólio diversificado, mas com exposição hídrica"),
+            ("Transmissão", "~10%", "4ª maior do Brasil"),
+        ],
+        "vantagens": [
+            "Escala: maior distribuidora em municípios atendidos — MG tem 853 municípios",
+            "DY alto (8-12%): governo precisa de dividendo para fechar as contas do estado",
+            "Valuation descontado pelo risco político: quem acredita no desconto pode se beneficiar",
+            "Portfólio diversificado: geração + transmissão + distribuição reduz concentração em um segmento",
+        ],
+        "riscos": [
+            "Risco político: governo MG intervém em gestão, tarifa e alocação de capital",
+            "Debate de federalização: dívida de MG com a União pode levar à transferência do controle",
+            "Posição vendida em energia: Cemig ficou descoberta em contratos de energia, gerando prejuízo",
+            "Alavancagem ~2,3-2,5x: não é crítico mas limita flexibilidade",
+            "Eficiência abaixo de privados: custo de servir mais alto por natureza estatal",
+        ],
+        "barreira": "A concessão de distribuição em Minas Gerais — o estado mais rico em recursos naturais  e o terceiro maior estado em PIB do Brasil.  O portfólio de usinas hidrelétricas em rios mineiros é inreplicável.  O problema: a barreira é do Estado de MG, não da empresa —  e o controlador pode usá-la para objetivos políticos em vez de econômicos.",
+    },
+    "CMIN3": {
+        "nome": "CSN Mineração S.A.",
+        "fundacao": "1977 (como área de mineração da CSN; IPO em 2021)",
+        "sede": "São Paulo, SP",
+        "tagline": "A segunda maior mineradora de ferro do Brasil. Operação concentrada no Quadrilátero Ferrífero — puro jogo de preço do minério, câmbio e custo C1.",
+        "modelo": "A CSN Mineração é a operação de mineração da CSN (Companhia Siderúrgica Nacional),  separada em empresa independente e aberta em IPO em 2021.  Opera no Quadrilátero Ferrífero (MG), na mina Casa de Pedra —  uma das maiores minas a céu aberto do Brasil.  O modelo é simples e direto: extrai minério de ferro (62% Fe),  transporta via MRS Logística até o Terminal de Carvão (TECAR) no Porto de Itaguaí (RJ)  e exporta, principalmente para a China.  Uma parte significativa do minério abastece a própria CSN  (que produz aço e precisa de minério) — captivo interno com preço de mercado.  Produziu recorde de 45,5 milhões de toneladas em 2025 (+4,6% acima do guidance).  Custo C1 de US$23,1/t no 1T26 — competitivo, mas sem o prêmio de qualidade da Vale.",
+        "receita": [
+            ("Exportação de minério de ferro (62% Fe)", "~70%", "China é o principal destino; preço benchmark 62% Fe CFR"),
+            ("Vendas para CSN (mercado interno)", "~20%", "captivo — a controladora usa o minério para produzir aço"),
+            ("Pelotas e outros produtos", "~10%", "valor agregado sobre o minério bruto"),
+        ],
+        "vantagens": [
+            "Custo C1 competitivo (~US$23/t): eficiência operacional que sustenta margem mesmo com minério deprimido",
+            "Produção recorde em 2025: 45,5 mi t — prova de capacidade operacional crescente",
+            "Logística integrada via MRS até Itaguaí: escoamento eficiente sem gargalo logístico",
+            "Captivo interno (CSN): parte da receita não depende do mercado internacional",
+            "Alavancagem baixa: balanço saudável que permite dividendos mesmo em ciclo fraco",
+        ],
+        "riscos": [
+            "Ferro puro sem diversificação: 100% do resultado depende do preço do minério 62% Fe",
+            "Sem prêmio de qualidade: vende ao benchmark — não tem o diferencial da Vale em Carajás",
+            "Controladora CSN (78%): conflito de interesse potencial — CSN pode extrair caixa da CMIN em detrimento de minoritários",
+            "Dependência da China: perfil de exportação muito concentrado no mercado asiático",
+            "FCF volátil: capex de crescimento e compras de minério de terceiros criam oscilações no caixa",
+        ],
+        "barreira": "Casa de Pedra é uma das maiores reservas de minério de ferro do Quadrilátero Ferrífero.  Mas a barreira da CMIN é menor que a da Vale —  o minério 62% Fe é mais padronizado e os produtores australianos  (Rio Tinto, BHP) têm custo C1 de US$18-20/t, abaixo da CMIN.  A barreira real é operacional: a logística via MRS + Itaguaí  e a integração com a CSN criam um sistema que funciona  há décadas e não é fácil de desmontar.",
+    },
+    "CPFE3": {
+        "nome": "CPFL Energia",
+        "fundacao": "1912",
+        "sede": "Campinas, SP",
+        "tagline": "A distribuidora integrada com a maior capilaridade do Sudeste. DY consistente de 8-9% e controlador chinês que quer estabilidade.",
+        "modelo": "A CPFL é uma das maiores empresas do setor elétrico brasileiro, com presença  em distribuição (14% do mercado nacional, 10,3 mi de clientes em 687 municípios),  geração (4.411 MW, entre as maiores privadas) e transmissão.  Controlada desde 2017 pela State Grid Corporation of China — a maior empresa  de energia do mundo, atendendo 1,1 bilhão de pessoas.  O controlador quer estabilidade e dividendos, não aventura: o plano de R$29,8 bi  para 2025-2029 foca em modernizar a distribuição existente (R$24,7 bi em distribuição),  não em crescer por aquisições agressivas.  Em maio de 2026, renovou as concessões das três distribuidoras principais  (CPFL Paulista, Piratininga, RGE) por mais 30 anos — uma redução relevante de  risco de prazo que o mercado subestimou.",
+        "receita": [
+            ("Distribuição de energia (CPFL Paulista, Piratininga, RGE, Santa Cruz)", "~65%", "2ª maior distribuidora do Brasil em volume"),
+            ("Geração (hídrica + eólica + solar + biomassa)", "~25%", "4.411 MW de capacidade instalada"),
+            ("Transmissão (CPFL Transmissão)", "~8%", "RAP de linhas de transmissão"),
+        ],
+        "vantagens": [
+            "Concessões renovadas por 30 anos em 2026: risco de prazo eliminado para as principais distribuidoras",
+            "State Grid como controlador: acesso a capital barato (empréstimo em RMB do NDB), tecnologia chinesa e planejamento de longo prazo",
+            "2ª maior distribuidora em volume: escala que poucos concorrentes têm no Sudeste",
+            "DY consistente de 8-9%: controlador quer dividendo; payout de 78% é sustentável",
+            "Gestão operacional eficiente: CPFL tem histórico de índices de qualidade acima da média do setor",
+        ],
+        "riscos": [
+            "Controlador chinês: geopolítica pode criar ruído regulatório ou político no futuro",
+            "Revisão tarifária: WACC regulatório da ANEEL define a rentabilidade da distribuição — risco periódico",
+            "Alavancagem moderada e capex de R$29,8 bi: FCF comprometido para crescimento, não para DY extra",
+            "Exposição ao Sudeste: crescimento da GD (painéis solares) pode reduzir consumo faturado das distribuidoras",
+            "Mercado Livre: migração de grandes clientes para ACL reduz base de consumidores cativos",
+        ],
+        "barreira": "687 municípios com concessão exclusiva de distribuição no Sudeste e Sul.  Nenhum concorrente entra nesse território — a concessão é de 30 anos, renovada.  A combinação de escala, capilaridade e o apoio da maior empresa de energia do  mundo como controlador cria uma posição que é inatingível por qualquer novo entrante.",
+    },
+    "CPLE3": {
+        "nome": "Copel",
+        "fundacao": "1954",
+        "sede": "Curitiba, PR",
+        "tagline": "A ex-estatal do Paraná. Privatizada em 2023, agora sob gestão privada buscando eficiência que o Estado nunca priorizou.",
+        "modelo": "A Copel é a empresa integrada de energia do Paraná — geração (hídrica no rio Iguaçu  e afluentes), transmissão e distribuição. Em 2023, foi privatizada pelo governo do Paraná,  encerrando 70 anos como estatal. A privatização abriu espaço para buscar eficiência  operacional, reduzir custos e orientar a gestão para retorno ao acionista  em vez de objetivos políticos.  Diferente da Cemig (que ainda é estatal), a Copel já não tem o risco  de interferência política do governo. Mas ainda está no processo de ajuste  pós-privatização: normalização do resultado financeiro, revisão de contratos  e alinhamento da cultura organizacional ao modelo privado leva tempo.",
+        "receita": [
+            ("Distribuição Paraná (Copel DIS)", "~55%", "distribuição regulada em todo o estado do Paraná"),
+            ("Geração hídrica + eólica (Copel GeT)", "~30%", "Iguaçu, Jordão e complexos eólicos"),
+            ("Transmissão (Copel Transmissão)", "~12%", "RAP de linhas em todo o Brasil"),
+            ("Telecomunicações (Copel Telecom)", "~3%", "fibra óptica no Paraná — diferencial único"),
+        ],
+        "vantagens": [
+            "Privatização recente: gestão privada ainda capturando eficiência que o estado não priorizou",
+            "Única utility listada com braço de telecom próprio: Copel Telecom é diferencial raro no setor",
+            "Paraná: estado com melhor qualidade de crédito e menor inadimplência do Brasil — base de consumidores sólida",
+            "Geração hídrica no Iguaçu: hidrologia de boa qualidade no Sul (diferente do Sudeste/Nordeste)",
+        ],
+        "riscos": [
+            "Resultado pós-privatização ainda normalizando: curva de aprendizado da gestão privada",
+            "Alavancagem: ciclo de investimentos pós-privatização pressiona o balanço",
+            "Hidrologia Sul: enchentes no RS/SC em 2024 mostraram que o Sul também tem risco climático",
+            "Copel Telecom: negócio diferente do core elétrico, exige expertise e capex específicos",
+        ],
+        "barreira": "Concessão exclusiva de distribuição em todo o Paraná — um estado de 11 mi de habitantes  e PIB relevante. As usinas do rio Iguaçu são um dos maiores sistemas hídricos do Sul  e são inreplicáveis. A rede de transmissão de fibra óptica da Copel Telecom  seria levada décadas para ser construída por qualquer entrante.  Pós-privatização, o risco de interferência política foi eliminado —  a barreira ficou mais limpa.",
+    },
+    "CSMG3": {
+        "nome": "Copasa (Companhia de Saneamento de Minas Gerais)",
+        "fundacao": "1963 (como COMAG; Copasa desde 1974)",
+        "sede": "Belo Horizonte, MG",
+        "tagline": "A segunda maior privatização de saneamento do Brasil — concluída em junho de 2026. Mesma Equatorial, mesmo playbook, maior WACC regulatório. O turnaround começa agora.",
+        "modelo": "A Copasa atende Minas Gerais — o maior estado do Brasil em extensão territorial,  com importantes economias agropecuária, industrial e mineral.  Em junho de 2026, o governo de MG concluiu a privatização:  a Equatorial assumiu ~30% como investidora de referência,  em operação estimada em R$8-10 bi.  O diferencial estrutural da Copasa vs Sabesp: o WACC regulatório.  A ARSAE (agência mineira) fixou WACC real de ~9,42% vs ~7,86% da ARSESP.  Isso significa que MG remunera cada real de ativo regulatório a uma taxa 20% maior  que São Paulo — mesmo com BRR menor, a rentabilidade por real investido é superior.  O playbook é idêntico ao da Sabesp: turnaround operacional  (EBITDA projetado de R$3,5 bi em 2026 para R$6,1 bi em 2028, CAGR de 30%+),  aceleração de capex (R$3,1 bi em 2026 a R$4,5 bi em 2030)  e crescimento da BRR de R$15,5 bi para R$36+ bi até 2030.",
+        "receita": [
+            ("Água — tarifa regulada (ARSAE/MG)", "~60%", "abastecimento em MG; 3ª revisão tarifária com reajuste de 6,56% em 2026"),
+            ("Esgoto — tarifa regulada", "~38%", "cobertura de esgoto ainda abaixo da média nacional — maior espaço de crescimento"),
+            ("Resíduos e outros", "~2%", "coleta e tratamento de resíduos industriais; serviços complementares"),
+        ],
+        "vantagens": [
+            "WACC regulatório de 9,42% real: 20% maior que Sabesp — maior retorno por real de ativo reconhecido",
+            "Maior crescimento relativo da BRR: de R$15,5 bi para R$36 bi até 2030 (vs crescimento proporcionalmente menor da Sabesp)",
+            "Mesmo controlador da Sabesp: Equatorial com playbook comprovado — menos incerteza de execução",
+            "Valuation ainda atrativo: ação subiu 126% em 12 meses mas ainda negocia abaixo de pares privatizados equivalentes",
+            "MG tem grande déficit de esgoto: enorme runway de universalização = décadas de crescimento da BRR",
+        ],
+        "riscos": [
+            "Turnaround ainda no início: privatização concluída em junho — ganhos de eficiência ainda a capturar",
+            "Concessionamento de BH: renovação do contrato com Belo Horizonte foi condição da privatização — qualquer ajuste impacta a base",
+            "Regulação mineira: ARSAE pode ser mais conservadora que ARSESP no reconhecimento de investimentos",
+            "Risco político residual: Estado de MG retém 5% + golden share — ainda pode interferir em decisões estratégicas",
+            "Valuation precificou boa parte: ação já subiu muito com expectativa de privatização; execução precisa corresponder",
+        ],
+        "barreira": "Monopólio regulado em Minas Gerais — mesmo modelo da Sabesp.  Mas a Copasa tem uma vantagem adicional: o WACC mais alto da ARSAE  cria uma 'vantagem regulatória' estrutural que não depende de gestão,  mas de metodologia da agência.  E com a Equatorial como controladora — que já provou em 7 distribuidoras de energia  que consegue transformar ativos ineficientes em geradores de valor —  a tese de turnaround tem o executor mais credenciado do setor.",
+    },
+    "CURY3": {
+        "nome": "Cury Construtora e Incorporadora",
+        "fundacao": "1963 (por Elias Cury em São Paulo)",
+        "sede": "São Paulo, SP",
+        "tagline": "A incorporadora de MCMV com o maior ROE do Brasil. Em 63 anos, nunca vendeu um imóvel fora do programa habitacional — e é exatamente isso que a torna tão rentável.",
+        "modelo": "A Cury é uma das mais puras histórias de foco do mercado imobiliário brasileiro.  Em 63 anos de história, atua quase exclusivamente no MCMV —  em São Paulo e Rio de Janeiro metropolitano, nas faixas mais altas do programa.  O modelo tem três vantagens estruturais que se reforçam mutuamente.  Primeiro, o crédito: FGTS a 4-10,5% ao ano não muda com a Selic —  quando o mercado de médio padrão desacelera, a Cury continua vendendo.  Segundo, a localização: empreendimentos em áreas centrais próximas a metrô e  serviços, diferente de concorrentes que vão para a periferia mais barata.  Terceiro, o método construtivo: alvenaria estrutural (blocos de concreto)  permite flexibilidade de planta, custo controlado e velocidade de entrega.  O resultado: ROE de 79,5% no 1T26 — o mais alto do setor — mesmo com caixa líquido  positivo, o que demonstra que a geração de caixa é real, não alavancada.  Entre 2020 e 2025, multiplicou receita em 5x, VGV em 5,5x e lucro em 5,7x.",
+        "receita": [
+            ("MCMV faixas 2, 3 e 4 — São Paulo", "~65%", "principal mercado; áreas centrais com transporte; ticket médio crescente"),
+            ("MCMV faixas 2, 3 e 4 — Rio de Janeiro", "~35%", "segundo mercado; expansão acelerada nos últimos 3 anos"),
+        ],
+        "vantagens": [
+            "ROE de 79,5% (1T26) — o mais alto do setor, mesmo sendo caixa líquido positivo",
+            "MCMV imune à Selic: crédito a 4-10,5% via FGTS não muda com a taxa de mercado",
+            "Localização diferenciada: empreendimentos próximos ao metrô em SP/RJ — demanda captiva",
+            "Landbank de R$24,9 bi com 3+ anos de visibilidade — crescimento previsível",
+            "Velocidade de vendas (VSO) de 46% no 1T26 — a mais alta do setor",
+        ],
+        "riscos": [
+            "Zero diversificação: qualquer mudança nas regras do MCMV ou FGTS impacta 100% da receita",
+            "Concentração em SP e RJ: dois mercados, sem diversificação geográfica",
+            "Escassez de mão de obra: causou atrasos em obras em 2025; produtividade em recuperação em 2026",
+            "Sucessão executiva: modelo de Co-CEO anunciado em 2026 — transição de gestão é risco de curto prazo",
+            "Valuation esticado: P/L de 7-8x para uma empresa de MCMV é acima da média histórica do setor",
+        ],
+        "barreira": "63 anos construindo para o mesmo público no mesmo mercado.  A Cury conhece cada zona de uso de São Paulo e Rio de Janeiro como ninguém.  Sabe onde tem metro previsto, onde vai ter densificação, onde o terreno ainda está barato.  Esse banco de dados de décadas de relacionamento com prefeituras,  vendedores de terreno e a Caixa Econômica Federal é inreplicável.  Qualquer entrante levaria anos para construir a rede de relacionamentos  que permite a Cury comprar terreno antes do concorrente saber que está à venda.",
+    },
+    "CXSE3": {
+        "nome": "Caixa Seguridade",
+        "fundacao": "2015 (IPO em 2021)",
+        "sede": "Brasília, DF",
+        "tagline": "A distribuidora do crédito habitacional. Onde tem financiamento da Caixa, tem seguro da CXSE — e por lei.",
+        "modelo": "A lógica da CXSE é idêntica à da BBSE: distribui seguros pela rede da Caixa Econômica Federal  e recebe comissão sem assumir o risco de sinistro. Mas o produto-âncora é diferente — e mais defensivo.  Todo financiamento imobiliário no Brasil exige por lei dois seguros obrigatórios: MIP (Morte e Invalidez)  e DFI (Danos Físicos ao Imóvel). São embutidos na parcela e cobrados por 10 a 35 anos.  Cada novo financiamento da Caixa (que detém mais de R$1 tri em carteira imobiliária)  gera automaticamente mais um contrato de seguro que dura décadas — é o efeito empilhamento.  A base de recorrência cresce enquanto os contratos antigos ainda estão ativos e os novos chegam.  No 1T26 entregou lucro de ~R$1,14 bi (+ROE de 65,9%) e DY projetado de ~7-8% para 2026.",
+        "receita": [
+            ("Seguro habitacional (MIP + DFI)", "~55%", "obrigatório por lei — base recorrente e crescente"),
+            ("Prestamista e vida", "~20%", "seguro do crédito consignado e pessoal da Caixa"),
+            ("Previdência e capitalização", "~15%", "produtos financeiros da rede Caixa"),
+            ("Residencial e outros", "~10%", "seguros patrimoniais para clientes da Caixa"),
+        ],
+        "vantagens": [
+            "Efeito empilhamento: cada financiamento gera contrato de 10-35 anos — recorrência que cresce automaticamente",
+            "Seguro habitacional é obrigatório por lei — não há opção de 'não comprar' para quem financia",
+            "Mais de 60% de market share em seguro habitacional — posição de dominância que nenhum concorrente replica",
+            "Canal com 4.000 agências + 13.000 lotéricas — capilaridade ímpar para o público de menor renda",
+            "ROE de 65,9% no 1T26 — extraordinário para qualquer empresa, de qualquer setor",
+        ],
+        "riscos": [
+            "100% dependente da Caixa como canal e controladora — risco político estatal elevado",
+            "Prestamista pressionado: juros altos reduzem crédito consignado e pessoal",
+            "Resultado financeiro ajuda hoje (Selic alta), mas perde força quando os juros caírem",
+            "Valuation mais esticado que BBSE — P/L de 11-13x já precifica boa parte da qualidade",
+            "Qualquer mudança na política habitacional federal (FGTS, Minha Casa) impacta diretamente",
+        ],
+        "barreira": "A exclusividade com a Caixa + a lei que obriga o seguro habitacional = monopólio prático.  Nenhuma seguradora privada consegue entrar nesse mercado sem ser o parceiro oficial da CEF.  E o efeito empilhamento cria uma receita que cresce por décadas sem esforço de vendas adicional —  é o modelo mais defensivo e previsível de toda a lista.",
+    },
+    "CYRE3": {
+        "nome": "Cyrela Brazil Realty",
+        "fundacao": "1962 (por Elie Horn em São Paulo)",
+        "sede": "São Paulo, SP",
+        "tagline": "A maior incorporadora de alto padrão de São Paulo. Três marcas, três segmentos, uma cidade que concentra 60% do mercado de luxo do Brasil.",
+        "modelo": "A Cyrela é a empresa mais complexa do setor listado.  Opera com três marcas próprias (Cyrela para alto padrão, Living para médio,  Vivaz para MCMV) e tem participação em cinco JVs listadas na B3  (Lavvi, Plano&Plano, Cury, entre outras).  O core é o alto padrão em São Paulo — onde projetos de R$2+ bi de VGV  como o Epic by Pininfarina (210 metros, maior residencial de SP)  definem a marca. A estratégia funciona em ciclos de juros baixos:  o comprador de luxo financia parte do imóvel, e com crédito barato  aumenta o poder de compra. Em juros altos, o efeito inverte.  Em 2026, os lançamentos de alto padrão caíram 71% — o mercado esperou.  A Vivaz (MCMV) compensa parcialmente, mas com margem e ROE muito menores.  As JVs listadas (especialmente Cury) criam valor que não aparece no P/L da Cyrela.",
+        "receita": [
+            ("Alto padrão — marca Cyrela", "~51%", "São Paulo; projetos icônicos de R$500 mil a R$5 mi por unidade"),
+            ("Médio padrão — marca Living", "~23%", "classe média SP e outras praças; mais sensível à Selic"),
+            ("MCMV — marca Vivaz", "~26%", "parceria com Caixa; crescendo para compensar o alto padrão"),
+        ],
+        "vantagens": [
+            "Marca premium de 60 anos: 'Cyrela' é sinônimo de qualidade na cabeça do comprador de alto padrão em SP",
+            "Projetos icônicos: Epic by Pininfarina (VGV R$2 bi) — não é construção, é obra de arte vendável",
+            "JVs listadas (Cury, Lavvi): participação em empresas de alto crescimento que criam valor não precificado",
+            "Diversificação de segmento: quando o alto padrão desacelera, Vivaz sustenta a operação",
+            "Geração de caixa sólida: mesmo com ROE baixo, converte bem lucro em caixa",
+        ],
+        "riscos": [
+            "ROE de 11% no 1T26 — muito abaixo dos pares MCMV (Cury 79%, Direcional 44%)",
+            "Alto padrão sensível à Selic: lançamentos caíram 71% no 1T26 com juros altos",
+            "Concorrência crescente no luxo: JHSF, Lavvi e incorporadoras internacionais disputam o mesmo público",
+            "Vivaz com margem menor: o crescimento que compensa o alto padrão vem com ROE inferior",
+            "Mercado concentrado em SP: 60%+ do resultado vem de uma única praça",
+        ],
+        "barreira": "A marca Cyrela é a barreira — e é uma barreira cultural, não financeira.  Um comprador que paga R$3 mi por um apartamento compra o endereço,  o nome do arquiteto e o status da construtora.  60 anos construindo em São Paulo com qualidade consistente  criam um ativo intangível que nenhum novo entrante replica em menos de duas décadas.  E a carteira de JVs com incorporadoras de crescimento  (Cury, Lavvi) cria um portfólio diversificado que o mercado ainda não precifica corretamente.",
+    },
+    "DIRR3": {
+        "nome": "Direcional Engenharia",
+        "fundacao": "1981 (por Ricardo Valadares Gontijo em Belo Horizonte)",
+        "sede": "Belo Horizonte, MG",
+        "tagline": "A maior construtora do Brasil em área. Dois segmentos, dois clientes, oito estados — e um modelo de permuta que deixa o caixa livre enquanto o landbank cresce.",
+        "modelo": "A Direcional tem um modelo operacional de eficiência industrial.  Opera em dois segmentos: a marca Direcional (MCMV faixas 2 e 3 — baixa renda)  e a marca Riva (médio-baixo padrão, apartamentos até R$500 mil —  que passou a ser enquadrada no MCMV faixa 4 em 2026).  Presente em 8 estados e no DF, é a maior construtora em área do Brasil.  O que diferencia a Direcional dos concorrentes é a combinação de três fatores.  Primeiro, o método construtivo industrializado com formas de alumínio —  encurta o ciclo de obra, reduz desperdício e viabiliza escala nacional.  Segundo, o modelo de permuta: 86% do landbank é adquirido via permuta —  o terreno entra como pagamento de unidades futuras, sem desembolso de caixa.  Terceiro, o crédito associativo: no MCMV, o risco de inadimplência transfere  para o banco financiador na assinatura do contrato — a Direcional recebe  sem risco de o comprador não pagar.  No 1T26: receita de R$1,2 bi (+30% a/a), lucro de R$200 mi (+27%),  margem bruta ajustada de 42,9% — a maior do setor.",
+        "receita": [
+            ("Direcional (MCMV faixas 2 e 3)", "~55%", "8 estados e DF; método industrializado; alta escala"),
+            ("Riva (médio-baixo, até R$500 mi)", "~45%", "enquadrada no MCMV faixa 4 em 2026; VGV +20% no 1T26"),
+        ],
+        "vantagens": [
+            "Landbank de R$51,3 bi com 8+ anos de visibilidade — o maior do setor",
+            "86% do landbank via permuta: o maior banco de terrenos sem desembolso de caixa",
+            "Formas de alumínio: método industrializado que reduz prazo de entrega e custo",
+            "Riva na faixa 4 do MCMV: a subsidiária de médio padrão passou a ter acesso ao crédito subsidiado",
+            "Maior construtora em área do Brasil — escala que gera poder de negociação com fornecedores",
+        ],
+        "riscos": [
+            "Concentração no MCMV: dependência do FGTS e do orçamento público habitacional",
+            "Riva sensível à Selic: crédito SBPE mais caro afeta clientes de médio padrão fora do MCMV",
+            "INCC pressionando: custo de construção acima da inflação desde 2025",
+            "Dois segmentos, dois riscos: gestão de marcas com públicos diferentes exige execução cuidadosa",
+            "Alavancagem subindo: geração de caixa sólida mas pagamento de R$804 mi em dividendos em 2025 elevou endividamento",
+        ],
+        "barreira": "40 anos de MCMV e o maior landbank do setor formam a barreira.  Nenhum novo entrante consegue replicar R$51 bi de terrenos já aprovados e identificados  em 8 estados sem anos de trabalho.  As formas de alumínio (método construtivo industrializado) vieram de décadas  de aprendizado operacional — não se compra só o equipamento,  compra-se o know-how de como usá-lo com escala.  E o relacionamento de 40 anos com prefeituras do interior do Brasil  para aprovação de empreendimentos é impossível de acelerar.",
+    },
+    "EGIE3": {
+        "nome": "Engie Brasil Energia",
+        "fundacao": "1994 (como Nacional Energética; marca Engie desde 2016)",
+        "sede": "Florianópolis, SC",
+        "tagline": "A maior geradora privada do Brasil. 100% renovável, controlada pela Engie francesa. O desafio é o curtailment crescente e o capex pesado.",
+        "modelo": "A Engie Brasil é a maior empresa privada de geração de energia do país, com ~12,9 GW  de capacidade instalada em 145 usinas. O portfólio é 100% renovável: hidrelétricas (~70%),  eólicas, solares e biomassa. Além disso, é sócia da TAG — a maior malha de transporte  de gás natural do Brasil, com 4.500 km em 10 estados.  O modelo de receita combina PPAs (contratos de longo prazo, indexados ao IPCA)  com exposição ao mercado livre (PLD spot).  O desafio atual: curtailment crescente (26% projetado em 2026, 32% em 2027)  — o ONS corta a geração renovável em momentos de sobreoferta.  A estratégia de resposta é migrar parte do portfólio para transmissão,  que gera RAP previsível e não sofre curtailment. Em 2025, venceu lotes  de transmissão nos leilões da ANEEL — a diversificação está em andamento.",
+        "receita": [
+            ("PPAs de longo prazo (geração hídrica + eólica)", "~60%", "contratos indexados ao IPCA com distribuidoras e grandes consumidores"),
+            ("TAG (transporte de gás, participação ~32%)", "~20%", "RAP regulada — receita previsível, sem exposição a preço de gás"),
+            ("Mercado livre de energia (ACL)", "~15%", "preço spot variável — mais volátil"),
+            ("Transmissão nascente + outros", "~5%", "RAP de novos projetos em construção (Asa Branca, Graúna)"),
+        ],
+        "vantagens": [
+            "Controladora Engie (França): acesso a tecnologia, capital barato e modelo global de energia renovável",
+            "TAG: ativo de transmissão de gás com receita regulada — reduz a volatilidade da geração",
+            "100% renovável: posicionamento ESG premium para contratos com multinacionais exigentes",
+            "Maior geradora privada: escala garante acesso aos melhores PPAs e aos maiores leilões",
+            "Expansão em transmissão: diversifica para ativos de menor volatilidade",
+        ],
+        "riscos": [
+            "Curtailment: 26-32% projetado para 2026-2027 — energia produzida mas não vendida",
+            "Dependência hídrica (~70%): secas ou GSF negativo afetam diretamente a geração",
+            "Ciclo de capex pesado: Jirau, Asa Branca, Graúna — R$6 bi investidos em 2025 pressionam o FCF",
+            "Payout reduzido para mínimo de 55% no ciclo de capex — DY caiu vs histórico",
+            "Selic alta + alavancagem acima de 2,5x: pressão financeira em ciclo de investimento",
+        ],
+        "barreira": "Concessões hidrelétricas são praticamente inreplicáveis — os melhores rios já têm dono.  Quem tem Itá, Machadinho, Estreito e Jaguara tem ativos que não se licenciam mais hoje.  A TAG é a única malha de transporte de gás em 10 estados — monopólio natural regulado.  E a marca Engie com 30 anos no Brasil abre portas que novos entrantes levariam décadas para abrir.",
+    },
+    "EQTL3": {
+        "nome": "Equatorial Energia",
+        "fundacao": "2004",
+        "sede": "São Luís, MA",
+        "tagline": "A melhor alocadora de capital do setor elétrico. Compra distribuidoras caóticas, enxuga, recupera e gera retorno acima de qualquer par.",
+        "modelo": "A Equatorial não é uma distribuidora comum — é uma operadora especializada em  turnaround de distribuidoras. O modelo é simples de explicar e difícil de executar:  compra distribuidoras com altíssima inadimplência, furto e ineficiência  (pagando barato por isso), reduz as perdas, melhora a cobrança, normativa  os índices de qualidade e passa a extrair margem de uma operação que  estava destruindo valor. Fez isso com a Eletrobras/CEMAR (Maranhão),  com a CELPA (Pará), com a COELCE (Ceará), com a CELG-D (Goiás), com a CEA (Amapá)  e com a CEPISA (Piauí). Cada aquisição foi uma aposta que o mercado duvidou  e a Equatorial executou. Em 2025, entrou no saneamento (15% da Sabesp)  e já tem posições em saneamento em outros estados.  DY baixo porque reinveste quase tudo — mas valorização histórica  é a melhor do setor por décadas.",
+        "receita": [
+            ("Distribuição de energia (6 estados)", "~75%", "MA, PA, CE, GO, AP, PI — foco em Norte/Nordeste onde havia mais potencial"),
+            ("Saneamento (Sabesp 15% + outros)", "~15%", "novo vetor de crescimento — mesma lógica de turnaround"),
+            ("Geração, transmissão e telecom", "~10%", "ativos complementares vendidos quando maduros"),
+        ],
+        "vantagens": [
+            "Track record de turnaround: cada aquisição que o mercado duvidou, a Equatorial executou",
+            "Gestão de perdas superior: reduz inadimplência e furto nos níveis que distribuidoras estatais nunca conseguiram",
+            "Regiões de maior potencial: Norte e Nordeste têm mais espaço para redução de perdas que Sudeste já maduro",
+            "Expansão em saneamento: a mesma lógica de turnaround aplicada a um setor ainda mais ineficiente",
+            "TIR real de 11,1% implícita: premium justificado pelo histórico e pelo pipeline de crescimento",
+        ],
+        "riscos": [
+            "Alavancagem de 3,5x em fase de expansão — cada nova aquisição pressiona mais o balanço",
+            "Sabesp (15%): primeira entrada no saneamento de grande escala — execução ainda não provada",
+            "Não é banco de renda: DY de 2-4% decepciona investidores que buscam renda mensal",
+            "Regulação adversa: WACC regulatório menor ou opex regulatório mais restritivo comprimir margens",
+            "Integração de múltiplos ativos simultâneos: complexidade operacional cresce com o portfólio",
+        ],
+        "barreira": "A capacidade de executar turnaround é a barreira — e ela não se compra, se constrói em décadas.  A Equatorial tem um playbook testado, uma equipe que já fez isso 6 vezes e  relacionamentos com reguladores e comunidades locais que constroem confiança.  Nenhum concorrente combina o histórico de execução com o acesso a capital  e a disposição de atuar em regiões que outros evitam.  É o modelo mais difícil de imitar no setor.",
+    },
+    "IRBR3": {
+        "nome": "IRB Brasil Re",
+        "fundacao": "1939 (Governo Vargas)",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "O seguro das seguradoras. O único papel da B3 que nenhum consumidor final conhece — e que é fundamental para que todo o mercado de seguros funcione.",
+        "modelo": "O IRB é uma resseguradora — uma categoria completamente diferente das outras três.  Quando a Porto vende um seguro de carro de R$200.000, ela pode não querer carregar 100% desse risco  no balanço. Então ela 'cede' parte do risco ao IRB, pagando um prêmio de resseguro.  Se o carro for roubado, a Porto paga ao cliente e o IRB ressarce parte para a Porto.  O IRB não tem cliente pessoa física. Seus clientes são as seguradoras (chamadas de 'cedentes').  A métrica-rei é o Combined Ratio — se for abaixo de 100%, a operação de subscrição dá lucro.  O IRB passou por uma crise grave em 2020 (fraude contábil, Combined Ratio de 140%+).  Desde 2022 está em turnaround: Combined Ratio voltou para ~85-90%, resultado de subscrição  cresceu 74,5% no 1T26, sinistralidade doméstica caiu para 35%.  Em 2026 anunciou expansão para seguro direto (criação de duas seguradoras próprias) —  é uma mudança estrutural do modelo que o mercado ainda está digerindo.",
+        "receita": [
+            ("Resultado de subscrição (prêmios - sinistros - despesas)", "~53%", "coração do negócio — R$180 mi no 1T26, +74,5% a/a"),
+            ("Resultado financeiro (float das reservas)", "~47%", "reservas técnicas investidas rendendo a Selic"),
+        ],
+        "vantagens": [
+            "Único ressegurador de grande porte listado na B3 — sem comparável doméstico",
+            "Turnaround concluído: Combined Ratio de 140%+ em 2020 para ~85-90% em 2026",
+            "Solvência regulatória de 287% — capital de sobra para crescer e distribuir dividendos",
+            "Mercado de resseguro no Brasil cresceu 7,1% no 1T26 — vento a favor estrutural",
+            "A partir de 2027, reforma tributária (CBS/IBS) zera alíquota do resseguro — potencial ganho de rentabilidade",
+            "Base de dados técnicos de 80+ anos de riscos brasileiros — vantagem de subscrição inreplicável",
+        ],
+        "riscos": [
+            "Catástrofes de grande escala: enchente, furacão, acidente de aviação podem gerar perda pontual enorme",
+            "Histórico de fraude contábil em 2020 — credibilidade ainda em reconstrução com investidores institucionais",
+            "Expansão para seguro direto em 2026 é aposta não provada — pode consumir capital e desviar foco",
+            "Sinistralidade internacional elevada (~93%) — mercado externo é menos lucrativo que o doméstico",
+            "Dividend yield baixo (~3%) — turnaround recente limita distribuição; ainda não é banco de renda",
+        ],
+        "barreira": "80 anos de base de dados técnicos de risco no Brasil.  Uma resseguradora nova levaria décadas para ter a confiança técnica para assumir  resseguros de aviação, petróleo ou grandes riscos industriais.  O IRB sabe exatamente quanto custa um incêndio numa plataforma de petróleo no Brasil —  e essa informação vale mais do que qualquer capital.  Mais o oligopólio regulatório: a SUSEP controla a abertura de novas resseguradoras.",
+    },
+    "ISAE4": {
+        "nome": "ISA Energia Brasil (ex-Transmissão Paulista)",
+        "fundacao": "1999 (Transmissão Paulista) / controladora ISA Colombia fundada 1967",
+        "sede": "São Paulo, SP",
+        "tagline": "A transmissora com o melhor portfólio de novas concessões. Mais previsível que a Taesa, menor alavancagem, controlador colombiano.",
+        "modelo": "A ISA Energia é a segunda maior transmissora privada do Brasil, com foco no Sudeste.  Controlada pela ISA Interconexión Eléctrica S.A. (Colombia), uma das maiores empresas  de transmissão da América Latina. O diferencial da ISA vs Taesa está na qualidade  do portfólio: as concessões são predominantemente de categoria II e III,  com metodologia regulatória mais moderna e transparente — menos risco de surpresas  na revisão de RAP. Menor alavancagem que a Taesa, TIR real implícita de ~7,7%,  o que a coloca em posição mais defensiva no setor. Também tem participação minoritária  da Axia Energia (ex-Eletrobras) em algumas concessões, o que cria uma relação  estratégica com a maior geradora do país.",
+        "receita": [
+            ("RAP de transmissão", "~98%", "receita contratada por 30 anos, predominantemente indexada ao IPCA"),
+            ("Outros serviços", "~2%", "operação e manutenção de terceiros"),
+        ],
+        "vantagens": [
+            "Portfólio de concessões modernas (cat. II/III): menor risco regulatório vs Taesa",
+            "Menor alavancagem: mais espaço para novos leilões sem pressionar o balanço",
+            "TIR real implícita de ~7,7% — bem acima da NTN-B de prazo semelhante",
+            "Controlador com track record: ISA Colombia opera transmissão em 6 países com excelência",
+            "Zero risco climático — mesmo modelo de receita da Taesa",
+        ],
+        "riscos": [
+            "Controlador colombiano: decisões vêm de fora do Brasil — alinhamento com minoritários nem sempre é total",
+            "Selic alta comprime valuation como em qualquer transmissora de duration longa",
+            "Menor liquidez que Taesa na B3 — spread bid/ask maior para investidores institucionais",
+            "Depende de novos leilões para crescer — mercado de transmissão é competitivo",
+        ],
+        "barreira": "Idem à Taesa: exclusividade regulatória de 30 anos e custo proibitivo de infraestrutura.  Adicionalmente, o relacionamento com a Axia e a presença no Sudeste (onde está a maior  demanda do país) são vantagens geográficas e de relacionamento difíceis de replicar.",
+    },
+    "ITUB4": {
+        "nome": "Itaú Unibanco",
+        "fundacao": "1945 (fusão Itaú+Unibanco em 2008)",
+        "sede": "São Paulo, SP",
+        "tagline": "O maior banco privado da América Latina. Disciplina de capital, foco em alta renda e o melhor ROE entre os incumbentes.",
+        "modelo": "O Itaú opera em quatro frentes: varejo (conta corrente, cartão, crédito e seguros para pessoas físicas),  atacado (crédito para grandes empresas, mercado de capitais, tesouraria), gestão de ativos (fundos, previdência)  e atividades internacionais (América Latina). O diferencial não é o tamanho — é a seletividade. O Itaú  deliberadamente abandonou segmentos de menor renda e maior inadimplência, concentrando a carteira em alta e  média renda. 6 de cada 10 brasileiros de alta renda têm relacionamento com o banco. Isso gera spreads  melhores, inadimplência menor e fee de serviços mais alto (asset management, corretagem, seguros).  No 1T26 entregou lucro recorrente de R$ 12,3 bi e ROE de 24,8% — o mais alto entre os incumbentes.",
+        "receita": [
+            ("Margem financeira (NII)", "~50%", "spread de crédito e resultado de tesouraria"),
+            ("Receitas de serviços e tarifas", "~25%", "cartão, asset management, advisory, corretagem"),
+            ("Seguros", "~12%", "Itaú Seguros — vida, prestamista, imobiliário"),
+            ("Outros", "~13%", "câmbio, derivativos, international"),
+        ],
+        "vantagens": [
+            "Melhor ROE entre os bancões incumbentes (~24-26%) — sustentado por décadas, não é pico de ciclo",
+            "Foco na alta renda cria um flywheel: menor inadimplência → menor provisão → mais capital disponível para crescer",
+            "Escala de distribuição: rede própria + parcerias + digital permitem cross-sell sem aumentar custo proporcional",
+            "Transformação digital avançada — 75% das transações já são digitais, com meta de 75% dos clientes em modelo digital-first até 2027",
+            "Seguros e asset management são negócios capital-light dentro do banco, com margens muito mais altas que o crédito",
+        ],
+        "riscos": [
+            "Valuation premium (P/L ~8x, P/VP ~2x) não tolera decepções — qualquer deterioração é punida",
+            "Competição crescente de BTG no wealth management e de fintechs no varejo digital",
+            "Regulação bancária pode aumentar requisitos de capital, pressionando distribuição de dividendos",
+            "Expansão na América Latina (Chile, Argentina, Colômbia) adiciona risco cambial e político",
+        ],
+        "barreira": "A combinação de marca, rede de distribuição, base de dados de clientes e capital regulatório  cria uma barreira de entrada que nenhuma fintech conseguiu transpor em décadas.  Nubank chegou a 100 milhões de clientes — mas em rentabilidade por cliente ainda está longe do Itaú.",
+    },
+    "KEPL3": {
+        "nome": "Kepler Weber S.A.",
+        "fundacao": "1925 (em Panambi, RS)",
+        "sede": "Panambi, RS",
+        "tagline": "O líder absoluto em armazenagem de grãos no Brasil. 80% de market share em silos — e a safra recorde do agro brasileiro ainda está criando demanda por mais capacidade.",
+        "modelo": "A Kepler Weber não é autopeça — é uma empresa de bens de capital para o agronegócio.  Fabrica silos (metálicos e de concreto), secadores de grãos,  transportadores (elevadores de canecas, correias) e sistemas de controle  para armazenagem de soja, milho, trigo e outros grãos.  É líder absoluta no Brasil com ~80% de market share em silos metálicos —  o produto mais vendido do portfólio.  O mercado-alvo são produtores rurais individuais, cooperativas e tradings  (Bunge, ADM, Cargill, LDC).  O diferencial do modelo: o Brasil tem grave déficit de armazenagem.  A capacidade estática nacional é de ~175 milhões de toneladas,  enquanto a produção de grãos superou 320 milhões em 2025.  Cada tonelada de grão produzida sem armazém adequado é prejuízo para o produtor.  Isso cria demanda estrutural que não depende do ciclo econômico convencional —  depende do ciclo do agronegócio.",
+        "receita": [
+            ("Silos metálicos e acessórios", "~55%", "produto principal; liderança de 80% de mercado; vende a produtores e cooperativas"),
+            ("Secadores de grãos", "~20%", "equipamento crítico pós-colheita; crescimento com qualidade exigida para exportação"),
+            ("Sistemas de transporte (elevadores, correias)", "~15%", "logística interna do silo — cross-sell natural com a venda do silo"),
+            ("Exportação e serviços", "~10%", "América do Sul, África e outros; instalação e manutenção"),
+        ],
+        "vantagens": [
+            "80% de market share em silos: nenhum concorrente chega perto — liderança consolidada em décadas",
+            "Déficit estrutural de armazenagem: Brasil produz 320 mi t de grãos com capacidade de 175 mi t — runway de crescimento secular",
+            "Câmbio positivo por proxy: cliente rural vende soja em dólar — dólar alto dá mais poder de compra para investir em armazenagem",
+            "Carteira de pedidos de 12+ meses: visibilidade de receita acima da média industrial",
+            "Panambi como polo: 100 anos de know-how em equipamentos agroindustriais no RS — cluster com fornecedores especializados",
+        ],
+        "riscos": [
+            "Ciclicidade do agro: safra ruim + queda de commodity = produtor adia investimento em armazenagem",
+            "Aço como matéria-prima: preço internacional afeta custo dos silos; repasse ao cliente tem defasagem",
+            "Concentração geográfica: RS como base industrial — enchentes de 2024 impactaram operações",
+            "Concorrência de importados: silos chineses entram via dumping em períodos de câmbio apreciado",
+        ],
+        "barreira": "100 anos de know-how e 80% de mercado criam uma barreira quase intransponível.  O produtor rural que vai comprar um silo de R$500 mil  não arrisca com um fornecedor desconhecido —  ele quer quem estará lá para dar assistência em 10 anos.  A Kepler tem rede de revendedores e assistência técnica em todo o Brasil agrícola —  um entrante precisaria de décadas para construir esse canal.  E a posição de liderança cria um efeito de rede:  cooperativa que já tem silos Kepler compra mais Kepler  porque os sistemas são integrados.",
+    },
+    "KLBN4": {
+        "nome": "Klabin",
+        "fundacao": "1899",
+        "sede": "São Paulo, SP",
+        "tagline": "A única produtora brasileira com pinus em escala. Integração do bosque à caixa.",
+        "modelo": "A Klabin é a empresa mais complexa do trio. Planta pinus (fibra longa) e eucalipto  (fibra curta), produz celulose, papel e embalagens — e converte parte em produtos  acabados como sacos industriais, caixas de papelão e cartões. Vende celulose para  exportação, mas uma fatia relevante da receita é embalagem doméstica, o que amortece  o ciclo de commodity. É a maior produtora e exportadora de papel para embalagem do Brasil.",
+        "receita": [
+            ("Embalagens (papelão ondulado, caixas)", "~45%", "mercado doméstico, relativamente estável"),
+            ("Papel para embalagem (kraft, cartão)", "~25%", "Brasil e exportação"),
+            ("Celulose (fibra longa e fluff)", "~20%", "exportação, commodity"),
+            ("Sacos industriais", "~10%", "cimento, fertilizante, Brasil"),
+        ],
+        "vantagens": [
+            "Única produtora de pinus em escala industrial no Brasil — fibra longa que ninguém mais tem",
+            "Diversificação de produto: embalagem amorte o ciclo de celulose",
+            "Integração vertical completa: da floresta ao produto acabado",
+            "Celulose fluff (para fraldas e absorventes) — nicho de margem alta e demanda crescente",
+        ],
+        "riscos": [
+            "Capex intensivo e constante — projetos de expansão pressionam caixa por anos seguidos",
+            "Alavancagem historicamente alta (4–5x EBITDA em fases de investimento)",
+            "Complexidade operacional: 23 plantas, múltiplos produtos, margens diferentes por linha",
+            "Pinus tem ciclo de 15 anos — planejamento florestal é de altíssimo prazo",
+        ],
+        "barreira": "",
+    },
+    "LEVE3": {
+        "nome": "Mahle Metal Leve S.A.",
+        "fundacao": "1950 (como Metal Leve; controlada pela Mahle alemã desde 1996)",
+        "sede": "São Paulo, SP",
+        "tagline": "O negócio que prospera quando o carro envelhece. Aftermarket anticíclico, controladora alemã que financia o P&D, e a única empresa do grupo que a Mahle listou fora da Alemanha.",
+        "modelo": "A Mahle Metal Leve é a subsidiária brasileira do grupo Mahle —  um dos maiores fabricantes de componentes automotivos do mundo,  com sede em Stuttgart, Alemanha.  No Brasil, fabrica pistões, anéis de segmento, buchas,  filtros (óleo, ar, combustível) e velas de ignição.  O modelo tem duas frentes: OEM (~30%), onde vende diretamente para  GM, Ford, Stellantis e Volkswagen que montam os carros novos;  e aftermarket (~70%), onde vende para distribuidores e mecânicas  que trocam peças em carros usados.  O aftermarket é o diferencial: com frota média de 11+ anos no Brasil,  cada motor exige troca de pistão, filtro ou vela em média a cada 2-3 anos.  Quanto mais velha a frota, mais demanda — é anticíclico por natureza.  A controladora alemã custeia o P&D global (€1 bi/ano em inovação)  e o Brasil se beneficia do know-how sem pagar por isso diretamente.  Exporta componentes para Europa e América do Norte, capturando o câmbio favorável.",
+        "receita": [
+            ("Aftermarket Brasil", "~55%", "mecânicas, distribuidores, varejo de autopeças — anticíclico e recorrente"),
+            ("OEM Brasil (montadoras)", "~25%", "GM, Ford, Stellantis, VW — segue produção de veículos novos"),
+            ("Exportação (OEM global)", "~20%", "componentes para Europa e EUA; dólar alto melhora margens"),
+        ],
+        "vantagens": [
+            "Aftermarket anticíclico: frota velha gera demanda constante independente do PIB",
+            "P&D financiado pela matriz: Mahle alemã investe €1 bi/ano em inovação — LEVE3 acessa sem pagar",
+            "Margem bruta de 38-40%: entre as mais altas do setor industrial — brand reconhecido pelo mecânico",
+            "Exportação em dólar: ~20% das receitas em moeda forte protege em desvalorizações do real",
+            "Único papel do grupo Mahle listado fora da Alemanha: acesso a gestão global com liquidez local",
+        ],
+        "riscos": [
+            "Eletrificação da frota: carro elétrico não tem pistão, filtro de óleo nem vela — ameaça estrutural de 10-20 anos",
+            "Concentração no motor a combustão: 90%+ das receitas dependem de tecnologia em transição",
+            "OEM sujeito ao ciclo automotivo: montadoras param produção em crise e afeta 25% da receita",
+            "Controladora estrangeira: dividendo certo, mas decisões estratégicas vêm de Stuttgart — potencial de conflito com minoritários",
+        ],
+        "barreira": "Marca reconhecida pelo mecânico. No aftermarket, quem decide a peça é o mecânico —  não o dono do carro. E o mecânico de Franca, Uberlândia ou Manaus  conhece e confia na Mahle há décadas.  Construir essa confiança com 50.000 mecânicos no Brasil inteiro  é um ativo invisível que nenhum concorrente recompra.  Mais o know-how técnico da matriz alemã:  qualidade de produto que importados asiáticos ainda não replicam no motor.",
+    },
+    "MDNE3": {
+        "nome": "MDNE (Moura Dubeux Engenharia)",
+        "fundacao": "1983 (em Recife, PE — por Jorge Moura e Dubeux)",
+        "sede": "Recife, PE",
+        "tagline": "O maior grupo imobiliário do Nordeste. 42 anos, 260 empreendimentos, três marcas e um modelo de condomínio que não existe em São Paulo.",
+        "modelo": "A Moura Dubeux tem um modelo diferente de todas as outras incorporadoras listadas.  Além da incorporação tradicional, opera o chamado 'modelo de condomínio':  os clientes compram cotas do terreno coletivamente, formam um condomínio,  e a MD constrói por conta do condomínio cobrando taxa de administração mensal.  Isso gera receita recorrente durante a obra e reduz o risco de crédito  (o cliente paga mensalmente conforme a obra avança).  Em 2026, reorganizou-se como holding MDNE com três marcas:  Moura Dubeux (alto padrão e luxo + segunda residência),  Mood (médio padrão, lançada em 2023) e  Ún1ca (MCMV no Nordeste, em parceria com a Direcional —  joint venture chamada Ún1ca para o segmento econômico nordestino).  Opera em 7 estados nordestinos, com liderança de mercado absoluta na região —  260 empreendimentos entregues em 42 anos e VGV lançado de R$5,5 bi projetados para 2026.",
+        "receita": [
+            ("Alto padrão e luxo — marca Moura Dubeux", "~55%", "Recife, Fortaleza, Natal, João Pessoa; segunda residência na costa nordestina"),
+            ("Médio padrão — marca Mood", "~30%", "lançada em 2023; crescendo rápido; primeira residência classe média"),
+            ("MCMV — marca Ún1ca (JV com Direcional)", "~15%", "iniciada em 2025; em crescimento acelerado; acesso ao FGTS"),
+        ],
+        "vantagens": [
+            "Monopólio regional: 42 anos de liderança no Nordeste — nenhum concorrente nacional tem a mesma escala regional",
+            "Modelo de condomínio: receita recorrente durante a obra + risco de crédito menor",
+            "DY de 17%: alta distribuição de lucros; P/L de 5,79x — um dos mais baratos do setor",
+            "Nordeste com demanda reprimida: menos saturado que SP; cliente de alto padrão regional tem menos opções",
+            "Ún1ca (MCMV): diversificação que protege em ciclo de juro alto; JV com Direcional traz expertise",
+        ],
+        "riscos": [
+            "Concentração no Nordeste: PIB regional mais fraco — recessão nacional impacta mais",
+            "Três marcas recentes: Mood (2023) e Ún1ca (2025) ainda em maturação — execução simultânea é risco",
+            "Alto padrão sensível à Selic: o core do negócio sofre quando crédito encarece",
+            "Small cap: liquidez menor (R$8 mi/dia) — spread bid/ask maior, menos cobertura de analistas",
+            "Dependência familiar: empresa fundada pela família Dubeux — risco de governança em eventual transição",
+        ],
+        "barreira": "42 anos de presença dominante no Nordeste.  O comprador de alto padrão em Recife não compra da Cyrela — compra da Moura Dubeux.  Essa confiança de marca regional, construída empreendimento a empreendimento  em uma região onde poucos nacionais apostaram, é inreplicável no curto prazo.  O modelo de condomínio é outro diferencial que os concorrentes não dominam —  o cliente nordestino está habituado a esse modelo e o prefere.  E o banco de terrenos de décadas na costa nordestina,  em regiões que valorizaram com o turismo interno pós-pandemia,  é uma posição que nenhum novo entrante vai encontrar disponível.",
+    },
+    "MULT3": {
+        "nome": "Multiplan Empreendimentos Imobiliários",
+        "fundacao": "1974 (por José Isaac Peres)",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "A shopping premium do Brasil. 20 shoppings, 73% com vendas acima de R$1 bilhão — e a maior conversão de vendas em aluguel do setor. Qualidade justifica o prêmio de múltiplo.",
+        "modelo": "A Multiplan foi fundada por José Isaac Peres em 1974 e construiu ao longo de 50 anos  um portfólio de 20 shoppings concentrados em localidades premium:  BarraShopping (RJ), MorumbiShopping (SP), ParkShopping (BSB), BH Shopping (MG),  entre outros. A estratégia é o oposto da Allos: poucos ativos, mas os melhores.  73% do portfólio tem vendas anuais superiores a R$1 bilhão — o melhor índice do setor.  Isso se traduz na maior conversão de vendas em aluguel: 10,5% vs 9,6% da Allos.  Em termos práticos: para cada R$100 que o lojista vende,  a Multiplan captura R$10,50 em aluguel. Esse poder de precificação vem da qualidade  — lojista que está no MorumbiShopping não tem alternativa de mesma qualidade próxima.  A Multiplan também tem um componente imobiliário relevante:  desenvolve apartamentos e escritórios no entorno dos shoppings —  o projeto de cidade completa ao redor do shopping (multimix).",
+        "receita": [
+            ("Aluguel mínimo garantido", "~52%", "base fixa reajustada por IGP-DI/IPCA; portfólio premium permite mínimos maiores"),
+            ("Aluguel variável (% das vendas)", "~22%", "maior percentual variável que os pares — reflexo da qualidade do lojista"),
+            ("Estacionamento", "~13%", "alto fluxo de veículos em shoppings premium — receita relevante"),
+            ("Desenvolvimento imobiliário (multimix)", "~8%", "apartamentos e escritórios no entorno dos shoppings — ciclo mais longo"),
+            ("Cessão de direito e outros", "~5%", "key money e receitas não recorrentes"),
+        ],
+        "vantagens": [
+            "73% do portfólio com vendas > R$1 bi/ano: qualidade de ativo incomum — lojistas pagam prêmio para estar lá",
+            "10,5% de conversão: maior poder de precificação do setor — cada real de venda gera mais aluguel",
+            "Vendas/m² cresceram 10,9% em 2025: maior taxa de crescimento entre os pares",
+            "50 anos de track record: Multiplan construiu shoppings que viraram referência de consumo nas suas cidades",
+            "Multimix: desenvolvimento imobiliário ao redor cria ecossistema de valor que valoriza o próprio shopping",
+        ],
+        "riscos": [
+            "Valuation de prêmio (12x FFO): não tolera decepção — qualquer desaceleração é punida no preço",
+            "Concentração geográfica: forte em SP, RJ e Sul — recessão regional impacta mais que portfólio nacional",
+            "Selic alta é o maior inimigo: duration longa do ativo = valuation comprimido em cenário de juro alto",
+            "DY mais baixo (~5-6%): reinveste mais; para investidores de renda pura, a Allos é mais atrativa",
+            "Expansão limitada: portfólio premium tem menos oportunidades de crescimento via novos shoppings",
+        ],
+        "barreira": "50 anos de curadoria de localização e de mix de lojistas.  O MorumbiShopping em São Paulo ou o BarraShopping no Rio  têm listas de espera de lojistas que querem entrar.  Quando o Zara, a Apple ou a Nike quer estar em São Paulo,  o MorumbiShopping está na lista curta — e a Multiplan sabe  negociar esse poder de escassez em aluguel.  Isso é uma vantagem competitiva de marca que levou meio século para construir  e que nenhum shopping novo replica mesmo com capital infinito.",
+    },
+    "PETR4": {
+        "nome": "Petrobras",
+        "fundacao": "1953 (fundada por Getúlio Vargas)",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "A empresa mais lucrativa do Brasil. O pré-sal é o ativo; a política é o risco permanente.",
+        "modelo": "A Petrobras é uma empresa integrada de petróleo e gás — extrai no pré-sal,  refina nas suas refinarias e vende combustível e derivados para o mercado  brasileiro e para exportação. Com meta de 3,4 milhões de boed até 2028 e  custo de extração abaixo de US$6/barril, é uma das operações de mais baixo custo  do planeta. O pré-sal brasileiro — especialmente Búzios, com reservas gigantescas  na Bacia de Santos — é o coração do negócio: óleo leve de alta qualidade,  em águas profundas, com FPSOs que chegam a produzir 200 mil barris/dia cada.  O plano 2026-2030 prevê US$109 bi de investimento, 62% no pré-sal,  com 8 novos sistemas de produção até 2030, sendo 7 já contratados.  A integração com o refino funciona como amortecedor: quando o Brent cai,  o refino compra petróleo barato e sustenta margens.  O custo total médio de produção (incluindo royalties e participações governamentais)  é de US$30,4/boe no quinquênio — muito abaixo do preço de equilíbrio do mercado.",
+        "receita": [
+            ("E&P (exploração e produção)", "~60%", "pré-sal é o motor; <US$6/bbl de lifting cost; 8 novos FPSOs até 2030"),
+            ("Refino, Transporte e Comercialização", "~30%", "1,8 mi bpd de capacidade; expansão para 2,1 mi até 2030"),
+            ("Gás natural e energia", "~7%", "TAG, transporte de gás, termelétricas"),
+            ("Outros (fertilizantes, biocombustíveis)", "~3%", "biorrefino em expansão; US$1,2 bi aprovado em 2026"),
+        ],
+        "vantagens": [
+            "Pré-sal: custo <US$6/bbl — um dos mais baixos do mundo; óleo leve de alta qualidade",
+            "Búzios: maior reservatório offshore fora do Oriente Médio — reservas imensas, produção crescente por décadas",
+            "Integração E&P + refino: proteção natural quando o Brent cai (refino compra barato)",
+            "Dividendo garantido: política de 45% do FCF; governo precisa do dividendo — alinhamento forçado",
+            "Escala operacional: única operadora de FPSOs em águas ultra-profundas no Brasil; know-how inreplicável",
+        ],
+        "riscos": [
+            "Risco político: CEO indicado pelo governo; preços de combustíveis como instrumento político",
+            "Refino pressionado: governo quer gasolina barata — comprime margens do segmento",
+            "Margem Equatorial: nova fronteira exploratória com licenciamento ambiental incerto (IBAMA)",
+            "Brent estruturalmente mais baixo: plano assume US$63/bbl em 2026; abaixo disso, capex é revisto",
+            "Transição energética: portfólio de longo prazo concentrado em hidrocarbonetos",
+        ],
+        "barreira": "O pré-sal é a barreira mais alta do setor de petróleo no mundo.  Operar FPSOs em águas de 2.000-3.000 metros, perfurar poços de 6.000-7.000 metros  passando pela camada de sal, é um desafio de engenharia que só meia dúzia de  empresas no planeta domina — e a Petrobras é operadora de praticamente todos.  Ninguém entra no pré-sal sem ela, e ela tem mais de 70 anos de know-how local.",
+    },
+    "POMO4": {
+        "nome": "Marcopolo S.A.",
+        "fundacao": "1949 (em Caxias do Sul, RS — por Reinaldo Pasa)",
+        "sede": "Caxias do Sul, RS",
+        "tagline": "O maior fabricante de carrocerias de ônibus do mundo. Exporta para 100+ países, e cada ônibus é um projeto de engenharia — não uma linha de produção em série.",
+        "modelo": "A Marcopolo não fabrica o chassi do ônibus — fabrica a carroceria.  O chassi vem da Volvo, Mercedes ou Scania; a Marcopolo coloca em cima  a estrutura de passageiros (o que o passageiro vê e sente).  É a maior fabricante de carrocerias de ônibus do mundo em volume.  Opera em dois mercados distintos: Brasil (~50% da receita),  onde os clientes são prefeituras (ônibus urbano), empresas de turismo  e fretamento; e exterior (~50%), onde exporta para América Latina,  África, Índia, Austrália e Europa, com fabricação local em alguns países.  O produto é customizado — cada pedido tem especificações diferentes.  Isso cria barreiras de engenharia e relacionamento com o cliente  que produtos padronizados não têm.  Em 2025-2026, o BRT (Bus Rapid Transit) nas capitais brasileiras  e o programa de eletrificação de frotas municipais são os maiores catalisadores.  A Marcopolo já fabrica carrocerias para ônibus elétricos —  é uma das poucas do setor que mitigou o risco de eletrificação.",
+        "receita": [
+            ("Ônibus urbano — Brasil", "~30%", "prefeituras e operadoras; BRT e eletrificação são catalisadores 2025-2026"),
+            ("Ônibus rodoviário e turismo — Brasil", "~20%", "empresas de fretamento e turismo; ciclo ligado à economia"),
+            ("Exportação (América Latina + África + outros)", "~35%", "dólar/euro nas receitas; margens melhores que o mercado doméstico"),
+            ("Fabricação local no exterior (JVs)", "~15%", "Índia, Austrália, Colômbia — receita em moeda local"),
+        ],
+        "vantagens": [
+            "Líder mundial em carrocerias de ônibus: escala que nenhum concorrente brasileiro alcança",
+            "50% de exportação: diversificação geográfica que suaviza o ciclo doméstico",
+            "Produto customizado: cada ônibus é um projeto — barreiras de engenharia e relacionamento",
+            "Já fabrica para elétricos: adaptação estratégica que evita a armadilha da eletrificação",
+            "Caxias do Sul: cluster industrial gaúcho com fornecedores especializados e mão de obra qualificada",
+        ],
+        "riscos": [
+            "Dependência de orçamento público: prefeituras compram quando têm verba — ciclo político afeta demanda doméstica",
+            "Eletrificação em andamento: BYD e Volvo Elétrico competem pela carroceria de ônibus elétrico",
+            "Câmbio de dois gumes: exportação beneficia margem, mas matéria-prima importada sobe junto",
+            "Enchentes RS (2024): sede em Caxias do Sul sofreu impacto operacional — risco geográfico concentrado",
+        ],
+        "barreira": "75 anos de know-how em engenharia de carrocerias de ônibus.  O ônibus urbano de São Paulo, de Lagos, de Melbourne e de Montevidéu  pode ser da Marcopolo — e cada cidade tem normas técnicas,  dimensões e especificações diferentes.  Dominar isso em 100+ países é uma barreira de conhecimento técnico e  relacionamento institucional que nenhum entrante replica em menos de décadas.",
+    },
+    "PRIO3": {
+        "nome": "PRIO (PetroRio)",
+        "fundacao": "2010 (como HRT Petroleum; virou PetroRio em 2014; PRIO em 2021)",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "A maior independente do Brasil. Compra o que a Chevron, Equinor e Petrobras descartaram — e extrai mais petróleo com menos custo.",
+        "modelo": "A PRIO tem um modelo único e comprovado: compra campos de petróleo maduros  que grandes petroleiras decidiram abandonar, assume a operação, corta custos  e aumenta a recuperação dos reservatórios.  Fez isso com Frade (da Chevron), Albacora Leste (da Petrobras),  cluster Polvo+Tubarão Martelo (da Dommo) e, mais recentemente,  Peregrino (da Equinor) — o maior campo da empresa, 100% adquirido em 2025.  O resultado: de 5 mil barris/dia e custo de US$35/bbl em 2015  para +190 mil barris/dia e custo de US$9/bbl em 2026.  Wahoo é o próximo capítulo: primeiro campo desenvolvido do zero pela PRIO,  conectado ao FPSO Valente via tieback de Frade, com custo marginal de  apenas US$1/bbl (usa infraestrutura existente) e capacidade de 40 kboed.  Peregrino, que a Equinor operava a US$500 mi/ano de custo,  já está sendo operado pela PRIO a US$370 mi e deve chegar a US$250 mi  quando o gasoduto de gás for reativado em 2026 — US$250 mi de ganho anual.",
+        "receita": [
+            ("Peregrino", "~40%", "campo pesado da Equinor; PRIO cortou custo de US$500 mi para meta US$250 mi/ano"),
+            ("Frade + Wahoo", "~30%", "Wahoo a 40 kboed com custo marginal de US$1/bbl — maior catalisador de 2026"),
+            ("Albacora Leste", "~15%", "campo da Petrobras revendido; PRIO aumentou produção e eficiência"),
+            ("Polvo + Tubarão Martelo + outros", "~15%", "cluster offshore menor na Bacia de Campos"),
+        ],
+        "vantagens": [
+            "Modelo de revitalização comprovado: compra barato, corta custo, aumenta produção — 100% de execução",
+            "Lifting cost ~US$9/bbl (meta US$7): margem expressiva mesmo com Brent a US$50",
+            "Zero risco político: privada, independente, sem governo determinando preços ou CEO",
+            "Wahoo: custo marginal de US$1/bbl por usar infraestrutura do Frade — puro upside",
+            "Peregrino: sinergias de US$250 mi/ano vs Equinor — maior captura de valor de campo único",
+        ],
+        "riscos": [
+            "Brent é tudo: sem refino para amortecer — cada US$1 de queda vai direto no EBITDA",
+            "Alavancagem pós-Peregrino: US$3 bi de aquisição; meta 1x dívida/EBITDA até 2027 a US$60",
+            "Declínio natural: campos maduros declinam — precisa de perfurações contínuas (Albacora Leste+30 kboed)",
+            "Ramp-up de Wahoo: GOR (razão gás-óleo) alto; cada poço precisa de 10 dias de estabilização",
+            "Concentração na Bacia de Campos: todos os ativos offshore no RJ — risco operacional concentrado",
+        ],
+        "barreira": "O know-how de revitalização de campos maduros é a barreira.  A PRIO desenvolveu metodologias próprias para extrair mais petróleo  de reservatórios dados como esgotados.  Isso se combina com uma cultura de custo obsessiva —  cortou o OpEx de Peregrino pela metade em menos de um ano.  E a reputação junto às grandes petroleiras que querem desinvestir  é a maior vantagem competitiva: quando a Chevron, Equinor ou Petrobras  quer vender um campo, a PRIO está na lista curta dos compradores.",
+    },
+    "PSSA3": {
+        "nome": "Porto",
+        "fundacao": "1945",
+        "sede": "São Paulo, SP",
+        "tagline": "A maior seguradora não-vida do Brasil. Saiu do risco de ser 'só auto' e virou um ecossistema de seguros, serviços e finanças.",
+        "modelo": "A Porto é a única seguradora real desta lista — ela assume risco, subscreve apólices,  paga sinistros. Não é distribuidora de banco. Nasceu em 1945 como seguradora de automóveis  e por décadas foi sinônimo de 'seguro de carro'. O problema: auto tinha sinistralidade alta  e margens comprimidas. A virada estratégica foi deliberada: diluir o auto (que era 90% da receita)  e crescer nas verticais mais rentáveis. Em 2025, auto era apenas 39%.  Hoje opera em quatro verticais: Porto Seguro (auto, residencial, empresarial),  Porto Saúde (planos de saúde e odonto, crescendo forte), Porto Bank (cartão de crédito, consórcio)  e Porto Serviços (assistências).  A parceria com o Itaú (exclusividade para auto e residencial nos canais do banco)  é uma alavanca de distribuição que nenhum concorrente tem — o Itaú Seguro de Auto é,  na prática, operado pela Porto.",
+        "receita": [
+            ("Auto (Porto Seguro + Itaú + Azul Seguros)", "~39%", "era 90% em 2010 — deliberadamente diluído; sinistralidade alta e margens comprimidas"),
+            ("Porto Saúde (planos de saúde e odonto)", "~25%", "vertical mais rentável e em crescimento — margens superiores ao auto"),
+            ("Residencial e empresarial", "~15%", "cross-sell com auto e parceria Itaú — sinistralidade mais baixa"),
+            ("Porto Bank (cartão, consórcio, financiamento)", "~12%", "crescendo via base de 18 mi de clientes — sem custo de aquisição"),
+            ("Porto Serviços (assistências)", "~9%", "assistências 24h e serviços domésticos — fidelização e receita recorrente"),
+        ],
+        "vantagens": [
+            "Diversificação real: auto 39% da receita — se o mercado de carros parar, a Porto não para",
+            "Porto Saúde crescendo com margens superiores ao auto — driver estrutural dos próximos anos",
+            "Exclusividade nos canais do Itaú: acesso a mais de 50 milhões de clientes com custo de aquisição reduzido",
+            "Taxa de renovação 10 pp acima da média do mercado — fidelidade de cliente acima da concorrência",
+            "18 milhões de clientes únicos — base para cross-sell de saúde, banco e serviços",
+        ],
+        "riscos": [
+            "Sinistralidade alta: ela paga o que a natureza e os acidentes custam — granizo, enchente, fraude",
+            "Competição agressiva em auto: concorrentes praticando preços baixos para ganhar mercado",
+            "Porto Saúde: custo dos planos de saúde cresce sistematicamente acima da inflação",
+            "DY menor (~5-6%) — reinveste mais para crescer; não é banco de renda no curto prazo",
+            "Valuation mais alto (P/L ~10x) após forte valorização — margem de segurança menor",
+        ],
+        "barreira": "A exclusividade no Itaú + 80 anos de marca + rede de 46.000 corretores.  Um novo entrante levaria décadas para construir a confiança que um corretor tem com a Porto.  O contrato com o Itaú é uma alavanca que qualquer outra seguradora pagaria bilhões para ter.  E a liderança em auto (com a sinistralidade controlada que têm) cria um banco de dados de risco  que é vantagem competitiva de subscrição.",
+    },
+    "RANI3": {
+        "nome": "Irani (Celulose Irani)",
+        "fundacao": "1941",
+        "sede": "Campina da Alegria, SC",
+        "tagline": "A única empresa de embalagens sustentáveis pura listada na B3. Brasil puro, sem câmbio.",
+        "modelo": "A Irani não é uma produtora de celulose de mercado. É uma fabricante de embalagens  que produz sua própria celulose — e usa tudo internamente. Pega aparas (papel  reciclado descartado por supermercados, e-commerce e frigoríficos), transforma em  papel kraft e papelão ondulado, e vende para o mercado doméstico. Também tem florestas  próprias de pinus no Sul (SC e RS), de onde extrai fibra virgem para complementar  a produção e resina de terebintina como subproduto (usada em tintas a óleo).",
+        "receita": [
+            ("Embalagens de papelão ondulado", "~57%", "frigoríficos, agro, e-commerce, alimentos"),
+            ("Papel para embalagens (kraft)", "~37%", "sacolas, sacos, papel multiwall — Brasil e 15% exportação"),
+            ("Resinas e madeira", "~6%", "terebintina e venda de madeira — subproduto do pinus"),
+        ],
+        "vantagens": [
+            "Zero exposição ao câmbio e ao ciclo global de celulose — negócio 100% doméstico",
+            "Demanda por embalagem de papelão cresceu 2–5%/ano mesmo em recessão — setor defensivo",
+            "Floresta própria de pinus garante parte do custo estável e previsível",
+            "Capacidade de repasse de preço: quem compra caixa de papelão não tem substituto fácil",
+            "Plataforma Gaia (>R$1 bi investido): ganhos de eficiência ainda sendo colhidos",
+        ],
+        "riscos": [
+            "Preço das aparas (OCC): insumo externo que representa ~30% do custo — variou de R$610 a R$1.300/t",
+            "Eventos climáticos no Sul (enchentes RS/SC) disruptam o fornecimento de aparas",
+            "Small cap — menor liquidez, menor cobertura de analistas, mais suscetível a humor de mercado",
+            "Capex pesado recente (Gaia) ainda sendo digerido; FCF pressiona no curto prazo",
+        ],
+        "barreira": "",
+    },
+    "SANB3": {
+        "nome": "Santander Brasil",
+        "fundacao": "1982 (chegou ao Brasil)",
+        "sede": "São Paulo, SP",
+        "tagline": "O único banco internacional com escala no Brasil. Terceiro maior privado, mas ainda procurando o modelo certo para o mercado local.",
+        "modelo": "O Santander é um banco universal (PF + PME + atacado), mas com uma particularidade:  é subsidiária de um grupo global espanhol. Isso tem vantagens (acesso a tecnologia,  melhores práticas globais, plataforma de câmbio internacional) e desvantagens  (decisões estratégicas feitas em Madri podem não se adaptar à realidade brasileira,  e parte do lucro 'vaza' para a matriz). Historicamente, o Santander teve dificuldade  de encontrar seu nicho no Brasil: não tem o foco em alta renda do Itaú, não tem o  agro do BB, não tem o interior do Bradesco, não tem o atacado do BTG.  Em 2026, está buscando diferenciação em crédito imobiliário, alta renda e PME.  O ROE ainda é o mais baixo entre os grandes privados — o mercado cobra prova.",
+        "receita": [
+            ("Margem financeira (NII)", "~52%", "crédito PF + PME + corporate"),
+            ("Receitas de serviços e tarifas", "~22%", "cartão, seguros, corretagem"),
+        ],
+        "vantagens": [
+            "Plataforma global: câmbio, trade finance e operações internacionais para clientes com negócios no exterior",
+            "Acesso à tecnologia e melhores práticas do grupo global — Openbank (banco digital do grupo) chegando ao Brasil",
+            "Valuation descontado em relação aos pares: se o ROE normalizar, há upside relevante",
+            "Histórico consistente de pagamento de JCP — yield atrativo dado o valuation baixo",
+        ],
+        "riscos": [
+            "ROE estruturalmente mais baixo que os pares privados — sem nicho definido que justifique prêmio",
+            "Decisões estratégicas dependem da matriz espanhola — nem sempre otimizadas para o Brasil",
+            "Exposição a PME e varejo de menor renda em ciclo de juro alto e inadimplência elevada",
+            "Competição intensa: Itaú na alta renda, BTG no atacado, Nubank/Inter no varejo digital",
+        ],
+        "barreira": "A plataforma global é a barreira real. Para uma empresa brasileira que exporta,  importa ou tem sócios internacionais, ter um banco com presença em 10 países na mesa  é conveniente. Mas no varejo PF doméstico, essa vantagem não aparece — o que explica  o ROE mais baixo: a barreira não se traduz em rentabilidade no negócio principal.",
+    },
+    "SAPR4": {
+        "nome": "Sanepar (Companhia de Saneamento do Paraná)",
+        "fundacao": "1963",
+        "sede": "Curitiba, PR",
+        "tagline": "O saneamento do Paraná — eficiente, estatal e sem catalisador. Operação madura, tarifa conservadora, precatórios que foram para o consumidor em vez do acionista.",
+        "modelo": "A Sanepar é a empresa de saneamento do Paraná — controlada pelo governo estadual.  Opera 346 concessões municipais, com cobertura de água já alta historicamente  (Paraná tem índices acima da média nacional). O foco atual é expansão de esgoto  e modernização das redes.  Diferente das pares privatizadas, a Sanepar não passou por turnaround —  já era uma empresa relativamente eficiente.  O grande evento de 2026 foi a decisão da AGEPAR sobre os R$4 bi de precatórios  (dinheiro recebido via vitória judicial): a agência regulatória determinou  que o valor será repassado aos consumidores via redução de tarifa,  e não distribuído como dividendo extraordinário.  O mercado frustrado explica a queda de ~8% das ações em 2026.  Também em 2026, a revisão tarifária entregou apenas 2,49% (IRT) —  bem abaixo da inflação — comprimindo margens e frustrou as expectativas.",
+        "receita": [
+            ("Água — tarifa regulada (AGEPAR/PR)", "~55%", "cobertura histórica alta no PR; crescimento via novos usuários e reajuste tarifário"),
+            ("Esgoto — tarifa regulada", "~43%", "déficit de esgoto no Paraná ainda a ser endereçado — maior runway de crescimento"),
+            ("Outros serviços", "~2%", "resíduos industriais; serviços técnicos para municípios"),
+        ],
+        "vantagens": [
+            "Operação madura e eficiente: sem o 'mato alto' das estatais que vão para privatização — base operacional sólida",
+            "Cobertura alta de água: menor risco operacional e de qualidade; Paraná tem melhores indicadores do setor",
+            "Dívida controlada: dívida líquida/EBITDA de 0,71x — folga para investimento sem comprometer a estrutura financeira",
+            "P/VP abaixo de 1x: negocia abaixo do valor patrimonial — piso de proteção para o investidor",
+            "Estado do Paraná: melhor qualidade de crédito entre os estados brasileiros — menor risco de interferência política irresponsável",
+        ],
+        "riscos": [
+            "Precatórios para consumidores: R$4 bi que o mercado esperava como dividendo foram para os usuários — frustrou a tese de dividendo extraordinário",
+            "Revisão tarifária conservadora: IRT 2026 de 2,49% (abaixo da inflação) comprime receita real",
+            "Sem catalisador de privatização: governo do PR não sinaliza privatização; sem repricing de múltiplo no horizonte",
+            "Crescimento limitado: empresa mais madura = menor crescimento de BRR = menor expansão de receita vs pares",
+            "Lucro pressionado: 1T26 com queda de 70,8% (efeito base de comparação alta + itens não recorrentes de 2025)",
+        ],
+        "barreira": "346 concessões municipais no Paraná — o mesmo monopólio regulado dos pares.  A Sanepar tem uma vantagem específica: décadas de relacionamento com os municípios paranaenses  e um histórico de qualidade de serviço que reduz o risco de revogação de concessões.  O Paraná tem o melhor perfil de pagadores do Brasil —  inadimplência menor, consumo per capita maior, renda acima da média.  A barreira aqui é mais operacional do que de turnaround:  quem tentasse entrar não teria como competir por concessões já consolidadas.",
+    },
+    "SBSP3": {
+        "nome": "Sabesp (Companhia de Saneamento Básico do Estado de SP)",
+        "fundacao": "1973",
+        "sede": "São Paulo, SP",
+        "tagline": "A maior empresa de saneamento da América Latina. Privatizada em 2024 pela maior oferta de saneamento da história — e o turnaround mais ambicioso do setor começa agora.",
+        "modelo": "A Sabesp é um monopólio de saneamento no estado de São Paulo —  atende 375 municípios, incluindo a capital e a Grande São Paulo,  que sozinhas concentram 22% da população brasileira e 31% do PIB nacional.  Em julho de 2024, o governo de SP vendeu 32% das ações por R$14,8 bi —  a maior oferta de saneamento da história do Brasil (demanda de R$187 bi).  A Equatorial pagou R$6,9 bi por 15% e assumiu como investidora de referência.  O modelo pós-privatização tem três vetores: (1) turnaround operacional  (opex cortou R$3 bi em 2025 — de R$11,8 para R$8,8 bi);  (2) aceleração de capex (R$20 bi em 2026, quase 3x o histórico anual);  (3) universalização e crescimento da BRR.  Cada real investido e reconhecido pela ARSESP vira receita regulatória futura —  o motor de valorização de longo prazo.  O CEO Carlos Piani (ex-Equatorial Maranhão) declarou: 'Estamos à frente das metas,  o que nos permite sonhar' — sinalizando possível expansão para outras concessões.",
+        "receita": [
+            ("Água — tarifa regulada", "~65%", "distribuição de água tratada para 375 municípios paulistas"),
+            ("Esgoto — tarifa regulada", "~33%", "coleta e tratamento; meta de 90% de cobertura até 2033"),
+            ("Outros serviços", "~2%", "resíduos, construção para terceiros, serviços técnicos"),
+        ],
+        "vantagens": [
+            "Melhor área de concessão do Brasil: SP concentra 22% da população e 31% do PIB — demanda e renda acima da média",
+            "Turnaround comprovado: R$3 bi de opex cortados em 1 ano — a Equatorial provou que consegue fazer em saneamento o que fez em energia",
+            "BRR crescendo de R$88 bi para R$158 bi até 2030 — cada real de capex vira receita regulatória futura",
+            "Política de dividendos crescente: 50% do lucro em 2026-27, chegando a 100% a partir de 2030",
+            "Revisão tarifária anual até 2030 — ciclo curto reduz o risco de investimento não reconhecido",
+        ],
+        "riscos": [
+            "Execução do capex de R$70 bi: quase 3x o histórico — escassez de empreiteiros, licenças e pessoal capacitado",
+            "Revisão tarifária politicamente sensível: Tarcísio de Freitas com agenda eleitoral em 2026 pode pressionar tarifas",
+            "Residências irregulares incluídas na universalização: custo e operacionalização incertos",
+            "Valuation já captura parte da transformação: ação subiu muito desde a privatização — margem de segurança menor",
+            "Lock-up da Equatorial até 2029: limitação de liquidez do controlador no curto prazo",
+        ],
+        "barreira": "O monopólio regulado é a barreira definitiva.  Nenhuma empresa entra em São Paulo para concorrer com a Sabesp —  a concessão vai até 2060 em contrato único com 375 municípios.  Quem quer saneamento na região metropolitana de SP, paga para a Sabesp.  E com a aceleração do capex e o reconhecimento tarifário anual,  cada ano que passa aumenta os ativos da base regulatória —  criando uma barreira de ativos que vai crescendo com o tempo.",
+    },
+    "SHUL4": {
+        "nome": "Schuler S.A.",
+        "fundacao": "1937 (em São Bento do Sul, SC)",
+        "sede": "São Bento do Sul, SC",
+        "tagline": "A maior estamparia de aço do Brasil. Fabrica as partes metálicas que ninguém vê — mas que todo carro tem. Puro OEM, puro ciclo automotivo.",
+        "modelo": "A Schuler é uma OEM pura — fabrica exclusivamente para montadoras.  O produto são peças estampadas de aço: portas, capôs, para-lamas,  reforços estruturais de chassi, componentes de suspensão.  É o que o cliente nunca vê, mas que está em todo veículo.  A demanda segue diretamente a produção de veículos no Brasil —  quando as montadoras produzem mais, a Schuler fatura mais;  quando param (crise de semicondutores, recessão), a Schuler para junto.  A matéria-prima principal é o aço plano — cujo preço é cotado internacionalmente  e tem componente de câmbio, criando risco de margem quando o real desvaloriza  sem que o cliente (montadora) aceite reajuste imediato.  Opera em Santa Catarina, com uma estrutura industrial robusta  e relacionamento de décadas com as principais montadoras do Brasil.",
+        "receita": [
+            ("Peças estampadas para carros de passeio", "~60%", "GM, Ford, Stellantis, VW, Toyota — clientes concentrados"),
+            ("Peças para veículos comerciais e pesados", "~30%", "caminhões e ônibus — ciclo diferente do passeio"),
+            ("Ferramental e outros serviços", "~10%", "matrizes e ferramentas para clientes industriais"),
+        ],
+        "vantagens": [
+            "Relacionamento de décadas com montadoras: trocam de fornecedor raramente — custo de mudança é enorme",
+            "Santa Catarina: polo industrial consolidado com fornecedores especializados e logística para portos",
+            "Especialização técnica: estampagem de alta precisão é barreira de processo que startups não replicam",
+            "Veículos comerciais: diversificação com caminhões e ônibus que têm ciclo diferente do passeio",
+        ],
+        "riscos": [
+            "OEM 100%: qualquer queda na produção de veículos impacta diretamente a receita",
+            "Concentração de clientes: poucos clientes grandes — perder um é perder fatia relevante",
+            "Aço como risco: commodity internacional com componente cambial; repricing com montadora é lento",
+            "Eletrificação: carros elétricos têm menos peças estampadas de aço (estrutura diferente) — risco de médio prazo",
+        ],
+        "barreira": "O processo de qualificação de um novo fornecedor numa montadora leva 2-3 anos  de testes, auditorias e certificações.  A Schuler já passou por esse processo com todos os clientes —  a barreira de entrada não é o equipamento (pode-se comprar uma prensa),  mas o histórico de qualidade que dá confiança à montadora para homologar.  E São Bento do Sul concentra um cluster de indústrias de metal-mecânica  que cria um ambiente de fornecedores especializados difícil de replicar.",
+    },
+    "SLCE3": {
+        "nome": "SLC Agrícola S.A.",
+        "fundacao": "1977",
+        "sede": "Porto Alegre, RS",
+        "tagline": "A maior produtora agrícola listada do Brasil. 700 mil hectares, soja + milho + algodão, tudo vendido em dólar.",
+        "modelo": "Produtora pura de commodities — não beneficia nem exporta diretamente.  Opera ~18 fazendas em 7 estados do Cerrado.  ~70% das áreas são arrendadas em sacos de soja/hectare:  quando o preço cai, o custo cai junto — proteção automática de margem.  Em 2025-2026, queda de ~20% no preço da soja e câmbio mais forte  pressionaram margens vs o pico de 2022-2023.",
+        "receita": [
+            ("Soja", "~55%", "principal cultura; exportada via tradings"),
+            ("Algodão", "~30%", "maior margem unitária; demanda global crescente"),
+            ("Milho (safrinha)", "~15%", "segunda safra no mesmo solo — custo marginal menor"),
+        ],
+        "vantagens": [
+            "Maior produtora listada: escala de 700 mil ha gera poder de negociação com fornecedores",
+            "Arrendamento como hedge: custo em sacos de soja cai quando preço cai automaticamente",
+            "Cerrado: produtividade acima da média nacional; logística para exportação otimizada",
+            "Diversificação: soja + milho + algodão suaviza dependência de uma única commodity",
+        ],
+        "riscos": [
+            "Preço de soja: queda de 20% no preço reduz receita proporcionalmente",
+            "Câmbio apreciado: real forte comprime margens da receita em dólar",
+            "Clima: seca ou excesso de chuva impacta produção nas 18 fazendas",
+            "Arrendamento renovável: risco de não renovação ou aumento de custo pelo dono da terra",
+        ],
+        "barreira": "40 anos de relacionamento com donos de terra para arrendamento de longo prazo.  Gestão de 18 fazendas em 7 estados com agricultura de precisão é operação  que levou décadas para construir.  Novo entrante precisaria de capital, terra disponível e reputação ao mesmo tempo.",
+    },
+    "SUZB3": {
+        "nome": "Suzano",
+        "fundacao": "1924",
+        "sede": "São Paulo, SP",
+        "tagline": "A maior produtora mundial de celulose de eucalipto. Puro jogo de escala, custo e câmbio.",
+        "modelo": "A Suzano planta eucalipto, processa em celulose de fibra curta (BHKP) e exporta  praticamente tudo em dólar. O produto é commodity global — o preço é dado pelo mercado  internacional, não pela empresa. Sua vantagem é ser a produtora de menor custo do  mundo, graças à produtividade do eucalipto brasileiro (o mais rápido do planeta —  7 anos do plantio ao corte) e à escala das operações após a fusão com a Fibria em 2019.",
+        "receita": [
+            ("Celulose BHKP", "~85%", "fibra curta de eucalipto, commodity global"),
+            ("Papel", "~10%", "papel para imprimir/escrever e tissue"),
+            ("Outros", "~5%", "energia, madeira, derivados"),
+        ],
+        "vantagens": [
+            "Menor custo de produção de celulose do mundo — floresta tropical de crescimento ultrarrápido",
+            "Escala de 10,9 milhões de toneladas/ano — nenhum concorrente chega perto no eucalipto",
+            "Hedge natural: receita em dólar vs. custos em real",
+            "Certificação FSC de toda a base florestal — acesso a mercados premium na Europa",
+        ],
+        "riscos": [
+            "Preço da celulose cai 30–40% num ciclo negativo — resultado despenca junto",
+            "Dívida em dólar: variação cambial pode gerar prejuízo contábil mesmo com caixa saudável",
+            "Projeto Cerrado (nova fábrica em GO) aumentou alavancagem — deleveraging levará anos",
+            "Produto único: sem diversificação que amortize o ciclo",
+        ],
+        "barreira": "",
+    },
+    "TAEE11": {
+        "nome": "Taesa (Transmissora Aliança de Energia Elétrica)",
+        "fundacao": "2009 (parceria Cemig + ISA Colombia)",
+        "sede": "Belo Horizonte, MG",
+        "tagline": "A NTN-B da bolsa. Receita de longo prazo indexada à inflação, payout de 100%, sem risco climático. O preço que se paga é a alavancagem.",
+        "modelo": "A Taesa é a transmissora pura mais conhecida da B3. Opera mais de 13.000 km de linhas de  transmissão e 109 subestações em 18 estados. O modelo é simples e poderoso:  vence um leilão da ANEEL, constrói a linha e passa a receber a RAP (Receita Anual Permitida)  por 30 anos. A RAP não depende de quanto energia flui pela linha — só de a linha estar disponível  dentro dos parâmetros técnicos (parâmetros de indisponibilidade geram desconto na RAP,  chamado de Parcela Variável). Com receita indexada à inflação (60% IGPM + 40% IPCA),  payout de 100% e sem risco climático, a Taesa é comparada a uma NTN-B de longo prazo.  O que diferencia dos títulos públicos: risco de renovação de concessões antigas  com metodologia menos favorável, e alavancagem de 4,7x que limita novos investimentos.",
+        "receita": [
+            ("RAP de transmissão", "~95%", "receita contratada por 30 anos, reajustada por IGPM/IPCA"),
+            ("Reforços e melhorias autorizados", "~5%", "RAP adicional por obras autorizadas na concessão"),
+        ],
+        "vantagens": [
+            "Zero risco climático: transmissão não gera energia — chuva, seca, vento não importam",
+            "RAP indexada à inflação: receita do próximo ano é basicamente conhecida hoje",
+            "Payout de ~100% do lucro regulatório: quem compra recebe praticamente todo o lucro",
+            "Portfólio de categoria II/III (mais transparente): menor risco de surpresa regulatória nas concessões novas",
+            "Quando o IGPM supera o IPCA: receita cresce mais que os custos — assimetria positiva",
+        ],
+        "riscos": [
+            "Alavancagem de 4,7x dívida líquida/EBITDA — a maior entre as transmissoras da B3",
+            "Concessões antigas têm metodologia diferente: revisão pode reduzir 15-20% da RAP dessas linhas",
+            "Capex pendente de R$2,2 bi em projetos — a empresa precisa captar e construir",
+            "IGPM negativo (já aconteceu em 2017) reduz a receita das concessões indexadas a esse índice",
+            "Selic alta eleva o custo da dívida e comprime o valuation (duration muito longa)",
+        ],
+        "barreira": "Uma vez vencido o leilão, a concessão é exclusiva por 30 anos.  Ninguém constrói uma linha de transmissão paralela — o regulador não autoriza.  O custo de construção da infraestrutura e a exclusividade regulatória criam  um monopólio natural de altíssima barreira.  O desafio não é a concorrência — é vencer o próximo leilão a uma RAP que ainda dê retorno.",
+    },
+    "VALE3": {
+        "nome": "Vale S.A.",
+        "fundacao": "1942 (como Companhia Vale do Rio Doce, estatal; privatizada em 1997)",
+        "sede": "Rio de Janeiro, RJ",
+        "tagline": "A maior mineradora de ferro do mundo. Carajás é o maior e melhor depósito de minério de ferro do planeta — e a Vale tem ele há 80 anos.",
+        "modelo": "A Vale é uma das cinco maiores empresas de mineração do mundo e a maior exportadora  de minério de ferro do planeta. Opera em dois grandes segmentos:  Metais Ferrosos (~70% do EBITDA) e Metais Básicos (~15%).  O coração do negócio é o Sistema Norte — a mina de Carajás, no Pará.  Carajás tem o maior depósito de minério de ferro de alta qualidade do mundo:  reservas de ~7 bilhões de toneladas com teor médio de 67% Fe  (benchmark é 62%). A qualidade superior gera prêmio de preço de US$5-15/t.  A logística é integrada: ferrovia EFC (Estrada de Ferro Carajás, 892 km)  leva o minério diretamente ao Porto do Itaqui (MA) —  sem baldeação, sem intermediário, menor custo.  Em metais básicos, a Vale tem níquel no Canadá (Voisey's Bay)  e cobre em projetos de desenvolvimento.  Com a transição energética, cobre e níquel ganham relevância —  o Sossego e o Salobo (cobre no PA) são apostas de longo prazo.",
+        "receita": [
+            ("Minério de ferro e pelotas (Sistema Norte — Carajás)", "~55%", "67% Fe; premium sobre benchmark; EFC + Porto Itaqui"),
+            ("Minério de ferro (Sistema Sudeste — MG)", "~20%", "62-63% Fe; Quadrilátero Ferrífero; sistema mais antigo e caro"),
+            ("Níquel e subprodutos (cobre, cobalto, platina)", "~12%", "Canadá, Brasil, Indonesia; metal da bateria EV"),
+            ("Cobre (Sossego, Salobo — PA)", "~8%", "crescimento acelerado; apoio da transição energética"),
+        ],
+        "vantagens": [
+            "Carajás: o melhor minério do mundo em qualidade e reservas — inreplicável em qualquer outra jurisdição",
+            "Custo C1 entre os mais baixos do planeta: ~US$23-25/t vs produtores marginais a US$80+/t",
+            "Logística própria (EFC + Porto Itaqui): controle do custo de ponta a ponta sem dependência de terceiros",
+            "Diversificação em metais da transição: cobre e níquel crescem em relevância com veículos elétricos",
+            "Sem controlador majoritário: gestão profissional com foco em retorno ao acionista",
+        ],
+        "riscos": [
+            "China: 70% das exportações vão para a China — qualquer desaceleração afeta diretamente",
+            "Brumadinho: passivo ambiental e reputacional em curso desde 2019 — provisões continuam pesando",
+            "Metais básicos: cobre e níquel ainda não são escala suficiente para compensar volatilidade do ferro",
+            "Produção de Carajás com metas ambiciosas: execução de S11D a plena capacidade é desafio logístico",
+            "Câmbio apreciado comprime margens em reais mesmo sem queda do preço do minério",
+        ],
+        "barreira": "Carajás é a barreira definitiva.  O depósito foi descoberto em 1967 por geólogos da Vale e da US Steel —  e nunca se encontrou outro igual no mundo em qualidade e escala.  Quem não tem Carajás não tem o mesmo produto.  Adicione a ferrovia de 892 km e o porto próprio:  construir essa logística hoje custaria US$15-20 bi e levaria 10-15 anos.  A Vale tem isso funcionando há décadas.",
+    },
+    "VULC3": {
+        "nome": "Vulcabras Azaleia S.A.",
+        "fundacao": "1952 (como Calçados Azaleia; Vulcabras desde 2011)",
+        "sede": "Jundiaí, SP",
+        "tagline": "O maior fabricante de calçados esportivos do Brasil. Faz Under Armour para o Brasil e Olympikus — 50 milhões de pares por ano, saindo de Horizonte (CE).",
+        "modelo": "A Vulcabras é a maior fabricante de calçados esportivos do Brasil —  em volume de produção, não em receita de marca.  Opera com duas marcas: Olympikus (própria, focada em performance popular)  e Under Armour (licença exclusiva para o Brasil — fabrica, distribui e vende).  A fábrica principal fica em Horizonte (CE) — maior complexo industrial  de calçados do hemisfério sul, com mais de 13.000 funcionários.  O Nordeste tem dois benefícios estruturais: custo de mão de obra menor  e incentivos fiscais do estado do Ceará.  O modelo de licença da Under Armour é o diferencial:  a Vulcabras paga royalty (em dólar, um custo),  mas recebe o brand premium de uma marca global de alta performance  que ela não precisaria construir do zero.  Vende via varejo (Renner, Riachuelo), e-commerce e lojas multimarcas.",
+        "receita": [
+            ("Under Armour Brasil (licença)", "~48%", "marca premium — maior ticket médio; paga royalty em dólar; contrato vigente"),
+            ("Olympikus", "~40%", "marca própria — boa penetração no interior e classes B/C; maior margem líquida"),
+            ("Outros (exportação, private label)", "~12%", "exportação para América Latina; produção para terceiros"),
+        ],
+        "vantagens": [
+            "Maior complexo industrial de calçados do hemisfério sul: escala de 50 mi de pares/ano gera custo unitário imbatível",
+            "Under Armour: brand premium sem o risco de construir uma marca global do zero",
+            "Nordeste: custo de mão de obra menor + incentivos fiscais do Ceará = estrutura de custo competitiva",
+            "Margem bruta 42-45%: a mais alta do grupo — mix de marca premium com produção eficiente",
+            "Olympikus como proteção: marca própria cresce sem depender de contrato de licença",
+        ],
+        "riscos": [
+            "Renovação do contrato Under Armour: se perder a licença, perde ~48% da receita do dia para a noite",
+            "Royalty em dólar: custo da licença sobe com o dólar — margem comprimida em desvalorizações do real",
+            "Importados asiáticos: concorrência de calçados chineses e vietnamitas comprime preços no varejo",
+            "Exposição à renda da classe C: Olympikus e Under Armour entry-level sensíveis a crises de renda",
+        ],
+        "barreira": "Escala industrial e a licença Under Armour.  Construir um complexo de 13.000 funcionários especializados em calçados esportivos  leva décadas — e criar o conhecimento técnico de solado,  espuma de amortecimento e cabedal esportivo é barreira de processo.  A Under Armour escolheu a Vulcabras porque ela é a única no Brasil  com capacidade de produzir em escala e qualidade para uma marca premium global.",
+    },
+}
 ESTUDOS_ESPECIFICOS = {
     "BBAS3": {
         "titulo": "P/VP raramente abaixo de 0,50x",
@@ -4912,31 +6376,113 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
     # estudo específico, panorama da empresa, par-a-par)
     # ════════════════════════════════════════════════════════════════════
     if aba_ativa == "🧠 Tese":
-        # ---- Sobre o Negócio (alimentado empresa por empresa) ----
-        _sobre = SOBRE_NEGOCIO.get(ticker)
-        if _sobre:
+        # ════════════════════════════════════════════════════════════
+        # PERFIL DO DOSSIÊ — estilo idêntico ao app de estudo
+        # Cobre: modelo, receita, vantagens, riscos, barreira
+        # ════════════════════════════════════════════════════════════
+        _perfil = PERFIL_EMPRESA.get(ticker)
+        if _perfil:
+            # Cabeçalho com tagline
+            _cor_tese = {"Bancos": "#60A5FA", "Seguros": "#A78BFA",
+                         "Energia Elétrica": "#FCD34D", "Petróleo": "#FB923C",
+                         "Mineração": "#FBBF24", "Agronegócio": "#86EFAC",
+                         "Shoppings": "#E879F9", "Saneamento": "#38BDF8",
+                         "Telecom": "#60A5FA"}.get(row.get("SETOR",""), "#D4AF37")
+
             st.markdown(
-                "<span style='font-size:0.8em;color:#D4AF37;font-weight:bold;"
-                "text-transform:uppercase;letter-spacing:0.5px;'>Sobre o Negócio</span>",
+                f"<div style='{card_style}border-left:4px solid {_cor_tese};margin-bottom:18px;'>"
+                f"<div style='font-size:0.7em;color:#aaa;text-transform:uppercase;"
+                f"letter-spacing:1px;margin-bottom:4px;'>"
+                f"{_perfil.get('nome',tk)} · {_perfil.get('fundacao','')} · {_perfil.get('sede','')}</div>"
+                f"<div style='font-size:0.95em;color:{_cor_tese};font-style:italic;"
+                f"font-weight:600;line-height:1.5;'>{_perfil.get('tagline','')}</div>"
+                f"</div>",
                 unsafe_allow_html=True,
             )
-            for _bloco in _sobre:
+
+            # Como funciona o negócio
+            st.markdown(
+                "<span style='font-size:0.75em;color:#D4AF37;font-weight:700;"
+                "text-transform:uppercase;letter-spacing:0.8px;'>Como funciona o negócio</span>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<div style='{card_style}margin-bottom:16px;'>"
+                f"<div style='font-size:0.91em;color:#ddd;line-height:1.75;'>"
+                f"{_perfil.get('modelo','')}</div></div>",
+                unsafe_allow_html=True,
+            )
+
+            # De onde vem a receita
+            if _perfil.get('receita'):
                 st.markdown(
-                    "<div style='{base}margin-bottom:10px;'>"
-                    "<div style='font-size:0.78em;color:#D4AF37;font-weight:700;"
-                    "text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;'>"
-                    "{titulo}</div>"
-                    "<div style='font-size:0.92em;color:#ddd;line-height:1.65;'>{texto}</div>"
-                    "</div>".format(base=card_style, titulo=_bloco["titulo"],
-                                   texto=_bloco["texto"]),
+                    "<span style='font-size:0.75em;color:#D4AF37;font-weight:700;"
+                    "text-transform:uppercase;letter-spacing:0.8px;margin-top:4px;display:block;'>"
+                    "De onde vem a receita</span>",
                     unsafe_allow_html=True,
                 )
-            st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+                for _seg, _pct, _det in _perfil['receita']:
+                    st.markdown(
+                        f"<div style='display:flex;align-items:flex-start;gap:14px;"
+                        f"padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);'>"
+                        f"<div style='min-width:52px;text-align:right;font-size:1.05em;"
+                        f"font-weight:800;color:#D4AF37;'>{_pct}</div>"
+                        f"<div><div style='font-size:0.88em;font-weight:600;color:#eee;"
+                        f"margin-bottom:2px;'>{_seg}</div>"
+                        f"<div style='font-size:0.80em;color:#aaa;'>{_det}</div></div></div>",
+                        unsafe_allow_html=True,
+                    )
+                st.markdown("<div style='margin-bottom:14px;'></div>", unsafe_allow_html=True)
+
+            # Vantagens e Riscos lado a lado
+            _tc1, _tc2 = st.columns(2)
+            with _tc1:
+                if _perfil.get('vantagens'):
+                    st.markdown(
+                        "<span style='font-size:0.75em;color:#22C55E;font-weight:700;"
+                        "text-transform:uppercase;letter-spacing:0.8px;'>Vantagens competitivas</span>",
+                        unsafe_allow_html=True,
+                    )
+                    for _v in _perfil['vantagens']:
+                        st.markdown(
+                            f"<div style='background:rgba(34,197,94,0.07);border-left:3px solid #22C55E;"
+                            f"border-radius:0 8px 8px 0;padding:9px 13px;margin-bottom:7px;"
+                            f"font-size:0.87em;color:#d1fae5;line-height:1.5;'>✦ {_v}</div>",
+                            unsafe_allow_html=True,
+                        )
+            with _tc2:
+                if _perfil.get('riscos'):
+                    st.markdown(
+                        "<span style='font-size:0.75em;color:#EF4444;font-weight:700;"
+                        "text-transform:uppercase;letter-spacing:0.8px;'>Riscos principais</span>",
+                        unsafe_allow_html=True,
+                    )
+                    for _r in _perfil['riscos']:
+                        st.markdown(
+                            f"<div style='background:rgba(239,68,68,0.07);border-left:3px solid #EF4444;"
+                            f"border-radius:0 8px 8px 0;padding:9px 13px;margin-bottom:7px;"
+                            f"font-size:0.87em;color:#fee2e2;line-height:1.5;'>⚠ {_r}</div>",
+                            unsafe_allow_html=True,
+                        )
+
+            # Barreira de entrada
+            if _perfil.get('barreira'):
+                st.markdown(
+                    "<span style='font-size:0.75em;color:#D4AF37;font-weight:700;"
+                    "text-transform:uppercase;letter-spacing:0.8px;margin-top:4px;display:block;'>"
+                    "Barreira de entrada</span>",
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    f"<div style='background:rgba(212,175,55,0.07);border-left:3px solid #D4AF37;"
+                    f"border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:16px;"
+                    f"font-size:0.87em;color:#fef3c7;line-height:1.5;'>🔒 {_perfil['barreira']}</div>",
+                    unsafe_allow_html=True,
+                )
+
             st.markdown("---")
 
-        # ---- Governança e Outlook ----
-        # são texto descritivo/estrutural sobre a empresa, não status de
-        # mercado do dia, então combinam mais com o espírito do Panorama. ----
+        # ---- Governança e Outlook (mantidos abaixo do perfil) ----
         gov = GOVERNANCA.get(ticker, {})
         out = OUTLOOK_2026.get(ticker, {})
         nota_gov = gov.get('nota', None)
@@ -4977,10 +6523,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     )
             st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
 
-        # ---- Estudo Específico (so aparece se existir entrada pro ticker) ----
-        # Fica no TOPO do Panorama, não em Visão Geral -- é justamente o tipo
-        # de detalhe estrutural/permanente que ajuda a entender a empresa,
-        # então faz mais sentido logo na "porta de entrada" do panorama.
+        # ---- Estudo Específico ----
         estudo = ESTUDOS_ESPECIFICOS.get(ticker)
         if estudo:
             metrica_valor = ativo_data.get(estudo.get('metrica', ''), None) if isinstance(ativo_data, dict) else None
