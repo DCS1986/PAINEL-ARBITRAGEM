@@ -3856,11 +3856,11 @@ PERFIL_EMPRESA = {
         "tagline": "O maior pagador de dividendos do setor. Uma distribuidora de seguros disfarçada de seguradora — e isso é exatamente o que a torna tão lucrativa.",
         "modelo": "A BB Seguridade não assume risco de seguro. Ela distribui seguros, previdência e capitalização  pela rede do Banco do Brasil — 70 milhões de clientes, mais de 3.500 pontos de atendimento —  e cobra comissão. O risco de sinistro fica com os parceiros: Mapfre (seguros, JV 74,9% BB + 25,1% Mapfre)  e Principal Financial Group (previdência, via Brasilprev).  Estrutura capital-light com payout de ~85% — não precisa reter capital para cobrir sinistros.  O resultado tem dois motores: operacional (prêmios, corretagem, sinistralidade das parceiras)  e financeiro (reservas técnicas da Brasilprev e Brasilcap investidas na Selic).  Em juro alto o segundo motor turbina o lucro: no 1T26 foi +58,5% a/a e representou 23% do total.  O detalhe que muda tudo: o contrato de distribuição com o BB vai até 2033.  O mercado desconta esse risco no valuation — e o P/L de 8x vs. 13-14x histórico do mercado  é basicamente o 'preço' que o investidor paga pela incerteza de renovação.",
         "receita": [
-            ("Corretagem e distribuição (BB Corretora)", "~40%", "comissão sobre todos os produtos vendidos pela rede BB"),
-            ("Previdência (BrasilPrev)", "~25%", "taxa de gestão + resultado financeiro das reservas PGBL/VGBL — turbinado pela Selic"),
-            ("Seguros rurais (Brasilseg)", "~14%", "maior linha individual; sensível ao agro, El Niño e inadimplência rural"),
-            ("Seguros vida e prestamista (Brasilseg)", "~17%", "prestamista ligado ao consignado — sofre com juro alto; vida é base estável"),
-            ("Capitalização (Brasilcap)", "~4%", "títulos de capitalização — beneficiado pela Selic alta"),
+            ("Seguro Rural (Brasilseg)", "~36%", "maior fatia do lucro — exposto ao agro, El Niño e inadimplência rural; líder com 62,9% de market share no seguro agrícola"),
+            ("Previdência (Brasilprev)", "~23%", "maior gestora de previdência privada do Brasil; R$484 bi em reservas; turbinada pela Selic alta"),
+            ("Prestamista (Brasilseg)", "~15%", "seguro que protege operações de crédito — cresce com o crédito consignado; sofre quando juros altos travam o crédito"),
+            ("Vida (Brasilseg)", "~13%", "segmento mais estável e diversificador — menor volatilidade que rural ou prestamista"),
+            ("Capitalização (Brasilcap)", "~6%", "títulos de capitalização — beneficiado pela Selic alta; cresce com ticket único"),
         ],
         "vantagens": [
             "Modelo capital-light: não assume risco de sinistro → payout de 85% → DY de 11-12%",
@@ -6543,7 +6543,9 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
 
-        panorama = PANORAMA_EMPRESA.get(ticker)
+        # PANORAMA_EMPRESA só exibe se não há PERFIL_EMPRESA (dossiê)
+        # para evitar duplicação de receita e informações divergentes
+        panorama = PANORAMA_EMPRESA.get(ticker) if not _perfil else None
         if panorama:
             st.markdown(
                 "<div style='font-size:1.05em;color:#F1EFE8;line-height:1.65;"
