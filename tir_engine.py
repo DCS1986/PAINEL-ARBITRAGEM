@@ -36,7 +36,7 @@ IPCA_BASE = 0.06
 
 # Carimbo de versao - aparece na caixa de calculo. Se o app nao mostrar esta
 # versao, o engine novo NAO esta no ar (arquivo duplicado ou cache do deploy).
-VERSION = "v12 (bancos: EY*payout=DY, g=ROE*ret; BBSE yield-only; CXSE +10%; TIMS g=7%)"
+VERSION = "v13 (incorporadoras: ROE medio 3 anos + teto g=12%; bancos/PSSA: ROE atual)"
 
 # Tickers com TIR calculada com formula validada — exibidos em verde na tabela
 TICKERS_TIR_CONFIRMADA = {
@@ -48,6 +48,8 @@ TICKERS_TIR_CONFIRMADA = {
     "PSSA3",   # Porto: EY*payout=DY, g=ROE*retencao (formula banco — validada no print)
     # Telecom
     "TIMS3",   # cenario medio: DY + 7% crescimento
+    # Incorporadoras: formula banco com ROE medio 3 anos + teto g=12%
+    "CURY3", "DIRR3", "MDNE3", "CYRE3",
 }
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
@@ -84,6 +86,8 @@ ARQUETIPO_POR_TICKER = {
     **{t: "banco" for t in [
         "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6", "SANB3", "BMGB4",
         "PSSA3",  # Porto: payout 50%, g=ROE*retencao — mesma formula dos bancos
+        # Incorporadoras: mesma formula, ROE medio 3 anos, teto g=12%
+        "CURY3", "DIRR3", "MDNE3", "CYRE3",
     ]},
     # 2) Seguradora -> DY + crescimento especifico (capital-light, payout alto)
     **{t: "seguradora" for t in ["BBSE3", "CXSE3", "IRBR3"]},
@@ -106,7 +110,7 @@ ARQUETIPO_POR_TICKER = {
     **{t: "holding" for t in ["ITSA4", "BRAP4", "BRBI11"]},
     # 7) Incorporadora / imobiliario -> DY + crescimento projetado
     **{t: "incorporadora" for t in [
-        "CYRE3", "CURY3", "DIRR3", "JHSF3", "MDNE3", "ALOS3",
+        "JHSF3", "ALOS3",
     ]},
 }
 
@@ -190,21 +194,33 @@ def _tir_nominal(dy: float, g: float) -> float:
     return (1 + dy) * (1 + g) - 1
 
 
-def _tir_banco(dados: dict) -> ResultadoTIR:
+def _tir_banco(dados: dict, ticker: str = "") -> ResultadoTIR:
     """Formula do print: EY = 1/PL_projetado, DY = EY x payout, g = (1-payout) x ROE_atual."""
     pl   = dados.get("pl")       # P/L PROJETADO da planilha
     roe  = _dec(dados.get("roe"))
     payout_real = dados.get("payout")
     r = ResultadoTIR(None, "banco", NOME_METODO["banco"])
-    if roe is None or not pl or pl <= 0:
-        r.alerta = "Faltam PL projetado e/ou ROE."
+    if not pl or pl <= 0:
+        r.alerta = "Falta P/L projetado."
         return r
-    payout = _clamp(payout_real, 0, 1) if (payout_real and payout_real > 0) else 0.40
-    fonte_p = "planilha" if (payout_real and payout_real > 0) else "default 40%"
-    ey      = 1.0 / pl                          # Earning Yield = 1 / PL projetado
-    dy      = ey * payout                        # DY = EY x payout
+    # Incorporadoras: usa ROE médio 3 anos + teto específico do setor
+    if ticker in _ROE_MEDIO_INCORPORADORA:
+        roe_calc  = _ROE_MEDIO_INCORPORADORA[ticker]
+        g_teto    = _G_TETO_INCORPORADORA
+        fonte_roe = f"ROE médio 3 anos ({int(roe_calc*100)}% — suaviza pico do ciclo)"
+    else:
+        if roe is None:
+            r.alerta = "Faltam PL projetado e/ou ROE."
+            return r
+        roe_calc  = roe
+        g_teto    = PREMISSAS["g_teto"]
+        fonte_roe = "ROE atual"
+    payout   = _clamp(payout_real, 0, 1) if (payout_real and payout_real > 0) else 0.40
+    fonte_p  = "planilha" if (payout_real and payout_real > 0) else "default 40%"
+    ey       = 1.0 / pl
+    dy       = ey * payout
     retencao = max(0.0, 1 - payout)
-    g = _clamp(roe * retencao, PREMISSAS["g_piso"], PREMISSAS["g_teto"])
+    g        = _clamp(roe_calc * retencao, PREMISSAS["g_piso"], g_teto)
     tir = _tir_nominal(dy, g)
     r.tir = tir
     r.memoria = [
@@ -212,7 +228,7 @@ def _tir_banco(dados: dict) -> ResultadoTIR:
         Passo("Earning yield (EY = 1/PL)", _p(ey)),
         Passo(f"Payout ({fonte_p})", _p(payout)),
         Passo("Dividend yield = EY x payout", _p(dy)),
-        Passo("ROE atual", _p(roe)),
+        Passo(fonte_roe, _p(roe_calc)),
         Passo("Retencao (1 - payout)", _p(retencao)),
         Passo(f"g = ROE x retencao (teto {_p(PREMISSAS['g_teto'])})", _p(g)),
         Passo("TIR nominal = (1+DY) x (1+g) - 1", _p(tir)),
@@ -301,6 +317,17 @@ def _tir_ciclica(dados: dict, ticker: str) -> ResultadoTIR:
     r.alerta = ALERTAS.get(ticker, "")
     return r
 
+
+# ROE médio 3 anos para incorporadoras (suaviza pico do ciclo)
+# Fonte: histórico de releases 2022-2025, arredondado de forma conservadora
+_ROE_MEDIO_INCORPORADORA = {
+    "CURY3": 0.45,   # ROE atual 79% mas média 3 anos estimada em ~45%
+    "DIRR3": 0.38,   # ROE atual 44%, média 3 anos ~38%
+    "MDNE3": 0.22,   # ROE atual 27%, média 3 anos ~22%
+    "CYRE3": 0.13,   # ROE atual 11%, média 3 anos ~13%
+}
+# Teto de crescimento para incorporadoras (evita perpetuidade irreal)
+_G_TETO_INCORPORADORA = 0.12   # 12% nominal máximo
 
 # Crescimento validado por ticker para utilities com formula confirmada
 _G_OVERRIDE_UTILITY = {
@@ -392,7 +419,7 @@ def calcular_tir(ticker: str, dados: dict) -> ResultadoTIR:
     arq = classificar(ticker) or _arquetipo_por_setor(dados.get("setor"))
 
     if arq == "banco":
-        return _tir_banco(dados)
+        return _tir_banco(dados, ticker)
     if arq == "seguradora":
         return _tir_seguradora(dados, ticker)
     if arq == "qualidade":
