@@ -208,6 +208,10 @@ def _tir_banco(dados: dict, ticker: str = "") -> ResultadoTIR:
         roe_calc  = _ROE_MEDIO_INCORPORADORA[ticker]
         g_teto    = _G_TETO_INCORPORADORA
         fonte_roe = f"ROE médio 3 anos ({int(roe_calc*100)}% — suaviza pico do ciclo)"
+        # Payout e P/L também travados para evitar distorção do PoC e dividendos extraordinários
+        payout_real = _PAYOUT_INCORPORADORA[ticker]
+        pl = _PL_REF_INCORPORADORA[ticker]   # P/L de referência validado
+        fonte_p = f"payout sustentável fixo ({int(payout_real*100)}%)"
     else:
         if roe is None:
             r.alerta = "Faltam PL projetado e/ou ROE."
@@ -326,6 +330,25 @@ _ROE_MEDIO_INCORPORADORA = {
     "MDNE3": 0.22,   # ROE atual 27%, média 3 anos ~22%
     "CYRE3": 0.13,   # ROE atual 11%, média 3 anos ~13%
 }
+
+# Payout sustentável para incorporadoras (ignora distribuições extraordinárias)
+# Usa média histórica recorrente, não o payout realizado no trimestre
+_PAYOUT_INCORPORADORA = {
+    "CURY3": 0.50,
+    "DIRR3": 0.62,
+    "MDNE3": 0.55,
+    "CYRE3": 0.55,
+}
+
+# P/L de referência por incorporadora (validado — só muda na revisão trimestral)
+# Evita distorção do PoC: resultado contábil pode estar sub/superavaliado
+_PL_REF_INCORPORADORA = {
+    "CURY3": 10.1,
+    "DIRR3": 8.5,
+    "MDNE3": 5.79,
+    "CYRE3": 6.0,
+}
+
 # Teto de crescimento para incorporadoras (evita perpetuidade irreal)
 _G_TETO_INCORPORADORA = 0.12   # 12% nominal máximo
 
