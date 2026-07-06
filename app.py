@@ -6393,7 +6393,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 f"<div style='{card_style}border-left:4px solid {_cor_tese};margin-bottom:18px;'>"
                 f"<div style='font-size:0.7em;color:#aaa;text-transform:uppercase;"
                 f"letter-spacing:1px;margin-bottom:4px;'>"
-                f"{_perfil.get('nome',tk)} · {_perfil.get('fundacao','')} · {_perfil.get('sede','')}</div>"
+                f"{_perfil.get('nome',ticker)} · {_perfil.get('fundacao','')} · {_perfil.get('sede','')}</div>"
                 f"<div style='font-size:0.95em;color:{_cor_tese};font-style:italic;"
                 f"font-weight:600;line-height:1.5;'>{_perfil.get('tagline','')}</div>"
                 f"</div>",
