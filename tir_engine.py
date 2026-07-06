@@ -50,6 +50,8 @@ TICKERS_TIR_CONFIRMADA = {
     "TIMS3",   # cenario medio: DY + 7% crescimento
     # Incorporadoras: formula banco com ROE medio 3 anos + teto g=12%
     "CURY3", "DIRR3", "MDNE3", "CYRE3",
+    # Utilities elétricas: DY atual × g travado por subsetor
+    "TAEE11","ISAE4","ALUP11","EGIE3","AXIA3","CPFE3","EQTL3","CMIG4","CPLE3",
 }
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
@@ -99,7 +101,7 @@ ARQUETIPO_POR_TICKER = {
     # 4) Utility / contratada -> DY + inflacao (receita regulada indexada)
     **{t: "utility" for t in [
         "SBSP3", "CSMG3", "SAPR4", "TAEE11", "EGIE3", "CPFE3", "CPLE3",
-        "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3",
+        "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3", "ALUP11",
     ]},
     # 5) Ciclica de commodity -> DY + inflacao (lucro/FCL nao extrapolado)
     **{t: "ciclica" for t in [
@@ -353,8 +355,20 @@ _PL_REF_INCORPORADORA = {
 _G_TETO_INCORPORADORA = 0.12   # 12% nominal máximo
 
 # Crescimento validado por ticker para utilities com formula confirmada
+# Revisão: a cada trimestre — checar novos leilões, capex e guidance de dividendos
 _G_OVERRIDE_UTILITY = {
-    "TIMS3": 0.07,   # cenario medio do modelo do analista (DY ~10.7% + g 7% = 18.5% embutido)
+    # Telecom
+    "TIMS3": 0.07,   # cenario medio validado (DY ~10.7% + g 7%)
+    # Elétricas — g nominal travado por subsetor (revisado trimestralmente)
+    "TAEE11": 0.060,  # Transmissora pura: RAP indexada IPCA/IGPM, crescimento = inflação
+    "ISAE4":  0.060,  # Transmissora pura: idem TAEE, portfólio de concessões mais novas
+    "ALUP11": 0.120,  # Transmissora + capex: 9 projetos entrando até 2029 + América Latina
+    "EGIE3":  0.100,  # Geradora: TAG + Jirau + expansão eólica — capex pesado mas crescimento real
+    "AXIA3":  0.120,  # Geradora privatizada: descotização (upside enorme) + maior geradora do país
+    "CPFE3":  0.090,  # Distribuidora integrada: concessões renovadas 30 anos + State Grid
+    "EQTL3":  0.130,  # Turnaround comprovado: Sabesp + saneamento + expansão Norte/Nordeste
+    "CMIG4":  0.050,  # Estatal: payout alto mas crescimento limitado por interferência política
+    "CPLE3":  0.090,  # Ex-estatal privatizada 2023: ganhos de eficiência + capex renovação
 }
 
 
