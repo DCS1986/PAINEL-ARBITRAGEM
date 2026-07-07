@@ -11,6 +11,7 @@ from cvm_insiders import (
     baixar_mapa_tickers, baixar_programa_recompra, programa_recompra_ativo,
 ) 
 from tir_engine import calcular_tir, render_tir, tir_real_valor, TICKERS_TIR_CONFIRMADA
+from setores_data import SETORES as SETORES_DOSSIE
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
@@ -7584,7 +7585,7 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 if not st.session_state.ativo_selecionado:
-    tcol2, tcol3, tcol4, tcol5, tcol6 = st.columns([1, 1, 1, 1.4, 5])
+    tcol2, tcol3, tcol4, tcol5, tcol6, tcol7 = st.columns([1, 1, 1, 1, 1.4, 5])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
                      type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
@@ -7604,6 +7605,11 @@ if not st.session_state.ativo_selecionado:
         if st.button("🎯 Confluência", use_container_width=True,
                      type="primary" if st.session_state.modo_exibicao == 'Confluência' else "secondary"):
             st.session_state.modo_exibicao = 'Confluência'
+            st.rerun()
+    with tcol6:
+        if st.button("📚 Setores", use_container_width=True,
+                     type="primary" if st.session_state.modo_exibicao == 'Setores' else "secondary"):
+            st.session_state.modo_exibicao = 'Setores'
             st.rerun()
 
 # --- LISTAGEM DE ATIVOS ---
@@ -8155,4 +8161,269 @@ else:
                 df_programas=df_programas_completo,
             )
             st.stop()
+
+        # ════════════════════════════════════════════════════════════════════
+        # MODO SETORES — Dossiê integrado
+        # ════════════════════════════════════════════════════════════════════
+        if st.session_state.modo_exibicao == 'Setores':
+            card_s = ("background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);"
+                      "border-radius:12px;padding:20px 24px;margin-bottom:14px;")
+
+            # ── Seletor de setor ──────────────────────────────────────────
+            nomes_setores = list(SETORES_DOSSIE.keys())
+            col_sel, _ = st.columns([2, 3])
+            setor_sel = col_sel.selectbox("Selecione o setor:", nomes_setores,
+                                          key="setor_dossie_sel")
+            dados_s = SETORES_DOSSIE[setor_sel]
+
+            if dados_s.get("em_construcao"):
+                st.info(f"📐 O setor **{setor_sel}** ainda está sendo construído. Em breve!")
+                st.stop()
+
+            # ── Header do setor ───────────────────────────────────────────
+            _tickers_s = dados_s.get("tickers", [])
+            _sub_s     = dados_s.get("tickers_sub", [])
+            _label_sub = dados_s.get("label_sub", "")
+            _tickers_html = "".join(
+                f"<span style='display:inline-block;background:rgba(212,175,55,0.12);"
+                f"border:1px solid rgba(212,175,55,0.3);color:#D4AF37;font-size:0.75rem;"
+                f"font-weight:700;padding:3px 10px;border-radius:6px;margin:3px 4px 3px 0;"
+                f"letter-spacing:0.5px;'>{t}</span>" for t in _tickers_s
+            )
+            if _sub_s:
+                _tickers_html += (
+                    f"<br><span style='font-size:0.65rem;color:#9CA3AF;text-transform:uppercase;"
+                    f"letter-spacing:0.8px;margin-right:6px;'>{_label_sub}:</span>"
+                    + "".join(
+                        f"<span style='display:inline-block;background:rgba(212,175,55,0.07);"
+                        f"border:1px solid rgba(212,175,55,0.2);color:#D4AF37;font-size:0.72rem;"
+                        f"font-weight:600;padding:2px 9px;border-radius:6px;margin:2px 3px 2px 0;"
+                        f"opacity:0.7;'>{t}</span>" for t in _sub_s
+                    )
+                )
+            st.markdown(
+                f"<div style='font-size:0.70rem;font-weight:700;letter-spacing:1.5px;"
+                f"text-transform:uppercase;color:#8B6914;padding-top:8px;'>"
+                f"Dossiê · {setor_sel}</div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<h1 style='font-size:2.0rem;color:#E6E1D6;margin:4px 0 8px 0;'>{setor_sel}</h1>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<p style='font-size:0.95rem;color:#CFCAC0;max-width:720px;line-height:1.6;"
+                f"margin-bottom:12px;'>{dados_s.get('tagline', '')}</p>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<div style='margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,0.08);"
+                f"padding-bottom:14px;'>{_tickers_html}</div>",
+                unsafe_allow_html=True,
+            )
+
+            # ── Abas: Lógica | Comparativo | Perfil ──────────────────────
+            tab_l, tab_c, tab_p = st.tabs(["🧠 Lógica do Setor", "⚔️ Comparativo", "🔍 Perfil Individual"])
+
+            # ── ABA LÓGICA ────────────────────────────────────────────────
+            with tab_l:
+                logica = dados_s.get("logica", {})
+                st.markdown(
+                    "<div class='section-label'>O que você precisa entender antes de qualquer número</div>"
+                    f"<div style='{card_s}background:rgba(212,175,55,0.05);border:1px solid rgba(212,175,55,0.2);'>"
+                    f"<div style='font-size:1.0rem;color:#E8E3D9;line-height:1.75;'>"
+                    f"{logica.get('texto', '')}</div></div>",
+                    unsafe_allow_html=True,
+                )
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<div class='section-label'>Drivers do setor</div>", unsafe_allow_html=True)
+                for driver, descricao in logica.get("drivers", []):
+                    st.markdown(
+                        f"<div style='{card_s}padding:16px 20px;'>"
+                        f"<div style='font-size:0.80rem;font-weight:700;color:#D4AF37;"
+                        f"margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;'>{driver}</div>"
+                        f"<div style='font-size:0.88rem;color:#CFCAC0;line-height:1.6;'>{descricao}</div>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
+
+            # ── ABA COMPARATIVO ───────────────────────────────────────────
+            with tab_c:
+                comp = dados_s.get("comparativo", {})
+                dimensoes = comp.get("dimensoes", [])
+                empresas  = comp.get("empresas", {})
+                grupos    = comp.get("grupos", [])
+
+                def _render_grupo(tickers_g):
+                    col_label, *cols_emp = st.columns([1.1] + [1]*len(tickers_g))
+                    col_label.markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
+                    for col, tk in zip(cols_emp, tickers_g):
+                        emp = empresas.get(tk, {})
+                        cor = emp.get("cor", "#D4AF37")
+                        col.markdown(
+                            f"<div style='font-size:0.78rem;font-weight:800;letter-spacing:0.5px;"
+                            f"text-transform:uppercase;padding:8px 0 6px 0;"
+                            f"border-bottom:2px solid {cor};margin-bottom:14px;color:{cor};'>"
+                            f"{tk}<br><span style='font-size:0.62rem;font-weight:500;"
+                            f"color:#CFCAC0;text-transform:none;'>{emp.get('nome','')}</span></div>",
+                            unsafe_allow_html=True,
+                        )
+                    for dim in dimensoes:
+                        col_label.markdown(
+                            f"<div style='font-size:0.72rem;font-weight:600;color:#6B7280;"
+                            f"text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;"
+                            f"padding-top:4px;'>{dim}</div>",
+                            unsafe_allow_html=True,
+                        )
+                        for col, tk in zip(cols_emp, tickers_g):
+                            emp = empresas.get(tk, {})
+                            val = emp.get(dim)
+                            if val is None:
+                                col.markdown("<div style='color:#555;margin-bottom:14px;'>—</div>",
+                                             unsafe_allow_html=True)
+                                continue
+                            if isinstance(val, tuple):
+                                principal = val[0]; detalhe = val[1] if len(val) > 1 else ""
+                                badge = val[2] if len(val) > 2 else ""
+                                badge_html = ""
+                                if badge == "badge-green":
+                                    badge_html = f"<span style='display:inline-block;background:rgba(34,197,94,0.15);color:#22C55E;font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-bottom:3px;'>{principal}</span>"
+                                elif badge == "badge-red":
+                                    badge_html = f"<span style='display:inline-block;background:rgba(239,68,68,0.15);color:#EF4444;font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-bottom:3px;'>{principal}</span>"
+                                elif badge == "badge-yellow":
+                                    badge_html = f"<span style='display:inline-block;background:rgba(212,175,55,0.15);color:#D4AF37;font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-bottom:3px;'>{principal}</span>"
+                                if badge_html:
+                                    col.markdown(
+                                        f"<div style='margin-bottom:14px;'>{badge_html}"
+                                        f"<div style='font-size:0.80rem;color:#CFCAC0;line-height:1.4;'>{detalhe}</div></div>",
+                                        unsafe_allow_html=True,
+                                    )
+                                else:
+                                    col.markdown(
+                                        f"<div style='font-size:0.92rem;font-weight:500;color:#E6E1D6;"
+                                        f"margin-bottom:4px;'>{principal}</div>"
+                                        f"<div style='font-size:0.80rem;color:#CFCAC0;line-height:1.4;"
+                                        f"margin-bottom:14px;'>{detalhe}</div>",
+                                        unsafe_allow_html=True,
+                                    )
+                            else:
+                                col.markdown(
+                                    f"<div style='font-size:0.92rem;color:#E6E1D6;margin-bottom:14px;'>{val}</div>",
+                                    unsafe_allow_html=True,
+                                )
+
+                if grupos:
+                    for g in grupos:
+                        tks = [t for t in g["tickers"] if t in empresas]
+                        if g.get("label"):
+                            st.markdown(
+                                f"<div style='font-size:0.70rem;font-weight:700;color:#D4AF37;"
+                                f"text-transform:uppercase;letter-spacing:1.2px;margin:18px 0 8px 0;"
+                                f"border-bottom:1px solid rgba(212,175,55,0.2);padding-bottom:6px;'>"
+                                f"{g['label']}</div>",
+                                unsafe_allow_html=True,
+                            )
+                        if tks:
+                            _render_grupo(tks)
+                elif empresas:
+                    _render_grupo(list(empresas.keys()))
+
+            # ── ABA PERFIL ────────────────────────────────────────────────
+            with tab_p:
+                perfis = dados_s.get("perfis", {})
+                if not perfis:
+                    st.info("Perfis individuais em construção para este setor.")
+                else:
+                    ordem = list(perfis.keys())
+                    ticker_sel = st.selectbox(
+                        "Empresa:", ordem,
+                        format_func=lambda t: f"{t} — {perfis[t].get('nome', t)}",
+                        key="perfil_setor_sel",
+                    )
+                    p = perfis[ticker_sel]
+                    _emp_data = dados_s.get("comparativo", {}).get("empresas", {}).get(ticker_sel, {})
+                    _cor = _emp_data.get("cor", "#8B6914")
+
+                    # Cabeçalho
+                    st.markdown(
+                        f"<div style='margin:16px 0 24px 0;padding:24px;background:rgba(255,255,255,0.03);"
+                        f"border:1px solid rgba(255,255,255,0.07);border-radius:12px;"
+                        f"border-left:4px solid {_cor};'>"
+                        f"<div style='font-size:0.65rem;font-weight:700;color:#9CA3AF;"
+                        f"letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;'>"
+                        f"{ticker_sel} · Fundada em {p.get('fundacao','?')} · {p.get('sede','')}</div>"
+                        f"<div style='font-size:1.4rem;font-weight:800;color:#E6E1D6;"
+                        f"margin-bottom:6px;font-family:Playfair Display,serif;'>{p.get('nome','')}</div>"
+                        f"<div style='font-size:0.90rem;color:{_cor};font-style:italic;"
+                        f"font-weight:700;filter:brightness(0.85);'>{p.get('tagline','')}</div>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                    # Modelo
+                    st.markdown("<div class='section-label'>Como funciona o negócio</div>",
+                                unsafe_allow_html=True)
+                    st.markdown(
+                        f"<div style='{card_s}'><div style='font-size:0.90rem;color:#E8E3D9;"
+                        f"line-height:1.75;'>{p.get('modelo','')}</div></div>",
+                        unsafe_allow_html=True,
+                    )
+
+                    # Receita
+                    if p.get("receita"):
+                        st.markdown("<div class='section-label' style='margin-top:20px;'>"
+                                    "De onde vem a receita</div>", unsafe_allow_html=True)
+                        for seg, pct, det in p["receita"]:
+                            st.markdown(
+                                f"<div style='display:flex;align-items:flex-start;gap:16px;"
+                                f"padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);'>"
+                                f"<div style='min-width:52px;text-align:right;font-size:1.1rem;"
+                                f"font-weight:800;color:#D4AF37;'>{pct}</div>"
+                                f"<div><div style='font-size:0.88rem;font-weight:600;color:#E6E1D6;"
+                                f"margin-bottom:2px;'>{seg}</div>"
+                                f"<div style='font-size:0.80rem;color:#CFCAC0;'>{det}</div></div></div>",
+                                unsafe_allow_html=True,
+                            )
+                        st.markdown("<div style='margin-bottom:14px;'></div>", unsafe_allow_html=True)
+
+                    # Vantagens e Riscos
+                    _vc1, _vc2 = st.columns(2)
+                    with _vc1:
+                        if p.get("vantagens"):
+                            st.markdown("<div class='section-label' style='color:#22C55E;'>"
+                                        "Vantagens competitivas</div>", unsafe_allow_html=True)
+                            for v in p["vantagens"]:
+                                st.markdown(
+                                    f"<div style='background:rgba(34,197,94,0.07);"
+                                    f"border-left:3px solid #22C55E;border-radius:0 8px 8px 0;"
+                                    f"padding:9px 13px;margin-bottom:7px;font-size:0.87rem;"
+                                    f"color:#d1fae5;line-height:1.5;'>✦ {v}</div>",
+                                    unsafe_allow_html=True,
+                                )
+                    with _vc2:
+                        if p.get("riscos"):
+                            st.markdown("<div class='section-label' style='color:#EF4444;'>"
+                                        "Riscos principais</div>", unsafe_allow_html=True)
+                            for r in p["riscos"]:
+                                st.markdown(
+                                    f"<div style='background:rgba(239,68,68,0.07);"
+                                    f"border-left:3px solid #EF4444;border-radius:0 8px 8px 0;"
+                                    f"padding:9px 13px;margin-bottom:7px;font-size:0.87rem;"
+                                    f"color:#fee2e2;line-height:1.5;'>⚠ {r}</div>",
+                                    unsafe_allow_html=True,
+                                )
+
+                    # Barreira
+                    if p.get("barreira"):
+                        st.markdown("<div class='section-label' style='margin-top:4px;'>"
+                                    "Barreira de entrada</div>", unsafe_allow_html=True)
+                        st.markdown(
+                            f"<div style='background:rgba(212,175,55,0.07);"
+                            f"border-left:3px solid #D4AF37;border-radius:0 8px 8px 0;"
+                            f"padding:10px 14px;font-size:0.87rem;color:#fef3c7;"
+                            f"line-height:1.5;'>🔒 {p['barreira']}</div>",
+                            unsafe_allow_html=True,
+                        )
+            st.stop()
+
         st.stop()  # blindagem -- nunca deveria chegar aqui (Cards/Comparar/Confluência sempre stopam antes)
