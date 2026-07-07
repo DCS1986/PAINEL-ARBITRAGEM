@@ -56,6 +56,24 @@ TICKERS_TIR_CONFIRMADA = {
     "ALOS3", "LEVE3",
     # Papel/embalagem e industrial premium
     "RANI3", "WEGE3",
+    # Cíclicas (g=IPCA, TIR real = DY): conservador e honesto para commodities
+    "VALE3", "CMIN3", "PETR4", "BRAP4",
+    # Autopeças, calçados, industrial (g=7%)
+    "VULC3", "SHUL4", "POMO4", "GRND3", "KLBN4", "KEPL3",
+    # Saneamento (g específico por estágio de privatização)
+    "SBSP3", "CSMG3", "SAPR4",
+    # Shoppings premium + exchange + varejo
+    "MULT3", "B3SA3", "LREN3",
+    # Holdings (DY + g=IPCA)
+    "ITSA4",
+    # Turnaround conservador
+    "IRBR3",
+    # Construtora luxo
+    "JHSF3",
+    # Petróleo e holding mineração
+    "PETR4", "BRAP4",
+    # Agro e celulose
+    "SLCE3", "SUZB3",
 }
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
@@ -93,6 +111,7 @@ ARQUETIPO_POR_TICKER = {
         "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6", "SANB3", "BMGB4",
         "PSSA3",  # Porto: payout 50%, g=ROE*retencao — mesma formula dos bancos
         "WEGE3",  # Compounder: mesma formula, teto 15% via _G_TETO_CUSTOM
+        "JHSF3",  # Incorporadora luxo: ROE 15%, payout 50%, PL ref 8x
         # Incorporadoras: mesma formula, ROE medio 3 anos, teto g=12%
         "CURY3", "DIRR3", "MDNE3", "CYRE3",
     ]},
@@ -100,24 +119,25 @@ ARQUETIPO_POR_TICKER = {
     **{t: "seguradora" for t in ["BBSE3", "CXSE3", "IRBR3"]},
     # 3) Qualidade / crescimento -> DY + crescimento projetado (motor: reinvestir)
     **{t: "qualidade" for t in [
-        "B3SA3", "GRND3", "POMO4", "VULC3", "SHUL4",
+        "GRND3",
         "CGRA4", "LREN3",
     ]},
     # 4) Utility / contratada -> DY + inflacao (receita regulada indexada)
     **{t: "utility" for t in [
         "SBSP3", "CSMG3", "SAPR4", "TAEE11", "EGIE3", "CPFE3", "CPLE3",
-        "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3", "ALUP11", "ALOS3", "LEVE3", "RANI3",
+        "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3", "ALUP11", "ALOS3", "LEVE3", "RANI3", "SLCE3", "SUZB3",
+        "VULC3", "SHUL4", "POMO4", "GRND3", "KLBN4", "KEPL3",
+        "SBSP3", "CSMG3", "SAPR4", "MULT3", "B3SA3", "LREN3", "ITSA4", "PETR4", "BRAP4",
     ]},
     # 5) Ciclica de commodity -> DY + inflacao (lucro/FCL nao extrapolado)
     **{t: "ciclica" for t in [
-        "VALE3", "PETR4", "PRIO3", "CMIN3", "KLBN4", "SLCE3",
-        "KEPL3", "FESA4", "SUZB3",
-    ]},
+        "VALE3", "PRIO3", "CMIN3",
+        "FESA4",     ]},
     # 6) Holding -> look-through + desconto de NAV
-    **{t: "holding" for t in ["ITSA4", "BRAP4", "BRBI11"]},
+    **{t: "holding" for t in ["ITSA4", "BRBI11"]},  # BRAP4 → utility (TIR=DY)
     # 7) Incorporadora / imobiliario -> DY + crescimento projetado
     **{t: "incorporadora" for t in [
-        "JHSF3",
+        
     ]},
 }
 
@@ -332,6 +352,7 @@ def _tir_ciclica(dados: dict, ticker: str) -> ResultadoTIR:
 # ROE médio 3 anos para incorporadoras (suaviza pico do ciclo)
 # Fonte: histórico de releases 2022-2025, arredondado de forma conservadora
 _ROE_MEDIO_INCORPORADORA = {
+    "JHSF3": 0.15,  # Luxo: ROE menor, ciclo mais longo
     "CURY3": 0.45,   # ROE atual 79% mas média 3 anos estimada em ~45%
     "DIRR3": 0.38,   # ROE atual 44%, média 3 anos ~38%
     "MDNE3": 0.22,   # ROE atual 27%, média 3 anos ~22%
@@ -341,6 +362,7 @@ _ROE_MEDIO_INCORPORADORA = {
 # Payout sustentável para incorporadoras (ignora distribuições extraordinárias)
 # Usa média histórica recorrente, não o payout realizado no trimestre
 _PAYOUT_INCORPORADORA = {
+    "JHSF3": 0.50,
     "CURY3": 0.50,
     "DIRR3": 0.62,
     "MDNE3": 0.55,
@@ -350,6 +372,7 @@ _PAYOUT_INCORPORADORA = {
 # P/L de referência por incorporadora (validado — só muda na revisão trimestral)
 # Evita distorção do PoC: resultado contábil pode estar sub/superavaliado
 _PL_REF_INCORPORADORA = {
+    "JHSF3": 8.0,
     "CURY3": 10.1,
     "DIRR3": 8.5,
     "MDNE3": 5.79,
@@ -388,7 +411,27 @@ _G_OVERRIDE_UTILITY = {
     # Shopping e aftermarket
     "ALOS3":  0.070,  # Shopping: IGP-M nos contratos + Helloo em expansão
     "LEVE3":  0.070,  # Aftermarket anticíclico: frota envelhecendo + exportações em dólar
+    "SLCE3":  0.070,
+    "SUZB3":  0.070,  # Celulose: líder global com TAG + expansão  # Agro produtor: DY estável + crescimento por expansão de área
     "RANI3":  0.070,  # Embalagem doméstica: FCF robusto + recompras (1% crescimento real via buyback)
+    # Autopeças e calçados — negócios estáveis, g=7% (crescimento real modesto)
+    "VULC3":  0.070,  # Under Armour + Olympikus — marca + exportação
+    "SHUL4":  0.070,  # OEM estamparia — relacionamento montadoras de longo prazo
+    "POMO4":  0.070,  # Ônibus: exportação 50% + BRT catalisador
+    "GRND3":  0.070,  # Grendene: exportação + marca consolidada
+    "KLBN4":  0.070,  # Klabin: líder embalagem + celulose
+    "KEPL3":  0.070,  # Silos: déficit estrutural de armazenagem + MATOPIBA
+    # Saneamento — g maior para privatizadas em turnaround
+    "SBSP3":  0.100,  # Privatizada Equatorial: universalização acelerada + eficiência
+    "CSMG3":  0.100,  # Privatizada Equatorial jun/2026: turnaround iniciando
+    "PETR4":  0.080,  # Petróleo: geração de caixa forte; Brent elevado → dividendos crescentes
+    "SAPR4":  0.070,  # Estatal madura PR: crescimento limitado vs privatizadas
+    # Shoppings e outros negócios estáveis
+    "MULT3":  0.080,  # Shopping premium: IGP-M + portfólio top qualidade
+    "B3SA3":  0.080,  # Monopolio exchange: cresce com mercado de capitais brasileiro
+    "LREN3":  0.060,  # Varejo moda: g=IPCA conservador — crescimento incerto
+    "BRAP4":  0.060,  # Holding Vale: g=IPCA → TIR real = DY (~8,6%)
+    "ITSA4":  0.060,  # Holding Itaú: g=IPCA (desconto NAV tende a fechar gradualmente)
 }
 
 
