@@ -249,8 +249,13 @@ def _tir_banco(dados: dict, ticker: str = "") -> ResultadoTIR:
         roe_calc  = roe
         g_teto    = _G_TETO_CUSTOM.get(ticker, PREMISSAS["g_teto"])
         fonte_roe = "ROE atual"
-    payout   = _clamp(payout_real, 0, 1) if (payout_real and payout_real > 0) else 0.40
-    fonte_p  = "planilha" if (payout_real and payout_real > 0) else "default 40%"
+    # Payout override: alguns bancos têm JCP/extraordinários que distorcem o payout trailing
+    if ticker in _PAYOUT_BANCO_OVERRIDE:
+        payout   = _PAYOUT_BANCO_OVERRIDE[ticker]
+        fonte_p  = f"fixo {int(payout*100)}% (JCP recorrente, ex-extraordinários)"
+    else:
+        payout   = _clamp(payout_real, 0, 1) if (payout_real and payout_real > 0) else 0.40
+        fonte_p  = "planilha" if (payout_real and payout_real > 0) else "default 40%"
     ey       = 1.0 / pl
     dy       = ey * payout
     retencao = max(0.0, 1 - payout)
@@ -384,6 +389,12 @@ _PL_REF_INCORPORADORA = {
 
 # Teto de crescimento para incorporadoras (evita perpetuidade irreal)
 _G_TETO_INCORPORADORA = 0.12   # 12% nominal máximo
+
+# Payout fixo para bancos onde o payout da planilha distorce
+# (JCP + extraordinários inflam ou deflam o payout trailing)
+_PAYOUT_BANCO_OVERRIDE = {
+    "ITUB4": 0.65,  # 65%: inclui JCP recorrente mas exclui extraordinários não repetíveis
+}
 
 # Teto de g customizado por ticker (override do teto padrão da fórmula banco)
 _G_TETO_CUSTOM = {
