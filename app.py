@@ -7952,6 +7952,30 @@ else:
         # Mostra muitos ativos e muitos números ao mesmo tempo -- o que os
         # Cards não conseguem fazer bem.
         if st.session_state.modo_exibicao == 'Tabela':
+
+            # Helper: lê Valor de Mercado do df_f, tolerante ao formato do Google Sheets
+            def _get_vm(df_src, ticker):
+                try:
+                    col = next((c for c in df_src.columns if 'mercado' in c.lower()), None)
+                    if col is None:
+                        return None
+                    mask = df_src['CÓDIGO'] == ticker
+                    if not mask.any():
+                        return None
+                    raw = df_src.loc[mask, col].values[0]
+                    s = str(raw).strip().replace('R$', '').replace(' ', '')
+                    if s in ('', 'nan', 'None', '-', '0'):
+                        return None
+                    # Google Sheets pode exportar como número puro (486807436382.97)
+                    # ou como brasileiro (486.807.436.382,97)
+                    if ',' in s:
+                        s = s.replace('.', '').replace(',', '.')
+                    else:
+                        pass  # já está no formato float padrão
+                    v = float(s)
+                    return round(v / 1e9, 2) if v > 0 else None
+                except Exception:
+                    return None
             st.markdown("#### 📋 Tabela Completa")
             st.caption(
                 "Clique no cabeçalho de qualquer coluna pra ordenar. Use o seletor abaixo "
@@ -7988,13 +8012,7 @@ else:
                     'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
                     'TIR Real (%)': tir_real_valor(tk, r, a, limpar_valor, pl_atual_val=_pl_at_tab),
-                    'Valor de Mercado': (lambda v: (limpar_valor(str(v)) / 1e9) if v else None)(
-                        df_f.loc[df_f['CÓDIGO'] == tk, 'VALOR DE MERCADO'].values[0]
-                        if 'VALOR DE MERCADO' in df_f.columns and tk in df_f['CÓDIGO'].values
-                        else (df_f.loc[df_f['CÓDIGO'] == tk, 'Valor de Mercado'].values[0]
-                              if 'Valor de Mercado' in df_f.columns and tk in df_f['CÓDIGO'].values
-                              else None)
-                    ),
+                    'Valor de Mercado': _get_vm(df_f, tk),
                     '_confirmada': tk in TICKERS_TIR_CONFIRMADA,
                     'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
                     'P/FCO': (_fdm_tab or {}).get('p_fco'),
