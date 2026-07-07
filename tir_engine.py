@@ -71,7 +71,9 @@ TICKERS_TIR_CONFIRMADA = {
     # Construtora luxo
     "JHSF3",
     # Petróleo e holding mineração
-    "PETR4", "BRAP4",
+    "PETR4", "PRIO3", "BRAP4",
+    # Outros confirmados
+    "BRBI11", "CGRA4",
     # Agro e celulose
     "SLCE3", "SUZB3",
 }
@@ -111,7 +113,8 @@ ARQUETIPO_POR_TICKER = {
         "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6", "SANB3", "BMGB4",
         "PSSA3",  # Porto: payout 50%, g=ROE*retencao — mesma formula dos bancos
         "WEGE3",  # Compounder: mesma formula, teto 15% via _G_TETO_CUSTOM
-        "JHSF3",  # Incorporadora luxo: ROE 15%, payout 50%, PL ref 8x
+        "JHSF3",
+        "BRBI11",  # BTG banco de investimento menor  # Incorporadora luxo: ROE 15%, payout 50%, PL ref 8x
         # Incorporadoras: mesma formula, ROE medio 3 anos, teto g=12%
         "CURY3", "DIRR3", "MDNE3", "CYRE3",
     ]},
@@ -127,14 +130,14 @@ ARQUETIPO_POR_TICKER = {
         "SBSP3", "CSMG3", "SAPR4", "TAEE11", "EGIE3", "CPFE3", "CPLE3",
         "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3", "ALUP11", "ALOS3", "LEVE3", "RANI3", "SLCE3", "SUZB3",
         "VULC3", "SHUL4", "POMO4", "GRND3", "KLBN4", "KEPL3",
-        "SBSP3", "CSMG3", "SAPR4", "MULT3", "B3SA3", "LREN3", "ITSA4", "PETR4", "BRAP4",
+        "SBSP3", "CSMG3", "SAPR4", "MULT3", "B3SA3", "LREN3", "ITSA4", "PETR4", "BRAP4", "PRIO3", "CGRA4",
     ]},
     # 5) Ciclica de commodity -> DY + inflacao (lucro/FCL nao extrapolado)
     **{t: "ciclica" for t in [
-        "VALE3", "PRIO3", "CMIN3",
+        "VALE3", "CMIN3",
         "FESA4",     ]},
     # 6) Holding -> look-through + desconto de NAV
-    **{t: "holding" for t in ["ITSA4", "BRBI11"]},  # BRAP4 → utility (TIR=DY)
+    **{t: "holding" for t in ["ITSA4"]},  # BRAP4, BRBI11 → utility/banco
     # 7) Incorporadora / imobiliario -> DY + crescimento projetado
     **{t: "incorporadora" for t in [
         
@@ -352,7 +355,7 @@ def _tir_ciclica(dados: dict, ticker: str) -> ResultadoTIR:
 # ROE médio 3 anos para incorporadoras (suaviza pico do ciclo)
 # Fonte: histórico de releases 2022-2025, arredondado de forma conservadora
 _ROE_MEDIO_INCORPORADORA = {
-    "JHSF3": 0.15,  # Luxo: ROE menor, ciclo mais longo
+    "JHSF3": 0.20,  # Luxo: ROE médio 3 anos estimado 20%
     "CURY3": 0.45,   # ROE atual 79% mas média 3 anos estimada em ~45%
     "DIRR3": 0.38,   # ROE atual 44%, média 3 anos ~38%
     "MDNE3": 0.22,   # ROE atual 27%, média 3 anos ~22%
@@ -391,6 +394,7 @@ _G_TETO_CUSTOM = {
 # (Fundamentus só vê dividendo em dinheiro; buyback não aparece no DY)
 _DY_OVERRIDE_UTILITY = {
     "RANI3": 0.08,  # DY caixa ~5% + buyback yield ~3% = 8% efetivo ao acionista
+    "PRIO3": 0.08,  # DY prospectivo pós-Wahoo + potencial política de dividendos 2026
 }
 
 # Crescimento validado por ticker para utilities com formula confirmada
@@ -422,14 +426,16 @@ _G_OVERRIDE_UTILITY = {
     "KLBN4":  0.070,  # Klabin: líder embalagem + celulose
     "KEPL3":  0.070,  # Silos: déficit estrutural de armazenagem + MATOPIBA
     # Saneamento — g maior para privatizadas em turnaround
-    "SBSP3":  0.100,  # Privatizada Equatorial: universalização acelerada + eficiência
+    "SBSP3":  0.120,  # Privatizada Equatorial: BRR R$88bi→R$158bi até 2030; opex cortou R$3bi; retorno via valorização
     "CSMG3":  0.100,  # Privatizada Equatorial jun/2026: turnaround iniciando
+    "PRIO3":  0.080,  # E&P independente: DY prospectivo pós-Wahoo; potencial dividendo 2026
     "PETR4":  0.080,  # Petróleo: geração de caixa forte; Brent elevado → dividendos crescentes
     "SAPR4":  0.070,  # Estatal madura PR: crescimento limitado vs privatizadas
     # Shoppings e outros negócios estáveis
     "MULT3":  0.080,  # Shopping premium: IGP-M + portfólio top qualidade
     "B3SA3":  0.080,  # Monopolio exchange: cresce com mercado de capitais brasileiro
     "LREN3":  0.060,  # Varejo moda: g=IPCA conservador — crescimento incerto
+    "CGRA4":  0.070,  # Grazziotin: varejista regional consolidada
     "BRAP4":  0.060,  # Holding Vale: g=IPCA → TIR real = DY (~8,6%)
     "ITSA4":  0.060,  # Holding Itaú: g=IPCA (desconto NAV tende a fechar gradualmente)
 }
