@@ -52,6 +52,10 @@ TICKERS_TIR_CONFIRMADA = {
     "CURY3", "DIRR3", "MDNE3", "CYRE3",
     # Utilities elétricas: DY atual × g travado por subsetor
     "TAEE11","ISAE4","ALUP11","EGIE3","AXIA3","CPFE3","EQTL3","CMIG4","CPLE3",
+    # Shopping e aftermarket — boas pagadoras, crescimento estável
+    "ALOS3", "LEVE3",
+    # Papel/embalagem e industrial premium
+    "RANI3", "WEGE3",
 }
 
 # Holdings: desconto de NAV e peso das contingencias sobre o NAV.
@@ -88,6 +92,7 @@ ARQUETIPO_POR_TICKER = {
     **{t: "banco" for t in [
         "ITUB4", "BBDC3", "BBAS3", "BPAC11", "ABCB4", "BRSR6", "SANB3", "BMGB4",
         "PSSA3",  # Porto: payout 50%, g=ROE*retencao — mesma formula dos bancos
+        "WEGE3",  # Compounder: mesma formula, teto 15% via _G_TETO_CUSTOM
         # Incorporadoras: mesma formula, ROE medio 3 anos, teto g=12%
         "CURY3", "DIRR3", "MDNE3", "CYRE3",
     ]},
@@ -95,24 +100,24 @@ ARQUETIPO_POR_TICKER = {
     **{t: "seguradora" for t in ["BBSE3", "CXSE3", "IRBR3"]},
     # 3) Qualidade / crescimento -> DY + crescimento projetado (motor: reinvestir)
     **{t: "qualidade" for t in [
-        "WEGE3", "B3SA3", "GRND3", "LEVE3", "POMO4", "VULC3", "SHUL4",
+        "B3SA3", "GRND3", "POMO4", "VULC3", "SHUL4",
         "CGRA4", "LREN3",
     ]},
     # 4) Utility / contratada -> DY + inflacao (receita regulada indexada)
     **{t: "utility" for t in [
         "SBSP3", "CSMG3", "SAPR4", "TAEE11", "EGIE3", "CPFE3", "CPLE3",
-        "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3", "ALUP11",
+        "CMIG4", "EQTL3", "TIMS3", "ISAE4", "AXIA3", "ALUP11", "ALOS3", "LEVE3", "RANI3",
     ]},
     # 5) Ciclica de commodity -> DY + inflacao (lucro/FCL nao extrapolado)
     **{t: "ciclica" for t in [
-        "VALE3", "PETR4", "PRIO3", "CMIN3", "KLBN4", "RANI3", "SLCE3",
+        "VALE3", "PETR4", "PRIO3", "CMIN3", "KLBN4", "SLCE3",
         "KEPL3", "FESA4", "SUZB3",
     ]},
     # 6) Holding -> look-through + desconto de NAV
     **{t: "holding" for t in ["ITSA4", "BRAP4", "BRBI11"]},
     # 7) Incorporadora / imobiliario -> DY + crescimento projetado
     **{t: "incorporadora" for t in [
-        "JHSF3", "ALOS3",
+        "JHSF3",
     ]},
 }
 
@@ -219,7 +224,7 @@ def _tir_banco(dados: dict, ticker: str = "") -> ResultadoTIR:
             r.alerta = "Faltam PL projetado e/ou ROE."
             return r
         roe_calc  = roe
-        g_teto    = PREMISSAS["g_teto"]
+        g_teto    = _G_TETO_CUSTOM.get(ticker, PREMISSAS["g_teto"])
         fonte_roe = "ROE atual"
     payout   = _clamp(payout_real, 0, 1) if (payout_real and payout_real > 0) else 0.40
     fonte_p  = "planilha" if (payout_real and payout_real > 0) else "default 40%"
@@ -354,6 +359,11 @@ _PL_REF_INCORPORADORA = {
 # Teto de crescimento para incorporadoras (evita perpetuidade irreal)
 _G_TETO_INCORPORADORA = 0.12   # 12% nominal máximo
 
+# Teto de g customizado por ticker (override do teto padrão da fórmula banco)
+_G_TETO_CUSTOM = {
+    "WEGE3": 0.15,  # Compounder premium: expansão global + ROE 30%+ sustentado
+}
+
 # Crescimento validado por ticker para utilities com formula confirmada
 # Revisão: a cada trimestre — checar novos leilões, capex e guidance de dividendos
 _G_OVERRIDE_UTILITY = {
@@ -369,6 +379,10 @@ _G_OVERRIDE_UTILITY = {
     "EQTL3":  0.130,  # Turnaround comprovado: Sabesp + saneamento + expansão Norte/Nordeste
     "CMIG4":  0.080,  # Estatal: dividendo mínimo obrigatório R$0,50/ação no estatuto + payout histórico alto
     "CPLE3":  0.090,  # Ex-estatal privatizada 2023: ganhos de eficiência + capex renovação
+    # Shopping e aftermarket
+    "ALOS3":  0.070,  # Shopping: IGP-M nos contratos + Helloo em expansão
+    "LEVE3":  0.070,  # Aftermarket anticíclico: frota envelhecendo + exportações em dólar
+    "RANI3":  0.070,  # Embalagem doméstica: FCF robusto + recompras (1% crescimento real via buyback)
 }
 
 
