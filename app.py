@@ -5784,6 +5784,9 @@ def carregar_dados():
         df['res_val_num'] = df['RESULTADO 2026 (1/4)'].apply(limpar_valor_resultado)
         df['preco_teto']  = df['PREÇO TETO'].apply(limpar_valor) if 'PREÇO TETO' in df.columns else 0
         df['target']      = df['TARGET'].apply(limpar_valor) if 'TARGET' in df.columns else 0
+        # Valor de mercado — tenta variações do nome da coluna
+        _col_vm = next((c for c in df.columns if 'valor' in c.lower() and 'mercado' in c.lower()), None)
+        df['vl_mercado']  = df[_col_vm].apply(limpar_valor) if _col_vm else 0
 
         return df, duplicados
     except:
@@ -7725,6 +7728,7 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
             'div_safety_score': div_safety_score,
             'div_safety_label': div_safety_label,
             'div_safety_cor': div_safety_cor,
+            'vl_mercado': row.get('vl_mercado', 0) or 0,
         })
 
     ativos_com_score = calcular_percentis_setoriais(ativos_com_score)
@@ -7981,7 +7985,7 @@ else:
                     'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
                     'TIR Real (%)': tir_real_valor(tk, r, a, limpar_valor, pl_atual_val=_pl_at_tab),
-                    'Valor de Mercado': limpar_valor(str(r.get('Valor de Mercado', 0))) or None,
+                    'Valor de Mercado': a.get('vl_mercado') or None,
                     '_confirmada': tk in TICKERS_TIR_CONFIRMADA,
                     'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
                     'P/FCO': (_fdm_tab or {}).get('p_fco'),
