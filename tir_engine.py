@@ -361,13 +361,13 @@ _G_OVERRIDE_UTILITY = {
     "TIMS3": 0.07,   # cenario medio validado (DY ~10.7% + g 7%)
     # Elétricas — g nominal travado por subsetor (revisado trimestralmente)
     "TAEE11": 0.060,  # Transmissora pura: RAP indexada IPCA/IGPM, crescimento = inflação
-    "ISAE4":  0.060,  # Transmissora pura: idem TAEE, portfólio de concessões mais novas
+    "ISAE4":  0.080,  # Transmissora: portfólio de concessões mais novas + controladora ISA Colombia
     "ALUP11": 0.120,  # Transmissora + capex: 9 projetos entrando até 2029 + América Latina
     "EGIE3":  0.100,  # Geradora: TAG + Jirau + expansão eólica — capex pesado mas crescimento real
     "AXIA3":  0.120,  # Geradora privatizada: descotização (upside enorme) + maior geradora do país
     "CPFE3":  0.090,  # Distribuidora integrada: concessões renovadas 30 anos + State Grid
     "EQTL3":  0.130,  # Turnaround comprovado: Sabesp + saneamento + expansão Norte/Nordeste
-    "CMIG4":  0.050,  # Estatal: payout alto mas crescimento limitado por interferência política
+    "CMIG4":  0.080,  # Estatal: dividendo mínimo obrigatório R$0,50/ação no estatuto + payout histórico alto
     "CPLE3":  0.090,  # Ex-estatal privatizada 2023: ganhos de eficiência + capex renovação
 }
 
