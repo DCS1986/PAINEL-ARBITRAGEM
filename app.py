@@ -8397,7 +8397,7 @@ else:
                                     f"<div style='background:rgba(34,197,94,0.07);"
                                     f"border-left:3px solid #22C55E;border-radius:0 8px 8px 0;"
                                     f"padding:9px 13px;margin-bottom:7px;font-size:0.87rem;"
-                                    f"color:#d1fae5;line-height:1.5;'>✦ {v}</div>",
+                                    f"color:#d1fae5;line-height:1.5;max-width:98%;'>✦ {v}</div>",
                                     unsafe_allow_html=True,
                                 )
                     with _vc2:
@@ -8409,7 +8409,7 @@ else:
                                     f"<div style='background:rgba(239,68,68,0.07);"
                                     f"border-left:3px solid #EF4444;border-radius:0 8px 8px 0;"
                                     f"padding:9px 13px;margin-bottom:7px;font-size:0.87rem;"
-                                    f"color:#fee2e2;line-height:1.5;'>⚠ {r}</div>",
+                                    f"color:#fee2e2;line-height:1.5;max-width:98%;'>⚠ {r}</div>",
                                     unsafe_allow_html=True,
                                 )
 
@@ -8421,7 +8421,8 @@ else:
                             f"<div style='background:rgba(212,175,55,0.07);"
                             f"border-left:3px solid #D4AF37;border-radius:0 8px 8px 0;"
                             f"padding:10px 14px;font-size:0.87rem;color:#fef3c7;"
-                            f"line-height:1.5;'>🔒 {p['barreira']}</div>",
+                            f"line-height:1.6;margin-bottom:60px;max-width:95%;'>"
+                            f"🔒 {p['barreira']}</div>",
                             unsafe_allow_html=True,
                         )
             st.stop()
