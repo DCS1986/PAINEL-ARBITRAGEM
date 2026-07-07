@@ -7988,7 +7988,7 @@ else:
                     'CAGR Lucros (%)': limpar_valor(r.get('CAGR lucros (últ. 5 anos)', 0)) or None,
                     'Earnings Yield (%)': a.get('earnings_yield') or None,
                     'TIR Real (%)': tir_real_valor(tk, r, a, limpar_valor, pl_atual_val=_pl_at_tab),
-                    'Valor de Mercado': a.get('vl_mercado') or None,
+                    'Valor de Mercado': (limpar_valor(str(r.get('VALOR DE MERCADO', '') or r.get('Valor de Mercado', '') or 0)) / 1e9) or None,
                     '_confirmada': tk in TICKERS_TIR_CONFIRMADA,
                     'Dívida Líq/EBITDA': limpar_valor(r.get('Dívida líquida/EBITDA', 0)) or None,
                     'P/FCO': (_fdm_tab or {}).get('p_fco'),
