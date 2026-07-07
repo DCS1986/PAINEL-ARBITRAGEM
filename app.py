@@ -43,7 +43,8 @@ page_bg_img = f"""
 }}
 .block-container {{
     padding-top: 28px !important;
-    padding-bottom: 0px !important;
+    padding-bottom: 80px !important;
+    padding-right: 3rem !important;
 }}
 [data-testid="stSidebar"] {{
     background: rgba(11, 25, 41, 0.97) !important;
@@ -8301,14 +8302,15 @@ else:
                                 else:
                                     col.markdown(
                                         f"<div style='font-size:0.92rem;font-weight:500;color:#E6E1D6;"
-                                        f"margin-bottom:4px;'>{principal}</div>"
+                                        f"margin-bottom:4px;padding-right:8px;'>{principal}</div>"
                                         f"<div style='font-size:0.80rem;color:#CFCAC0;line-height:1.4;"
-                                        f"margin-bottom:14px;'>{detalhe}</div>",
+                                        f"margin-bottom:14px;padding-right:8px;'>{detalhe}</div>",
                                         unsafe_allow_html=True,
                                     )
                             else:
                                 col.markdown(
-                                    f"<div style='font-size:0.92rem;color:#E6E1D6;margin-bottom:14px;'>{val}</div>",
+                                    f"<div style='font-size:0.92rem;color:#E6E1D6;margin-bottom:14px;"
+                                    f"padding-right:8px;'>{val}</div>",
                                     unsafe_allow_html=True,
                                 )
 
@@ -8327,6 +8329,8 @@ else:
                             _render_grupo(tks)
                 elif empresas:
                     _render_grupo(list(empresas.keys()))
+                # Espaço final para não ficar atrás do botão "Manage app"
+                st.markdown("<div style='margin-bottom:80px;'></div>", unsafe_allow_html=True)
 
             # ── ABA PERFIL ────────────────────────────────────────────────
             with tab_p:
