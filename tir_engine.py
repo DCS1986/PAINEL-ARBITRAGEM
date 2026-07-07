@@ -364,6 +364,12 @@ _G_TETO_CUSTOM = {
     "WEGE3": 0.15,  # Compounder premium: expansão global + ROE 30%+ sustentado
 }
 
+# DY efetivo travado para tickers com recompra relevante
+# (Fundamentus só vê dividendo em dinheiro; buyback não aparece no DY)
+_DY_OVERRIDE_UTILITY = {
+    "RANI3": 0.08,  # DY caixa ~5% + buyback yield ~3% = 8% efetivo ao acionista
+}
+
 # Crescimento validado por ticker para utilities com formula confirmada
 # Revisão: a cada trimestre — checar novos leilões, capex e guidance de dividendos
 _G_OVERRIDE_UTILITY = {
@@ -387,7 +393,8 @@ _G_OVERRIDE_UTILITY = {
 
 
 def _tir_utility(dados: dict, ticker: str) -> ResultadoTIR:
-    dy = _dec(dados.get("dy")) or 0.0
+    # Usa DY override se existir (ex: RANI3 com buyback não captado pelo Fundamentus)
+    dy = _DY_OVERRIDE_UTILITY.get(ticker) or _dec(dados.get("dy")) or 0.0
     r = ResultadoTIR(None, "utility", NOME_METODO["utility"])
     if ticker in _G_OVERRIDE_UTILITY:
         g = _G_OVERRIDE_UTILITY[ticker]
