@@ -5784,9 +5784,12 @@ def carregar_dados():
         df['res_val_num'] = df['RESULTADO 2026 (1/4)'].apply(limpar_valor_resultado)
         df['preco_teto']  = df['PREÇO TETO'].apply(limpar_valor) if 'PREÇO TETO' in df.columns else 0
         df['target']      = df['TARGET'].apply(limpar_valor) if 'TARGET' in df.columns else 0
-        # Valor de mercado — tenta variações do nome da coluna
-        _col_vm = next((c for c in df.columns if 'valor' in c.lower() and 'mercado' in c.lower()), None)
-        df['vl_mercado']  = df[_col_vm].apply(limpar_valor) if _col_vm else 0
+        # Valor de mercado — busca a coluna independente de capitalização
+        _col_vm = next((c for c in df.columns if c.strip().upper() == 'VALOR DE MERCADO'), None)
+        if _col_vm:
+            df['vl_mercado'] = df[_col_vm].apply(lambda v: limpar_valor(str(v)) / 1e9 if limpar_valor(str(v)) else 0)
+        else:
+            df['vl_mercado'] = 0
 
         return df, duplicados
     except:
@@ -8025,7 +8028,7 @@ else:
                     'CAGR Lucros (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'Earnings Yield (%)': st.column_config.NumberColumn(format="%.1f%%"),
                     'TIR Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
-                    'Valor de Mercado': st.column_config.NumberColumn("Val. Mercado (R$ bi)", format="R$ %.1f"),
+                    'Valor de Mercado': st.column_config.NumberColumn("Val. Mercado (R$ bi)", format="R$ %.1f bi"),
                     'Dívida Líq/EBITDA': st.column_config.NumberColumn(format="%.1fx"),
                     'P/FCO': st.column_config.NumberColumn(format="%.1fx"),
                     'P/FCL': st.column_config.NumberColumn(format="%.1fx"),
