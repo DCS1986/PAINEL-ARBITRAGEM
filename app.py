@@ -8408,10 +8408,18 @@ else:
                 st.caption("Verde = TIR alta. Vermelho = TIR baixa. Tamanho = Valor de Mercado.")
                 df_h = df_g[df_g['TIR Real (%)'].notna()].sort_values('TIR Real (%)', ascending=False)
                 if not df_h.empty:
-                    # Usar scatter colorido em vez de Treemap (mais compatível)
                     df_h = df_h.reset_index(drop=True)
                     df_h['x'] = df_h.index % 8
                     df_h['y'] = df_h.index // 8
+                    # Cor manual por faixa de TIR
+                    def _cor_tir(v):
+                        if v >= 12: return '#166534'
+                        if v >= 10: return '#15803d'
+                        if v >= 8:  return '#22c55e'
+                        if v >= 6:  return '#fbbf24'
+                        return '#ef4444'
+                    df_h['cor'] = df_h['TIR Real (%)'].apply(_cor_tir)
+                    df_h['sz']  = df_h['Mkt (R$bi)'].clip(0.5, 30).apply(lambda v: 14 + v*1.2)
                     fig6 = go.Figure(go.Scatter(
                         x=df_h['x'], y=df_h['y'],
                         mode='markers+text',
@@ -8419,14 +8427,9 @@ else:
                         textposition='middle center',
                         textfont=dict(size=9, color='white'),
                         marker=dict(
-                            size=df_h['Mkt (R$bi)'].clip(1, 30).apply(lambda v: 10 + v*1.5),
-                            color=df_h['TIR Real (%)'],
-                            colorscale=[[0,'#7f1d1d'],[0.4,'#991b1b'],
-                                        [0.55,'#14532d'],[1,'#166534']],
-                            showscale=True,
-                            colorbar=dict(title='TIR Real (%)',
-                                          tickfont=dict(color='#e2e8f0'),
-                                          titlefont=dict(color='#e2e8f0')),
+                            size=df_h['sz'],
+                            color=df_h['cor'],
+                            line=dict(color='rgba(0,0,0,0.3)', width=1),
                         ),
                         customdata=df_h[['TIR Real (%)','DY (%)','P/L','Setor']].values,
                         hovertemplate=(
@@ -8437,10 +8440,21 @@ else:
                             '%{customdata[3]}<extra></extra>'
                         ),
                     ))
+                    # Legenda manual
+                    for cor, label in [('#166534','≥12%'),('#22c55e','8-12%'),
+                                       ('#fbbf24','6-8%'),('#ef4444','<6%')]:
+                        fig6.add_trace(go.Scatter(
+                            x=[None], y=[None], mode='markers',
+                            marker=dict(size=10, color=cor),
+                            showlegend=True, name=f'TIR {label}',
+                        ))
                     fig6.update_layout(**_lay(
-                        height=400, showlegend=False,
+                        height=400,
+                        legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(size=10),
+                                    orientation='h', y=-0.05),
                         xaxis=dict(showticklabels=False, showgrid=False, zeroline=False),
-                        yaxis=dict(showticklabels=False, showgrid=False, zeroline=False)))
+                        yaxis=dict(showticklabels=False, showgrid=False, zeroline=False,
+                                   autorange='reversed')))
                     st.plotly_chart(fig6, use_container_width=True)
 
             # ── G7 ────────────────────────────────────────────────────────
