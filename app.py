@@ -8458,21 +8458,59 @@ else:
                     st.plotly_chart(fig6, use_container_width=True)
 
             # ── G7 ────────────────────────────────────────────────────────
-            st.markdown("**📌 CAGR de Lucro vs Score — Crescimento com Qualidade**")
-            st.caption("Bolhas maiores = maior valor de mercado. Canto superior direito = crescendo + bom score.")
-            df_cg = df_g[(df_g['CAGR (%)'].notna()) & (df_g['Score'] > 0)].copy()
-            if not df_cg.empty:
-                fig7 = px.scatter(df_cg, x='CAGR (%)', y='Score',
-                    size='Mkt (R$bi)', color='Setor', text='Ticker',
-                    hover_data=['DY (%)','TIR Real (%)','P/L'],
-                    color_discrete_map=COR_SETOR, size_max=60)
-                fig7.update_traces(textposition='top center', textfont_size=9)
-                fig7.add_hline(y=df_cg['Score'].median(), line_dash='dot',
-                    line_color='rgba(255,255,255,0.25)')
-                fig7.add_vline(x=df_cg['CAGR (%)'].median(), line_dash='dot',
-                    line_color='rgba(255,255,255,0.25)')
-                fig7.update_layout(**_lay(showlegend=True, height=420,
-                    xaxis_title='CAGR Lucros (%)', yaxis_title='Score'))
+            st.markdown("**📌 DY vs P/L — Dividendo com Valuation**")
+            st.caption("Canto superior esquerdo = DY alto + P/L baixo. Cor = TIR real. Ideal: verde no canto superior esquerdo.")
+            df_dv = df_g[(df_g['DY (%)'] > 0) & (df_g['P/L'] > 0)].copy()
+            if not df_dv.empty:
+                def _cor_tir(v):
+                    if v is None: return '#6B7280'
+                    if v >= 12: return '#166534'
+                    if v >= 10: return '#22c55e'
+                    if v >= 8:  return '#86efac'
+                    if v >= 6:  return '#fbbf24'
+                    return '#ef4444'
+                df_dv['cor'] = df_dv['TIR Real (%)'].apply(_cor_tir)
+                fig7 = go.Figure()
+                fig7.add_trace(go.Scatter(
+                    x=df_dv['P/L'], y=df_dv['DY (%)'],
+                    mode='markers+text', text=df_dv['Ticker'],
+                    textposition='top center', textfont=dict(size=9, color='#e2e8f0'),
+                    marker=dict(
+                        size=df_dv['Mkt (R$bi)'].clip(0.5, 30).apply(lambda v: 10 + v*1.2),
+                        color=df_dv['cor'],
+                        line=dict(color='rgba(255,255,255,0.2)', width=1),
+                    ),
+                    customdata=df_dv[['TIR Real (%)','ROE (%)','Setor','Mkt (R$bi)']].values,
+                    hovertemplate=(
+                        '<b>%{text}</b><br>'
+                        'DY: %{y:.1f}% · P/L: %{x:.1f}x<br>'
+                        'TIR Real: IPCA+%{customdata[0]:.1f}%<br>'
+                        'ROE: %{customdata[1]:.1f}%<br>'
+                        '%{customdata[2]}<extra></extra>'
+                    ),
+                ))
+                # Linhas de referência
+                fig7.add_hline(y=df_dv['DY (%)'].median(), line_dash='dot',
+                    line_color='rgba(255,255,255,0.2)',
+                    annotation_text=f"DY mediano ({df_dv['DY (%)'].median():.1f}%)",
+                    annotation_font_color='#aaa')
+                fig7.add_vline(x=df_dv['P/L'].median(), line_dash='dot',
+                    line_color='rgba(255,255,255,0.2)',
+                    annotation_text=f"P/L mediano ({df_dv['P/L'].median():.1f}x)",
+                    annotation_font_color='#aaa')
+                # Legenda de TIR
+                for cor, label in [('#166534','TIR ≥12%'),('#22c55e','TIR 10-12%'),
+                                   ('#86efac','TIR 8-10%'),('#fbbf24','TIR 6-8%'),
+                                   ('#ef4444','TIR <6%')]:
+                    fig7.add_trace(go.Scatter(
+                        x=[None], y=[None], mode='markers',
+                        marker=dict(size=10, color=cor),
+                        showlegend=True, name=label,
+                    ))
+                fig7.update_layout(**_lay(showlegend=True, height=450,
+                    xaxis_title='P/L', yaxis_title='DY (%)',
+                    legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(size=10),
+                                orientation='v', x=1.01)))
                 st.plotly_chart(fig7, use_container_width=True)
 
             st.markdown("<div style='margin-bottom:80px;'></div>", unsafe_allow_html=True)
