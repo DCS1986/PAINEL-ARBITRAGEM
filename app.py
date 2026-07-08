@@ -6872,12 +6872,12 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "payout": limpar_valor(str(row.get('PAYOUT',0)))/100 if row.get('PAYOUT') else None,
             "setor": row.get('SETOR',''), "dy_norm": None, "cagr": None,
         }
-        cot_pj = limpar_valor(str(row.get('Cotação atual', 0)))
+        _cot_atual = limpar_valor(str(row.get('Cotação atual', 0))) or 0
         _pa_tir = calcular_preco_alvo_tir(
-            ticker=ticker, cotacao=cot_pj or 0,
+            ticker=ticker, cotacao=_cot_atual,
             dy_pct=dy_num or 0, tir_real_alvo=_tir_alvo,
             dados=_dados_tir_pj,
-        ) if (cot_pj and dy_num) else None
+        ) if (_cot_atual and dy_num) else None
 
         if _pa_tir:
             _up = _pa_tir["upside_pct"]

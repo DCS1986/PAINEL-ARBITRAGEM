@@ -694,7 +694,7 @@ def get_g_ticker(ticker: str, dados: dict) -> float:
         roe    = _ROE_MEDIO_INCORPORADORA[ticker]
         return min(roe * (1 - payout), _G_TETO_INCORPORADORA)
     # Banco/qualidade (g = ROE × retenção, teto customizado ou padrão)
-    arq = ARQUETIPO_POR_TICKER.get(ticker, _inferir_arquetipo(ticker, dados.get("setor",""), dados))
+    arq = ARQUETIPO_POR_TICKER.get(ticker, _arquetipo_por_setor(dados.get("setor","")))
     if arq == "banco":
         roe    = _dec(dados.get("roe")) or 0.0
         payout = _PAYOUT_BANCO_OVERRIDE.get(ticker) or \
