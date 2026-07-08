@@ -5942,25 +5942,7 @@ with st.sidebar.expander("⚙️ Filtros Quantitativos", expanded=False):
     max_div    = st.slider("Dívida/EBITDA abaixo de:",    0.0, 10.0,  3.0)
     min_cagr   = st.slider("CAGR Lucros acima de (%):",  0.0, 50.0, 10.0)
 
-# Slider de TIR mínima — usado para calcular preço alvo (sempre visível)
-st.sidebar.markdown("---")
-st.sidebar.markdown(
-    "<div style='font-size:0.78rem;font-weight:700;color:#D4AF37;"
-    "text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;'>"
-    "🎯 TIR mínima aceitável</div>",
-    unsafe_allow_html=True,
-)
-tir_minima_pct = st.sidebar.slider(
-    "IPCA +", min_value=5.0, max_value=15.0, value=8.0, step=0.5,
-    format="%.1f%%", label_visibility="collapsed",
-    key="tir_minima_slider",
-)
-st.sidebar.markdown(
-    f"<div style='font-size:0.80rem;color:#aaa;margin-top:-6px;'>"
-    f"Preço alvo = preço que entrega IPCA+{tir_minima_pct:.1f}%</div>",
-    unsafe_allow_html=True,
-)
-_tir_alvo = tir_minima_pct / 100.0  # ex: 0.08
+_tir_alvo = 0.08  # default — sobrescrito dentro do card quando o slider for renderizado
 
 # --- FILTROS ---
 df_f = df.copy()
@@ -6873,11 +6855,16 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
 
         # ---- Preço Justo Multi-Método ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### 🎯 Preço Justo — 4 Metodologias")
-        pj = calcular_preco_justo(row, vpa_val=vpa_val)
-        cot_pj = pj.get('cotacao')
 
-        # Calcular preço alvo pela TIR
+        # ── BLOCO 1: Preço Alvo pela TIR ─────────────────────────────────
+        st.markdown("#### 📐 Preço Alvo pela TIR")
+        tir_minima_pct = st.slider(
+            "TIR mínima que aceito (IPCA +):",
+            min_value=5.0, max_value=15.0, value=8.0, step=0.5,
+            format="%.1f%%", key=f"tir_slider_{ticker}",
+        )
+        _tir_alvo = tir_minima_pct / 100.0
+
         _dados_tir_pj = {
             "pl": a.get('pl_num'), "pl_atual": pl_atual_val,
             "dy": (dy_num/100) if dy_num else None,
@@ -6885,13 +6872,56 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
             "payout": limpar_valor(str(row.get('PAYOUT',0)))/100 if row.get('PAYOUT') else None,
             "setor": row.get('SETOR',''), "dy_norm": None, "cagr": None,
         }
+        cot_pj = limpar_valor(str(row.get('Cotação atual', 0)))
         _pa_tir = calcular_preco_alvo_tir(
             ticker=ticker, cotacao=cot_pj or 0,
             dy_pct=dy_num or 0, tir_real_alvo=_tir_alvo,
             dados=_dados_tir_pj,
         ) if (cot_pj and dy_num) else None
 
-        def _card_pj(col, metodo, valor, destaque=False):
+        if _pa_tir:
+            _up = _pa_tir["upside_pct"]
+            _cor_up = "#22C55E" if (_up or 0) > 0 else "#EF4444"
+            _sinal  = "+" if (_up or 0) >= 0 else ""
+            _tir_at = _pa_tir.get("tir_real_atual")
+            st.markdown(
+                f"<div style='{card_style}border:1px solid rgba(212,175,55,0.35);'>"
+                f"<div style='display:flex;align-items:center;gap:24px;flex-wrap:wrap;'>"
+                f"<div style='text-align:center;'>"
+                f"<div style='font-size:0.72rem;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;'>Preço alvo</div>"
+                f"<div style='font-size:2.0rem;font-weight:900;color:#F1EFE8;'>R$ {_pa_tir['preco_alvo']:.2f}</div>"
+                f"</div>"
+                f"<div style='text-align:center;'>"
+                f"<div style='font-size:0.72rem;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;'>vs cotação atual</div>"
+                f"<div style='font-size:1.6rem;font-weight:800;color:{_cor_up};'>{_sinal}{_up:.1f}%</div>"
+                f"</div>"
+                f"<div style='text-align:center;'>"
+                f"<div style='font-size:0.72rem;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;'>TIR real atual</div>"
+                f"<div style='font-size:1.2rem;font-weight:700;color:#D4AF37;'>"
+                f"{'IPCA+' + str(_tir_at) + '%' if _tir_at else '—'}</div>"
+                f"</div>"
+                f"</div>"
+                f"<div style='font-size:0.76rem;color:#888;margin-top:10px;line-height:1.5;'>"
+                f"Dividendo anual estimado: R$ {_pa_tir['dividendo_anual']:.4f}/ação · "
+                f"g utilizado: {_pa_tir['g_usado_pct']:.1f}% · "
+                f"Lógica: preço em que o ativo entregaria exatamente IPCA+{tir_minima_pct:.1f}% "
+                f"mantendo o dividendo atual e o crescimento projetado constantes."
+                f"</div>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+        else:
+            st.info("Preço alvo TIR indisponível — DY ou cotação insuficientes para o cálculo.")
+
+        st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
+        st.markdown("---")
+
+        # ── BLOCO 2: Preço Justo (3 métodos clássicos) ───────────────────
+        st.markdown("#### 🎯 Preço Justo — 3 Métodos Clássicos")
+        pj = calcular_preco_justo(row, vpa_val=vpa_val)
+        cot_pj_val = pj.get('cotacao')
+
+        def _card_pj(col, metodo, valor):
             if valor is None:
                 col.markdown(
                     "<div style='{base}text-align:center;'>"
@@ -6901,51 +6931,27 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                     unsafe_allow_html=True
                 )
                 return
-            diff_pct = ((valor - cot_pj) / cot_pj * 100) if cot_pj else None
+            diff_pct = ((valor - cot_pj_val) / cot_pj_val * 100) if cot_pj_val else None
             cor_pj = "#22C55E" if (diff_pct or 0) > 0 else "#EF4444"
             sub = f"{'+' if diff_pct and diff_pct>=0 else ''}{diff_pct:.1f}% vs cotação" if diff_pct is not None else ""
-            borda = f"border:1px solid {cor_pj} !important;" if destaque else ""
             col.markdown(
-                "<div style='{base}{borda}text-align:center;'>"
+                "<div style='{base}text-align:center;'>"
                 "<div style='font-size:0.75em;color:#ccc;text-transform:uppercase;'>{metodo}</div>"
                 "<div style='font-size:1.3em;font-weight:900;color:#F1EFE8;'>R$ {valor:.2f}</div>"
                 "<div style='font-size:0.78em;color:{cor};font-weight:700;margin-top:4px;'>{sub}</div>"
-                "</div>".format(base=card_style, borda=borda, metodo=metodo,
-                                valor=valor, cor=cor_pj, sub=sub),
+                "</div>".format(base=card_style, metodo=metodo, valor=valor, cor=cor_pj, sub=sub),
                 unsafe_allow_html=True
             )
 
-        # Linha 1: TIR (destaque) + Bazin + Graham
         pjcol1, pjcol2, pjcol3 = st.columns(3)
-
-        # Preço Alvo TIR
-        if _pa_tir:
-            _label_tir = f"TIR alvo IPCA+{tir_minima_pct:.1f}%"
-            _card_pj(pjcol1, _label_tir, _pa_tir["preco_alvo"], destaque=True)
-        else:
-            _card_pj(pjcol1, f"TIR alvo IPCA+{tir_minima_pct:.1f}%", None)
-
-        _card_pj(pjcol2, "Bazin (dividendo)", pj['bazin'])
-        _card_pj(pjcol3, "Graham (LPA × VPA)", pj['graham'])
-
-        # Linha 2: Gordon (espaço vazio nas outras colunas)
-        pjcol4, pjcol5, _ = st.columns(3)
-        _card_pj(pjcol4, "Gordon (crescimento)", pj['gordon'])
-
-        # Info TIR atual + nota metodológica
-        _tir_atual_str = (
-            f"TIR real atual: IPCA+{_pa_tir['tir_real_atual']:.1f}% · "
-            f"g usado: {_pa_tir['g_usado_pct']:.1f}% · "
-            f"Dividendo anual: R$ {_pa_tir['dividendo_anual']:.2f}/ação. "
-        ) if _pa_tir else ""
+        _card_pj(pjcol1, "Bazin (dividendo)", pj['bazin'])
+        _card_pj(pjcol2, "Graham (LPA × VPA)", pj['graham'])
+        _card_pj(pjcol3, "Gordon (crescimento)", pj['gordon'])
         st.caption(
-            _tir_atual_str +
-            (f"Cotação atual: R$ {cot_pj:.2f}".replace(".", ",") + " · " if cot_pj else "") +
-            f"Bazin usa {pj['taxa_real_usada']:.2f}%".replace(".", ",") + " a.a. "
-            f"(taxa real IPCA+ de longo prazo). Gordon usa essa taxa + 4,5pp de prêmio "
-            f"({pj['taxa_desconto_usada']:.1f}%".replace(".", ",") + " a.a. total). "
-            "Preço Alvo TIR: preço em que a empresa entregaria a TIR mínima que você definiu "
-            "no slider lateral, mantendo o dividendo atual e o crescimento projetado."
+            (f"Cotação atual: R$ {cot_pj_val:.2f}".replace(".", ",") + " · " if cot_pj_val else "") +
+            f"Bazin usa {pj['taxa_real_usada']:.2f}%".replace(".", ",") +
+            f" a.a. · Gordon usa {pj['taxa_desconto_usada']:.1f}%".replace(".", ",") +
+            " a.a. (taxa real + 4,5pp prêmio de risco) com crescimento limitado a 8% a.a."
         )
 
     # ════════════════════════════════════════════════════════════════════
