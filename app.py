@@ -8333,13 +8333,9 @@ else:
                     pl_med  = df_t['P/L'].median()
                     tir_med = df_t['TIR Real (%)'].median()
                     fig2.add_hline(y=tir_med, line_dash='dot',
-                        line_color='rgba(255,255,255,0.25)',
-                        annotation_text=f'TIR mediana ({tir_med:.1f}%)',
-                        annotation_font_color='#aaa')
+                        line_color='rgba(255,255,255,0.25)')
                     fig2.add_vline(x=pl_med, line_dash='dot',
-                        line_color='rgba(255,255,255,0.25)',
-                        annotation_text=f'P/L mediano ({pl_med:.1f}x)',
-                        annotation_font_color='#aaa')
+                        line_color='rgba(255,255,255,0.25)')
                     fig2.update_layout(**_lay(showlegend=False,
                         xaxis_title='P/L', yaxis_title='TIR Real (%)'))
                     st.plotly_chart(fig2, use_container_width=True)
@@ -8404,28 +8400,56 @@ else:
                     st.plotly_chart(fig5, use_container_width=True)
 
             with g6:
-                st.markdown("**📌 Score vs TIR Real — Fundamentos + Retorno**")
-                st.caption("Ideal: Score alto + TIR alta (canto superior direito). Outliers revelam assimetrias.")
+                st.markdown("**📌 Score vs TIR Real — Quadrante Estratégico**")
+                st.caption("Cada ativo no seu quadrante. Ideal: canto superior direito.")
                 df_st = df_g[df_g['TIR Real (%)'].notna() & (df_g['Score'] > 0)].copy()
                 if not df_st.empty:
-                    fig6 = px.scatter(df_st, x='TIR Real (%)', y='Score',
-                        size='Mkt (R$bi)', color='Setor', text='Ticker',
-                        hover_data=['DY (%)','P/L','ROE (%)'],
-                        color_discrete_map=COR_SETOR, size_max=50)
-                    fig6.update_traces(textposition='top center', textfont_size=9)
                     tir_med   = df_st['TIR Real (%)'].median()
                     score_med = df_st['Score'].median()
-                    fig6.add_hline(y=score_med, line_dash='dot',
-                        line_color='rgba(255,255,255,0.2)',
-                        annotation_text=f'Score mediano ({score_med:.1f})',
-                        annotation_font_color='#aaa')
-                    fig6.add_vline(x=tir_med, line_dash='dot',
-                        line_color='rgba(255,255,255,0.2)',
-                        annotation_text=f'TIR mediana ({tir_med:.1f}%)',
-                        annotation_font_color='#aaa')
-                    fig6.update_layout(**_lay(showlegend=False, height=400,
-                        xaxis_title='TIR Real (%)', yaxis_title='Score'))
-                    st.plotly_chart(fig6, use_container_width=True)
+
+                    def _quad(row):
+                        alto_tir   = row['TIR Real (%)'] >= tir_med
+                        alto_score = row['Score'] >= score_med
+                        if alto_tir and alto_score:   return '🟢 Comprar', '#166534'
+                        if alto_tir and not alto_score: return '🟡 Investigar', '#854d0e'
+                        if not alto_tir and alto_score: return '🔵 Esperar preço', '#1e3a5f'
+                        return '⚪ Evitar', '#374151'
+
+                    df_st[['Quadrante','_cor']] = df_st.apply(
+                        lambda r: pd.Series(_quad(r)), axis=1)
+
+                    quads = [
+                        ('🟢 Comprar',       '#166534', 'Score alto + TIR alta'),
+                        ('🔵 Esperar preço', '#1e3a5f', 'Score alto + TIR baixa'),
+                        ('🟡 Investigar',    '#854d0e', 'Score baixo + TIR alta'),
+                        ('⚪ Evitar',         '#374151', 'Score baixo + TIR baixa'),
+                    ]
+                    cols_q = st.columns(2)
+                    for i, (nome, cor, desc) in enumerate(quads):
+                        col = cols_q[i % 2]
+                        tks = df_st[df_st['Quadrante'] == nome].sort_values(
+                            'TIR Real (%)', ascending=False)
+                        pills = ''.join([
+                            f"<span style='display:inline-block;background:rgba(255,255,255,0.06);"
+                            f"border:1px solid rgba(255,255,255,0.12);border-radius:6px;"
+                            f"padding:3px 9px;margin:3px 3px 3px 0;font-size:0.78rem;"
+                            f"font-weight:700;color:#e2e8f0;'>"
+                            f"{r['Ticker']} "
+                            f"<span style='color:#9ca3af;font-weight:400;font-size:0.72rem;'>"
+                            f"TIR+{r['TIR Real (%)']:.1f}% S{r['Score']:.1f}</span></span>"
+                            for _, r in tks.iterrows()
+                        ])
+                        col.markdown(
+                            f"<div style='background:{cor};border-radius:10px;"
+                            f"padding:14px 16px;margin-bottom:12px;min-height:80px;'>"
+                            f"<div style='font-size:0.85rem;font-weight:800;color:#fff;"
+                            f"margin-bottom:2px;'>{nome}</div>"
+                            f"<div style='font-size:0.70rem;color:rgba(255,255,255,0.6);"
+                            f"margin-bottom:8px;'>{desc}</div>"
+                            f"{pills if pills else '<span style=\"color:rgba(255,255,255,0.4);font-size:0.8rem;\">Nenhum ativo</span>'}"
+                            f"</div>",
+                            unsafe_allow_html=True,
+                        )
 
             # ── G7 ────────────────────────────────────────────────────────
             st.markdown("**📌 DY vs P/L — Dividendo com Valuation**")
@@ -8461,13 +8485,9 @@ else:
                 ))
                 # Linhas de referência
                 fig7.add_hline(y=df_dv['DY (%)'].median(), line_dash='dot',
-                    line_color='rgba(255,255,255,0.2)',
-                    annotation_text=f"DY mediano ({df_dv['DY (%)'].median():.1f}%)",
-                    annotation_font_color='#aaa')
+                    line_color='rgba(255,255,255,0.2)')
                 fig7.add_vline(x=df_dv['P/L'].median(), line_dash='dot',
-                    line_color='rgba(255,255,255,0.2)',
-                    annotation_text=f"P/L mediano ({df_dv['P/L'].median():.1f}x)",
-                    annotation_font_color='#aaa')
+                    line_color='rgba(255,255,255,0.2)')
                 # Legenda de TIR
                 for cor, label in [('#166534','TIR ≥12%'),('#22c55e','TIR 10-12%'),
                                    ('#86efac','TIR 8-10%'),('#fbbf24','TIR 6-8%'),
