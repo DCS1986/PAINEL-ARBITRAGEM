@@ -677,3 +677,85 @@ def render_tir(st, col_box, col_botao, ticker, row, ativo_data,
     res = calcular_tir(ticker, dados)
     render_tir_real(st, col_box, col_botao, res, card_style)
     return res
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PREÇO ALVO DERIVADO DA TIR
+# ─────────────────────────────────────────────────────────────────────────────
+
+def get_g_ticker(ticker: str, dados: dict) -> float:
+    """Retorna o g usado no cálculo da TIR para um ticker."""
+    # Override de utility (g fixo)
+    if ticker in _G_OVERRIDE_UTILITY:
+        return _G_OVERRIDE_UTILITY[ticker]
+    # Incorporadoras (g calculado com ROE médio 3a e payout fixo, teto 12%)
+    if ticker in _ROE_MEDIO_INCORPORADORA:
+        payout = _PAYOUT_INCORPORADORA.get(ticker, 0.50)
+        roe    = _ROE_MEDIO_INCORPORADORA[ticker]
+        return min(roe * (1 - payout), _G_TETO_INCORPORADORA)
+    # Banco/qualidade (g = ROE × retenção, teto customizado ou padrão)
+    arq = ARQUETIPO_POR_TICKER.get(ticker, _inferir_arquetipo(ticker, dados.get("setor",""), dados))
+    if arq == "banco":
+        roe    = _dec(dados.get("roe")) or 0.0
+        payout = _PAYOUT_BANCO_OVERRIDE.get(ticker) or \
+                 (_clamp(dados.get("payout"), 0, 1) if dados.get("payout") else 0.40)
+        g_teto = _G_TETO_CUSTOM.get(ticker, PREMISSAS["g_teto"])
+        return _clamp(roe * (1 - payout), PREMISSAS["g_piso"], g_teto)
+    # Seguradora com override
+    if ticker in _G_OVERRIDE_SEGURADORA:
+        return _G_OVERRIDE_SEGURADORA[ticker]
+    # Default: IPCA
+    return IPCA_BASE
+
+
+def calcular_preco_alvo_tir(
+    ticker: str,
+    cotacao: float,
+    dy_pct: float,
+    tir_real_alvo: float,
+    dados: dict,
+) -> dict | None:
+    """
+    Calcula o preço que faria a TIR real igualar tir_real_alvo.
+    Mantém g constante (o mesmo do cálculo atual).
+
+    Retorna dict com:
+      preco_alvo, upside_pct, tir_real_atual, g_usado, dy_alvo
+    Ou None se não for possível calcular.
+    """
+    if cotacao <= 0 or dy_pct is None:
+        return None
+
+    dy_atual = dy_pct / 100.0          # ex: 9.1% → 0.091
+    dividendo_anual = dy_atual * cotacao  # R$/ação projetado
+
+    if dividendo_anual <= 0:
+        return None
+
+    g = get_g_ticker(ticker, dados)
+
+    # TIR nominal alvo
+    tir_nom_alvo = (1 + tir_real_alvo) * (1 + IPCA_BASE) - 1
+
+    # DY que produz a TIR alvo com o mesmo g
+    dy_alvo = (1 + tir_nom_alvo) / (1 + g) - 1
+
+    if dy_alvo <= 0.005:               # DY alvo absurdamente baixo
+        return None
+
+    preco_alvo = dividendo_anual / dy_alvo
+
+    # TIR real atual (para referência)
+    res = calcular_tir(ticker, dados)
+    tir_real_atual = tir_real_de(res) if res and res.tir is not None else None
+
+    upside = (preco_alvo / cotacao - 1) * 100 if cotacao > 0 else None
+
+    return {
+        "preco_alvo":     round(preco_alvo, 2),
+        "upside_pct":     round(upside, 1) if upside is not None else None,
+        "tir_real_atual": round(tir_real_atual * 100, 1) if tir_real_atual is not None else None,
+        "dy_alvo_pct":    round(dy_alvo * 100, 2),
+        "g_usado_pct":    round(g * 100, 1),
+        "dividendo_anual": round(dividendo_anual, 4),
+    }
