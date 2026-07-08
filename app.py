@@ -7645,7 +7645,7 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 if not st.session_state.ativo_selecionado:
-    tcol2, tcol3, tcol4, tcol5, tcol6, tcol7 = st.columns([1, 1, 1, 1, 1.4, 5])
+    tcol2, tcol3, tcol4, tcol5, tcol6, tcol7, tcol8 = st.columns([1, 1, 1, 1, 1, 1.4, 5])
     with tcol2:
         if st.button("⊞ Cards", use_container_width=True,
                      type="primary" if st.session_state.modo_exibicao == 'Cards' else "secondary"):
@@ -7670,6 +7670,11 @@ if not st.session_state.ativo_selecionado:
         if st.button("📚 Setores", use_container_width=True,
                      type="primary" if st.session_state.modo_exibicao == 'Setores' else "secondary"):
             st.session_state.modo_exibicao = 'Setores'
+            st.rerun()
+    with tcol7:
+        if st.button("📊 Gráficos", use_container_width=True,
+                     type="primary" if st.session_state.modo_exibicao == 'Gráficos' else "secondary"):
+            st.session_state.modo_exibicao = 'Gráficos'
             st.rerun()
 
 # --- LISTAGEM DE ATIVOS ---
@@ -8225,7 +8230,249 @@ else:
         # ════════════════════════════════════════════════════════════════════
         # MODO SETORES — Dossiê integrado
         # ════════════════════════════════════════════════════════════════════
-        if st.session_state.modo_exibicao == 'Setores':
+        # ════════════════════════════════════════════════════════════════════
+        # MODO GRÁFICOS — Visões analíticas macro
+        # ════════════════════════════════════════════════════════════════════
+        if st.session_state.modo_exibicao == 'Gráficos':
+            import plotly.express as px
+            import plotly.graph_objects as go
+
+            st.markdown("## 📊 Visões Analíticas")
+            st.caption("Cada gráfico responde uma pergunta. Passe o mouse para ver os detalhes de cada ativo.")
+
+            # Montar DataFrame consolidado com todos os dados necessários
+            rows_g = []
+            from tir_engine import tir_real_de, TICKERS_TIR_CONFIRMADA as _TIR_CONF
+            for a in ativos_com_score:
+                r = a['row']
+                tk = r['CÓDIGO']
+                dy  = a.get('dy_num', 0) or 0
+                pl  = a.get('pl_num', 0) or 0
+                roe = a.get('roe_num_raw', 0) or 0
+                pvp = a.get('pvp_num_raw', 0) or 0
+                cagr= limpar_valor(str(r.get('CAGR lucros (últ. 5 anos)', 0)))
+                cot = limpar_valor(str(r.get('Cotação atual', 0)))
+                vm  = a.get('vl_mercado', 0) or 1
+                lpa = limpar_valor(str(r.get('LPA ESTIMADO', 0)))
+                score = a.get('score', 0)
+                setor = r.get('SETOR', 'Outros')
+                # TIR real
+                _d = {'pl': pl, 'pl_atual': pl, 'dy': dy/100 if dy else None,
+                      'roe': roe/100 if roe else None, 'payout': 0.5,
+                      'setor': setor, 'dy_norm': None, 'cagr': None}
+                _res = calcular_tir(tk, _d)
+                tir_r = round(tir_real_de(_res)*100, 1) if (_res and _res.tir) else None
+                # Preço alvo TIR
+                _pa = calcular_preco_alvo_tir(tk, cot, dy, _tir_alvo, _d) if (cot and dy) else None
+                upside = _pa['upside_pct'] if _pa else None
+                rows_g.append({
+                    'Ticker': tk, 'Setor': setor, 'Cotação': cot,
+                    'P/L': pl, 'DY (%)': dy, 'ROE (%)': roe, 'P/VP': pvp,
+                    'CAGR (%)': cagr, 'LPA': lpa, 'Score': score,
+                    'Val. Mercado (R$bi)': vm, 'TIR Real (%)': tir_r,
+                    'Upside TIR (%)': upside,
+                    'Confirmada': tk in _TIR_CONF,
+                })
+            df_g = pd.DataFrame(rows_g)
+            df_g = df_g[df_g['Cotação'] > 0].copy()
+
+            COR_SETOR = {
+                'Bancos': '#60A5FA', 'Seguros': '#A78BFA',
+                'Energia Elétrica': '#FCD34D', 'Saneamento': '#38BDF8',
+                'Petróleo': '#FB923C', 'Mineração': '#FBBF24',
+                'Incorporadoras': '#F87171', 'Papel e Celulose': '#6EE37A',
+                'Shoppings': '#E879F9', 'Telecomunicações': '#60A5FA',
+                'Agronegócio': '#86EFAC', 'Holding': '#9CA3AF',
+                'Industrial': '#D1D5DB', 'Calçados': '#FDE68A',
+                'Varejo': '#FCA5A5', 'Bens Industriais': '#C4B5FD',
+                'Consumo Cíclico': '#FDBA74', 'Serviços Financeiros': '#67E8F9',
+            }
+            def _cor(setor): return COR_SETOR.get(setor, '#6B7280')
+            df_g['Cor'] = df_g['Setor'].apply(_cor)
+
+            PLOT_BG = 'rgba(0,0,0,0)'
+            PAPER_BG = 'rgba(0,0,0,0)'
+            FONT = dict(color='#e2e8f0', family='Inter, sans-serif', size=12)
+            GRID = '#1e293b'
+
+            def _base_layout(**kwargs):
+                return dict(paper_bgcolor=PAPER_BG, plot_bgcolor=PLOT_BG,
+                            font=FONT, margin=dict(l=10,r=10,t=50,b=10),
+                            legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(size=11)),
+                            xaxis=dict(gridcolor=GRID, zerolinecolor=GRID),
+                            yaxis=dict(gridcolor=GRID, zerolinecolor=GRID), **kwargs)
+
+            # ── Linha 1: Cotação vs LPA | P/L vs TIR ─────────────────────
+            g1, g2 = st.columns(2)
+
+            with g1:
+                st.markdown("**📌 Cotação vs Lucro por Ação**")
+                st.caption("Acima da linha de tendência = caro; abaixo = barato.")
+                df_lpa = df_g[df_g['LPA'] > 0].copy()
+                if not df_lpa.empty:
+                    fig = px.scatter(df_lpa, x='LPA', y='Cotação',
+                        size='Val. Mercado (R$bi)', color='Setor',
+                        text='Ticker', hover_data=['P/L','DY (%)','TIR Real (%)'],
+                        color_discrete_map=COR_SETOR, size_max=50)
+                    # Linha de tendência manual
+                    import numpy as np
+                    x = df_lpa['LPA'].values; y = df_lpa['Cotação'].values
+                    m, b = np.polyfit(x, y, 1)
+                    xr = np.linspace(x.min(), x.max(), 50)
+                    fig.add_trace(go.Scatter(x=xr, y=m*xr+b, mode='lines',
+                        line=dict(color='rgba(212,175,55,0.5)', dash='dash', width=1),
+                        showlegend=False, hoverinfo='skip'))
+                    fig.update_traces(textposition='top center', textfont_size=9)
+                    fig.update_layout(**_base_layout(
+                        title=None, xaxis_title='LPA Estimado (R$)',
+                        yaxis_title='Cotação (R$)', showlegend=False))
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("LPA não disponível para os ativos filtrados.")
+
+            with g2:
+                st.markdown("**📌 P/L vs TIR Real — Quadrante de Oportunidade**")
+                st.caption("Quadrante ideal: P/L baixo + TIR alta (canto inferior direito).")
+                df_tir = df_g[df_g['TIR Real (%)'].notna() & (df_g['P/L'] > 0)].copy()
+                if not df_tir.empty:
+                    fig2 = px.scatter(df_tir, x='P/L', y='TIR Real (%)',
+                        size='Val. Mercado (R$bi)', color='Setor',
+                        text='Ticker', hover_data=['DY (%)','ROE (%)','Score'],
+                        color_discrete_map=COR_SETOR, size_max=50)
+                    fig2.update_traces(textposition='top center', textfont_size=9)
+                    # Linhas de referência
+                    pl_med = df_tir['P/L'].median()
+                    tir_med = df_tir['TIR Real (%)'].median()
+                    fig2.add_hline(y=tir_med, line_dash='dot',
+                        line_color='rgba(255,255,255,0.2)', annotation_text='TIR mediana')
+                    fig2.add_vline(x=pl_med, line_dash='dot',
+                        line_color='rgba(255,255,255,0.2)', annotation_text='P/L mediano')
+                    fig2.update_layout(**_base_layout(
+                        title=None, xaxis_title='P/L', yaxis_title='TIR Real (%)',
+                        showlegend=False))
+                    st.plotly_chart(fig2, use_container_width=True)
+
+            # ── Linha 2: DY vs Upside TIR | ROE vs P/VP ──────────────────
+            g3, g4 = st.columns(2)
+
+            with g3:
+                st.markdown("**📌 Upside até o Preço Alvo TIR**")
+                st.caption(f"Quanto falta (ou sobrou) para cada ativo atingir IPCA+{_tir_alvo*100:.1f}%.")
+                df_up = df_g[df_g['Upside TIR (%)'].notna()].sort_values('Upside TIR (%)', ascending=True)
+                if not df_up.empty:
+                    cores_bar = ['#22C55E' if v > 0 else '#EF4444' for v in df_up['Upside TIR (%)']]
+                    fig3 = go.Figure(go.Bar(
+                        x=df_up['Upside TIR (%)'], y=df_up['Ticker'],
+                        orientation='h', marker_color=cores_bar,
+                        text=df_up['Upside TIR (%)'].apply(lambda v: f"{v:+.1f}%"),
+                        textposition='outside', textfont=dict(size=9, color='#e2e8f0'),
+                        hovertemplate='%{y}: %{x:.1f}%<extra></extra>',
+                    ))
+                    fig3.update_layout(**_base_layout(
+                        title=None, xaxis_title=f'Upside para IPCA+{_tir_alvo*100:.1f}% (%)',
+                        yaxis_title='', height=max(400, len(df_up)*22)))
+                    st.plotly_chart(fig3, use_container_width=True)
+
+            with g4:
+                st.markdown("**📌 ROE vs P/VP — Qualidade vs Preço**")
+                st.caption("Canto superior esquerdo = ROE alto com P/VP baixo. Ideal.")
+                df_roe = df_g[(df_g['ROE (%)'] > 0) & (df_g['P/VP'] > 0)].copy()
+                if not df_roe.empty:
+                    fig4 = px.scatter(df_roe, x='P/VP', y='ROE (%)',
+                        size='Val. Mercado (R$bi)', color='Setor',
+                        text='Ticker', hover_data=['DY (%)','P/L','TIR Real (%)'],
+                        color_discrete_map=COR_SETOR, size_max=50)
+                    fig4.update_traces(textposition='top center', textfont_size=9)
+                    pvp_med = df_roe['P/VP'].median()
+                    roe_med = df_roe['ROE (%)'].median()
+                    fig4.add_hline(y=roe_med, line_dash='dot', line_color='rgba(255,255,255,0.2)')
+                    fig4.add_vline(x=pvp_med, line_dash='dot', line_color='rgba(255,255,255,0.2)')
+                    fig4.update_layout(**_base_layout(
+                        title=None, xaxis_title='P/VP', yaxis_title='ROE (%)',
+                        showlegend=False))
+                    st.plotly_chart(fig4, use_container_width=True)
+
+            # ── Linha 3: Performance por Setor | Mapa de Calor TIR ────────
+            g5, g6 = st.columns(2)
+
+            with g5:
+                st.markdown("**📌 Radiografia por Setor**")
+                st.caption("Métricas médias de cada setor. DY, TIR e P/L lado a lado.")
+                df_setor = df_g.groupby('Setor').agg(
+                    DY_medio=('DY (%)', 'mean'),
+                    TIR_media=('TIR Real (%)', 'mean'),
+                    PL_medio=('P/L', 'mean'),
+                    N=('Ticker', 'count'),
+                ).reset_index().sort_values('TIR_media', ascending=False)
+                df_setor = df_setor[df_setor['TIR_media'].notna()]
+                if not df_setor.empty:
+                    fig5 = go.Figure()
+                    fig5.add_bar(name='DY médio (%)', x=df_setor['Setor'],
+                        y=df_setor['DY_medio'], marker_color='#22C55E',
+                        text=df_setor['DY_medio'].apply(lambda v: f"{v:.1f}%"),
+                        textposition='outside')
+                    fig5.add_bar(name='TIR real média (%)', x=df_setor['Setor'],
+                        y=df_setor['TIR_media'], marker_color='#D4AF37',
+                        text=df_setor['TIR_media'].apply(lambda v: f"{v:.1f}%"),
+                        textposition='outside')
+                    fig5.update_layout(**_base_layout(
+                        barmode='group', title=None,
+                        xaxis_tickangle=-35, height=420))
+                    st.plotly_chart(fig5, use_container_width=True)
+
+            with g6:
+                st.markdown("**📌 Mapa de Calor — TIR Real por Ativo**")
+                st.caption("Verde = TIR alta. Vermelho = TIR baixa ou não calculada.")
+                df_heat = df_g[df_g['TIR Real (%)'].notna()].sort_values(
+                    ['Setor','TIR Real (%)'], ascending=[True, False])
+                if not df_heat.empty:
+                    fig6 = go.Figure(go.Treemap(
+                        labels=df_heat['Ticker'],
+                        parents=df_heat['Setor'],
+                        values=df_heat['Val. Mercado (R$bi)'].clip(lower=0.5),
+                        customdata=df_heat[['TIR Real (%)','DY (%)','P/L']].values,
+                        hovertemplate=(
+                            '<b>%{label}</b><br>'
+                            'TIR Real: IPCA+%{customdata[0]:.1f}%<br>'
+                            'DY: %{customdata[1]:.1f}%<br>'
+                            'P/L: %{customdata[2]:.1f}x<extra></extra>'
+                        ),
+                        texttemplate='<b>%{label}</b><br>IPCA+%{customdata[0]:.1f}%',
+                        marker=dict(
+                            colors=df_heat['TIR Real (%)'],
+                            colorscale=[[0,'#7f1d1d'],[0.4,'#991b1b'],
+                                        [0.6,'#14532d'],[1,'#166534']],
+                            showscale=True,
+                            colorbar=dict(title='TIR Real (%)',
+                                         tickfont=dict(color='#e2e8f0'),
+                                         titlefont=dict(color='#e2e8f0')),
+                        ),
+                    ))
+                    fig6.update_layout(paper_bgcolor=PAPER_BG, font=FONT,
+                                       margin=dict(l=0,r=0,t=10,b=0), height=420)
+                    st.plotly_chart(fig6, use_container_width=True)
+
+            # ── Linha 4: CAGR vs Score ────────────────────────────────────
+            st.markdown("**📌 CAGR de Lucro vs Score — Crescimento com Qualidade**")
+            st.caption("Bolhas maiores = maior valor de mercado. Canto superior direito = crescendo E com bom score.")
+            df_cg = df_g[(df_g['CAGR (%)'].notna()) & (df_g['Score'] > 0)].copy()
+            if not df_cg.empty:
+                fig7 = px.scatter(df_cg, x='CAGR (%)', y='Score',
+                    size='Val. Mercado (R$bi)', color='Setor',
+                    text='Ticker', hover_data=['DY (%)','TIR Real (%)','P/L'],
+                    color_discrete_map=COR_SETOR, size_max=60)
+                fig7.update_traces(textposition='top center', textfont_size=9)
+                cagr_med = df_cg['CAGR (%)'].median()
+                score_med = df_cg['Score'].median()
+                fig7.add_hline(y=score_med, line_dash='dot', line_color='rgba(255,255,255,0.2)')
+                fig7.add_vline(x=cagr_med, line_dash='dot', line_color='rgba(255,255,255,0.2)')
+                fig7.update_layout(**_base_layout(
+                    title=None, xaxis_title='CAGR Lucros (%)', yaxis_title='Score',
+                    height=420, showlegend=True))
+                st.plotly_chart(fig7, use_container_width=True)
+
+            st.markdown("<div style='margin-bottom:80px;'></div>", unsafe_allow_html=True)
+            st.stop()
             card_s = ("background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);"
                       "border-radius:12px;padding:20px 24px;margin-bottom:14px;")
 
