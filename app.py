@@ -8404,57 +8404,27 @@ else:
                     st.plotly_chart(fig5, use_container_width=True)
 
             with g6:
-                st.markdown("**📌 Mapa de Calor — TIR Real por Ativo**")
-                st.caption("Verde = TIR alta. Vermelho = TIR baixa. Tamanho = Valor de Mercado.")
-                df_h = df_g[df_g['TIR Real (%)'].notna()].sort_values('TIR Real (%)', ascending=False)
-                if not df_h.empty:
-                    df_h = df_h.reset_index(drop=True)
-                    df_h['x'] = df_h.index % 8
-                    df_h['y'] = df_h.index // 8
-                    # Cor manual por faixa de TIR
-                    def _cor_tir(v):
-                        if v >= 12: return '#166534'
-                        if v >= 10: return '#15803d'
-                        if v >= 8:  return '#22c55e'
-                        if v >= 6:  return '#fbbf24'
-                        return '#ef4444'
-                    df_h['cor'] = df_h['TIR Real (%)'].apply(_cor_tir)
-                    df_h['sz']  = df_h['Mkt (R$bi)'].clip(0.5, 30).apply(lambda v: 14 + v*1.2)
-                    fig6 = go.Figure(go.Scatter(
-                        x=df_h['x'], y=df_h['y'],
-                        mode='markers+text',
-                        text=df_h['Ticker'],
-                        textposition='middle center',
-                        textfont=dict(size=9, color='white'),
-                        marker=dict(
-                            size=df_h['sz'],
-                            color=df_h['cor'],
-                            line=dict(color='rgba(0,0,0,0.3)', width=1),
-                        ),
-                        customdata=df_h[['TIR Real (%)','DY (%)','P/L','Setor']].values,
-                        hovertemplate=(
-                            '<b>%{text}</b><br>'
-                            'TIR: IPCA+%{customdata[0]:.1f}%<br>'
-                            'DY: %{customdata[1]:.1f}%<br>'
-                            'P/L: %{customdata[2]:.1f}x<br>'
-                            '%{customdata[3]}<extra></extra>'
-                        ),
-                    ))
-                    # Legenda manual
-                    for cor, label in [('#166534','≥12%'),('#22c55e','8-12%'),
-                                       ('#fbbf24','6-8%'),('#ef4444','<6%')]:
-                        fig6.add_trace(go.Scatter(
-                            x=[None], y=[None], mode='markers',
-                            marker=dict(size=10, color=cor),
-                            showlegend=True, name=f'TIR {label}',
-                        ))
-                    fig6.update_layout(**_lay(
-                        height=400,
-                        legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(size=10),
-                                    orientation='h', y=-0.05),
-                        xaxis=dict(showticklabels=False, showgrid=False, zeroline=False),
-                        yaxis=dict(showticklabels=False, showgrid=False, zeroline=False,
-                                   autorange='reversed')))
+                st.markdown("**📌 Score vs TIR Real — Fundamentos + Retorno**")
+                st.caption("Ideal: Score alto + TIR alta (canto superior direito). Outliers revelam assimetrias.")
+                df_st = df_g[df_g['TIR Real (%)'].notna() & (df_g['Score'] > 0)].copy()
+                if not df_st.empty:
+                    fig6 = px.scatter(df_st, x='TIR Real (%)', y='Score',
+                        size='Mkt (R$bi)', color='Setor', text='Ticker',
+                        hover_data=['DY (%)','P/L','ROE (%)'],
+                        color_discrete_map=COR_SETOR, size_max=50)
+                    fig6.update_traces(textposition='top center', textfont_size=9)
+                    tir_med   = df_st['TIR Real (%)'].median()
+                    score_med = df_st['Score'].median()
+                    fig6.add_hline(y=score_med, line_dash='dot',
+                        line_color='rgba(255,255,255,0.2)',
+                        annotation_text=f'Score mediano ({score_med:.1f})',
+                        annotation_font_color='#aaa')
+                    fig6.add_vline(x=tir_med, line_dash='dot',
+                        line_color='rgba(255,255,255,0.2)',
+                        annotation_text=f'TIR mediana ({tir_med:.1f}%)',
+                        annotation_font_color='#aaa')
+                    fig6.update_layout(**_lay(showlegend=False, height=400,
+                        xaxis_title='TIR Real (%)', yaxis_title='Score'))
                     st.plotly_chart(fig6, use_container_width=True)
 
             # ── G7 ────────────────────────────────────────────────────────
