@@ -8112,6 +8112,22 @@ else:
                 })
             df_tabela = pd.DataFrame(linhas_tabela)
 
+            # Formatar números para exibição limpa
+            df_tabela['Cotação'] = df_tabela['Cotação'].apply(lambda v: round(v, 2) if pd.notna(v) else v)
+            df_tabela['Var. Dia (%)'] = df_tabela['Var. Dia (%)'].apply(lambda v: round(v, 2) if pd.notna(v) else v)
+            df_tabela['Score'] = df_tabela['Score'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['P/L'] = df_tabela['P/L'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['P/VP'] = df_tabela['P/VP'].apply(lambda v: round(float(str(v).replace(',','.').replace('x','')), 2) if pd.notna(v) and str(v) not in ('-','') else None)
+            df_tabela['DY (%)'] = df_tabela['DY (%)'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['ROE (%)'] = df_tabela['ROE (%)'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['CAGR Lucros (%)'] = df_tabela['CAGR Lucros (%)'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['Earnings Yield (%)'] = df_tabela['Earnings Yield (%)'].apply(lambda v: round(v, 2) if pd.notna(v) else v)
+            df_tabela['TIR Real (%)'] = df_tabela['TIR Real (%)'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['Dívida Líq/EBITDA'] = df_tabela['Dívida Líq/EBITDA'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['P/FCO'] = df_tabela['P/FCO'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['P/FCL'] = df_tabela['P/FCL'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+            df_tabela['Vol. Implícita (%)'] = df_tabela['Vol. Implícita (%)'].apply(lambda v: round(v, 1) if pd.notna(v) else v)
+
             def _cor_variacao_tabela(v):
                 if pd.isna(v):
                     return ''
