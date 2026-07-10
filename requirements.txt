@@ -3,7 +3,7 @@ pandas==2.2.2
 numpy==1.26.4
 pyarrow==16.1.0
 plotly==5.22.0
-yfinance==0.2.40
+yfinance==1.5.1
 requests==2.32.3
 beautifulsoup4==4.12.3
 lxml==5.3.0
