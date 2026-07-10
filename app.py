@@ -5059,6 +5059,7 @@ def icone_setor(setor):
 def get_logo_url(ticker):
     _token_brapi = st.secrets.get("BRAPI_TOKEN", "")
     if not _token_brapi:
+        print(f"[LOGO {ticker}] BRAPI_TOKEN vazio ou não configurado")
         return ''
     # Timeout curto e SEM retry -- com 50 ativos na página, se a brapi.dev
     # estiver lenta/fora do ar, 2 tentativas de 8s cada por ticker travava a
@@ -5066,13 +5067,20 @@ def get_logo_url(ticker):
     # que travar a página esperando uma API externa fora do nosso controle.
     try:
         url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
-        r = requests.get(url, timeout=3).json()
+        resp = requests.get(url, timeout=3)
+        if resp.status_code != 200:
+            print(f"[LOGO {ticker}] status {resp.status_code}: {resp.text[:150]}")
+            return ''
+        r = resp.json()
         if r.get('results'):
             logo = r['results'][0].get('logourl', '') or ''
             if logo:
                 return logo
-    except Exception:
-        pass
+            print(f"[LOGO {ticker}] resposta sem logourl")
+        else:
+            print(f"[LOGO {ticker}] sem 'results' na resposta: {r}")
+    except Exception as e:
+        print(f"[LOGO {ticker}] erro: {e}")
     return ''
 
 # ---- Insiders e Recompras via Fundamentus ----
