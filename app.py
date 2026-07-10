@@ -14,7 +14,7 @@ from tir_engine import calcular_tir, render_tir, tir_real_valor, TICKERS_TIR_CON
 from setores_data import SETORES as SETORES_DOSSIE
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Radar Fundamentalista", layout="wide")
+st.set_page_config(page_title="Screener Fundamentalista", layout="wide")
 
 # ---- Controle de acesso ----
 if 'autenticado' not in st.session_state:
@@ -237,7 +237,7 @@ div[data-testid="stButton"] button[kind="primary"]:hover {
         st.markdown(
             "<h1 style='text-align:center; font-size:clamp(1.5em, 7vw, 2.8em); font-weight:900; "
             "letter-spacing:3px; text-transform:uppercase; color:#F1EFE8; "
-            "margin:0 0 6px 0; word-wrap:break-word;'>Radar Fundamentalista</h1>"
+            "margin:0 0 6px 0; word-wrap:break-word;'>Screener Fundamentalista</h1>"
             "<p style='text-align:center; font-size:0.85em; color:rgba(255,255,255,0.4); "
             "letter-spacing:3px; text-transform:uppercase; margin:0 0 18px 0;'>Diego Castro</p>",
             unsafe_allow_html=True
@@ -6034,7 +6034,7 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
         import plotly.graph_objects as go
     except ImportError:
         go = None
-    if st.button("← Voltar para o Radar", key="btn_voltar"):
+    if st.button("← Voltar para o Screener", key="btn_voltar"):
         st.session_state.ativo_selecionado = None
         st.rerun()
 
@@ -6853,13 +6853,13 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
                 unsafe_allow_html=True
             )
             st.caption(
-                f"Comparado a {n_setor} ativo(s) do setor '{row.get('SETOR', '-')}' no RADAR "
+                f"Comparado a {n_setor} ativo(s) do setor '{row.get('SETOR', '-')}' no SCREENER "
                 f"(P/L compara só com {n_pl_setor or 0}, já que ativos com P/L negativo/zero ficam de fora). "
                 "Com poucos ativos no setor, é normal o resultado ser bem extremo (1º ou último) — "
                 "isso não é erro, é só uma amostra pequena."
             )
         else:
-            st.info("Posição setorial indisponível (setor com só este ativo no RADAR, ou dado faltando).")
+            st.info("Posição setorial indisponível (setor com só este ativo no SCREENER, ou dado faltando).")
 
         # ---- Preço Justo Multi-Método ----
         st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
@@ -7382,7 +7382,7 @@ st.markdown("""
             border-bottom:1px solid rgba(255,255,255,0.08);">
     <h1 style="margin:0; font-size:clamp(1.4em, 6vw, 2.4em); font-weight:900; letter-spacing:2px;
                text-transform:uppercase; color:#F1EFE8; line-height:1.1; word-wrap:break-word;">
-        Radar Fundamentalista
+        Screener Fundamentalista
     </h1>
     <span style="position:absolute; top:14px; right:0; font-size:0.85em;
                  letter-spacing:3px; text-transform:uppercase; font-weight:700;
@@ -8171,7 +8171,7 @@ else:
             st.download_button(
                 "⬇ Baixar tabela em CSV",
                 data=df_tabela.to_csv(index=False).encode('utf-8-sig'),
-                file_name="radar_fundamentalista.csv",
+                file_name="screener_fundamentalista.csv",
                 mime="text/csv",
             )
             st.stop()
@@ -8287,7 +8287,8 @@ else:
                     'P/L': pl, 'DY (%)': dy, 'ROE (%)': roe, 'P/VP': pvp,
                     'CAGR (%)': cagr, 'LPA': lpa, 'Score': score,
                     'Mkt (R$bi)': vm, 'TIR Real (%)': tir_r, 'Upside (%)': upside,
-                    'Status': a.get('st_status', '')})
+                    'Status': a.get('st_status', ''),
+                    'Target': a.get('target_val', 0) or 0})
             df_g = pd.DataFrame(rows_g)
             df_g = df_g[df_g['Cotação'] > 0].copy()
 
@@ -8364,23 +8365,21 @@ else:
             # ── G3 e G4 ───────────────────────────────────────────────────
             g3, g4 = st.columns(2)
             with g3:
-                st.markdown(f"**📌 Upside até Preço Alvo TIR (IPCA+{_tir_alvo*100:.1f}%)**")
-                st.caption("Verde = abaixo do preço alvo (barato). Vermelho = acima. Limitado a ±100%.")
-                df_up = df_g[df_g['Upside (%)'].notna()].copy()
-                # Cap em ±100% — upsides maiores são distorção do modelo
-                # (g alto comprime o DY-alvo e infla o preço-alvo artificialmente)
-                df_up['Upside (%)'] = df_up['Upside (%)'].clip(-100, 100)
-                df_up = df_up.sort_values('Upside (%)', ascending=True)
+                st.markdown("**📌 Upside até Target**")
+                st.caption("Verde = abaixo do target (barato). Vermelho = acima.")
+                df_up = df_g[(df_g['Target'] > 0) & (df_g['Cotação'] > 0)].copy()
+                df_up['Upside Target (%)'] = ((df_up['Target'] / df_up['Cotação']) - 1) * 100
+                df_up = df_up.sort_values('Upside Target (%)', ascending=True)
                 if not df_up.empty:
-                    cores = ['#22C55E' if v >= 0 else '#EF4444' for v in df_up['Upside (%)']]
+                    cores = ['#22C55E' if v >= 0 else '#EF4444' for v in df_up['Upside Target (%)']]
                     fig3 = go.Figure(go.Bar(
-                        x=df_up['Upside (%)'], y=df_up['Ticker'], orientation='h',
+                        x=df_up['Upside Target (%)'], y=df_up['Ticker'], orientation='h',
                         marker_color=cores,
-                        text=df_up['Upside (%)'].apply(lambda v: f"{v:+.1f}%"),
+                        text=df_up['Upside Target (%)'].apply(lambda v: f"{v:+.1f}%"),
                         textposition='outside', textfont=dict(size=9, color='#e2e8f0'),
                         hovertemplate='%{y}: %{x:.1f}%<extra></extra>'))
                     fig3.update_layout(**_lay(
-                        xaxis_title=f'Upside para IPCA+{_tir_alvo*100:.1f}% (%)',
+                        xaxis_title='Upside até Target (%)',
                         yaxis_title='', height=max(380, len(df_up)*22)))
                     st.plotly_chart(fig3, use_container_width=True)
 
