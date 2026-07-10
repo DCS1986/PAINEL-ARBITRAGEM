@@ -8286,7 +8286,8 @@ else:
                 rows_g.append({'Ticker': tk, 'Setor': setor, 'Cotação': cot,
                     'P/L': pl, 'DY (%)': dy, 'ROE (%)': roe, 'P/VP': pvp,
                     'CAGR (%)': cagr, 'LPA': lpa, 'Score': score,
-                    'Mkt (R$bi)': vm, 'TIR Real (%)': tir_r, 'Upside (%)': upside})
+                    'Mkt (R$bi)': vm, 'TIR Real (%)': tir_r, 'Upside (%)': upside,
+                    'Status': a.get('st_status', '')})
             df_g = pd.DataFrame(rows_g)
             df_g = df_g[df_g['Cotação'] > 0].copy()
 
@@ -8364,8 +8365,12 @@ else:
             g3, g4 = st.columns(2)
             with g3:
                 st.markdown(f"**📌 Upside até Preço Alvo TIR (IPCA+{_tir_alvo*100:.1f}%)**")
-                st.caption("Verde = abaixo do preço alvo (barato). Vermelho = acima.")
-                df_up = df_g[df_g['Upside (%)'].notna()].sort_values('Upside (%)', ascending=True)
+                st.caption("Verde = abaixo do preço alvo (barato). Vermelho = acima. Limitado a ±100%.")
+                df_up = df_g[df_g['Upside (%)'].notna()].copy()
+                # Cap em ±100% — upsides maiores são distorção do modelo
+                # (g alto comprime o DY-alvo e infla o preço-alvo artificialmente)
+                df_up['Upside (%)'] = df_up['Upside (%)'].clip(-100, 100)
+                df_up = df_up.sort_values('Upside (%)', ascending=True)
                 if not df_up.empty:
                     cores = ['#22C55E' if v >= 0 else '#EF4444' for v in df_up['Upside (%)']]
                     fig3 = go.Figure(go.Bar(
@@ -8401,17 +8406,19 @@ else:
             g5, g6 = st.columns(2)
             with g5:
                 st.markdown("**📌 Radiografia por Setor**")
-                st.caption("DY médio e TIR média de cada setor, ordenados por TIR.")
+                st.caption("DY médio e TIR média de cada setor (nº de ativos entre parênteses), ordenados por TIR.")
                 df_s = df_g.groupby('Setor').agg(
                     DY=('DY (%)', 'mean'), TIR=('TIR Real (%)', 'mean'),
+                    N=('Ticker', 'count'),
                 ).reset_index().dropna().sort_values('TIR', ascending=False)
+                df_s['Label'] = df_s.apply(lambda r: f"{r['Setor']} ({int(r['N'])})", axis=1)
                 if not df_s.empty:
                     fig5 = go.Figure()
-                    fig5.add_bar(name='DY médio (%)', x=df_s['Setor'], y=df_s['DY'],
+                    fig5.add_bar(name='DY médio (%)', x=df_s['Label'], y=df_s['DY'],
                         marker_color='#22C55E',
                         text=df_s['DY'].apply(lambda v: f"{v:.1f}%"),
                         textposition='outside', textfont_size=9)
-                    fig5.add_bar(name='TIR real média (%)', x=df_s['Setor'], y=df_s['TIR'],
+                    fig5.add_bar(name='TIR real média (%)', x=df_s['Label'], y=df_s['TIR'],
                         marker_color='#D4AF37',
                         text=df_s['TIR'].apply(lambda v: f"{v:.1f}%"),
                         textposition='outside', textfont_size=9)
@@ -8421,7 +8428,7 @@ else:
 
             with g6:
                 st.markdown("**📌 Score vs TIR Real — Quadrante Estratégico**")
-                st.caption("Cada ativo no seu quadrante. Ideal: canto superior direito.")
+                st.caption("Cruza Score, TIR real e status de preço. Ideal: canto superior direito.")
                 df_st = df_g[df_g['TIR Real (%)'].notna() & (df_g['Score'] > 0)].copy()
                 if not df_st.empty:
                     tir_med   = df_st['TIR Real (%)'].median()
@@ -8430,18 +8437,25 @@ else:
                     def _quad(row):
                         alto_tir   = row['TIR Real (%)'] >= tir_med
                         alto_score = row['Score'] >= score_med
-                        if alto_tir and alto_score:   return '🟢 Comprar', '#166534'
-                        if alto_tir and not alto_score: return '🟡 Investigar', '#854d0e'
-                        if not alto_tir and alto_score: return '🔵 Esperar preço', '#1e3a5f'
+                        status     = row.get('Status', '')
+                        acima      = status in ('acima_teto', 'acima_target')
+                        # Score alto + TIR alta, mas acima do teto → não é "Comprar",
+                        # é "Esperar preço" (qualidade boa, mas caro demais agora)
+                        if alto_tir and alto_score and not acima:
+                            return '🟢 Comprar', '#166534'
+                        if alto_score and (not alto_tir or acima):
+                            return '🔵 Esperar preço', '#1e3a5f'
+                        if alto_tir and not alto_score:
+                            return '🟡 Investigar', '#854d0e'
                         return '⚪ Evitar', '#374151'
 
                     df_st[['Quadrante','_cor']] = df_st.apply(
                         lambda r: pd.Series(_quad(r)), axis=1)
 
                     quads = [
-                        ('🟢 Comprar',       '#166534', 'Score alto + TIR alta'),
-                        ('🔵 Esperar preço', '#1e3a5f', 'Score alto + TIR baixa'),
-                        ('🟡 Investigar',    '#854d0e', 'Score baixo + TIR alta'),
+                        ('🟢 Comprar',       '#166534', 'Score alto + TIR alta + abaixo do teto'),
+                        ('🔵 Esperar preço', '#1e3a5f', 'Score alto, mas acima do teto ou TIR baixa'),
+                        ('🟡 Investigar',    '#854d0e', 'TIR alta, mas Score baixo'),
                         ('⚪ Evitar',         '#374151', 'Score baixo + TIR baixa'),
                     ]
                     cols_q = st.columns(2)
@@ -8473,7 +8487,6 @@ else:
 
             # ── G7 ────────────────────────────────────────────────────────
             st.markdown("**📌 DY vs P/L — Dividendo com Valuation**")
-            st.caption("Canto superior esquerdo = DY alto + P/L baixo. Cor = TIR real. Ideal: verde no canto superior esquerdo.")
             df_dv = df_g[(df_g['DY (%)'] > 0) & (df_g['P/L'] > 0)].copy()
             if not df_dv.empty:
                 def _cor_tir(v):
