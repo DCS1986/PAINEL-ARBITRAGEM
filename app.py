@@ -7431,13 +7431,16 @@ def get_selic():
         url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json"
         r = requests.get(url, timeout=10)
         if r.status_code != 200:
+            print(f"[SELIC] status code inesperado: {r.status_code} - resposta: {r.text[:200]}")
             return None
         dados = r.json()
         if not dados:
+            print("[SELIC] resposta vazia da API do BCB")
             return None
         valor = dados[-1]['valor']
         return float(valor.replace(',', '.')) if isinstance(valor, str) else float(valor)
-    except Exception:
+    except Exception as e:
+        print(f"[SELIC] erro: {e}")
         return None
 
 
