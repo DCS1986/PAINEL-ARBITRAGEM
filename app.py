@@ -5061,26 +5061,26 @@ def get_logo_url(ticker):
     if not _token_brapi:
         print(f"[LOGO {ticker}] BRAPI_TOKEN vazio ou não configurado")
         return ''
-    # Timeout curto e SEM retry -- com 50 ativos na página, se a brapi.dev
-    # estiver lenta/fora do ar, 2 tentativas de 8s cada por ticker travava a
-    # tela inteira por minutos. Melhor falhar rápido e seguir sem logo do
-    # que travar a página esperando uma API externa fora do nosso controle.
-    try:
-        url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
-        resp = requests.get(url, timeout=3)
-        if resp.status_code != 200:
-            print(f"[LOGO {ticker}] status {resp.status_code}: {resp.text[:150]}")
-            return ''
-        r = resp.json()
-        if r.get('results'):
-            logo = r['results'][0].get('logourl', '') or ''
-            if logo:
-                return logo
-            print(f"[LOGO {ticker}] resposta sem logourl")
-        else:
-            print(f"[LOGO {ticker}] sem 'results' na resposta: {r}")
-    except Exception as e:
-        print(f"[LOGO {ticker}] erro: {e}")
+    # Cache de 24h (ver decorador acima) -- isso só roda de verdade uma vez
+    # por dia por ticker, então vale a pena esperar mais e tentar 2x em vez
+    # de desistir rápido e ficar sem logo o dia inteiro.
+    url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
+    for tentativa, timeout in enumerate((8, 12), start=1):
+        try:
+            resp = requests.get(url, timeout=timeout)
+            if resp.status_code != 200:
+                print(f"[LOGO {ticker}] tentativa {tentativa} - status {resp.status_code}: {resp.text[:150]}")
+                continue
+            r = resp.json()
+            if r.get('results'):
+                logo = r['results'][0].get('logourl', '') or ''
+                if logo:
+                    return logo
+                print(f"[LOGO {ticker}] tentativa {tentativa} - resposta sem logourl")
+            else:
+                print(f"[LOGO {ticker}] tentativa {tentativa} - sem 'results' na resposta: {r}")
+        except Exception as e:
+            print(f"[LOGO {ticker}] tentativa {tentativa} - erro: {e}")
     return ''
 
 # ---- Insiders e Recompras via Fundamentus ----
@@ -7490,6 +7490,13 @@ def get_ipca_12m():
 # NUNCA TESTADO contra o token de verdade -- este endpoint da brapi.dev
 # (/api/v2/treasury) é novo pra nós; se falhar, cai no valor manual abaixo.
 TAXA_IPCA_LONGA_MANUAL = 7.85  # atualizar manualmente em tesourodireto.com.br
+
+SELIC_MANUAL = 14.25  # Reunião Copom 17-18/06/2026. Próxima reunião: 04-05/08/2026.
+                       # Atualizar manualmente após cada reunião do Copom -- a API
+                       # do Banco Central está bloqueando pedidos vindos do servidor
+                       # do Streamlit Cloud (retorna {"erro":{}}), e a Selic muda
+                       # raras vezes (a cada ~45 dias), então não vale a pena
+                       # depender de uma API instável para isso.
                                  # se a busca automática parar de funcionar
 
 
@@ -7576,29 +7583,8 @@ def get_taxa_real_referencia():
 
 ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
-
-# --- DEBUG TEMPORÁRIO: mostra na própria tela o que está sendo retornado,
-# sem depender do log do Streamlit Cloud. Remover depois de resolver. ---
-with st.expander("🔧 Debug temporário (Selic e Logo)", expanded=True):
-    st.write("selic_val retornado:", repr(selic_val))
-    try:
-        _url_teste = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json"
-        _r_teste = requests.get(_url_teste, timeout=10)
-        st.write("Teste direto API BCB - status code:", _r_teste.status_code)
-        st.write("Teste direto API BCB - resposta (primeiros 300 caracteres):", _r_teste.text[:300])
-    except Exception as _e_teste:
-        st.write("Teste direto API BCB - erro:", str(_e_teste))
-    st.write("---")
-    _token_teste = st.secrets.get("BRAPI_TOKEN", "")
-    st.write("BRAPI_TOKEN configurado:", "SIM" if _token_teste else "NÃO / VAZIO")
-    if _token_teste:
-        try:
-            _url_logo_teste = f"https://brapi.dev/api/quote/PETR4?token={_token_teste}"
-            _r_logo_teste = requests.get(_url_logo_teste, timeout=5)
-            st.write("Teste direto brapi.dev (PETR4) - status code:", _r_logo_teste.status_code)
-            st.write("Teste direto brapi.dev (PETR4) - resposta (primeiros 300 caracteres):", _r_logo_teste.text[:300])
-        except Exception as _e_logo_teste:
-            st.write("Teste direto brapi.dev - erro:", str(_e_logo_teste))
+if selic_val is None:
+    selic_val = SELIC_MANUAL
 
 # Cabeçalho (Total/Filtrados/Ibovespa/Selic/destaques) só aparece na tela
 # principal em modo Cards -- esconde ao abrir um ativo (mais espaço pra
