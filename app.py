@@ -8488,51 +8488,106 @@ else:
             st.markdown("**📌 DY vs P/L — Dividendo com Valuation**")
             df_dv = df_g[(df_g['DY (%)'] > 0) & (df_g['P/L'] > 0)].copy()
             if not df_dv.empty:
-                def _cor_tir(v):
-                    if v is None: return '#6B7280'
-                    if v >= 12: return '#166534'
-                    if v >= 10: return '#22c55e'
-                    if v >= 8:  return '#86efac'
-                    if v >= 6:  return '#fbbf24'
-                    return '#ef4444'
-                df_dv['cor'] = df_dv['TIR Real (%)'].apply(_cor_tir)
+                # Faixas de TIR com cores mais vivas e contrastantes
+                _tir_faixas = [
+                    (12, 999, '#00E676', 'TIR ≥12%'),    # verde neon
+                    (10,  12, '#66BB6A', 'TIR 10-12%'),  # verde médio
+                    ( 8,  10, '#29B6F6', 'TIR 8-10%'),   # azul claro
+                    ( 6,   8, '#FFA726', 'TIR 6-8%'),    # laranja
+                    ( 0,   6, '#EF5350', 'TIR <6%'),     # vermelho
+                ]
+                def _cor_tir_v2(v):
+                    if v is None or pd.isna(v): return '#555555'
+                    for lo, hi, cor, _ in _tir_faixas:
+                        if lo <= v < hi: return cor
+                    return '#555555'
+
+                df_dv['cor'] = df_dv['TIR Real (%)'].apply(_cor_tir_v2)
+                dy_med = df_dv['DY (%)'].median()
+                pl_med = df_dv['P/L'].median()
+
                 fig7 = go.Figure()
+
+                # Anotações de quadrante (texto sutil nos cantos)
+                _quad_labels = [
+                    (0.01, 0.99, '🟢 DY alto · P/L baixo', 'left', 'top'),
+                    (0.99, 0.99, 'DY alto · P/L alto',      'right', 'top'),
+                    (0.01, 0.01, 'DY baixo · P/L baixo',    'left', 'bottom'),
+                    (0.99, 0.01, '🔴 DY baixo · P/L alto',  'right', 'bottom'),
+                ]
+                for xr, yr, txt, xa, ya in _quad_labels:
+                    fig7.add_annotation(
+                        text=txt, xref='paper', yref='paper', x=xr, y=yr,
+                        xanchor=xa, yanchor=ya, showarrow=False,
+                        font=dict(size=10, color='rgba(255,255,255,0.25)'),
+                    )
+
+                # Pontos principais (sem texto no gráfico — fica mais limpo)
                 fig7.add_trace(go.Scatter(
                     x=df_dv['P/L'], y=df_dv['DY (%)'],
-                    mode='markers+text', text=df_dv['Ticker'],
-                    textposition='top center', textfont=dict(size=9, color='#e2e8f0'),
+                    mode='markers+text',
+                    text=df_dv['Ticker'],
+                    textposition='top center',
+                    textfont=dict(size=10, color='rgba(255,255,255,0.85)', family='Arial Black'),
                     marker=dict(
-                        size=df_dv['Mkt (R$bi)'].clip(0.5, 30).apply(lambda v: 10 + v*1.2),
+                        size=14,
                         color=df_dv['cor'],
-                        line=dict(color='rgba(255,255,255,0.2)', width=1),
+                        line=dict(color='rgba(0,0,0,0.4)', width=1.5),
+                        opacity=0.92,
                     ),
-                    customdata=df_dv[['TIR Real (%)','ROE (%)','Setor','Mkt (R$bi)']].values,
+                    customdata=df_dv[['TIR Real (%)','ROE (%)','Setor','Mkt (R$bi)',
+                                      'Score','Cotação','Status']].values,
                     hovertemplate=(
-                        '<b>%{text}</b><br>'
-                        'DY: %{y:.1f}% · P/L: %{x:.1f}x<br>'
-                        'TIR Real: IPCA+%{customdata[0]:.1f}%<br>'
-                        'ROE: %{customdata[1]:.1f}%<br>'
-                        '%{customdata[2]}<extra></extra>'
+                        '<b style="font-size:14px">%{text}</b><br>'
+                        '<br>'
+                        '📊 DY: <b>%{y:.1f}%</b> · P/L: <b>%{x:.1f}x</b><br>'
+                        '📈 TIR Real: <b>IPCA+%{customdata[0]:.1f}%</b><br>'
+                        '🏦 ROE: <b>%{customdata[1]:.1f}%</b> · Score: <b>%{customdata[4]:.1f}</b><br>'
+                        '💰 Cotação: <b>R$%{customdata[5]:.2f}</b> · Mkt: <b>%{customdata[3]:.1f}bi</b><br>'
+                        '🏷 %{customdata[2]}'
+                        '<extra></extra>'
                     ),
+                    showlegend=False,
                 ))
-                # Linhas de referência
-                fig7.add_hline(y=df_dv['DY (%)'].median(), line_dash='dot',
-                    line_color='rgba(255,255,255,0.2)')
-                fig7.add_vline(x=df_dv['P/L'].median(), line_dash='dot',
-                    line_color='rgba(255,255,255,0.2)')
-                # Legenda de TIR
-                for cor, label in [('#166534','TIR ≥12%'),('#22c55e','TIR 10-12%'),
-                                   ('#86efac','TIR 8-10%'),('#fbbf24','TIR 6-8%'),
-                                   ('#ef4444','TIR <6%')]:
+
+                # Linhas de referência (medianas)
+                fig7.add_hline(y=dy_med, line_dash='dash',
+                    line_color='rgba(212,175,55,0.35)', line_width=1,
+                    annotation_text=f'DY mediana {dy_med:.1f}%',
+                    annotation_position='bottom right',
+                    annotation_font=dict(size=9, color='rgba(212,175,55,0.5)'))
+                fig7.add_vline(x=pl_med, line_dash='dash',
+                    line_color='rgba(212,175,55,0.35)', line_width=1,
+                    annotation_text=f'P/L mediana {pl_med:.1f}x',
+                    annotation_position='top right',
+                    annotation_font=dict(size=9, color='rgba(212,175,55,0.5)'))
+
+                # Legenda de TIR (traces invisíveis)
+                for _, _, cor, label in _tir_faixas:
                     fig7.add_trace(go.Scatter(
                         x=[None], y=[None], mode='markers',
-                        marker=dict(size=10, color=cor),
+                        marker=dict(size=12, color=cor, line=dict(color='rgba(0,0,0,0.3)', width=1)),
                         showlegend=True, name=label,
                     ))
-                fig7.update_layout(**_lay(showlegend=True, height=450,
-                    xaxis_title='P/L', yaxis_title='DY (%)',
-                    legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(size=10),
-                                orientation='v', x=1.01)))
+
+                fig7.update_layout(
+                    **_lay(showlegend=True, height=580,
+                        xaxis_title='P/L', yaxis_title='DY (%)'),
+                    legend=dict(
+                        bgcolor='rgba(0,0,0,0.3)',
+                        bordercolor='rgba(255,255,255,0.1)',
+                        borderwidth=1,
+                        font=dict(size=11, color='#e2e8f0'),
+                        orientation='v', x=1.01, y=1,
+                        title=dict(text='TIR Real', font=dict(size=11, color='rgba(212,175,55,0.8)')),
+                    ),
+                    xaxis=dict(gridcolor='rgba(255,255,255,0.06)', zerolinecolor='rgba(255,255,255,0.06)',
+                               title_font=dict(size=13, color='rgba(255,255,255,0.6)'),
+                               tickfont=dict(size=11, color='rgba(255,255,255,0.5)')),
+                    yaxis=dict(gridcolor='rgba(255,255,255,0.06)', zerolinecolor='rgba(255,255,255,0.06)',
+                               title_font=dict(size=13, color='rgba(255,255,255,0.6)'),
+                               tickfont=dict(size=11, color='rgba(255,255,255,0.5)')),
+                )
                 st.plotly_chart(fig7, use_container_width=True)
 
             st.markdown("<div style='margin-bottom:80px;'></div>", unsafe_allow_html=True)
