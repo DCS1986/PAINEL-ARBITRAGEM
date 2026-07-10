@@ -7577,6 +7577,29 @@ def get_taxa_real_referencia():
 ibov_val, ibov_var = get_ibov()
 selic_val = get_selic()
 
+# --- DEBUG TEMPORÁRIO: mostra na própria tela o que está sendo retornado,
+# sem depender do log do Streamlit Cloud. Remover depois de resolver. ---
+with st.expander("🔧 Debug temporário (Selic e Logo)", expanded=True):
+    st.write("selic_val retornado:", repr(selic_val))
+    try:
+        _url_teste = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json"
+        _r_teste = requests.get(_url_teste, timeout=10)
+        st.write("Teste direto API BCB - status code:", _r_teste.status_code)
+        st.write("Teste direto API BCB - resposta (primeiros 300 caracteres):", _r_teste.text[:300])
+    except Exception as _e_teste:
+        st.write("Teste direto API BCB - erro:", str(_e_teste))
+    st.write("---")
+    _token_teste = st.secrets.get("BRAPI_TOKEN", "")
+    st.write("BRAPI_TOKEN configurado:", "SIM" if _token_teste else "NÃO / VAZIO")
+    if _token_teste:
+        try:
+            _url_logo_teste = f"https://brapi.dev/api/quote/PETR4?token={_token_teste}"
+            _r_logo_teste = requests.get(_url_logo_teste, timeout=5)
+            st.write("Teste direto brapi.dev (PETR4) - status code:", _r_logo_teste.status_code)
+            st.write("Teste direto brapi.dev (PETR4) - resposta (primeiros 300 caracteres):", _r_logo_teste.text[:300])
+        except Exception as _e_logo_teste:
+            st.write("Teste direto brapi.dev - erro:", str(_e_logo_teste))
+
 # Cabeçalho (Total/Filtrados/Ibovespa/Selic/destaques) só aparece na tela
 # principal em modo Cards -- esconde ao abrir um ativo (mais espaço pra
 # ver o detalhe) e no modo Tabela (mais espaço pra ver mais empresas).
