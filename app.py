@@ -8571,8 +8571,9 @@ else:
                     ))
 
                 fig7.update_layout(
-                    **_lay(showlegend=True, height=580,
-                        xaxis_title='P/L', yaxis_title='DY (%)'),
+                    paper_bgcolor=PAPER_BG, plot_bgcolor=PLOT_BG, font=FONT,
+                    margin=dict(l=10, r=10, t=10, b=10),
+                    showlegend=True, height=580,
                     legend=dict(
                         bgcolor='rgba(0,0,0,0.3)',
                         bordercolor='rgba(255,255,255,0.1)',
@@ -8581,12 +8582,18 @@ else:
                         orientation='v', x=1.01, y=1,
                         title=dict(text='TIR Real', font=dict(size=11, color='rgba(212,175,55,0.8)')),
                     ),
-                    xaxis=dict(gridcolor='rgba(255,255,255,0.06)', zerolinecolor='rgba(255,255,255,0.06)',
-                               title_font=dict(size=13, color='rgba(255,255,255,0.6)'),
-                               tickfont=dict(size=11, color='rgba(255,255,255,0.5)')),
-                    yaxis=dict(gridcolor='rgba(255,255,255,0.06)', zerolinecolor='rgba(255,255,255,0.06)',
-                               title_font=dict(size=13, color='rgba(255,255,255,0.6)'),
-                               tickfont=dict(size=11, color='rgba(255,255,255,0.5)')),
+                    xaxis=dict(
+                        title='P/L',
+                        gridcolor='rgba(255,255,255,0.06)',
+                        zerolinecolor='rgba(255,255,255,0.06)',
+                        title_font=dict(size=13, color='rgba(255,255,255,0.6)'),
+                        tickfont=dict(size=11, color='rgba(255,255,255,0.5)')),
+                    yaxis=dict(
+                        title='DY (%)',
+                        gridcolor='rgba(255,255,255,0.06)',
+                        zerolinecolor='rgba(255,255,255,0.06)',
+                        title_font=dict(size=13, color='rgba(255,255,255,0.6)'),
+                        tickfont=dict(size=11, color='rgba(255,255,255,0.5)')),
                 )
                 st.plotly_chart(fig7, use_container_width=True)
 
