@@ -5746,15 +5746,30 @@ def get_dados_yahoo(ticker):
         except:
             pass
 
+        # Logo da empresa — já vem no info do yfinance, sem precisar de API extra
+        logo_url_yf = info.get('logo_url', '') or info.get('website', '')
+        if logo_url_yf and not logo_url_yf.startswith('http'):
+            logo_url_yf = ''
+        # yfinance retorna URL do site da empresa, não do logo — converter pra favicon Google
+        if logo_url_yf and 'logo' not in logo_url_yf.lower():
+            # É o website, não o logo — usa Google Favicon como fallback confiável
+            from urllib.parse import urlparse
+            try:
+                domain = urlparse(logo_url_yf).netloc or logo_url_yf
+                domain = domain.replace('www.', '')
+                logo_url_yf = f"https://www.google.com/s2/favicons?domain={domain}&sz=128"
+            except:
+                logo_url_yf = ''
+
         return (
             data_ex, valor_div, roe_str, margem_str, low_str, high_str,
             beta_str, pvp_str, roe_num, margem_num,
             historico_dy, historico_pl, historico_lucro,
             proximo_provento_data, proximo_provento_valor,
-            variacao_dia, iv_str
+            variacao_dia, iv_str, logo_url_yf
         )
     except:
-        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-"
+        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-", ""
 
 
 @st.cache_data(ttl=60)
@@ -7720,6 +7735,7 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
         proximo_provento_data = proximo_provento_valor = "-"
         variacao_dia = 0.0
         iv_str = "-"
+        logo_url_yf = ""
         progresso = 0.0
 
         try:
@@ -7727,12 +7743,12 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
              beta, pvp_str, roe_num_raw, margem_num_raw,
              historico_dy, historico_pl, historico_lucro,
              proximo_provento_data, proximo_provento_valor,
-             variacao_dia, iv_str) = get_dados_yahoo(row['CÓDIGO'])
+             variacao_dia, iv_str, logo_url_yf) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
 
-        # Logo — chamada separada, não interfere nos dados acima
-        logo_url = get_logo_url(row['CÓDIGO'])
+        # Logo — usa o que veio do yfinance (já extraído do .info, sem API extra)
+        logo_url = logo_url_yf if logo_url_yf else get_logo_url(row['CÓDIGO'])
 
         # ROE, Margem Líquida e Mínima/Máxima de 12 meses: prioriza
         # Fundamentus sobre Yahoo -- o Yahoo é inconsistente pra ações da B3
