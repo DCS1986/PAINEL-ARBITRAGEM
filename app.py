@@ -5057,30 +5057,36 @@ def icone_setor(setor):
 # ---- Logo via brapi ----
 @st.cache_data(ttl=86400)
 def get_logo_url(ticker):
-    _token_brapi = st.secrets.get("BRAPI_TOKEN", "")
-    if not _token_brapi:
-        print(f"[LOGO {ticker}] BRAPI_TOKEN vazio ou não configurado")
-        return ''
-    # Cache de 24h (ver decorador acima) -- isso só roda de verdade uma vez
-    # por dia por ticker, então vale a pena esperar mais e tentar 2x em vez
-    # de desistir rápido e ficar sem logo o dia inteiro.
-    url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
-    for tentativa, timeout in enumerate((8, 12), start=1):
-        try:
-            resp = requests.get(url, timeout=timeout)
-            if resp.status_code != 200:
-                print(f"[LOGO {ticker}] tentativa {tentativa} - status {resp.status_code}: {resp.text[:150]}")
-                continue
-            r = resp.json()
-            if r.get('results'):
-                logo = r['results'][0].get('logourl', '') or ''
-                if logo:
-                    return logo
-                print(f"[LOGO {ticker}] tentativa {tentativa} - resposta sem logourl")
-            else:
-                print(f"[LOGO {ticker}] tentativa {tentativa} - sem 'results' na resposta: {r}")
-        except Exception as e:
-            print(f"[LOGO {ticker}] tentativa {tentativa} - erro: {e}")
+    # Mapeamento fixo ticker → domínio. Sem API externa, sem token, sem cota.
+    # Google Favicons é extremamente confiável e rápido (~50ms por logo).
+    _DOMINIOS = {
+        "ITUB4":"itau.com.br","BBAS3":"bb.com.br","BBDC3":"bradesco.com.br",
+        "BPAC11":"btgpactual.com","SANB3":"santander.com.br","ABCB4":"abcbrasil.com.br",
+        "BRSR6":"banrisul.com.br","BMGB4":"bancobmg.com.br",
+        "BBSE3":"bbseguros.com.br","CXSE3":"caixaseguridade.com.br","PSSA3":"portoseguro.com.br",
+        "TIMS3":"timbrasil.com.br",
+        "CURY3":"cfranconi.com.br","DIRR3":"direcional.com.br","MDNE3":"mouradubeux.com.br",
+        "CYRE3":"cyrela.com.br",
+        "TAEE11":"taesa.com.br","ISAE4":"isacteep.com.br","EGIE3":"engieenergia.com.br",
+        "AXIA3":"axiaenergia.com.br","CPFE3":"cpfl.com.br","EQTL3":"equatorial.com.br",
+        "CMIG4":"cemig.com.br","CPLE3":"copel.com",
+        "ALOS3":"allos.co","LEVE3":"mahle.com",
+        "RANI3":"irani.com.br","WEGE3":"weg.net",
+        "VALE3":"vale.com","CMIN3":"csnmineracao.com.br","PETR4":"petrobras.com.br",
+        "BRAP4":"bradespar.com.br",
+        "VULC3":"vulcabras.com.br","SHUL4":"schulz.com.br","POMO4":"marcopolo.com.br",
+        "GRND3":"grendene.com.br","KLBN4":"klabin.com.br","KEPL3":"kepler.com.br",
+        "SBSP3":"sabesp.com.br","CSMG3":"copasa.com.br","SAPR4":"sanepar.com.br",
+        "B3SA3":"b3.com.br","LREN3":"lojasrenner.com.br",
+        "ITSA4":"itausa.com.br","IRBR3":"irbre.com","JHSF3":"jhsf.com.br",
+        "PRIO3":"prioenergia.com.br",
+        "BRBI11":"bfranconi.com.br","CGRA4":"grfranconi.com.br",
+        "SLCE3":"slceagricola.com.br","SUZB3":"suzano.com.br",
+        "MULT3":"multiplan.com.br","ALUP11":"alupar.com.br",
+    }
+    domain = _DOMINIOS.get(ticker)
+    if domain:
+        return f"https://www.google.com/s2/favicons?domain={domain}&sz=128"
     return ''
 
 # ---- Insiders e Recompras via Fundamentus ----
