@@ -8135,8 +8135,35 @@ else:
                 return f"color: {cor}; font-weight: 700;"
 
             confirmadas_mask = df_tabela['_confirmada'] & df_tabela['TIR Real (%)'].notna()
-            styler_tabela = df_tabela.drop(columns=['_confirmada']).style.map(
-                _cor_variacao_tabela, subset=['Var. Dia (%)'])
+            df_display = df_tabela.drop(columns=['_confirmada'])
+
+            # Formatação numérica aplicada direto no Styler (column_config não
+            # funciona quando se passa um Styler ao st.dataframe)
+            _fmt = {
+                'Cotação':            'R$ {:.2f}',
+                'Var. Dia (%)':       '{:+.2f}%',
+                'Score':              '{:.1f}',
+                'P/L':                '{:.1f}x',
+                'P/VP':               '{:.2f}x',
+                'DY (%)':             '{:.1f}%',
+                'ROE (%)':            '{:.1f}%',
+                'CAGR Lucros (%)':    '{:.1f}%',
+                'Earnings Yield (%)': '{:.2f}%',
+                'TIR Real (%)':       'IPCA+{:.1f}%',
+                'Valor de Mercado':   'R$ {:.1f} bi',
+                'Dívida Líq/EBITDA':  '{:.1f}x',
+                'P/FCO':              '{:.1f}x',
+                'P/FCL':              '{:.1f}x',
+                'Vol. Implícita (%)': '{:.1f}%',
+            }
+            # Só formatar colunas que existem no df
+            _fmt_valid = {k: v for k, v in _fmt.items() if k in df_display.columns}
+
+            styler_tabela = (
+                df_display.style
+                .format(_fmt_valid, na_rep='—')
+                .map(_cor_variacao_tabela, subset=['Var. Dia (%)'])
+            )
             if confirmadas_mask.any():
                 styler_tabela = styler_tabela.map(
                     lambda v: "color: #22C55E; font-weight: 700;",
@@ -8150,20 +8177,6 @@ else:
                 height=min(740, 70 + 35 * len(df_tabela)),
                 column_config={
                     'Logo': st.column_config.ImageColumn(width="small"),
-                    'Cotação': st.column_config.NumberColumn(format="R$ %.2f"),
-                    'Var. Dia (%)': st.column_config.NumberColumn(format="%.2f%%"),
-                    'Score': st.column_config.NumberColumn(format="%.1f"),
-                    'P/L': st.column_config.NumberColumn(format="%.1fx"),
-                    'DY (%)': st.column_config.NumberColumn(format="%.1f%%"),
-                    'ROE (%)': st.column_config.NumberColumn(format="%.1f%%"),
-                    'CAGR Lucros (%)': st.column_config.NumberColumn(format="%.1f%%"),
-                    'Earnings Yield (%)': st.column_config.NumberColumn(format="%.1f%%"),
-                    'TIR Real (%)': st.column_config.NumberColumn(format="IPCA + %.1f%%"),
-                    'Valor de Mercado': st.column_config.NumberColumn("Val. Mercado (R$ bi)", format="R$ %.1f bi"),
-                    'Dívida Líq/EBITDA': st.column_config.NumberColumn(format="%.1fx"),
-                    'P/FCO': st.column_config.NumberColumn(format="%.1fx"),
-                    'P/FCL': st.column_config.NumberColumn(format="%.1fx"),
-                    'Vol. Implícita (%)': st.column_config.NumberColumn(format="%.1f%%"),
                 },
             )
             st.caption(
