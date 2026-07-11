@@ -5057,36 +5057,19 @@ def icone_setor(setor):
 # ---- Logo via brapi ----
 @st.cache_data(ttl=86400)
 def get_logo_url(ticker):
-    # Mapeamento fixo ticker → domínio. Sem API externa, sem token, sem cota.
-    # Google Favicons é extremamente confiável e rápido (~50ms por logo).
-    _DOMINIOS = {
-        "ITUB4":"itau.com.br","BBAS3":"bb.com.br","BBDC3":"bradesco.com.br",
-        "BPAC11":"btgpactual.com","SANB3":"santander.com.br","ABCB4":"abcbrasil.com.br",
-        "BRSR6":"banrisul.com.br","BMGB4":"bancobmg.com.br",
-        "BBSE3":"bbseguros.com.br","CXSE3":"caixaseguridade.com.br","PSSA3":"portoseguro.com.br",
-        "TIMS3":"timbrasil.com.br",
-        "CURY3":"cfranconi.com.br","DIRR3":"direcional.com.br","MDNE3":"mouradubeux.com.br",
-        "CYRE3":"cyrela.com.br",
-        "TAEE11":"taesa.com.br","ISAE4":"isacteep.com.br","EGIE3":"engieenergia.com.br",
-        "AXIA3":"axiaenergia.com.br","CPFE3":"cpfl.com.br","EQTL3":"equatorial.com.br",
-        "CMIG4":"cemig.com.br","CPLE3":"copel.com",
-        "ALOS3":"allos.co","LEVE3":"mahle.com",
-        "RANI3":"irani.com.br","WEGE3":"weg.net",
-        "VALE3":"vale.com","CMIN3":"csnmineracao.com.br","PETR4":"petrobras.com.br",
-        "BRAP4":"bradespar.com.br",
-        "VULC3":"vulcabras.com.br","SHUL4":"schulz.com.br","POMO4":"marcopolo.com.br",
-        "GRND3":"grendene.com.br","KLBN4":"klabin.com.br","KEPL3":"kepler.com.br",
-        "SBSP3":"sabesp.com.br","CSMG3":"copasa.com.br","SAPR4":"sanepar.com.br",
-        "B3SA3":"b3.com.br","LREN3":"lojasrenner.com.br",
-        "ITSA4":"itausa.com.br","IRBR3":"irbre.com","JHSF3":"jhsf.com.br",
-        "PRIO3":"prioenergia.com.br",
-        "BRBI11":"bfranconi.com.br","CGRA4":"grfranconi.com.br",
-        "SLCE3":"slceagricola.com.br","SUZB3":"suzano.com.br",
-        "MULT3":"multiplan.com.br","ALUP11":"alupar.com.br",
-    }
-    domain = _DOMINIOS.get(ticker)
-    if domain:
-        return f"https://www.google.com/s2/favicons?domain={domain}&sz=128"
+    _token_brapi = st.secrets.get("BRAPI_TOKEN", "")
+    if not _token_brapi:
+        return ''
+    url = f"https://brapi.dev/api/quote/{ticker}?token={_token_brapi}"
+    for tentativa in range(2):
+        try:
+            r = requests.get(url, timeout=10).json()
+            if r.get('results'):
+                logo = r['results'][0].get('logourl', '') or ''
+                if logo:
+                    return logo
+        except Exception:
+            pass
     return ''
 
 # ---- Insiders e Recompras via Fundamentus ----
@@ -5746,30 +5729,15 @@ def get_dados_yahoo(ticker):
         except:
             pass
 
-        # Logo da empresa — já vem no info do yfinance, sem precisar de API extra
-        logo_url_yf = info.get('logo_url', '') or info.get('website', '')
-        if logo_url_yf and not logo_url_yf.startswith('http'):
-            logo_url_yf = ''
-        # yfinance retorna URL do site da empresa, não do logo — converter pra favicon Google
-        if logo_url_yf and 'logo' not in logo_url_yf.lower():
-            # É o website, não o logo — usa Google Favicon como fallback confiável
-            from urllib.parse import urlparse
-            try:
-                domain = urlparse(logo_url_yf).netloc or logo_url_yf
-                domain = domain.replace('www.', '')
-                logo_url_yf = f"https://www.google.com/s2/favicons?domain={domain}&sz=128"
-            except:
-                logo_url_yf = ''
-
         return (
             data_ex, valor_div, roe_str, margem_str, low_str, high_str,
             beta_str, pvp_str, roe_num, margem_num,
             historico_dy, historico_pl, historico_lucro,
             proximo_provento_data, proximo_provento_valor,
-            variacao_dia, iv_str, logo_url_yf
+            variacao_dia, iv_str
         )
     except:
-        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-", ""
+        return "-", "-", "-", "-", "-", "-", "N/A", "-", 0, 0, {}, {}, {}, "-", "-", 0.0, "-"
 
 
 @st.cache_data(ttl=60)
@@ -7735,7 +7703,6 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
         proximo_provento_data = proximo_provento_valor = "-"
         variacao_dia = 0.0
         iv_str = "-"
-        logo_url_yf = ""
         progresso = 0.0
 
         try:
@@ -7743,12 +7710,12 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
              beta, pvp_str, roe_num_raw, margem_num_raw,
              historico_dy, historico_pl, historico_lucro,
              proximo_provento_data, proximo_provento_valor,
-             variacao_dia, iv_str, logo_url_yf) = get_dados_yahoo(row['CÓDIGO'])
+             variacao_dia, iv_str) = get_dados_yahoo(row['CÓDIGO'])
         except:
             pass
 
-        # Logo — usa o que veio do yfinance (já extraído do .info, sem API extra)
-        logo_url = logo_url_yf if logo_url_yf else get_logo_url(row['CÓDIGO'])
+        # Logo — chamada separada, não interfere nos dados acima
+        logo_url = get_logo_url(row['CÓDIGO'])
 
         # ROE, Margem Líquida e Mínima/Máxima de 12 meses: prioriza
         # Fundamentus sobre Yahoo -- o Yahoo é inconsistente pra ações da B3
