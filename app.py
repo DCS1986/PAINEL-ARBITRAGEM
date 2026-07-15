@@ -5692,11 +5692,42 @@ def get_dados_yahoo(ticker):
             financials  = stock.financials
             preco_atual = info.get('currentPrice') or info.get('regularMarketPrice', 0)
             shares      = info.get('sharesOutstanding', 0)
+            trailing_pe = info.get('trailingPE')
 
             if financials is not None and not financials.empty:
                 ano_atual = pd.Timestamp.now().year
 
-                # ── Obter preços médios anuais para P/L histórico correto ──
+                # ── Coletar lucro líquido por ano ──
+                for col in financials.columns:
+                    ano = col.year
+                    if ano < ano_atual - 4:
+                        continue
+                    for chave in ['Net Income', 'Net Income Common Stockholders']:
+                        if chave in financials.index:
+                            lucro = financials.loc[chave, col]
+                            if pd.notna(lucro) and lucro != 0:
+                                historico_lucro[ano] = float(lucro)
+                            break
+
+                # ── Corrigir shares usando trailingPE como referência ──
+                # Se trailingPE existe, calcula shares_real = lucro / (preco / trailingPE)
+                # Isso corrige casos como ITUB4 onde sharesOutstanding retorna só PN
+                shares_calc = shares
+                if trailing_pe and trailing_pe > 0 and preco_atual and preco_atual > 0:
+                    lpa_real = preco_atual / trailing_pe
+                    # Pega o lucro mais recente disponível
+                    anos_disponiveis = sorted(historico_lucro.keys(), reverse=True)
+                    if anos_disponiveis:
+                        lucro_recente = historico_lucro[anos_disponiveis[0]]
+                        if lucro_recente > 0:
+                            shares_derivado = lucro_recente / lpa_real
+                            # Se a diferença for grande (>30%), usar o derivado
+                            if shares > 0 and abs(shares_derivado / shares - 1) > 0.3:
+                                shares_calc = shares_derivado
+                            elif shares <= 0:
+                                shares_calc = shares_derivado
+
+                # ── Obter preços médios anuais ──
                 precos_medios = {}
                 try:
                     hist_precos = stock.history(period="6y", interval="1mo")
@@ -5709,43 +5740,18 @@ def get_dados_yahoo(ticker):
                 except Exception:
                     pass
 
-                for col in financials.columns:
-                    ano = col.year
-                    if ano < ano_atual - 4:
-                        continue
-                    for chave in ['Net Income', 'Net Income Common Stockholders']:
-                        if chave in financials.index:
-                            lucro = financials.loc[chave, col]
-                            if pd.notna(lucro) and lucro != 0:
-                                historico_lucro[ano] = float(lucro)
-                            break
-
-                # ── Calcular P/L histórico ──
-                # Tenta usar trailingPE do yfinance para o ano atual (mais confiável)
-                trailing_pe = info.get('trailingPE')
+                # ── Calcular P/L ──
                 if trailing_pe and trailing_pe > 0:
                     historico_pl[ano_atual] = round(trailing_pe, 1)
 
-                # Para anos anteriores, usa preço médio do ano / LPA
-                if shares > 0:
+                if shares_calc > 0:
                     for ano in historico_lucro:
                         if ano == ano_atual and trailing_pe and trailing_pe > 0:
-                            continue  # já temos o trailingPE
+                            continue
                         preco_ref = precos_medios.get(ano, preco_atual)
-                        lpa = historico_lucro[ano] / shares
+                        lpa = historico_lucro[ano] / shares_calc
                         if lpa > 0 and preco_ref:
-                            pl_calc = round(preco_ref / lpa, 1)
-                            # Sanity check: se P/L ficar abaixo de 3 ou acima de 50,
-                            # provavelmente shares está errado (ex: ITUB com ON+PN)
-                            # Nesse caso, usa trailingPE como referência pra ajustar
-                            if trailing_pe and (pl_calc < trailing_pe * 0.3 or pl_calc > trailing_pe * 3):
-                                # shares provavelmente está incorreto, tentar ajustar
-                                if preco_atual and historico_lucro.get(ano_atual):
-                                    shares_ajustado = historico_lucro[ano_atual] / (preco_atual / trailing_pe)
-                                    lpa_aj = historico_lucro[ano] / shares_ajustado
-                                    if lpa_aj > 0:
-                                        pl_calc = round(preco_ref / lpa_aj, 1)
-                            historico_pl[ano] = pl_calc
+                            historico_pl[ano] = round(preco_ref / lpa, 1)
         except:
             historico_pl    = {}
             historico_lucro = {}
