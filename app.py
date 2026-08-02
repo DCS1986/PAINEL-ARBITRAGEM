@@ -296,6 +296,46 @@ def limpar_valor_resultado(valor):
     except:
         return 0.0
 
+def _tri_esta_preenchido(valor):
+    """Considera o trimestre 'reportado' se a célula tem número (não vazio,
+    não '-', não NaN)."""
+    if valor is None or (isinstance(valor, float) and pd.isna(valor)):
+        return False
+    s = str(valor).strip()
+    return s not in ('', '-', 'nan')
+
+def trimestres_reportados(row):
+    """Olha as colunas 1T26/2T26/3T26/4T26 da linha e retorna a lista dos
+    trimestres já preenchidos, na ordem, como [(1, valor_num), (2, valor_num), ...].
+    Não assume que são consecutivos -- só reporta o que está de fato preenchido."""
+    resultado = []
+    for n, col in ((1, '1T26'), (2, '2T26'), (3, '3T26'), (4, '4T26')):
+        val = row.get(col, None)
+        if _tri_esta_preenchido(val):
+            resultado.append((n, limpar_valor_resultado(val)))
+    return resultado
+
+def label_trimestres_acumulados(reportados):
+    """Ex: [(1,x),(2,y)] -> '1T+2T'. Usado no card de Resultado Acumulado."""
+    return "+".join(f"{n}T" for n, _ in reportados) if reportados else "?"
+
+def label_ultimo_tri(reportados):
+    """Ex: [(1,x),(2,y)] -> '2T' (o mais recente já reportado)."""
+    return f"{reportados[-1][0]}T" if reportados else "?"
+
+def valor_ultimo_tri(reportados):
+    """Valor isolado (não somado) do trimestre mais recente já reportado."""
+    return reportados[-1][1] if reportados else None
+
+def formatar_moeda_br(valor):
+    """Formata float pro padrão BR: R$ 20.100.000.000,00"""
+    try:
+        s = f"{float(valor):,.2f}"
+        s = s.replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"R$ {s}"
+    except:
+        return "-"
+
 def formatar_cotacao(valor):
     try:
         s = str(valor).replace('R$', '').replace(',', '.').strip()
@@ -5823,7 +5863,14 @@ def carregar_dados():
         df['dy_num']      = df['Dividend Yield bruto estimado'].apply(limpar_valor)
         df['div_num']     = df['Dívida líquida/EBITDA'].apply(limpar_valor)
         df['cagr_num']    = df['CAGR lucros (últ. 5 anos)'].apply(limpar_valor)
-        df['res_val_num'] = df['RESULTADO 2026 (1/4)'].apply(limpar_valor_resultado)
+        # Coluna K: 'RESULTADO 2026 (1/4)' -> 'RESULTADO ACUMULADO' -> agora
+        # 'RESULTADO ACUMULADO 2026'. Fallback em cadeia evita quebra caso a
+        # planilha esteja num nome antigo.
+        _col_resultado_acum = next(
+            (c for c in ('RESULTADO ACUMULADO 2026', 'RESULTADO ACUMULADO', 'RESULTADO 2026 (1/4)') if c in df.columns),
+            'RESULTADO 2026 (1/4)'
+        )
+        df['res_val_num'] = df[_col_resultado_acum].apply(limpar_valor_resultado)
         df['preco_teto']  = df['PREÇO TETO'].apply(limpar_valor) if 'PREÇO TETO' in df.columns else 0
         df['target']      = df['TARGET'].apply(limpar_valor) if 'TARGET' in df.columns else 0
         # Valor de mercado — busca a coluna independente de capitalização
@@ -6690,10 +6737,20 @@ def pagina_ativo(ticker, row, ativo_data, lista_ativos_com_score=None):
 
         st.markdown("#### 📊 Valuation")
 
-        # ---- Linha 1: Resultado Projetado + Resultado Último Tri ----
-        v1, v2 = st.columns([1, 1])
+        # ---- Linha 1: Resultado Projetado + Resultado Último Tri + Resultado Acumulado ----
+        # Detecta automaticamente quais trimestres (1T26..4T26) já foram
+        # preenchidos na planilha -- não depende de campo manual separado.
+        _tris_reportados      = trimestres_reportados(row)
+        _label_acum           = label_trimestres_acumulados(_tris_reportados)
+        _label_ult            = label_ultimo_tri(_tris_reportados)
+        _val_ult_tri          = valor_ultimo_tri(_tris_reportados)
+        _resultado_ult_tri    = formatar_moeda_br(_val_ult_tri) if _val_ult_tri is not None else '-'
+        _resultado_acumulado  = row.get('RESULTADO ACUMULADO 2026', row.get('RESULTADO ACUMULADO', row.get('RESULTADO 2026 (1/4)', '-')))
+
+        v1, v2, v3 = st.columns([1, 1, 1])
         _card_metric(v1, "Resultado Projetado 2026", row.get('LL PROJETADO', '-'))
-        _card_metric(v2, "⭐ Resultado Último Tri (1/4)", row.get('RESULTADO 2026 (1/4)', '-'), cor_valor="#22C55E")
+        _card_metric(v2, f"Resultado Último Tri ({_label_ult})", _resultado_ult_tri, cor_valor="#22C55E")
+        _card_metric(v3, f"⭐ Resultado Acumulado ({_label_acum})", _resultado_acumulado, cor_valor="#22C55E", destaque=True)
         st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
         barra = "<div style='background:#222;border-radius:5px;height:9px;width:100%;margin:5px 0 3px 0;'><div style='background:{};width:{}%;height:9px;border-radius:5px;'></div></div>".format(cor, porcentagem)
         st.markdown(barra, unsafe_allow_html=True)
@@ -7783,7 +7840,9 @@ def _construir_ativos_com_score(df_f, _min_score_efetivo, filtro_status_val):
             if max_52_fund is not None:
                 high = f"R$ {max_52_fund:.2f}".replace('.', ',')
 
-        val_entregue  = limpar_valor_resultado(row.get('RESULTADO 2026 (1/4)', 0))
+        val_entregue  = limpar_valor_resultado(
+            row.get('RESULTADO ACUMULADO 2026', row.get('RESULTADO ACUMULADO', row.get('RESULTADO 2026 (1/4)', 0)))
+        )
         val_projetado = limpar_valor_resultado(row.get('LL PROJETADO', 0))
         progresso     = float(min(val_entregue / val_projetado, 1.0)) if val_projetado > 0 else 0.0
         porcentagem   = int(progresso * 100)
