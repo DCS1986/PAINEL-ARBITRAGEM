@@ -917,7 +917,7 @@ GOVERNANCA = {
     "SBSP3":  {"nota": 5.8, "obs": "Sabesp — privatização recente, governança em transição. Melhora em curso."},
     "SAPR4":  {"nota": 6.2, "obs": "Sanepar — empresa pública do PR, histórico razoável mas risco político persiste."},
     "CSMG3":  {"nota": 5.5, "obs": "Copasa — empresa pública de MG, interferência política frequente nas decisões."},
-    "AXIA3":  {"nota": 8.0, "obs": "Holding de fibra — nova no mercado, mas estrutura de governança bem desenhada."},
+    "AXIA3":  {"nota": 8.0, "obs": "Ex-Eletrobras privatizada em 2022; migrou para o Novo Mercado da B3 e pulverizou o controle. Governança em amadurecimento pós-estatal, ainda equacionando passivos jurídicos históricos."},
     "B3SA3":  {"nota": 9.0, "obs": "B3 — autolistada, padrão máximo de governança no Brasil. Referência para o mercado."},
     "BRBI11": {"nota": 7.5, "obs": "BR Partners — gestão alinhada, transparência adequada para o porte."},
     "CYRE3":  {"nota": 8.3, "obs": "Controle da família Schahin, listada no Novo Mercado com tag along 100%. Criação recente de classe de ações preferenciais especiais (pra distribuir reservas antes da tributação de dividendos em 2026) gerou reação negativa do mercado, mas a estrutura de governança permanece sólida."},
@@ -935,31 +935,31 @@ GOVERNANCA = {
 }
 
 OUTLOOK_2026 = {
-    "BBSE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Atenção: exposição ao agro (granizo, seca, El Niño) pode pressionar sinistros em 2026. Monitorar sinistralidade agrícola no 1T26 antes de ampliar posição."},
-    "ITUB4":  {"icone": "✅", "cor": "#22C55E", "texto": "Ciclo de crédito favorável, inadimplência sob controle, ROE elevado. Um dos melhores momentos operacionais da história. Perspectiva positiva para 2026."},
-    "BBAS3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Carteira agro comprometida pela crise do crédito rural — inadimplência em alta e sem sinais de reversão rápida. Guidance revisado para baixo sem aviso. Banco público sujeito a pressão política. Perspectiva negativa para 2026 — aguardar pelo menos 2 trimestres antes de reavaliar."},
-    "BBDC3":  {"icone": "🟡", "cor": "#D4AF37", "texto": "Recuperação em curso após anos difíceis. Lucro voltando a crescer mas abaixo dos pares. Posição especulativa de melhora — cautela com alocação."},
+    "BBSE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "2T26 dentro do esperado dado o agro: lucro R$2,151bi (-3,9% A/A), com a BrasilSeg pressionada (prêmio agrícola -42,5%) mas compensada por diversificação e resultado financeiro da holding. Dividendo robusto mantido (R$3,85bi no 1S). O mercado começou a questionar o status de 'ação defensiva'. Tese de renda de pé; monitorar recuperação dos prêmios e sinistralidade climática."},
+    "ITUB4":  {"icone": "✅", "cor": "#22C55E", "texto": "2T26 confirma a tese: ROE 24,3%, inadimplência 1,9% estável e eficiência de 37% — tripé que pouquíssimos bancos sustentam ao mesmo tempo. Crescimento de carteira concentrado em linhas de baixo risco (consignado, imobiliário). Único ruído: corte no guidance de serviços/seguros (5-9% → 2-5%), em boa parte por escolha estratégica de isentar tarifas. Perspectiva positiva para 2026; o desafio é o preço (P/VP elevado)."},
+    "BBAS3":  {"icone": "🔴", "cor": "#EF4444", "texto": "2T26 deu trégua no lucro (R$3,9bi, acima do consenso), mas a qualidade da carteira segue no vermelho: inadimplência 90d subiu para 5,61% e a deterioração já vaza do agro para a pessoa física. ROE de ~8,3% ainda roda MUITO abaixo do custo de capital (Ke ~15-16%) — o banco destrói valor na margem. Foi a maior decepção da temporada entre os bancões. Perspectiva negativa; sem catalisador de repricing no curto prazo."},
+    "BBDC3":  {"icone": "✅", "cor": "#22C55E", "texto": "Turnaround consolidado: 10º trimestre seguido de alta do lucro (R$7,05bi) e ROE de 16,2%, voltando a superar o custo de capital. Crescimento de carteira em linhas garantidas e grupo segurador forte (lucro +28% A/A). Genial elevou o preço-alvo para R$24 e mantém compra. Recuperação em curso com o sarrafo cada vez mais alto — o ROE avançando é o termômetro a seguir."},
     "ABCB4":  {"icone": "✅", "cor": "#22C55E", "texto": "Carteira corporativa de alta qualidade, inadimplência estruturalmente baixa. Perspectiva positiva, menos sensível ao ciclo de varejo."},
     "BRSR6":  {"icone": "🔴", "cor": "#EF4444", "texto": "Duplo impacto: crise do crédito rural gaúcho + reflexos das enchentes de 2024 ainda presentes na carteira. Inadimplência estruturalmente elevada para 2026. Perspectiva negativa."},
-    "SANB3":  {"icone": "✅", "cor": "#22C55E", "texto": "Ciclo de melhora operacional. ROE subindo, foco em eficiência. Perspectiva moderadamente positiva para 2026."},
+    "SANB3":  {"icone": "🔴", "cor": "#EF4444", "texto": "2T26 decepcionou: lucro R$3,0bi (-17,6% A/A) e ROE de 12,5%, menor em 3 anos e agora abaixo do custo de capital. PDD subiu 20,6% e a margem com clientes comprimiu sem explicação clara. Meta de ROE de 20% ficou mais distante; o JPMorgan rebaixou para neutra. Pano de fundo: a matriz espanhola quer fechar o capital (troca por BDR/ADR com prêmio ~15%). Tese sem gatilho de rentabilidade."},
     "BMGB4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Nicho de consignado INSS sob pressão regulatória. Teto de juros pode impactar margens. Monitorar evolução da regulação em 2026."},
-    "BPAC11": {"icone": "✅", "cor": "#22C55E", "texto": "Forte expansão de receitas recorrentes. Menos dependente do ciclo de crédito. Uma das melhores perspectivas do setor financeiro para 2026."},
+    "BPAC11":  {"icone": "✅", "cor": "#22C55E", "texto": "Mais um trimestre recorde: lucro ajustado de R$5,1bi e ROAE de 26,7% — acima do Itaú e o maior entre os grandes. Captação líquida de R$59bi, corporate lending e consignado privado acelerando; IB e wealth mais fracos por base alta e macro adverso. Menos dependente do ciclo de crédito tradicional. Uma das melhores perspectivas do setor financeiro para 2026."},
     "IRBR3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Ressegurador em recuperação pós-fraude. Resultados melhorando, mas histórico exige cautela. El Niño e eventos climáticos extremos são risco relevante."},
-    "PSSA3":  {"icone": "✅", "cor": "#22C55E", "texto": "Momento operacional sólido. Seguros auto e residencial com bons resultados. Perspectiva positiva, mas monitorar sinistralidade climática."},
-    "CXSE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Crescimento consistente de prêmios via rede da Caixa. Vantagem competitiva de distribuição enorme. Perspectiva positiva para 2026."},
+    "PSSA3":  {"icone": "✅", "cor": "#22C55E", "texto": "2T26 sólido: lucro R$889mi e ROAE de 22,3%, acima de 20% pelo 8º trimestre seguido. Seguro resiliente (Porto Seguro ROAE 32,9%, Porto Saúde +36% A/A) compensou o ciclo de crédito mais duro, que derrubou o Porto Bank (-32,5% A/A, perdas de crédito acima do esperado). Perspectiva positiva; atenção às perdas do banco e à sinistralidade."},
+    "CXSE3":  {"icone": "✅", "cor": "#22C55E", "texto": "2T26 forte: lucro R$1,14bi (+9,5% A/A) e ROE recorrente de 70,9% — extraordinário para qualquer setor. Efeito empilhamento seguindo firme via moradia/previdência/capitalização, com a vantagem de distribuição da rede Caixa. Fraqueza pontual em vida e prestamista. Uma das teses mais limpas do setor: recorrência crescente, ROE altíssimo e dividendo consistente. Perspectiva positiva para 2026."},
     "ITSA4":  {"icone": "✅", "cor": "#22C55E", "texto": "Holding do Itaú — resultado acompanha o banco. Desconto histórico pode se fechar. Perspectiva positiva com menor volatilidade que o banco diretamente."},
-    "PETR4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Petróleo em patamar moderado (~$70-75). Risco fiscal e de interferência na política de dividendos. Monitorar anúncio de investimentos e possível revisão da remuneração em 2026."},
-    "VALE3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Minério de ferro pressionado pela desaceleração chinesa. Acordo de Mariana ainda em negociação (provisão bilionária). 2026 desafiador — aguardar estabilização do cenário China."},
+    "PETR4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "2T26 excepcional (o 'hat trick': volume, preço e refino): lucro R$52,4bi e produção recorde de 3,34 mi boe/d, bancando R$17,4bi em dividendos. Mas boa parte é circunstancial — o Brent de US$104 não deve se sustentar e a gestão descartou dividendos extraordinários em 2026. Tese de renda intacta (DY ~10%), mas dependente de petróleo/câmbio e sujeita a risco fiscal e político."},
+    "VALE3":  {"icone": "🔴", "cor": "#EF4444", "texto": "2T26 de operação forte, lucro fraco: melhor produção de minério para um 2T desde 2018 e cobre em alta (metais básicos +79% A/A), mas o lucro caiu 35% (US$1,375bi) com real forte e Brent alto pressionando custos — guidance de C1 revisado para cima. Dividendo de US$1,7bi + recompra. Curto prazo segue refém do minério e da China; Mariana ainda em aberto. Diversificação em metais básicos é o vetor estrutural positivo."},
     "BRAP4":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Herda o cenário desafiador da Vale com desconto adicional de holding. Monitorar acordo de Mariana e preço do minério."},
     "CMIN3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Sensível ao preço do minério e desaceleração chinesa. Perspectiva cautelosa para 2026."},
     "GGBR3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Dependente do ciclo de construção civil. Perspectiva neutra — programa de infraestrutura pode ser catalisador positivo em 2026."},
-    "KLBN4":  {"icone": "✅", "cor": "#22C55E", "texto": "Celulose e papel com demanda resiliente. Expansão Puma II maturando. Perspectiva positiva para 2026, menos cíclica que pares do setor."},
+    "KLBN4":  {"icone": "✅", "cor": "#22C55E", "texto": "2T26 'confirmou, não superou': lucro R$387mi (-34% A/A) mas EBITDA de R$1,96bi acima do consenso, com disciplina de custos e papel-cartão firmes. O real mais forte corroeu a receita de exportação e explicou boa parte da queda de lucro. Alavancagem ainda em 3,2x. Demanda por embalagens resiliente; o câmbio é o swing de curto prazo. Perspectiva positiva, menos cíclica que pares."},
     "UNIP6":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Margens pressionadas pelo ciclo químico global e dumping chinês de petroquímicos. Perspectiva neutra a negativa para 2026."},
     "LEVE3":  {"icone": "✅", "cor": "#22C55E", "texto": "Reposição automotiva resiliente. Transição para elétricos é risco de longo prazo, irrelevante para 2026. Perspectiva positiva."},
     "SHUL4":  {"icone": "✅", "cor": "#22C55E", "texto": "Compressores industriais com demanda estável. Nicho protegido e bem gerido. Perspectiva positiva para 2026."},
     "VULC3":  {"icone": "✅", "cor": "#22C55E", "texto": "Marca consolidada no esportivo. Expansão de margens em curso. Perspectiva positiva, dependente do consumo doméstico."},
     "TIMS3":  {"icone": "✅", "cor": "#22C55E", "texto": "Crescimento consistente de receita e margens. Mercado consolidado favorece rentabilidade. Excelente perspectiva para 2026."},
-    "ALOS3":  {"icone": "✅", "cor": "#22C55E", "texto": "Shoppings em ciclo favorável. Consumo aquecido e vacância baixa. Integração da fusão gerando sinergias. Perspectiva positiva para 2026."},
+    "ALOS3":  {"icone": "✅", "cor": "#22C55E", "texto": "2T26 acima do esperado: FFO R$340,8mi (+12% A/A) e lucro +57,7% A/A. A tese 'shopping virou plataforma' se confirma — crescimento vindo de mídia (Helloo) e desenvolvimento imobiliário, com alicerce firme (ocupação 96%, inadimplência caindo). O ruído (SSS fraco, Tijuca, juros) é mais macro que estrutural. BTG mantém outperform, com DY estimado de ~13%. Perspectiva positiva."},
     "KEPL3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Cenário desafiador: inadimplência rural elevada e crédito agrícola travado reduzem investimentos em armazenagem. Clientes endividados adiam expansões. 2026 deve ser ano de contração de receita — aguardar estabilização do crédito rural."},
     "SLCE3":  {"icone": "🔴", "cor": "#EF4444", "texto": "Agro em momento crítico: margens comprimidas por queda de commodities, câmbio desfavorável e clima incerto. Produtores endividados e sem apetite a risco. 2026 deve trazer queda de receita e resultado — cautela máxima."},
     "RANI3":  {"icone": "✅", "cor": "#22C55E", "texto": "Embalagens de papel com demanda resiliente e crescente. Expansão de capacidade em andamento. Perspectiva positiva para 2026."},
@@ -972,7 +972,7 @@ OUTLOOK_2026 = {
     "SBSP3":  {"icone": "✅", "cor": "#22C55E", "texto": "Pós-privatização acelerando investimentos. Perspectiva positiva de médio prazo, mas 2026 ainda é ano de transição e reorganização."},
     "SAPR4":  {"icone": "✅", "cor": "#22C55E", "texto": "Saneamento com demanda inelástica. Perspectiva estável. Revisão tarifária pendente pode ser catalisador positivo em 2026."},
     "CSMG3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Ainda pública. Privatização em discussão pode ser catalisador, mas risco político de MG é relevante. Perspectiva neutra."},
-    "AXIA3":  {"icone": "✅", "cor": "#22C55E", "texto": "Fibra óptica em expansão acelerada. Demanda por conectividade crescente e estrutural. Perspectiva positiva para 2026."},
+    "AXIA3":  {"icone": "✅", "cor": "#22C55E", "texto": "2T26 normaliza após o 1T26 excepcional: lucro ajustado R$1,61bi (+9,5% A/A) e EBITDA R$6,3bi (+22,5% A/A), com a descotização das usinas seguindo como motor (margem de geração em alta, GSF ~99%). Transmissão em novo ciclo de investimento e melhora das participações (ISA pagou R$1,17bi à Axia). Genial mantém compra (TIR implícita 11,2%, EV/EBITDA 5,5x); BTG vê 'chuva de dividendos'. Empresa saiu da NYSE. Perspectiva positiva; risco hidrológico/El Niño no radar."},
     "B3SA3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Dependente do volume de negociação. Juros altos reduzem fluxo para renda variável. Melhora depende de queda de juros e volta do PF — perspectiva neutra para 2026."},
     "BRBI11": {"icone": "✅", "cor": "#22C55E", "texto": "Banco de investimento em crescimento. Perspectiva positiva dependente do ambiente de M&A e mercado de capitais em 2026."},
     "CYRE3":  {"icone": "⚠️", "cor": "#D4AF37", "texto": "Bonificação em PN especiais (criada pra antecipar valor antes da tributação de dividendos a partir de 2026) provocou queda nos papéis na virada do ano. Negócio segue sólido e diversificado, mas atenção à diluição e à reação do mercado à nova estrutura de capital."},
@@ -1128,142 +1128,46 @@ ANALISE_RESULTADO = {
                    "paradas programadas.",
     },
     "PSSA3": {
-        "trimestre": "1T26", "data": "07/05/2026",
-        "numeros": "Lucro líquido total R$1,13bi (+36,3% A/A) — lucro recorrente de "
-                   "R$958mi (+15,1% A/A), 8% acima do consenso. ROAE de 29,0% (vs 23,9% "
-                   "no 1T25). Receita total R$10,58bi (+8,8% A/A).",
-        "pontos_fortes": "Quinto trimestre consecutivo de crescimento de dois dígitos no "
-                   "lucro recorrente. Vertical Seguro entregou lucro de R$467mi (+49% A/A) "
-                   "com melhora de sinistralidade (índice combinado caiu 4 p.p., para 85%). "
-                   "Saúde cresceu 20% no lucro, com 858 mil vidas (+22%). Bank cresceu 10% "
-                   "no lucro mesmo com custo de crédito mais alto, puxado por carteira "
-                   "+13,7%.",
-        "pontos_fracos": "Resultado financeiro caiu ~20% (R$307mi vs R$382,6mi), por "
-                   "rolagem de títulos a taxas melhores — efeito esperado se revertendo "
-                   "nos próximos trimestres. Perdas de crédito no Bank subiram 44,3% A/A, "
-                   "sinal de ambiente de crédito mais desafiador. Parte da melhora do ROAE "
-                   "recorrente veio de uma alíquota de impostos menor, não só de operação "
-                   "mais lucrativa.",
-        "expectativa": "Casas de análise avaliam o resultado como positivo, com "
-                   "diversificação (Saúde + Bank) sustentando o crescimento enquanto o "
-                   "Seguro Auto (negócio principal histórico) enfrenta crescimento mais "
-                   "limitado por já ser líder de mercado. Guidance da própria empresa para "
-                   "2026 mantido: Seguro +3-7% em prêmios, Saúde +14-22%, Bank entre "
-                   "R$7,5-7,9bi em receita.",
+        "trimestre": "2T26", "data": "07/08/2026",
+        "numeros": "Lucro líquido recorrente consolidado R$889mi (+1,2% A/A) — em linha com o consenso. ROAE recorrente 22,3% (-2,3 p.p. A/A), acima de 20% pelo 8º trimestre seguido. Receita total ~R$11bi (+10,4% A/A). No 1S26, lucro R$2,01bi (+17,7% A/A).",
+        "pontos_fortes": "Núcleo de seguros resiliente: Porto Seguro (seguros gerais) lucrou R$455,8mi (+4,9% A/A, ROAE 32,9%) e Porto Saúde R$143,9mi (+36,4% A/A, ROAE 24%). Diversificação de verticais e eficiência sustentam ROE elevado mesmo em ciclo de crédito adverso.",
+        "pontos_fracos": "O elo fraco foi o Porto Bank: lucro R$137,8mi (-32,5% A/A, ROAE caiu para 16,3%), com perdas de crédito significativamente acima do esperado e postura mais conservadora de provisão. Sazonalidade mais forte de sinistralidade no Saúde e maiores despesas administrativas também pressionaram a base sequencial.",
+        "expectativa": "Tese sólida: a força do seguro compensou o ciclo de crédito mais desafiador, mantendo o ROE acima de 20% de forma consistente (8º tri). Perspectiva positiva, com atenção à evolução das perdas de crédito no Porto Bank e à sinistralidade climática. Momento operacional segue bom.",
     },
     "BBSE3": {
-        "trimestre": "1T26", "data": "04/05/2026",
-        "numeros": "Lucro líquido gerencial R$2,2bi (+11,2% A/A), dentro do esperado pelo "
-                   "mercado. Resultado financeiro combinado R$507,1mi (+58,5% A/A), "
-                   "respondendo por ~23% do lucro total.",
-        "pontos_fortes": "Brasilprev (previdência) foi o destaque: lucro +51% A/A "
-                   "(R$538,1mi), puxado por melhora de 716% no resultado financeiro "
-                   "(redução do custo do passivo) e alta de 7% no resultado operacional. "
-                   "Brasilcap (capitalização) também subiu 50,6% (R$81,3mi). Sinistralidade "
-                   "da Brasilseg seguiu em patamar historicamente baixo. Reservas de "
-                   "previdência avançaram 9,1%.",
-        "pontos_fracos": "Brasilseg (maior negócio, seguros) mostrou crescimento fraco — "
-                   "lucro +1% apenas, com prêmios emitidos caindo 2,3% (segmento agrícola "
-                   "-27,9% e penhor rural -14,2%, refletindo piora do agronegócio). O "
-                   "resultado depende cada vez mais do resultado financeiro (juros), não "
-                   "do crescimento operacional puro — em cenário de juros mais baixos, "
-                   "esse suporte desaparece.",
-        "expectativa": "Crescimento dentro do guidance da própria empresa, mas perto do "
-                   "piso (prêmios -2,3% vs faixa de -3% a +2%) — pouca margem de segurança "
-                   "se o agro continuar fraco. JPMorgan cortou preço-alvo após o 4T25 fraco "
-                   "e mantém venda; outras casas (Nord) seguem compradas, citando P/L de 7x "
-                   "(abaixo da média histórica de 13,5x) e dividend yield de ~12-13%.",
+        "trimestre": "2T26", "data": "03/08/2026",
+        "numeros": "Lucro líquido gerencial recorrente R$2,151bi (-3,9% A/A, -3,1% T/T) — levemente acima do consenso (~R$2,1bi). Resultado financeiro combinado R$386mi (-16,7% A/A). Conselho aprovou R$3,85bi em dividendos intercalares referentes ao 1S26.",
+        "pontos_fortes": "Modelo capital-light resistiu ao agro: apesar da queda de ~6% na receita da BrasilSeg (prêmio agrícola -42,5%, penhor rural -11%), a diversificação para outros ramos e a maior receita de aplicações na holding (saldo médio maior) seguraram o resultado. Dividendo robusto mantido — a tese de renda foi preservada.",
+        "pontos_fracos": "Tríplice pressão no trimestre: BrasilPrev (queda do resultado financeiro, marcação a mercado negativa de títulos e IGP-M correndo acima do IPCA), BB Corretora (menor corretagem, sobretudo em capitalização) e BrasilSeg (menor prêmio ganho). Selic alta é vetor frustrante para venda de seguros. A exposição ao ciclo do agro via rede do BB continua no radar.",
+        "expectativa": "A tese defensiva de renda continua de pé, mas perdeu parte do brilho: o mercado passou a questionar se a BBSE ainda é a 'ação defensiva' de sempre num cenário de prêmios agrícolas fracos. O resultado veio dentro do esperado dada a conjuntura. Monitorar a recuperação dos prêmios da BrasilSeg e a sinistralidade climática.",
     },
     "ITUB4": {
-        "trimestre": "1T26", "data": "05/05/2026",
-        "numeros": "Lucro líquido recorrente R$12,28bi (+10,4% A/A, -0,3% T/T) — levemente "
-                   "acima do consenso (R$12,19bi). ROE de 24,8% (+2,3 p.p. A/A). Carteira "
-                   "de crédito R$1,48tri (+7,2% A/A, +9% A/A ex-câmbio).",
-        "pontos_fortes": "ROE no Brasil de 26,4% — bem acima de pares (Santander reportou "
-                   "16% no mesmo trimestre). Índice de eficiência de 34,4%, o menor da "
-                   "série histórica do banco. Crescimento da carteira concentrado em "
-                   "linhas colateralizadas (consignado +4,4% T/T, imobiliário +3,3% T/T) "
-                   "— menos risco. Receitas de serviços e seguros cresceram 5,3% em 12 "
-                   "meses (administração de recursos +15,1%, seguros +17,2%).",
-        "pontos_fracos": "Lucro ficou estável/levemente menor (-0,3% T/T) por sazonalidade "
-                   "do 1T (menos dias úteis) e antecipação do pagamento de dividendos no "
-                   "fim de 2025 (que reduziu o patrimônio disponível pra gerar receita). "
-                   "Custo de crédito subiu 4,5% A/A (R$10bi), refletindo maior pressão no "
-                   "varejo. CEO sinalizou 2026 como ano que 'exige cautela e disciplina' "
-                   "no crédito.",
-        "expectativa": "Casas de análise (Genial, BTG) mantêm recomendação de compra, "
-                   "vendo 2026 como 'ano de transição' com crescimento mais moderado que "
-                   "os anos anteriores excepcionais, mas tese estrutural intacta — "
-                   "guidance da própria empresa aponta lucro de ~R$51bi pro ano "
-                   "(crescimento de dígito baixo). Banco vai saindo do varejo na Colômbia "
-                   "para focar só no atacado, melhorando rentabilidade internacional.",
+        "trimestre": "2T26", "data": "04/08/2026",
+        "numeros": "Lucro líquido recorrente gerencial R$12,4bi (+7,8% A/A, +1,0% T/T) — em linha com o consenso (~R$12,4-12,5bi). No 1S26, R$24,7bi (+9,1% A/A). ROE consolidado 24,3% (25,7% no Brasil; América Latina só 12,3%). Carteira R$1.522bi (+9,6% A/A, +2,7% T/T; +10,3% ex-câmbio). CET1 subiu para 12,3%.",
+        "pontos_fortes": "Inadimplência 90d cravada em 1,9% (estável A/A e T/T) mesmo com a carteira crescendo 9,6% — crescimento nas linhas certas: consignado privado +90,1% A/A (crédito CLT), imobiliário PF +13,3% A/A. Custo do crédito sobre carteira parado em 2,7% há seis trimestres — cresce sem deteriorar qualidade. Índice de eficiência 37,4% (35,5% no Brasil), entre os melhores do mundo. ROE roda ~10 p.p. acima do Ke (~14,75% a.a., agora explicitado pelo banco); criação de valor +23% no 1S26 A/A.",
+        "pontos_fracos": "Único item do guidance revisado para baixo: receita de serviços e seguros, de '5,0-9,0%' para '2,0-5,0%'. Conta corrente PF caiu -7,4% T/T — mas o corte nasce em boa parte de escolha estratégica (isenção de tarifas do programa Mais Vantagens), não de perda de competitividade. Base de comparação alta (ROE 24%+, eficiência recorde) eleva a barra para surpresas. LatAm segue diluindo o retorno consolidado (ROE 12,3% + câmbio adverso).",
+        "expectativa": "Casas (XP, Genial, BBI, Goldman, Morgan Stanley) mantêm leitura positiva: resultado 'difícil de contestar', mas o debate migra de eficiência operacional (já provada) para onde vem a próxima avenida de crescimento num macro menos favorável. Guidance de carteira (5,5-9,5%), margem com clientes (5-9%) e custo de crédito (R$38,5-43,5bi) foram mantidos. Tese estrutural intacta — o desafio nunca foi a qualidade do banco, e sim o preço pago por ela (P/VP elevado).",
     },
     "BBAS3": {
-        "trimestre": "1T26", "data": "13/05/2026",
-        "numeros": "Lucro líquido ajustado R$3,4bi (-53,5% A/A, -40,2% T/T) — dentro do "
-                   "esperado pelo mercado, mas mostra deterioração real. ROE caiu para "
-                   "7,3% (de 16,7% no 1T25) — bem abaixo de todos os bancos privados pares.",
-        "pontos_fortes": "Margem financeira bruta cresceu 14,8% A/A (R$27,4bi), mostrando "
-                   "que a geração de receita 'bruta' do banco continua forte. Carteira de "
-                   "pessoa física cresceu 8%, puxada por consignado privado. Receitas de "
-                   "prestação de serviços subiram 5,5%.",
-        "pontos_fracos": "Custo de crédito disparou 85,8% A/A (R$18,9bi), com inadimplência "
-                   "rural subindo para 6,22% e custeio rural a 10,56% — a pior leitura em "
-                   "anos do segmento. PJ encolheu (-6% A/A), puxado por MPME (-10%) e "
-                   "grandes empresas (-9%). O banco cortou o guidance de lucro de 2026 de "
-                   "R$22-26bi para R$18-22bi, reconhecendo que o problema do agro deve "
-                   "continuar pressionando os próximos trimestres.",
-        "expectativa": "Casas de análise adotaram postura mais neutra/cautelosa. O corte "
-                   "de guidance reduziu a visibilidade sobre quando o lucro deve se "
-                   "recuperar; o banco intensificou medidas de cobrança e uso de garantias, "
-                   "mas a CEO reconheceu que 'o primeiro semestre tende a ser mais "
-                   "apertado'. Dividend yield deve ficar pressionado no curto prazo "
-                   "(payout de 30% sobre lucro menor).",
+        "trimestre": "2T26", "data": "13/08/2026",
+        "numeros": "Lucro líquido recorrente R$3,9bi (+3,3% A/A, +13,9% T/T) — acima do consenso (~R$3,5bi). ROE de ~8,3-8,4% (subiu dos 7,3% do 1T26, mas ainda ~1 p.p. abaixo do 2T25). Margem financeira bruta R$27,5bi. Receitas de serviços R$9,1bi (+4,2% A/A). Aprovou R$584,9mi em JCP complementar.",
+        "pontos_fortes": "O fluxo de novos atrasos do agro desacelerou forte: New NPL caiu de R$7,18bi para R$5,72bi (quase metade do pico do 4T25), e a cobertura desses novos NPLs subiu de 102,9% para 145,9%. Custo do crédito recuou 2,1% T/T. Tesouraria firme (~R$9bi). Guidance 2026 mantido; gestão sinaliza mudança de mix para reduzir dependência do agro e concentrar em PF de maior renda e mais garantias.",
+        "pontos_fracos": "A qualidade da carteira segue como o problema central: inadimplência 90d subiu para 5,61% (+1,65 p.p. A/A), com deterioração se espalhando para pessoa física, não só agro. INAD+30d do agro passou de 7,35% para 8,97% e a perda esperada avançou para R$43,7bi (4º trimestre seguido de alta). Ação caiu ~4% no dia. A EQI classificou o BB como a maior decepção da temporada entre os bancões.",
+        "expectativa": "O nó da tese continua: ROE de ~8,3% roda muito abaixo do custo de capital (Ke ~15-16%, ancorado na Selic) — o banco ainda destrói valor na margem, enquanto Itaú (24,3%) e Bradesco (16,2%) rodam acima. BTG e Itaú BBA seguem cautelosos, veem caminho longo até um ROE de meio de ciclo e risco de novas revisões de lucro. Sem catalisador claro de reprecificação de múltiplo no curto prazo.",
     },
     "PETR4": {
-        "trimestre": "1T26", "data": "11/05/2026",
-        "numeros": "Lucro líquido reportado R$32,7bi (+109,9% T/T; -7,2% A/A excluindo "
-                   "eventos não recorrentes, R$23,8bi). Receita líquida R$123,7bi (estável "
-                   "A/A). EBITDA ajustado R$61,7bi (estável A/A). Produção total de óleo e "
-                   "gás 3,23 milhões boed (+16,1% A/A).",
-        "pontos_fortes": "Produção em forte expansão, puxada pelo ramp-up de novas "
-                   "plataformas no pré-sal (Búzios e Mero). ROE de 29,3% (melhor que 26,4% "
-                   "em 2025). Refino (RTC) teve desempenho excepcional. Dividendos de R$9bi "
-                   "anunciados, mantendo política de remuneração robusta mesmo com "
-                   "resultado mais fraco.",
-        "pontos_fracos": "Resultado ficou abaixo do consenso (esperado R$30,68bi) porque a "
-                   "alta recente do Brent (por tensão no Oriente Médio) ainda não foi "
-                   "capturada na receita — efeito de defasagem entre exportação e "
-                   "reconhecimento contábil. Lifting cost no pré-sal subiu (câmbio mais "
-                   "valorizado e custos do ramp-up de novas unidades). Geração de caixa "
-                   "veio mais fraca que o esperado, por maior consumo de capital de giro.",
-        "expectativa": "A própria empresa e analistas (Genial, XP) apontam o 2T26 como o "
-                   "trimestre em que o Brent mais alto deve aparecer 'cheio' no resultado "
-                   "— a tese é que o 1T26 foi operacionalmente sólido mas represado "
-                   "contabilmente, com upside represado para frente.",
+        "trimestre": "2T26", "data": "06/08/2026",
+        "numeros": "Lucro líquido R$52,44bi (+96,8% A/A, +60,6% T/T) — bem acima do consenso (~R$44,7-50,8bi); recorrente R$55,8bi. Receita líquida R$169,5bi. EBITDA ajustado R$93,8bi (ex-extraordinários R$100,6bi). Dividendos + JCP de R$17,4bi (R$1,348/ação), acima do esperado.",
+        "pontos_fortes": "Trimestre excepcional em três frentes (o 'hat trick': volume, preço e refino). Produção própria recorde de 3,34 mi boe/d (+14,1% A/A), com entrada da P-79 em Búzios e ganho de eficiência. Brent médio US$104,5 (+54,1% A/A) e lifting cost em queda. Margem de refino em 11% (vs. 6-9% normais). O fluxo de caixa livre praticamente dobrou T/T — o que bancou o dividendo forte.",
+        "pontos_fracos": "Boa parte da força é circunstancial: o Brent de US$104 dificilmente se sustenta no restante do ano, e parte das vendas do 1T26 'escorregou' para o 2T26, inflando a base. Ação caiu ~3% no pregão pós-balanço — a gestão descartou dividendos extraordinários em 2026, frustrando quem apostava nisso. Risco fiscal e de interferência política na política de dividendos permanece.",
+        "expectativa": "Casas divididas: Santander, BTG e Safra positivos; Bradesco BBI cauteloso; Genial em Manter. Tese de renda intacta (o BTG projeta DY de ~10% em 2026-27, podendo chegar a 14% em cenário otimista), mas dependente de petróleo e câmbio. A companhia acertou ao manter os 'pés no chão' nos proventos, dado que o patamar de preço é circunstancial.",
     },
     "VALE3": {
-        "trimestre": "1T26", "data": "28/04/2026",
-        "numeros": "Lucro líquido atribuível US$1,893bi (+36% A/A, revertendo prejuízo de "
-                   "US$3,844bi no 4T25). Receita líquida US$9,3bi (+14% A/A). EBITDA "
-                   "proforma US$3,89bi (+23% A/A).",
-        "pontos_fortes": "Maior volume de vendas de minério de ferro desde 2018. Cobre com "
-                   "EBITDA +74% A/A. Recordes de produção em múltiplos ativos (S11D, "
-                   "Brucutu, e melhor produção de cobre desde 2017, níquel desde 2020). "
-                   "Fluxo de caixa livre positivo (US$813mi), revertendo trimestre "
-                   "anterior fraco.",
-        "pontos_fracos": "EBITDA ficou abaixo do esperado por algumas casas (Safra viu "
-                   "resultado 'levemente negativo'): geração de caixa livre 44% abaixo da "
-                   "projeção do Safra, por maior necessidade de capital de giro. Custo "
-                   "caixa C1 subiu 12% A/A (US$23,6/tonelada), por valorização do real. "
-                   "Alavancagem subiu para 0,8x dívida líquida/EBITDA, reduzindo a chance "
-                   "de dividendo extraordinário em 2026 segundo o Safra.",
-        "expectativa": "BTG e XP mantêm recomendação de compra, vendo o trimestre como "
-                   "reforço da tese de execução operacional consistente. Vale segue "
-                   "mirando produção de minério de ferro acima de 360 milhões de "
-                   "toneladas/ano até 2030 (+10% vs guidance 2025). Atenção do mercado "
-                   "migra para geração de caixa e disciplina de capex nos próximos "
-                   "trimestres.",
+        "trimestre": "2T26", "data": "30/07/2026",
+        "numeros": "Lucro líquido atribuível US$1,375bi (-35% A/A, -27% T/T). Receita líquida US$10,50bi (+19% A/A). EBITDA ajustado US$3,68bi (+9% A/A); proforma US$4,07bi (+19% A/A), margem 38,7%. FCF US$1,5bi (+49% A/A). Dividendos + JCP de US$1,7bi (~R$2,02/ação, DY anualizado ~5,3%) + recompra de até 100 mi de ações.",
+        "pontos_fortes": "Melhor trimestre operacional em anos: maior produção de minério para um 2T desde 2018 (1S26 em 153,9Mt, rumo ao guidance de 340Mt) e melhor 2T de cobre em 9 anos. Metais básicos saltaram +79% A/A (US$1,289bi) — diversificação ganhando relevância. Receita e geração de caixa fortes; dívida líquida caiu para US$13,17bi.",
+        "pontos_fracos": "Lucro despencou apesar do bom operacional: real mais forte e Brent alto pressionaram custos, levando a Vale a revisar o guidance de C1 2026 para cima (US$22,5-23,5/t, de US$20-21,5/t) — C1 do trimestre em US$24,1/t. Pelotas em erosão (-13% A/A e T/T). Dependência da China e o passivo de Mariana seguem como riscos de fundo.",
+        "expectativa": "Leitura mista: o resultado superou o consenso de EBITDA, mas o mercado tende a focar na revisão de custos. Itaú BBA outperform (TP R$95); Morgan Stanley e XP mais cautelosos (neutro). Genial em Manter, com retorno total de ~20% (upside + DY 6,7%). O swing de curto prazo segue sendo preço do minério e China; a diversificação em metais básicos é o vetor estrutural positivo.",
     },
     "B3SA3": {
         "trimestre": "1T26", "data": "07/05/2026",
@@ -1287,69 +1191,25 @@ ANALISE_RESULTADO = {
                    "juros americanas) ou um novo patamar — o 2T26 deve esclarecer.",
     },
     "BPAC11": {
-        "trimestre": "1T26", "data": "11/05/2026",
-        "numeros": "Lucro líquido ajustado recorde R$4,8bi (+42% A/A), acima do consenso "
-                   "(R$4,58bi). Receita total recorde R$9,97bi (+34% A/A). ROE de 26,6% "
-                   "(+3,4 p.p. A/A).",
-        "pontos_fortes": "Diversificação ampla: Wealth Management (+44,6% A/A, receita "
-                   "recorde R$1,52bi), Corporate Lending (+20,7% A/A, carteira R$281bi), "
-                   "Sales & Trading (+43% A/A). Consolidação do Banco PAN criou nova "
-                   "vertical de Consumer Finance & Banking (+40% A/A). Índice de "
-                   "eficiência controlado em 38,1%, próximo da média histórica.",
-        "pontos_fracos": "Despesas operacionais subiram 25,5% A/A, puxadas por reajustes "
-                   "salariais e maior amortização de ágio das aquisições recentes. "
-                   "Investment Banking desacelerou (-9,3% T/T) por maior volatilidade de "
-                   "mercado. ROE caiu 1 p.p. T/T (de 27,6% no 4T25).",
-        "expectativa": "BTG superou o Itaú em rentabilidade (ROE 26,6% vs 24% do Itaú no "
-                   "mesmo trimestre) — junto com o Itaú, é um dos únicos bancos grandes "
-                   "com ROE consistentemente acima de 20%. Banco também avalia ativos do "
-                   "BRB. Tese de crescimento via diversificação (varejo via Pan/Too "
-                   "Seguros, M&A da Meu Tudo) segue sendo o principal vetor.",
+        "trimestre": "2T26", "data": "04/08/2026",
+        "numeros": "Lucro líquido ajustado recorde R$5,1bi (+22,6% A/A, +6,9% T/T) — acima do consenso (~R$4,86bi). Lucro contábil R$4,9bi. ROAE 26,7% — acima do Itaú (24,3%) e o maior entre os grandes. Receita total recorde R$10,4bi (+15,9% A/A). No 1S26, lucro R$10,0bi (+31,4% A/A). Basileia 16,0%.",
+        "pontos_fortes": "Diversificação entregando em qualquer ambiente: captação líquida de R$59bi, AuM/WuM de R$2,7tri. Corporate Lending com receita recorde de R$2,5bi (+18,7% A/A) e carteira de crédito de R$288,5bi (+21,3%). Consumer Finance & Banking saltou 74% A/A (consignado privado). Menos dependente do ciclo de crédito bancário tradicional que os pares.",
+        "pontos_fracos": "Franquias tradicionais perderam força no trimestre: Investment Banking caiu ~46% (base alta de M&A no 2T25) e Wealth Management desacelerou, refletindo ambiente macro mais adverso e atividade moderada de clientes. ROAE recuou 0,5 p.p. A/A (ainda em patamar altíssimo). Ação caiu no pregão pós-balanço mesmo com o número recorde.",
+        "expectativa": "Tese estrutural reforçada: banco roda ROE muito acima do custo de capital e cresce em receitas recorrentes menos cíclicas. Modelo de partnership e disciplina de risco seguem como diferencial. Aquisições recentes (HSBC Uruguai, parceria MeuTudo) ampliam a plataforma. Uma das melhores perspectivas do setor financeiro para 2026.",
     },
     "CXSE3": {
-        "trimestre": "1T26", "data": "07/05/2026",
-        "numeros": "Lucro líquido gerencial R$1,14bi (+13,2% A/A), maior trimestre da "
-                   "história da empresa. Receita operacional R$1,52bi (+10,3% A/A). ROE "
-                   "de 38%.",
-        "pontos_fortes": "Seguro habitacional (carro-chefe da tese) cresceu 13% A/A em "
-                   "prêmios, ligado à força do crédito imobiliário da Caixa. Sinistralidade "
-                   "de 22,5%, bem melhor que o esperado (-2,1 p.p.). Capitalização com "
-                   "receita de títulos crescendo ~30% A/A. Estoque de cartas de crédito de "
-                   "consórcio +39,1% A/A.",
-        "pontos_fracos": "Seguro prestamista (ligado a crédito pessoal) caiu 21% A/A, "
-                   "pressionado pela Selic alta encarecendo o crédito. 32% do lucro vem do "
-                   "resultado financeiro (juros sobre o caixa) — se a Selic cair, essa "
-                   "fonte de lucro perde força, embora o crédito imobiliário deva ganhar "
-                   "tração em compensação.",
-        "expectativa": "Resultado em linha com a XP e 2% acima do consenso do BTG. Casas "
-                   "de análise mantêm preferência por BBSE3 (P/L menor, dividend yield "
-                   "maior) frente a CXSE3, mas reconhecem a qualidade operacional. "
-                   "Dependência da Caixa Econômica Federal (controladora, >80% do "
-                   "capital) é estrutural.",
+        "trimestre": "2T26", "data": "06/08/2026",
+        "numeros": "Lucro líquido gerencial R$1,14bi (+9,5% A/A, estável T/T). Receitas operacionais R$1,50bi (+8,5% A/A, -1,6% T/T). ROE recorrente 70,9% (+1,3 p.p. A/A, +5,0 p.p. T/T) — extraordinário para qualquer setor. Sinistralidade recuou 0,9 p.p.",
+        "pontos_fortes": "Efeito empilhamento funcionando: crescimento puxado pelos negócios de moradia (seguro habitacional obrigatório via rede da Caixa), previdência e capitalização, com maior contribuição do resultado financeiro das investidas. Vantagem de distribuição da rede Caixa segue incomparável. ROE de ~71% com modelo capital-light.",
+        "pontos_fracos": "Os ramos vida e prestamista tiveram performance fraca no trimestre. Como toda seguradora, é exposta à Selic (impacto no resultado financeiro) e à sinistralidade. Menor diversificação de canal do que seria ideal (dependência estrutural da Caixa).",
+        "expectativa": "Uma das teses mais limpas do setor: recorrência que cresce automaticamente (contratos de 10-35 anos), ROE altíssimo e dividendo consistente. Perspectiva positiva para 2026, com o crescimento da carteira imobiliária da Caixa sustentando a base de prêmios.",
     },
     "AXIA3": {
-        "trimestre": "1T26", "data": "06/05/2026",
-        "numeros": "Lucro líquido ajustado R$3,2bi, revertendo prejuízo de R$409mi no "
-                   "1T25 (quase 8x de melhora). Receita líquida regulatória R$11,6bi "
-                   "(+20-22% A/A). EBITDA ajustado R$8,6bi (+60% A/A), com margem "
-                   "saltando de 56% para 74%.",
-        "pontos_fortes": "Segmento de geração (o mais relevante) teve receita +34-35% "
-                   "A/A, beneficiado pela 'descotização' (venda de energia a preço de "
-                   "mercado em vez de preço de custo regulado) e por preços de energia de "
-                   "longo prazo bem mais altos (R$240/MWh vs R$100-150/MWh nos últimos "
-                   "anos). Redução de R$2,2bi no estoque de provisões do empréstimo "
-                   "compulsório (passivo jurídico histórico). Migração para o Novo "
-                   "Mercado aprovada.",
-        "pontos_fracos": "Segmento de transmissão caiu (~-3 a -11% A/A), por provisão de "
-                   "R$725mi ligada a ativos/passivos de restituição regulatória. Dívida "
-                   "líquida subiu 17% A/A (R$46bi), alavancagem em 1,8-1,9x. Parte "
-                   "relevante do lucro vem de efeitos não-recorrentes (reversão de "
-                   "provisões), não só de operação recorrente.",
-        "expectativa": "Genial mantém compra, citando TIR implícita de 10% real e "
-                   "dividend yield esperado de ~10% para 2026, considerando AXIA3 'Top "
-                   "Pick' do setor de energia. Atenção do mercado: ritmo de crescimento "
-                   "da dívida vs geração de caixa, e transição de liderança executiva "
-                   "(saída de Ivan Monteiro, entrada de Elio Wolff).",
+        "trimestre": "2T26", "data": "05/08/2026",
+        "numeros": "Lucro líquido ajustado R$1,61bi (+9,5% A/A) — normalização frente ao 1T26 excepcional (que carregava grandes reversões de provisão). EBITDA ajustado R$6,3bi (+22,5% A/A; regulatório ~R$6,7bi por Genial). Receita operacional líquida ajustada R$11,1bi (+8,5% A/A). Margem EBITDA ajustada subiu de 50,0% para 56,4%.",
+        "pontos_fortes": "A tese da descotização segue aparecendo nos números: mesmo vendendo menos energia, o melhor preço realizado no ACL, o GSF mais alto (~99%) e o maior volume disponível elevaram a margem de contribuição da geração para R$3,65bi. Transmissão entrando em novo ciclo de investimento (crescimento regulado e previsível). Melhora nas participações societárias (a ISA Energia pagou R$1,17bi à Axia) e menor volume de provisões.",
+        "pontos_fracos": "Resultado financeiro piorou e compensou parte do ganho operacional. EBITDA veio ligeiramente abaixo de algumas casas (ações abriram ~-1%). Risco hidrológico/El Niño no radar. A estrutura ainda está em transição pós-privatização — o equity story depende de descotização + expansão da transmissão + disciplina de alocação de capital se materializando.",
+        "expectativa": "Genial mantém COMPRAR, vendo AXIA3 a uma TIR implícita de 11,2% e EV/EBITDA 26E de 5,5x — barato para a qualidade da gestão. BTG projeta salto de ~26% e 'chuva de dividendos'. Marcos do trimestre: a empresa se despediu da NYSE e aprovou a 2ª operação de resgate/conversão das PNC classe C (AXIA7). Próximo capítulo: descotização + transmissão + remuneração ao acionista sem comprometer investimentos.",
     },
     "CPLE3": {
         "trimestre": "1T26", "data": "05/05/2026",
@@ -1372,24 +1232,11 @@ ANALISE_RESULTADO = {
                    "segue ativa em desinvestimentos de ativos não-core.",
     },
     "ALOS3": {
-        "trimestre": "1T26", "data": "07/05/2026",
-        "numeros": "Lucro líquido R$248,3mi (-2,5% A/A) — ou R$239mi ex-ajuste de "
-                   "aluguel linear. Receita líquida R$683-692mi (+9,8-10,9% A/A). EBITDA "
-                   "ajustado R$502mi (+10,2% A/A).",
-        "pontos_fortes": "Vendas nos shoppings aceleraram (+6,6% A/A), com vendas em "
-                   "mesmas lojas (SSS) de 5,0% (+250 bps A/A) — destaque para Alimentação "
-                   "(+7,9%). Despesas (SG&A) caíram 13% A/A. Excluindo o Shopping Tijuca "
-                   "(fechado temporariamente por incêndio em janeiro), o crescimento de "
-                   "EBITDA seria de 17% e do FFO, 18,2%.",
-        "pontos_fracos": "Lucro ficou estável/levemente negativo por causa de um incêndio "
-                   "no Shopping Tijuca em janeiro/2026 (~2 semanas de operação "
-                   "interrompida) e por despesas financeiras 52% maiores. Taxa de "
-                   "ocupação recuou 0,6 p.p. A/A (96,2%).",
-        "expectativa": "Nord não vê grande atratividade em ALOS3 no momento (negociando "
-                   "a 18x lucros, acima da média histórica) mesmo com dividend yield "
-                   "estimado de 12-13%. Allos segue reciclando portfólio: parceria com a "
-                   "Kinea para criar um fundo imobiliário (até R$2bi), venda do Shopping "
-                   "Curitiba.",
+        "trimestre": "2T26", "data": "06/08/2026",
+        "numeros": "FFO R$340,8mi (+12,0% A/A; +15,8% ex-Tijuca). Receita líquida R$732,3mi (+11,6% A/A). EBITDA ajustado R$525,4mi (+10,5%; +12,7% ex-Tijuca). Lucro líquido gerencial R$294,0mi (+57,7% A/A). FFO/ação R$0,66 (+14% A/A). Alavancagem em 1,7x.",
+        "pontos_fortes": "A tese 'shopping virou plataforma' se confirma: o crescimento veio das pontas de maior alavancagem e menor capital — mídia (Helloo) e desenvolvimento imobiliário. Alicerce firme: ocupação 96,2%, inadimplência líquida caindo para 1,4%, NOI crescendo e SSR real positivo (+3,2%). A empresa cortou despesa, baixou o custo da dívida e gerou caixa.",
+        "pontos_fracos": "Ruído do trimestre: vendas mesmas lojas (SSS) fracas (+2,4%), efeito do incêndio no Shopping Tijuca (cuja expansão foi reaberta no 2T26) e peso dos juros no resultado financeiro. É mais calendário (Copa do Mundo) e macro do que deterioração estrutural — as vendas voltaram a acelerar a partir da 2ª quinzena de julho.",
+        "expectativa": "Perspectiva positiva: o BTG mantém outperform, estimando dividend yield de ~12,9% até o fim de 2026 e TIR real de ~13%. O MOU com a Kinea para um FII (R$790mi-R$1,97bi, até 7 ativos) adiciona vetor de reciclagem de portfólio. Case de extrair mais de cada m² já existente — aluga o piso, vende atenção (mídia) e monetiza terreno.",
     },
     "TIMS3": {
         "trimestre": "1T26", "data": "05/05/2026",
@@ -1411,25 +1258,11 @@ ANALISE_RESULTADO = {
                    "capital mais complexa nos próximos trimestres.",
     },
     "KLBN4": {
-        "trimestre": "1T26", "data": "06/05/2026",
-        "numeros": "Prejuízo líquido de R$497mi, revertendo lucro de R$446mi no 1T25. "
-                   "Receita líquida R$4,9bi (+2% A/A). EBITDA ajustado R$1,67-1,7bi (-9 a "
-                   "-10% A/A), margem caindo de 38% para 34%.",
-        "pontos_fortes": "Volume total vendido cresceu 12% A/A (recorde), com celulose "
-                   "+16%, papel +15%. Containerboard cresceu 31% A/A em volume, puxado "
-                   "por exportação. Dívida bruta caiu R$3,9bi no trimestre (resgate "
-                   "antecipado de green bonds e amortizações).",
-        "pontos_fracos": "Prejuízo veio principalmente de um resultado financeiro muito "
-                   "negativo (-R$570mi, vs -R$158mi no 1T25), por despesas ligadas à "
-                   "liquidação de swap no pagamento antecipado de dívida — efeito "
-                   "praticamente contábil, não operacional. Real mais valorizado (-10% "
-                   "A/A) pressionou receitas de exportação. Alavancagem em 3,1x dívida "
-                   "líquida/EBITDA, ainda elevada.",
-        "expectativa": "JPMorgan rebaixou a recomendação para neutra em abril/2026, "
-                   "citando preços fracos da celulose de fibra curta (preço-alvo R$22). "
-                   "Analistas avaliam o resultado operacional como 'em linha', e "
-                   "reconhecem que o prejuízo contábil (efeitos financeiros pontuais) não "
-                   "deve se repetir necessariamente.",
+        "trimestre": "2T26", "data": "05/08/2026",
+        "numeros": "Lucro líquido R$387mi (-34% A/A, de R$585mi) — mas acima do consenso (~R$371mi). EBITDA ajustado R$1,96bi (-4% A/A, +18% T/T), acima do esperado (~R$1,77bi), margem 38%. Receita líquida R$5,15bi (-2% A/A, +4% T/T). Volume total 1,018 Mt (+1% A/A). Dividendos de R$318mi (R$0,26/Unit).",
+        "pontos_fortes": "Disciplina de custos e mix defensivo seguraram o resultado: custo caixa estável em ~R$3,2 mil/t mesmo com pressão de insumos e combustíveis; papel-cartão forte (volumes de papéis +4%). Recuperação sequencial em celulose, papéis e embalagens após a parada do 1T26. Aumento de preços de celulose em dólar e reajustes em embalagens ajudaram.",
+        "pontos_fracos": "Real mais forte (US$5,67 para US$5,05/US$ A/A) corroeu a conversão da receita de exportação — principal responsável pela queda de lucro. O EBITDA carrega ~R$64-91mi de venda de terras; expurgada a monetização florestal, a comparação anual limpa piora para cerca de -7%. Alavancagem ainda em 3,2x (dívida líquida ~R$24bi).",
+        "expectativa": "Genial resume bem: 'confirmou, não superou'. Operação resiliente e menos cíclica que pares, mas a geração de caixa (com Puma II ainda maturando e alavancagem elevada) é o ponto a acompanhar. Tese estrutural de demanda por embalagens de papel segue intacta; o câmbio é o swing factor de curto prazo.",
     },
     "CYRE3": {
         "trimestre": "1T26", "data": "14/05/2026",
@@ -1537,20 +1370,11 @@ ANALISE_RESULTADO = {
                    "do banco persistindo.",
     },
     "SANB3": {
-        "trimestre": "1T26", "data": "29/04/2026",
-        "numeros": "Lucro líquido recorrente R$3,78bi (-1,9% A/A, -7,3% T/T) — abaixo "
-                   "do consenso (R$4,066bi). Margem financeira R$15,8bi (+3,1% T/T).",
-        "pontos_fortes": "Índice de eficiência em 37,7% (melhora de 1,1 p.p. T/T). "
-                   "Margem financeira com o mercado (tesouraria) melhorou 48,1% T/T, "
-                   "mesmo ainda negativa. Custo de crédito estável em 3,73%.",
-        "pontos_fracos": "Normalização da carga tributária (alíquota efetiva subiu pra "
-                   "15-17%, depois de trimestres com alíquota atipicamente baixa) "
-                   "pressionou o lucro. Banco manteve postura conservadora na concessão "
-                   "de crédito, limitando crescimento da carteira no curto prazo.",
-        "expectativa": "CEO defende que 'pagar mais imposto é bom sinal' (reflete maior "
-                   "lucro antes de impostos) e mantém meta de ROE de 20%. UBS BB segue "
-                   "vendo motivos para investir na história, mesmo com mercado menos "
-                   "otimista após o trimestre.",
+        "trimestre": "2T26", "data": "29/07/2026",
+        "numeros": "Lucro líquido gerencial recorrente R$3,0bi (-17,6% A/A, -20,4% T/T) — bem abaixo do consenso (~R$3,4-3,5bi). ROAE 12,5% (-3,8 p.p. A/A, -3,4 p.p. T/T), menor patamar em 3 anos e agora abaixo do custo de capital (Selic 14,25%). Receita total R$20,7bi (-2,7% A/A). Ação caiu ~7% no dia.",
+        "pontos_fortes": "Carteira ampliada cresceu (R$714,7bi, +5,8% T/T), puxada por financeira e grandes empresas, e as receitas de serviços seguem resilientes em algumas linhas. O lucro foi 'salvo' por um ganho na linha de impostos — sem ele, o resultado antes de impostos teria caído cerca de 45%.",
+        "pontos_fracos": "Deterioração ampla: PDD subiu 20,6% para R$7,6bi e a margem financeira com clientes comprimiu (spread -40 bps), sem justificativa clara segundo o JPMorgan. A meta de ROE de 20% (até 2028) ficou mais distante. JPMorgan rebaixou para neutra (TP R$30) e cortou estimativas de lucro 2026-27 em 13%; BB-BI neutra (TP R$31,60).",
+        "expectativa": "Tese sem gatilho: rodando ROE abaixo do Ke e negociando a ~1x P/VP, o banco não oferece prêmio de rentabilidade que justifique a exposição no curto prazo. Sem sinais claros de mudança de trajetória, o mercado segue cauteloso. Pano de fundo estrutural: a matriz espanhola formalizou proposta para fechar o capital do Santander Brasil (troca por BDR/ADR com prêmio ~15%) — item que passa a dominar a dinâmica da ação.",
     },
     "BMGB4": {
         "trimestre": "1T26", "data": "maio/2026",
@@ -1942,32 +1766,11 @@ ANALISE_RESULTADO = {
                    "bancos/casas de research, que praticamente não cobrem o papel.",
     },
     "BBDC3": {
-        "trimestre": "1T26", "data": "06/05/2026",
-        "numeros": "Lucro líquido recorrente R$6,8bi (+16,1% A/A, +4,5% T/T) — nono "
-                   "trimestre consecutivo de melhora. ROE de 15,4-15,8%. Receitas "
-                   "totais R$36,9bi (+14% A/A).",
-        "pontos_fortes": "Margem financeira com clientes cresceu 16,3% A/A (R$19,49bi). "
-                   "Unidade de Seguros entregou R$2,8bi de lucro (+13% A/A), "
-                   "representando ~41% do lucro total do grupo. Índice de eficiência "
-                   "caiu para 49,2% (melhora de 2,6 p.p.). O evento mais importante do "
-                   "trimestre não está nem no resultado: a cisão da BradSaúde (SAUD3) "
-                   "foi concluída em maio/2026, com o ativo saindo do balanço do banco "
-                   "a R$14bi para ser avaliado em R$49bi — um ganho de capital "
-                   "potencial de R$35bi.",
-        "pontos_fracos": "Provisões para devedores duvidosos aumentaram, com custo de "
-                   "risco subindo para 3,5%, puxado por um caso específico no Atacado "
-                   "(grandes empresas) e normalização gradual da inadimplência. "
-                   "Deterioração pontual em carteiras mais antigas de crédito rural. "
-                   "Ação caiu quase 4% no dia da divulgação, mesmo com lucro acima do "
-                   "esperado — mercado reagiu à qualidade de crédito, não ao resultado "
-                   "em si.",
-        "expectativa": "Genial mantém compra (preço-alvo R$25), citando a reorganização "
-                   "da BradSaúde como destravamento de capital relevante — o banco "
-                   "ainda detém 91,35% da nova empresa, e uma eventual venda parcial "
-                   "futura (o free float de 8,65% está abaixo do mínimo de 20% do Novo "
-                   "Mercado) pode liberar ainda mais capital. BTG classificou o "
-                   "trimestre como 'forte', destacando ser o único entre os grandes "
-                   "bancos com crescimento sequencial de lucro.",
+        "trimestre": "2T26", "data": "05/08/2026",
+        "numeros": "Lucro líquido recorrente R$7,05bi (+16,2% A/A, +3,5% T/T) — 10º trimestre seguido de alta, acima do consenso (~R$6,9bi). ROE/ROAE 16,2% (+1,4 p.p. A/A, +0,2 p.p. T/T), voltando a superar o custo de capital. Carteira R$1,1-1,14tri (+11,6% A/A). Margem financeira R$20,8bi (+15,7% A/A). Basileia 15,5%, capital principal 11,3%.",
+        "pontos_fortes": "Turnaround consolidado: crescimento de carteira concentrado em linhas garantidas (capital de giro colateralizado, consignado privado, crédito rural no atacado) — melhor relação risco-retorno. Grupo segurador forte: lucro R$2,9bi (+28,3% A/A, ROAE 22,8%). Despesas controladas e ganho contínuo de eficiência. Principal surpresa positiva entre os grandes bancos na visão de XP e Itaú BBA.",
+        "pontos_fracos": "A barra subiu: depois de 10 trimestres de recuperação, o desafio deixou de ser 'voltar a crescer' e passou a ser acelerar num ambiente macro mais difícil (juros altos por mais tempo). O próximo estágio da tese depende de transformar a expansão da carteira em margem líquida do custo de crédito sem deteriorar a qualidade dos ativos. Apetite a risco mantido moderado às vésperas de eleições.",
+        "expectativa": "XP e Itaú BBA colocam o Bradesco como um dos destaques positivos do setor. Genial elevou o preço-alvo para R$24 e mantém recomendação de compra, vendo rentabilidade inercial ainda a capturar via execução da transformação organizacional. Tese de recuperação intacta; o ROE avançando de forma consistente rumo aos níveis históricos do banco é o termômetro a acompanhar.",
     },
 }
 
