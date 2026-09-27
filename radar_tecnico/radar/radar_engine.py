@@ -392,7 +392,8 @@ def lente_opcoes(an: Analise) -> list[str]:
             out.append(f"Vol realizada em nível médio (HV20 {an.hv20*100:.0f}%, percentil {an.hv_pct*100:.0f}).")
     if an.mov_esperado:
         up, dn = an.preco + an.mov_esperado, an.preco - an.mov_esperado
-        t = f"Movimento esperado (1 desvio) até o vencimento de {an.venc:%d/%m} ({an.dias_venc} dias): ±{brl(an.mov_esperado)} ({str(round(an.mov_esperado/an.preco*100,1)).replace(".", ",")}%), de {brl(dn)} a {brl(up)}."
+        mov_pct = str(round(an.mov_esperado / an.preco * 100, 1)).replace(".", ",")
+        t = f"Movimento esperado (1 desvio) até o vencimento de {an.venc:%d/%m} ({an.dias_venc} dias): ±{brl(an.mov_esperado)} ({mov_pct}%), de {brl(dn)} a {brl(up)}."
         if an.suporte:
             t += f" Suporte {brl(an.suporte.high)} " + ("fica fora" if an.suporte.high < dn else "fica dentro") + " dessa faixa;"
         if an.resistencia:
