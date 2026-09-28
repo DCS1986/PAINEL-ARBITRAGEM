@@ -2,8 +2,9 @@ name: Radar - leituras para a planilha
 
 on:
   schedule:
-    - cron: "30 21 * * 1-5"   # 18h30 de Brasília, depois do fechamento
-    - cron: "0 11 * * 1-5"    # 08h00 de Brasília, antes da abertura
+    - cron: "*/30 13-20 * * 1-5"  # a cada 30 min durante o pregão (10h00 às 17h30 de Brasília)
+    - cron: "30 21 * * 1-5"       # 18h30 de Brasília, depois do fechamento
+    - cron: "0 11 * * 1-5"        # 08h00 de Brasília, antes da abertura
   workflow_dispatch:           # botão "Run workflow" para rodar à mão
 
 permissions:
