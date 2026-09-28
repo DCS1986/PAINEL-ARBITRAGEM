@@ -34,7 +34,9 @@ def _pct(x):
     return f"{x*100:.1f}%".replace(".", ",")
 
 def _alvo(direcao, entrada, stop, zonas, extra=None, dist_max=None):
-    """Primeira região real (zona com 2+ toques ou extremo) que dá pelo menos RR_MIN, dentro do alcance do horizonte."""
+    """O alvo é o PRIMEIRO obstáculo no caminho (região com 2+ toques ou média de 50/200 dias).
+    Se esse primeiro obstáculo não paga pelo menos RR_MIN, não há operação: pular para um obstáculo mais distante
+    seria fingir que o do meio do caminho não existe."""
     risco = abs(entrada - stop)
     cands = []
     for z in zonas:
@@ -42,16 +44,19 @@ def _alvo(direcao, entrada, stop, zonas, extra=None, dist_max=None):
             cands.append((z.low, f"resistência em {_brl(z.low)} ({z.toques} toque{'s' if z.toques > 1 else ''})"))
         if direcao == "baixa" and z.high < entrada:
             cands.append((z.high, f"suporte em {_brl(z.high)} ({z.toques} toque{'s' if z.toques > 1 else ''})"))
-    if extra:
-        cands.append(extra)
+    for preco, nome in (extra or []):
+        if (direcao == "alta" and preco > entrada) or (direcao == "baixa" and preco < entrada):
+            cands.append((preco, nome))
     cands.sort(key=lambda x: x[0], reverse=(direcao == "baixa"))
-    for preco, nome in cands:
-        rr = abs(preco - entrada) / risco if risco > 0 else 0
-        if dist_max is not None and abs(preco - entrada) > dist_max:
-            return None, None, 0     # a primeira região boa está longe demais para o prazo
-        if rr >= RR_MIN:
-            return preco, nome, rr
-    return None, None, 0
+    if not cands or risco <= 0:
+        return None, None, 0
+    preco, nome = cands[0]                       # o primeiro obstáculo, e só ele
+    rr = abs(preco - entrada) / risco
+    if rr < RR_MIN:
+        return None, None, 0                     # há um obstáculo perto demais: a assimetria não existe
+    if dist_max is not None and abs(preco - entrada) > dist_max:
+        return None, None, 0                     # o primeiro obstáculo está longe demais para o prazo
+    return preco, nome, rr
 
 def _explicacoes(direcao, setup, gatilho, stop, alvo, alvo_nome, ref_txt, atr, tf_nome, horizonte, mov=None, dias_h=None):
     compra = direcao == "alta"
@@ -118,7 +123,13 @@ def gerar(cascata, agora: pd.Timestamp, eventos=None, horizontes=("SWING", "CURT
         teto = (6 if horizonte == "SWING" else 1.5) * atr_d
         if mov:
             teto = min(teto, mov * (1.0 if ev else 1.5))   # com evento binário no caminho, só alvos dentro de 1 desvio
-        alvo, alvo_nome, rr = _alvo(direcao, gat, stop, zonas, extra_alvo, dist_max=teto)
+        medias = []
+        if D:
+            for col, nome_m in (("SMA50", "média de 50 dias"), ("SMA200", "média de 200 dias")):
+                v = D.an.df[col].iloc[-1]
+                if not math.isnan(v):
+                    medias.append((float(v), f"{nome_m} em {_brl(v)}"))
+        alvo, alvo_nome, rr = _alvo(direcao, gat, stop, zonas, medias, dist_max=teto)
         if alvo is None:
             return   # sem assimetria real até uma região alcançável
         pe, ps, pa, asm, rr = _explicacoes(direcao, setup, gat, stop, alvo, alvo_nome, ref, an.atr, tfL.nome, horizonte, mov, dias_h)
