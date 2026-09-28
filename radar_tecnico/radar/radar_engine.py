@@ -460,3 +460,100 @@ def semanal(df: pd.DataFrame) -> pd.DataFrame:
     if "Volume" in df:
         agg["Volume"] = "sum"
     return df.resample("W-FRI").agg(agg).dropna(subset=["Close"])
+
+
+# ------------------------------------------------------------------ plano do dia (cenário -> estrutura)
+def plano(an: Analise, mercado: str | None = None) -> dict:
+    """Junta tendência + localização + vol + evento numa leitura objetiva de cenário.
+    Segue os princípios: vol alta -> vender prêmio; vol baixa -> comprar; nunca comprar Δ baixo em vol alta."""
+    d_sup = (an.preco - an.suporte.high) / an.atr if an.suporte else 99
+    d_res = (an.resistencia.low - an.preco) / an.atr if an.resistencia else 99
+    nomes = {s.nome for s in an.sinais}
+    rompeu = any(n.startswith("Rompimento") for n in nomes)
+    perdeu = any(n.startswith("Perda de suporte") for n in nomes)
+    comprimido = "Volatilidade comprimida" in nomes
+    if rompeu:
+        local = "rompendo resistência"
+    elif perdeu:
+        local = "perdendo suporte"
+    elif d_sup <= 1:
+        local = "no suporte"
+    elif d_res <= 1:
+        local = "na resistência"
+    else:
+        local = "no meio do caminho"
+    if math.isnan(an.hv_pct):
+        vol = "média"
+    else:
+        vol = "alta" if an.hv_pct >= 0.7 else ("baixa" if an.hv_pct <= 0.3 else "média")
+    alta, baixa = an.tendencia.startswith("Alta"), an.tendencia.startswith("Baixa")
+    sup = brl(an.suporte.low) if an.suporte else "o suporte"
+    res = brl(an.resistencia.high) if an.resistencia else "a resistência"
+
+    vies, opc, vista, nota = "neutro", "", "", 0   # nota: 0 = sem vantagem, 1 = observar, 2 = cenário claro
+    if alta and local in ("no suporte", "rompendo resistência"):
+        vies, nota = "alta", 2
+        vista = f"Compra com stop abaixo de {sup}." if local == "no suporte" else "Compra no reteste da região rompida."
+        opc = (f"Venda de put com strike abaixo de {sup} (vol alta paga bem)." if vol == "alta"
+               else "Compra de call ATM ou ITM (Δ ≥ 60); evite call barata de Δ baixo.")
+    elif baixa and local in ("na resistência", "perdendo suporte"):
+        vies, nota = "baixa", 2
+        vista = "Evitar compra; quem tem o papel pode proteger." if local == "na resistência" else "Evitar compra até formar fundo."
+        opc = (f"Venda de call com strike acima de {res} (vol alta paga bem)." if vol == "alta"
+               else "Compra de put ATM ou ITM (Δ ≥ 60).")
+    elif alta and local == "na resistência":
+        vies, nota = "alta", 1
+        vista, opc = "Esperar: pouco espaço até a resistência.", "Esperar o rompimento confirmado (fechamento acima com volume)."
+    elif baixa and local == "no suporte":
+        vies, nota = "baixa", 1
+        vista, opc = "Esperar: preço chegando em região de defesa.", "Esperar a perda do suporte ou um sinal de reversão."
+    elif alta and local == "perdendo suporte":
+        vies, nota = "alta", 1
+        vista = "Alerta: tendência de alta perdendo suporte. Quem está comprado revisa o stop; nova compra só após recuperar a região."
+        opc = "Rever calls compradas e puts vendidas próximas; não abrir nova posição de alta agora."
+    elif baixa and local == "rompendo resistência":
+        vies, nota = "baixa", 1
+        vista = "Possível reversão: rompeu resistência dentro de tendência de baixa. Esperar confirmação (fundo mais alto)."
+        opc = "Rever calls vendidas próximas; não abrir nova posição de baixa agora."
+    elif alta or baixa:
+        vies, nota = ("alta" if alta else "baixa"), 1
+        alvo_pull = "até a MME21 ou o suporte" if alta else "até a MME21 ou a resistência"
+        vista = f"Tendência de {vies}, mas o preço está longe das regiões: esperar recuo {alvo_pull}."
+        opc = ("Vol alta: venda do lado da tendência, longe do preço." if vol == "alta"
+               else "Esperar o preço vir até a região para ter stop curto.")
+    else:  # lateral
+        if local == "rompendo resistência":
+            vies, nota = "alta", 1
+            vista = "Saindo da lateral para cima: compra no reteste da região rompida."
+            opc = "Vol baixa/média: compra de call ATM. Vol alta: venda de put abaixo da região rompida."
+        elif local == "perdendo suporte":
+            vies, nota = "baixa", 1
+            vista = "Saindo da lateral para baixo: evitar compra."
+            opc = "Vol baixa/média: compra de put ATM. Vol alta: venda de call acima da região perdida."
+        elif local == "no suporte":
+            nota = 1
+            vista = f"Lateral, encostado no suporte: compra com stop curto abaixo de {sup} e alvo na resistência {res}."
+            opc = f"Vol alta: venda de put abaixo de {sup}. Vol baixa: compra de call ATM com alvo na resistência."
+        elif local == "na resistência":
+            nota = 1
+            vista = f"Lateral, encostado na resistência {res}: não é ponto de compra."
+            opc = f"Vol alta: venda de call acima de {res}. Vol baixa: compra de put ATM com alvo no suporte."
+        elif comprimido:
+            nota = 1
+            vista = f"Lateral e comprimido: preparar entrada no rompimento de {res} ou na perda de {sup}."
+            opc = "Compra de opção no rompimento (vol comprimida = prêmio barato)."
+        elif vol == "alta":
+            nota = 1
+            vista = f"Lateral entre {sup} e {res}."
+            opc = f"Vender as bordas: put abaixo de {sup} e/ou call acima de {res}."
+        else:
+            vista, opc = "Sem vantagem clara.", "Ficar de fora: nem tendência nem prêmio compensando."
+    avisos = []
+    ev_antes = [e for e in an.eventos if an.dias_venc is not None and e[2] <= an.dias_venc]
+    if ev_antes and nota:
+        avisos.append(f"{ev_antes[0][1]} antes do vencimento: tamanho menor ou vencimento após o evento só se o prêmio compensar.")
+    if mercado and vies != "neutro" and not mercado.startswith("Lateral"):
+        if (vies == "alta") != mercado.startswith("Alta"):
+            avisos.append("Contra o índice: tamanho menor.")
+    return dict(vies=vies, local=local, vol=vol, nota=nota, vista=vista, opcoes=opc, avisos=avisos,
+                d_sup=d_sup, d_res=d_res)
