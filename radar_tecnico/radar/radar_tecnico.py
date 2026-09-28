@@ -29,14 +29,17 @@ COR = {"alta": "#1E8A4C", "baixa": "#C8322F", "neutro": "#5B6878"}
 st.markdown("""
 <style>
 .block-container{padding-top:1.4rem}
-.card{border:1px solid #D3DAE2;border-left:6px solid var(--c);border-radius:10px;padding:10px 14px;margin:0 0 10px;background:#fff}
-.card h4{margin:0 0 2px;font-size:1.02rem}
-.card .meta{font-size:.8rem;color:#5B6878;margin-bottom:4px}
-.card p{margin:0;font-size:.92rem;line-height:1.4}
-.chip{display:inline-block;border-radius:6px;padding:0 7px;margin-right:6px;font-size:.75rem;font-weight:600;background:#EEF1F4;color:#34414F}
-.chip.ok{background:#E0F2E7;color:#1E8A4C}.chip.no{background:#FBE3E2;color:#C8322F}
-.evt{background:#FDF0DA;border:1px solid #F2D29B;border-radius:10px;padding:8px 14px;margin:6px 0 12px;font-size:.92rem}
-.leit p{margin:.2rem 0 .5rem;line-height:1.45}
+.card,.plano{border:1px solid #CBD3DC;border-left:6px solid var(--c);border-radius:10px;padding:10px 14px;margin:0 0 10px;background:#FFFFFF;color:#16202B}
+.card h4,.plano h4{margin:0 0 2px;font-size:1.02rem;color:#16202B}
+.card .meta,.plano .meta{font-size:.8rem;color:#4A5664;margin-bottom:4px}
+.card p,.plano p{margin:0 0 3px;font-size:.92rem;line-height:1.42;color:#16202B}
+.plano b{color:#16202B}
+.chip{display:inline-block;border-radius:6px;padding:0 7px;margin-right:6px;font-size:.75rem;font-weight:700;background:#E6EAEF;color:#2B3642}
+.chip.ok{background:#D5EEDD;color:#135C31}.chip.no{background:#F9DCDB;color:#8E1B19}.chip.ev{background:#FBE6C2;color:#6B4300}
+.nota2{background:#1D3557;color:#FFFFFF}.nota1{background:#E6EAEF;color:#2B3642}
+.evt{background:#FBE6C2;color:#4A2F00;border:1px solid #E8C27A;border-radius:10px;padding:8px 14px;margin:6px 0 12px;font-size:.92rem}
+.evt b{color:#4A2F00}
+.plano p.aviso{color:#8E1B19;font-weight:600}
 </style>""", unsafe_allow_html=True)
 
 # ------------------------------------------------------------------ dados
@@ -144,7 +147,37 @@ if mercado:
     st.markdown(f"**Leitura do momento:** índice em {mercado.lower()} (mercado {humor}), {amp}. "
                 "Sinais a favor do índice ganham peso no ranking; contra o índice, perdem.")
 
-tab1, tab2, tab3, tab4 = st.tabs(["Alertas", "Mapa dos ativos", "Gráfico e leitura", "Eventos"])
+tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Plano do dia", "Alertas", "Mapa dos ativos", "Gráfico e leitura", "Eventos", "Como usar"])
+
+
+# ------------------------------------------------------------------ plano do dia
+with tab0:
+    st.markdown("Uma linha por ativo juntando **tendência + onde o preço está + vol + eventos**. "
+                "Primeiro os cenários claros, depois os que pedem observação. É o ponto de partida para abrir o gráfico no Profit.")
+    planos = sorted(((R.plano(a, mercado), a) for a in analises.values()), key=lambda x: (-x[0]["nota"], x[1].ativo))
+    claros = [x for x in planos if x[0]["nota"] == 2]
+    obs = [x for x in planos if x[0]["nota"] == 1]
+    fora = [x for x in planos if x[0]["nota"] == 0]
+    def card_plano(p, a):
+        cor = COR.get(p["vies"], COR["neutro"])
+        badge = "<span class='chip nota2'>cenário claro</span>" if p["nota"] == 2 else "<span class='chip nota1'>observar</span>"
+        av = "".join(f"<p class='aviso'>{x}</p>" for x in p["avisos"])
+        return (f"<div class='plano' style='--c:{cor}'><h4>{a.ativo} · {R.brl(a.preco)} {badge}</h4>"
+                f"<div class='meta'>tendência {a.tendencia.lower()} · {p['local']} · vol {p['vol']}"
+                + (f" · evento em {a.eventos[0][2]}d" if a.eventos else "") + "</div>"
+                f"<p><b>À vista:</b> {p['vista']}</p><p><b>Opções:</b> {p['opcoes']}</p>{av}</div>")
+    if claros:
+        st.subheader(f"Cenários claros ({len(claros)})")
+        cA, cB = st.columns(2)
+        for k, (p, a) in enumerate(claros):
+            (cA if k % 2 == 0 else cB).markdown(card_plano(p, a), unsafe_allow_html=True)
+    if obs:
+        st.subheader(f"Observar ({len(obs)})")
+        cA, cB = st.columns(2)
+        for k, (p, a) in enumerate(obs):
+            (cA if k % 2 == 0 else cB).markdown(card_plano(p, a), unsafe_allow_html=True)
+    if fora:
+        st.caption("Sem vantagem clara hoje: " + ", ".join(a.ativo for _, a in fora) + ".")
 
 # ------------------------------------------------------------------ alertas
 def forca_txt(f):
@@ -180,7 +213,7 @@ with tab1:
             elif not mercado.startswith("Lateral"):
                 chips += "<span class='chip no'>contra o índice</span>"
         if a.eventos:
-            chips += f"<span class='chip no'>evento em {a.eventos[0][2]}d</span>"
+            chips += f"<span class='chip ev'>evento em {a.eventos[0][2]}d</span>"
         refs = []
         if s.stop:
             refs.append(f"invalida abaixo de {R.brl(s.stop)}" if s.direcao == "alta" else f"invalida acima de {R.brl(s.stop)}")
@@ -261,8 +294,8 @@ def grafico(a: R.Analise, s_sel: R.Sinal | None):
             fig.add_annotation(x=x, y=a.df["High"].iloc[s_sel.idx], text=s_sel.nome, showarrow=True, arrowhead=2, ay=-40, row=1, col=1)
     vcol = ["#1E8A4C" if c >= o else "#C8322F" for o, c in zip(df["Open"], df["Close"])]
     fig.add_trace(go.Bar(x=df.index, y=df["Volume"], marker_color=vcol, name="volume", opacity=.6), 2, 1)
-    fig.update_layout(height=620, margin=dict(l=10, r=110, t=10, b=10), xaxis_rangeslider_visible=False,
-                      legend=dict(orientation="h", y=1.02, x=0), plot_bgcolor="#fff",
+    fig.update_layout(height=620, margin=dict(l=10, r=110, t=10, b=10), xaxis_rangeslider_visible=False, template="plotly_white",
+                      legend=dict(orientation="h", y=1.02, x=0), plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF", font=dict(color="#16202B"),
                       xaxis=dict(rangebreaks=[dict(bounds=["sat", "mon"])]), xaxis2=dict(rangebreaks=[dict(bounds=["sat", "mon"])]))
     fig.update_yaxes(gridcolor="#EEF1F4")
     return fig
@@ -277,7 +310,7 @@ with tab3:
         ss = g2.selectbox("Destacar sinal no gráfico", opts, index=1 if a.sinais else 0)
         s_sel = next((s for s in a.sinais if s.nome == ss), None)
         left, right = st.columns([2.2, 1])
-        left.plotly_chart(grafico(a, s_sel), width="stretch")
+        left.plotly_chart(grafico(a, s_sel), width="stretch", theme=None)
         with right:
             st.subheader(f"{a.ativo} · {R.brl(a.preco)}")
             dist_s = f"{(a.preco - a.suporte.high)/a.atr:.1f}".replace(".", ",") if a.suporte else None
@@ -291,7 +324,7 @@ with tab3:
             st.markdown("**Sinais**")
             if a.sinais:
                 for s in a.sinais:
-                    st.markdown(f"<div class='leit'><p><b style='color:{COR[s.direcao]}'>{s.nome}</b> ({forca_txt(s.forca)}) — {s.texto}</p></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='card' style='--c:{COR[s.direcao]}'><h4>{s.nome} <span class='chip'>força {forca_txt(s.forca)}</span></h4><p>{s.texto}</p></div>", unsafe_allow_html=True)
             else:
                 st.caption("Nenhum sinal ativo. O gráfico não pede ação agora.")
             st.markdown("**Lente de opções**")
@@ -311,3 +344,7 @@ with tab4:
     csv = ed.assign(data=pd.to_datetime(ed["data"]).dt.strftime("%Y-%m-%d")).to_csv(sep=";", index=False)
     b2.download_button("Baixar eventos_radar.csv", csv, "eventos_radar.csv", "text/csv",
                        help="Para manter as alterações: suba este arquivo no GitHub no lugar do atual.")
+
+# ------------------------------------------------------------------ como usar
+with tab5:
+    st.markdown(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "COMO_USAR.md"), encoding="utf-8").read().replace("$", "\\$"))
