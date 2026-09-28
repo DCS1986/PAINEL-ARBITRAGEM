@@ -48,6 +48,99 @@ def carregar():
             continue
     return pd.DataFrame()
 
+@st.cache_data(ttl=1800, show_spinner=False)
+def candles(ativo, tf):
+    if DEMO:
+        from synth_mtf import serie_5m, AGG
+        d5 = serie_5m({"PETR4": 0, "VALE3": 1, "BBAS3": 2, "PRIO3": 3, "ITUB4": 4}.get(ativo, 0), dias=200)
+        return d5.resample("1D" if tf == "D" else "60min").agg(AGG).dropna()
+    import yfinance as yf
+    iv, per = ("1d", "9mo") if tf == "D" else ("60m", "2mo")
+    try:
+        d = yf.Ticker(ativo + ".SA").history(period=per, interval=iv, auto_adjust=False)
+    except Exception:
+        return None
+    if d is None or d.empty:
+        return None
+    d.index = pd.to_datetime(d.index)
+    if d.index.tz is not None:
+        d.index = d.index.tz_convert("America/Sao_Paulo").tz_localize(None)
+    return d[["Open", "High", "Low", "Close"]]
+
+def foto(r):
+    """O gráfico da sugestão com tudo marcado: gatilho, stop, alvo, a região que justifica o stop e o que aconteceu depois."""
+    tf = r.get("tf_base") if isinstance(r.get("tf_base"), str) else ("D" if r["horizonte"] == "SWING" else "60")
+    d = candles(r["ativo"], tf)
+    if d is None or d.empty:
+        st.caption("Não consegui carregar o gráfico deste ativo agora.")
+        return
+    criada = pd.Timestamp(r["criada_em"])
+    antes = d[d.index <= criada].iloc[-70:]
+    depois = d[d.index > criada]
+    d = pd.concat([antes, depois])
+    if d.empty:
+        return
+    passo = (d.index[-1] - d.index[-2]) if len(d) > 1 else pd.Timedelta(days=1)
+    x_fim = d.index[-1] + passo * max(8, len(d) // 6)
+    x_ini_sug = antes.index[-1] if len(antes) else d.index[0]
+    gat, stp, alv = float(r["gatilho"]), float(r["stop"]), float(r["alvo"])
+    fig = go.Figure(go.Candlestick(x=d.index, open=d["Open"], high=d["High"], low=d["Low"], close=d["Close"], name=r["ativo"],
+                                   increasing_line_color="#1E8A4C", decreasing_line_color="#C8322F", showlegend=False))
+    # zonas de risco e de ganho a partir da sugestão
+    fig.add_shape(type="rect", x0=x_ini_sug, x1=x_fim, y0=min(gat, stp), y1=max(gat, stp), fillcolor="rgba(200,50,47,.14)", line_width=0)
+    fig.add_shape(type="rect", x0=x_ini_sug, x1=x_fim, y0=min(gat, alv), y1=max(gat, alv), fillcolor="rgba(30,138,76,.10)", line_width=0)
+    fig.add_vline(x=x_ini_sug, line=dict(color="#6B4300", dash="dot", width=1.5))
+    fig.add_annotation(x=x_ini_sug, y=1, yref="paper", text="sugestão criada", showarrow=False, xanchor="left", yanchor="top",
+                       font=dict(size=11, color="#6B4300"), bgcolor="#FBE6C2")
+    compra = r["direcao"] == "alta"
+    linhas = [(gat, "#1D3557", "solid", f"① gatilho {R.brl(gat)}: " + ("entra se passar daqui" if compra else "entra se perder daqui")),
+              (stp, "#C8322F", "solid", f"② stop {R.brl(stp)}: a tese acaba aqui"),
+              (alv, "#1E8A4C", "solid", f"③ alvo {R.brl(alv)}: primeira região no caminho")]
+    if pd.notna(r.get("ref_preco")):
+        linhas.append((float(r["ref_preco"]), "#5B6878", "dot", "região que justifica o stop"))
+    if pd.notna(r.get("mov_esperado")):
+        m = float(r["mov_esperado"])
+        linhas.append((gat - m if not compra else gat + m, "#8A96A5", "dash", "movimento normal do ativo no prazo"))
+    lo = min(d["Low"].min(), stp, alv, gat) * 0.99
+    hi = max(d["High"].max(), stp, alv, gat) * 1.01
+    altura_px = 430 - 20
+    px_por_real = altura_px / (hi - lo)
+    ultimo_px = None
+    for y, cor, estilo, txt in sorted(linhas, key=lambda x: -x[0]):
+        fig.add_shape(type="line", x0=d.index[0], x1=x_fim, y0=y, y1=y, line=dict(color=cor, width=1.6 if estilo == "solid" else 1.2, dash=estilo))
+        py = (hi - y) * px_por_real                     # distância do topo, em pixels
+        if ultimo_px is not None and py - ultimo_px < 17:
+            py = ultimo_px + 17                         # empurra o rótulo para baixo para não sobrepor
+        ultimo_px = py
+        deslocamento = -(py - (hi - y) * px_por_real)
+        fig.add_annotation(x=x_fim, y=y, text=txt, showarrow=False, xanchor="right", yanchor="middle", yshift=deslocamento,
+                           font=dict(size=11, color=cor), bgcolor="rgba(255,255,255,.92)", bordercolor=cor, borderwidth=1, borderpad=2)
+    # setas: onde o repique/recuo foi rejeitado
+    if pd.notna(r.get("ref_preco")) and len(antes) > 5:
+        seg = antes.iloc[-15:]
+        i = seg["High"].idxmax() if not compra else seg["Low"].idxmin()
+        y = seg.loc[i, "High"] if not compra else seg.loc[i, "Low"]
+        txt = {"Repique": "repique rejeitado aqui", "Pullback": "recuo segurou aqui", "Trap": "rompimento falso aqui",
+               "Fundo duplo": "segundo fundo", "Topo duplo": "segundo topo", "Rompimento": "região rompida"}.get(r["setup"], "referência")
+        fig.add_annotation(x=i, y=y, text=txt, showarrow=True, arrowhead=2, ay=-40 if not compra else 40,
+                           font=dict(size=11, color="#16202B"), bgcolor="#FFFFFF", bordercolor="#16202B", borderwidth=1)
+    if pd.notna(r.get("entrada_em")) and r.get("entrada_em"):
+        fig.add_trace(go.Scatter(x=[pd.Timestamp(r["entrada_em"])], y=[r["entrada_preco"]], mode="markers", name="entrada",
+                                 marker=dict(symbol="triangle-up" if compra else "triangle-down", size=14, color="#1D3557")))
+    if pd.notna(r.get("saida_em")) and r.get("saida_em"):
+        fig.add_trace(go.Scatter(x=[pd.Timestamp(r["saida_em"])], y=[r["saida_preco"]], mode="markers", name="saída",
+                                 marker=dict(symbol="x", size=14, color="#16202B")))
+    rb = [dict(bounds=["sat", "mon"])]
+    if tf == "60":
+        rb.append(dict(bounds=[18, 10], pattern="hour"))
+    fig.update_layout(height=430, margin=dict(l=10, r=10, t=10, b=10), xaxis_rangeslider_visible=False, template="plotly_white",
+                      plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF", font=dict(color="#16202B"),
+                      xaxis=dict(range=[d.index[0], x_fim], rangebreaks=rb), yaxis=dict(range=[lo, hi], gridcolor="#EEF1F4"),
+                      legend=dict(orientation="h", y=-0.08))
+    st.plotly_chart(fig, width="stretch", theme=None, key=f"foto-{r['id']}")
+    st.caption(("Gráfico diário" if tf == "D" else "Gráfico de 60 min") + ". Faixa vermelha = o que você arrisca; faixa verde = o que você busca. "
+               "Tudo à direita da linha pontilhada aconteceu depois da sugestão.")
+
 with st.sidebar:
     st.header("Sugestões")
     risco = st.number_input("Quanto você aceitaria perder por operação (R$)", min_value=50, max_value=100000, value=300, step=50,
@@ -83,7 +176,8 @@ def card(r, completo=True):
     bg, fg = ST.get(r["status"], ("#E6EAEF", "#2B3642"))
     hzt = "Swing · dias a semanas" if r["horizonte"] == "SWING" else "Curto · horas a 2 dias"
     lado = "COMPRA" if r["direcao"] == "alta" else "VENDA"
-    instr = ("à vista ou call ATM/ITM" if r["direcao"] == "alta" else "put ATM/ITM ou venda de call")
+    instr = r["instrumento"] if isinstance(r.get("instrumento"), str) and r.get("instrumento") else (
+        "à vista ou call ATM/ITM" if r["direcao"] == "alta" else "put ATM/ITM ou venda de call")
     res = ""
     if pd.notna(r.get("resultado_r")):
         res = f" · {r['resultado_r']:+.2f}R ({R.brl(r['resultado_r'] * risco)})"
@@ -111,6 +205,7 @@ with tab_ab:
         st.caption("Nenhuma sugestão aberta agora. Dias sem sugestão são dias em que nada estava explícito o suficiente.")
     for _, r in abertas.iterrows():
         st.markdown(card(r), unsafe_allow_html=True)
+        foto(r)
 
 with tab_pl:
     if fech.empty:
@@ -148,6 +243,10 @@ with tab_hist:
     hist = df[~df["status"].isin(["aguardando gatilho", "em andamento"])].sort_values("criada", ascending=False)
     if hist.empty:
         st.caption("Ainda sem histórico.")
+    if not hist.empty:
+        opc = [f"{r['criada_em']} · {r['ativo']} · {r['setup']} → {r['status']}" for _, r in hist.iterrows()]
+        esc = st.selectbox("Ver a foto de", opc)
+        foto(hist.iloc[opc.index(esc)])
     for _, r in hist.head(60).iterrows():
         with st.expander(f"{r['criada_em']} · {r['ativo']} · {'compra' if r['direcao'] == 'alta' else 'venda'} · {r['setup']} → {r['status']}"
                          + (f" ({r['resultado_r']:+.2f}R · {R.brl(r['resultado_r'] * risco)})" if pd.notna(r['resultado_r']) else "")):
