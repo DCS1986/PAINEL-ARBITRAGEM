@@ -23,7 +23,8 @@ RR_MIN = 2.0
 COLUNAS = ["id", "criada_em", "ativo", "horizonte", "direcao", "setup", "gatilho", "stop", "alvo", "rr", "risco_pct",
            "validade_ate", "prazo_pregoes", "contexto", "por_que_entrada", "por_que_stop", "por_que_alvo", "assimetria",
            "status", "entrada_em", "entrada_preco", "saida_em", "saida_preco", "resultado_r", "resultado_pct",
-           "mfe_r", "mae_r", "atualizado_em"]
+           "mfe_r", "mae_r", "atualizado_em",
+           "tf_base", "ref_preco", "ref_nome", "alvo_nome", "mov_esperado", "evento", "instrumento"]
 ABERTOS = ("aguardando gatilho", "em andamento")
 
 def _brl(x):
@@ -52,7 +53,7 @@ def _alvo(direcao, entrada, stop, zonas, extra=None, dist_max=None):
             return preco, nome, rr
     return None, None, 0
 
-def _explicacoes(direcao, setup, gatilho, stop, alvo, alvo_nome, ref_txt, atr, tf_nome, horizonte):
+def _explicacoes(direcao, setup, gatilho, stop, alvo, alvo_nome, ref_txt, atr, tf_nome, horizonte, mov=None, dias_h=None):
     compra = direcao == "alta"
     risco = abs(gatilho - stop)
     ganho = abs(alvo - gatilho)
@@ -66,6 +67,7 @@ def _explicacoes(direcao, setup, gatilho, stop, alvo, alvo_nome, ref_txt, atr, t
     base = {
         "Pullback": f"fica abaixo de {ref_txt[0]}, a região que segurou a correção. Se o preço perder essa região, deixa de ser um recuo dentro da alta e a tese acaba."
                     if compra else f"fica acima de {ref_txt[0]}, a região que segurou o repique. Se o preço passar dela, deixa de ser um repique dentro da baixa.",
+        "Repique": f"fica acima de {ref_txt[0]}, onde o repique foi rejeitado. Se o preço passar dela, os compradores venceram e deixa de ser um repique dentro da baixa.",
         "Trap": f"fica além do extremo da armadilha ({ref_txt[0]}). A tese é que quem entrou no rompimento falso ficou preso; se o preço voltar lá, a armadilha não funcionou.",
         "Fundo duplo": f"fica abaixo dos dois fundos ({ref_txt[0]}). Se o preço renovar a mínima, a figura deixa de existir.",
         "Topo duplo": f"fica acima dos dois topos ({ref_txt[0]}). Se o preço renovar a máxima, a figura deixa de existir.",
@@ -75,6 +77,9 @@ def _explicacoes(direcao, setup, gatilho, stop, alvo, alvo_nome, ref_txt, atr, t
     por_que_stop = (f"Fica em {_brl(stop)}: {base}"
                     + (f" A folga de {_brl(folga)} além do nível é uma fração do ATR do {tf_nome.lower()} ({_brl(atr)}), para não ser tirado por um pavio comum." if folga else ""))
     por_que_alvo = f"Fica em {_brl(alvo)}: {alvo_nome}, onde {'os vendedores' if compra else 'os compradores'} apareceram antes. É o primeiro obstáculo real no caminho."
+    if mov:
+        por_que_alvo += (f" E é alcançável: a distância até ele ({_brl(ganho)}) cabe no movimento que o ativo costuma fazer em {dias_h} pregões "
+                         f"(cerca de {_brl(mov)}, pela volatilidade dos últimos 20 dias).")
     assimetria = (f"Arrisca {_brl(risco)} por ação ({_pct(risco / gatilho)}) para buscar {_brl(ganho)} ({_pct(ganho / gatilho)}): "
                   f"assimetria de {str(round(rr, 1)).replace('.', ',')} para 1. Com isso, acertar {empate*100:.0f}% das vezes já empata; o resto é lucro.")
     return por_que_entrada, por_que_stop, por_que_alvo, assimetria, rr
@@ -105,12 +110,26 @@ def gerar(cascata, agora: pd.Timestamp, eventos=None, horizontes=("SWING", "CURT
             return   # stop caro demais: não é explícito
         zonas = [z for z in (D.an.zonas if D else []) + an.zonas if z.toques >= 2]
         atr_d = D.an.atr if D else an.atr
-        alvo, alvo_nome, rr = _alvo(direcao, gat, stop, zonas, extra_alvo, dist_max=(6 if horizonte == "SWING" else 1.5) * atr_d)
+        # alcance realista: movimento de 1 desvio no prazo típico da operação (pela vol dos últimos 20 dias)
+        dias_h = 10 if horizonte == "SWING" else 2
+        hv = D.an.hv20 if D and not math.isnan(D.an.hv20) else None
+        mov = gat * hv * math.sqrt(dias_h / 252) if hv else None
+        ev = [e for e in (D.an.eventos if D else []) if e[2] <= (14 if horizonte == "SWING" else 3)]
+        teto = (6 if horizonte == "SWING" else 1.5) * atr_d
+        if mov:
+            teto = min(teto, mov * (1.0 if ev else 1.5))   # com evento binário no caminho, só alvos dentro de 1 desvio
+        alvo, alvo_nome, rr = _alvo(direcao, gat, stop, zonas, extra_alvo, dist_max=teto)
         if alvo is None:
-            return   # sem assimetria real até uma região
-        pe, ps, pa, asm, rr = _explicacoes(direcao, setup, gat, stop, alvo, alvo_nome, ref, an.atr, tfL.nome, horizonte)
-        ev = [e for e in (D.an.eventos if D else [])] if horizonte == "SWING" else []
-        aviso = f"Atenção: {ev[0][1]} em {ev[0][2]} dias, dentro do prazo." if ev else ""
+            return   # sem assimetria real até uma região alcançável
+        pe, ps, pa, asm, rr = _explicacoes(direcao, setup, gat, stop, alvo, alvo_nome, ref, an.atr, tfL.nome, horizonte, mov, dias_h)
+        aviso = (f"Atenção: {ev[0][1]} em {ev[0][2]} dias, dentro do prazo: tamanho menor, e o alvo foi limitado ao movimento normal do ativo." if ev else "")
+        vol_alta = bool(D and not math.isnan(D.an.hv_pct) and D.an.hv_pct >= 0.7) or bool(ev)
+        if direcao == "alta":
+            instrumento = ("à vista, ou venda de put abaixo do stop (vol alta encarece comprar call)" if vol_alta
+                           else "à vista ou call ATM/ITM")
+        else:
+            instrumento = ("venda de call acima do stop (prêmio inflado pela vol); comprar put agora sai caro" if vol_alta
+                           else "put ATM/ITM ou venda de call acima do stop")
         dias_val = 3 if horizonte == "SWING" else 1
         validade = (agora.normalize() + pd.tseries.offsets.BDay(dias_val) + pd.Timedelta(hours=18))
         out.append(dict(
@@ -120,7 +139,10 @@ def gerar(cascata, agora: pd.Timestamp, eventos=None, horizontes=("SWING", "CURT
             risco_pct=round(risco / gat, 4), validade_ate=validade.strftime("%Y-%m-%d %H:%M"),
             prazo_pregoes=20 if horizonte == "SWING" else 2, contexto=ctx_txt(" ".join(x for x in (nota, aviso) if x)),
             por_que_entrada=pe, por_que_stop=ps, por_que_alvo=pa, assimetria=asm,
-            status="aguardando gatilho", atualizado_em=agora.strftime("%Y-%m-%d %H:%M")))
+            status="aguardando gatilho", atualizado_em=agora.strftime("%Y-%m-%d %H:%M"),
+            tf_base="D" if horizonte == "SWING" else "60", ref_preco=round(float(ref[1]), 2) if ref[1] is not None else None,
+            ref_nome=ref[0], alvo_nome=alvo_nome, mov_esperado=round(mov, 2) if mov else None,
+            evento=(f"{ev[0][1]} ({ev[0][0]:%d/%m})" if ev else ""), instrumento=instrumento))
 
     def candidatos(tfL):
         """Setups do tempo gráfico com stop técnico e texto da referência."""
@@ -133,7 +155,7 @@ def gerar(cascata, agora: pd.Timestamp, eventos=None, horizontes=("SWING", "CURT
                 res.append(("alta", "Pullback", ref - 0.2 * a, (f"{_brl(ref)} (suporte/mínima do recuo)", ref)))
             elif s.nome.startswith("Repique"):
                 ref = an.resistencia.high if an.resistencia and an.resistencia.low <= an.df["High"].iloc[-3:].max() + 0.5 * a else an.df["High"].iloc[-3:].max()
-                res.append(("baixa", "Pullback", ref + 0.2 * a, (f"{_brl(ref)} (resistência/máxima do repique)", ref)))
+                res.append(("baixa", "Repique", ref + 0.2 * a, (f"{_brl(ref)} (resistência/máxima do repique)", ref)))
             elif s.nome == "Trap de venda" and s.stop:
                 res.append(("alta", "Trap", s.stop, (f"{_brl(s.stop + 0.1 * a)}, a mínima do rompimento falso", s.stop + 0.1 * a)))
             elif s.nome == "Trap de compra" and s.stop:

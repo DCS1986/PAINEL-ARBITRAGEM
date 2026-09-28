@@ -150,7 +150,7 @@ def sugerir_e_acompanhar(diarios, ev):
             for tf, nome in M.TFS:
                 df = series.get(tf)
                 if df is not None and len(df) >= 60:
-                    lt = M.ler_tf(t, tf, nome, df)
+                    lt = M.ler_tf(t, tf, nome, df, eventos=ev)
                     if lt:
                         L[tf] = lt
             if "D" in L:

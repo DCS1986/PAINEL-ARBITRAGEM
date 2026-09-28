@@ -99,8 +99,8 @@ def traps(an: R.Analise) -> list:
                 break
     return out
 
-def ler_tf(ativo: str, tf: str, nome: str, df: pd.DataFrame, hoje=None) -> LeituraTF | None:
-    an = R.analisar(ativo, df, None, hoje)
+def ler_tf(ativo: str, tf: str, nome: str, df: pd.DataFrame, hoje=None, eventos=None) -> LeituraTF | None:
+    an = R.analisar(ativo, df, eventos if tf == "D" else None, hoje)
     if an is None:
         return None
     d = an.df
