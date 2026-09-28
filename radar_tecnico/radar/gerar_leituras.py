@@ -50,6 +50,7 @@ def main():
     ibov_df = baixar("^BVSP")
     ibov = R.analisar("IBOV", ibov_df, ev, hoje) if ibov_df is not None else None
     mercado = ibov.tendencia if ibov else ""
+    agora = (pd.Timestamp.now("UTC").tz_localize(None) - pd.Timedelta(hours=3)).strftime("%Y-%m-%d %H:%M")
     linhas = []
     for t in dict.fromkeys(UNIVERSO + EXTRA):
         df = baixar(t)
@@ -61,14 +62,19 @@ def main():
         linhas.append({
             "ativo": t,
             "data_leitura": an.df.index[-1].strftime("%Y-%m-%d"),
+            "gerado_em": agora,
             "preco": round(an.preco, 2),
             "tendencia": an.tendencia,
             "vies": p["vies"],
             "local": p["local"],
             "vol": p["vol"],
             "hv_pct": None if math.isnan(an.hv_pct) else round(an.hv_pct, 3),
-            "suporte": round(an.suporte.high, 2) if an.suporte else None,
-            "resistencia": round(an.resistencia.low, 2) if an.resistencia else None,
+            "atr": round(an.atr, 3),
+            "mme21": round(float(an.df["EMA21"].iloc[-1]), 2),
+            "sup_low": round(an.suporte.low, 2) if an.suporte else None,
+            "sup_high": round(an.suporte.high, 2) if an.suporte else None,
+            "res_low": round(an.resistencia.low, 2) if an.resistencia else None,
+            "res_high": round(an.resistencia.high, 2) if an.resistencia else None,
             "evento": ev0[1] if ev0 else "",
             "evento_dias": ev0[2] if ev0 else None,
             "mercado": mercado,
