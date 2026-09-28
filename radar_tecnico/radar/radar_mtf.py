@@ -52,7 +52,7 @@ class LeituraTF:
     tf: str
     nome: str
     an: R.Analise
-    direcao: str                 # alta / baixa / lateral
+    direcao: str                 # tendência estrutural: alta / baixa / lateral (médias + topos e fundos)
     ifr_txt: str
     obv_txt: str
     obv_dir: str
@@ -61,6 +61,9 @@ class LeituraTF:
     traps: list = field(default_factory=list)   # R.Sinal
     ultimo_topo: float | None = None
     ultimo_fundo: float | None = None
+    fase: str = ""               # subindo / caindo / reagindo / recuando (últimos candles)
+    rotulo: str = ""             # o que aparece no mapa: "Baixa · repicando"
+    momento: str = "lateral"     # direção dos últimos candles: alta / baixa / lateral
 
 def traps(an: R.Analise) -> list:
     """Rompimento de topo/fundo relevante (zona com 2+ toques ou último topo/fundo) que volta em até 3 candles."""
@@ -143,8 +146,28 @@ def ler_tf(ativo: str, tf: str, nome: str, df: pd.DataFrame, hoje=None) -> Leitu
         else:
             didi_txt = "Didi: médias embaralhadas (sem direção)"
     tr = traps(an)
+    # fase: o que os últimos candles estão fazendo em relação à MME9
+    e9 = d["EMA9"].values
+    p = an.preco
+    inc = e9[-1] - e9[-4]
+    if p > e9[-1] and inc > 0:
+        fase, momento = "subindo", "alta"
+    elif p < e9[-1] and inc < 0:
+        fase, momento = "caindo", "baixa"
+    elif p > e9[-1]:
+        fase, momento = "reagindo", "alta"
+    else:
+        fase, momento = "recuando", "baixa"
+    if direcao == "alta":
+        rot = {"subindo": "subindo", "reagindo": "retomando", "recuando": "corrigindo", "caindo": "corrigindo"}[fase]
+    elif direcao == "baixa":
+        rot = {"caindo": "caindo", "recuando": "retomando a queda", "reagindo": "repicando", "subindo": "repicando"}[fase]
+    else:
+        rot = {"subindo": "subindo", "reagindo": "subindo", "caindo": "caindo", "recuando": "caindo"}[fase]
+    rotulo = f"{an.tendencia} · {rot}"
     return LeituraTF(tf, nome, an, direcao, ifr_txt, obv_txt, obv_dir, didi_txt, dd, tr,
-                     an.highs[-1][1] if an.highs else None, an.lows[-1][1] if an.lows else None)
+                     an.highs[-1][1] if an.highs else None, an.lows[-1][1] if an.lows else None,
+                     fase, rotulo, momento)
 
 # ------------------------------------------------------------------ cascata
 @dataclass
@@ -165,21 +188,29 @@ def cascata(ativo: str, leituras: dict) -> Cascata:
     maior = dirs.get("S") or dirs.get("D") or "lateral"
     diario = dirs.get("D", "lateral")
     vies = diario if diario != "lateral" else maior
-    forca = sum(1 for tf in ordem if dirs[tf] == vies) if vies != "lateral" else 0
+    forca = sum(1 for tf in ordem if (dirs[tf] if tf in ("S", "D") else leituras[tf].momento) == vies) if vies != "lateral" else 0
     nomes = {tf: n for tf, n in TFS}
     a_favor = [nomes[tf] for tf in ordem if dirs[tf] == vies]
     contra = [nomes[tf] for tf in ordem if vies != "lateral" and dirs[tf] not in (vies, "lateral")]
     s_dir = dirs.get("S", "lateral")
-    curto_contra = [nomes[tf] for tf in ("60", "15") if tf in dirs and vies != "lateral" and dirs[tf] not in (vies, "lateral")]
+    mom = {tf: leituras[tf].momento for tf in ordem}
+    curto_contra = [nomes[tf] for tf in ("60", "15") if tf in mom and vies != "lateral" and mom[tf] != vies]
     if vies == "lateral":
         alinhamento = "Sem direção definida no semanal e no diário"
-    elif not contra and forca == len(ordem):
-        alinhamento = f"Tudo alinhado para {vies}"
+    elif forca == len(ordem):
+        estr_contra = [nomes[tf] for tf in ("60", "15") if tf in dirs and dirs[tf] not in (vies, "lateral")]
+        if estr_contra:
+            alinhamento = (f"Viés de {vies} e o curto prazo {'subindo' if vies == 'alta' else 'caindo'} agora "
+                           f"({', '.join(estr_contra)} ainda de {'baixa' if vies == 'alta' else 'alta'} na estrutura: virada em andamento)")
+        else:
+            alinhamento = f"Tudo alinhado para {vies}"
     elif s_dir not in (vies, "lateral"):
         alinhamento = f"Conflito: semanal de {s_dir} e diário de {vies} (o diário pode estar só corrigindo o semanal)"
     elif curto_contra:
         base = f"Semanal e diário de {vies}" if s_dir == vies else f"Diário de {vies} (semanal {s_dir})"
-        alinhamento = f"{base}; {', '.join(curto_contra)} contra: correção no curto prazo, possível ponto de entrada quando virar"
+        mov = "correção" if vies == "alta" else "repique"
+        alinhamento = (f"{base}; {', '.join(curto_contra)} {'corrigindo' if vies == 'alta' else 'repicando'}: "
+                       f"{mov} no curto prazo. A entrada a favor do diário vem quando o curto prazo virar de novo")
     else:
         alinhamento = f"Viés de {vies} ({', '.join(a_favor)} a favor)"
 

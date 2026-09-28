@@ -213,11 +213,15 @@ def analisar(ativo: str, df: pd.DataFrame, eventos: pd.DataFrame | None = None,
     if not math.isnan(last["SMA200"]):
         sc += 1 if preco > last["SMA200"] else -1
     sc += 1 if est.startswith("topos e fundos asc") else (-1 if est.startswith("topos e fundos desc") else 0)
+    # "forte" só quando o movimento dos últimos candles concorda com a tendência
+    e9 = df["EMA9"].values
+    subindo = preco > e9[-1] and e9[-1] > e9[-4]
+    caindo = preco < e9[-1] and e9[-1] < e9[-4]
     forte = last["ADX"] >= 25
     if sc >= 3:
-        tend = "Alta forte" if forte else "Alta"
+        tend = "Alta forte" if (forte and subindo) else "Alta"
     elif sc <= -3:
-        tend = "Baixa forte" if forte else "Baixa"
+        tend = "Baixa forte" if (forte and caindo) else "Baixa"
     elif sc >= 1 and last["ADX"] >= 20:
         tend = "Alta"
     elif sc <= -1 and last["ADX"] >= 20:
@@ -423,7 +427,15 @@ def pontuar(an: Analise, s: Sinal, mercado: str | None = None) -> float:
 # ------------------------------------------------------------------ dados do Profit (CSV exportado)
 def ler_csv_profit(arquivo) -> dict[str, pd.DataFrame]:
     """Aceita o CSV/TXT exportado do gráfico do Profit (separador ; e vírgula decimal)."""
-    raw = pd.read_csv(arquivo, sep=None, engine="python", dtype=str)
+    import io as _io
+    dados = arquivo.read() if hasattr(arquivo, "read") else open(arquivo, "rb").read()
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
+        try:
+            texto = dados.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    raw = pd.read_csv(_io.StringIO(texto), sep=None, engine="python", dtype=str)
     cols = {c: c.strip().lower() for c in raw.columns}
     def acha(*chaves):
         for c, lc in cols.items():
@@ -446,7 +458,13 @@ def ler_csv_profit(arquivo) -> dict[str, pd.DataFrame]:
             if s.str.contains(",", regex=False).any():
                 s = s.str.replace(".", "", regex=False).str.replace(",", ".", regex=False)
             df[k] = pd.to_numeric(s, errors="coerce")
-    df["Ativo"] = raw[tick].str.strip().str.upper() if tick else "ARQUIVO"
+    if tick:
+        df["Ativo"] = raw[tick].str.strip().str.upper()
+    else:
+        import re as _re, os as _os
+        nome = _os.path.basename(getattr(arquivo, "name", "") or "")
+        m = _re.search(r"([A-Z]{4}\d{1,2})", nome.upper())
+        df["Ativo"] = m.group(1) if m else "ARQUIVO"
     df = df.dropna(subset=["Date", "Close"])
     out = {}
     for a, g in df.groupby("Ativo"):
