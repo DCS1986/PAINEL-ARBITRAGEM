@@ -117,6 +117,18 @@ if not cascatas:
 
 ordem = sorted(cascatas.values(), key=lambda c: -M.pontuacao(c))
 
+def hoje(ativo):
+    """Variação do dia e horário do último dado, a partir do 15 min."""
+    q = series["15"].get(ativo)
+    if q is None or len(q) < 2:
+        return None, None
+    dias = q.index.normalize()
+    ult = dias[-1]
+    ant = q[dias < ult]
+    if not len(ant):
+        return None, q.index[-1]
+    return q["Close"].iloc[-1] / ant["Close"].iloc[-1] - 1, q.index[-1]
+
 def chip(direcao, texto):
     bg, fg = COR_DIR.get(direcao, COR_DIR["lateral"])
     return f"<span class='chip' style='background:{bg};color:{fg}'>{texto}</span>"
@@ -127,14 +139,24 @@ with tab_mapa:
     linhas = []
     for c in ordem:
         cels = ""
+        var, _hora = hoje(c.ativo)
+        if var is None:
+            cels += "<td>–</td>"
+        else:
+            cels += f"<td>{chip('alta' if var > 0 else 'baixa' if var < 0 else 'lateral', R.pct(var, 2))}</td>"
         for tf, _ in M.TFS:
             L = c.leituras.get(tf)
-            cels += f"<td>{chip(L.direcao, L.an.tendencia) if L else '–'}</td>"
+            cels += f"<td>{chip(L.direcao, L.rotulo) if L else '–'}</td>"
         dest = "; ".join(f"{s.nome} ({tf})" for tf, s in c.destaques[:3]) or "–"
         linhas.append(f"<tr><td><b>{c.ativo}</b></td>{cels}<td>{c.alinhamento}</td><td>{dest}</td></tr>")
-    st.markdown("<table class='tb'><tr><th>Ativo</th><th>Semanal</th><th>Diário</th><th>60 min</th><th>15 min</th><th>Alinhamento</th><th>Destaques</th></tr>"
+    st.markdown("<table class='tb'><tr><th>Ativo</th><th>Hoje</th><th>Semanal</th><th>Diário</th><th>60 min</th><th>15 min</th><th>Alinhamento</th><th>Destaques</th></tr>"
                 + "".join(linhas) + "</table>", unsafe_allow_html=True)
-    st.caption("Ordenado pelos cenários mais completos: mais tempos gráficos a favor e mais sinais relevantes primeiro.")
+    hs = [hoje(c.ativo)[1] for c in ordem]
+    hs = [h for h in hs if h is not None]
+    st.caption("Cada célula mostra a **tendência** (médias e topos/fundos daquele tempo gráfico) e a **fase** (o que os últimos candles estão fazendo). "
+               "Ex.: 'Baixa · repicando' = tendência de baixa, mas subindo agora. "
+               + (f"Dados de 15 min até {max(hs):%d/%m %H:%M} (Yahoo, com atraso). " if hs else "")
+               + "Ordenado pelos cenários mais completos.")
 
 def grafico(L: M.LeituraTF, n_barras=160):
     d = L.an.df.iloc[-n_barras:]
@@ -206,6 +228,7 @@ with tab_ativo:
                 sup = R.brl(a.suporte.high) if a.suporte else "–"
                 res = R.brl(a.resistencia.low) if a.resistencia else "–"
                 itens = [f"<b>Tendência:</b> {a.tendencia} (ADX {a.adx:.0f}; {a.estrutura})",
+                         f"<b>Agora:</b> {L.rotulo.split(' · ')[-1]} (preço {'acima' if a.preco > a.df['EMA9'].iloc[-1] else 'abaixo'} da MME9) · último dado {a.df.index[-1]:%d/%m %H:%M}",
                          f"<b>Médias:</b> preço {'acima' if a.preco > a.df['EMA21'].iloc[-1] else 'abaixo'} da MME21"
                          + ("" if np.isnan(a.df['SMA200'].iloc[-1]) else f" e {'acima' if a.preco > a.df['SMA200'].iloc[-1] else 'abaixo'} da MM200"),
                          f"<b>Regiões:</b> suporte {sup} · resistência {res}",
