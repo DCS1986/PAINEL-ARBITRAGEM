@@ -1,15 +1,15 @@
 ativo;data_leitura;gerado_em;preco;tendencia;vies;local;vol;hv_pct;atr;mme21;sup_low;sup_high;res_low;res_high;evento;evento_dias;mercado;sinais;plano_opcoes
-PETR4;2026-11-09;2026-11-09 19:52;45.19;Alta;alta;no suporte;alta;0.96;1.96;51.32;43.49;44.87;47.3;47.3;;;Baixa forte;;Venda de put com strike abaixo de R$ 43,49 (vol alta paga bem).
-VALE3;2026-11-09;2026-11-09 19:52;66.11;Baixa;baixa;no suporte;alta;0.948;2.103;64.65;64.13;64.13;66.17;66.45;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
-BPAC11;2026-11-09;2026-11-09 19:52;57.45;Baixa forte;baixa;no suporte;alta;0.972;3.819;62.65;48.73;62.99;65.5;65.5;;;Baixa forte;Topo duplo confirmado;Esperar a perda do suporte ou um sinal de reversão.
-BBAS3;2026-11-09;2026-11-09 19:52;17.02;Baixa forte;baixa;no suporte;alta;0.968;1.002;19.44;16.08;16.08;17.79;17.79;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
-BBSE3;2026-11-09;2026-11-09 19:52;38.59;Alta;alta;no suporte;alta;0.905;1.266;40.47;37.33;37.33;38.24;40.22;;;Baixa forte;;Venda de put com strike abaixo de R$ 37,33 (vol alta paga bem).
-B3SA3;2026-11-09;2026-11-09 19:52;14.85;Baixa forte;baixa;na resistência;alta;0.972;1.184;17.17;;;11.83;18.63;;;Baixa forte;Topo duplo confirmado;Venda de call com strike acima de R$ 18,63 (vol alta paga bem).
-KLBN11;2026-11-09;2026-11-09 19:52;17.85;Baixa;baixa;na resistência;alta;0.996;0.565;18.0;16.52;16.79;17.13;19.81;;;Baixa forte;Topo duplo em formação;Venda de call com strike acima de R$ 19,81 (vol alta paga bem).
-BRAP4;2026-11-09;2026-11-09 19:52;19.71;Baixa;baixa;no suporte;alta;0.794;0.647;19.3;19.33;19.33;19.86;19.98;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
-SUZB3;2026-11-09;2026-11-09 19:52;54.2;Alta forte;alta;rompendo resistência;alta;0.889;1.696;48.25;46.36;53.54;59.65;59.65;;;Baixa forte;Rompimento de resistência | Pullback na tendência de alta;Venda de put com strike abaixo de R$ 46,36 (vol alta paga bem).
-PSSA3;2026-11-09;2026-11-09 19:52;45.65;Baixa forte;baixa;na resistência;alta;0.972;1.557;47.67;42.36;42.36;45.09;47.84;;;Baixa forte;;Venda de call com strike acima de R$ 47,84 (vol alta paga bem).
-ITUB4;2026-11-09;2026-11-09 19:52;41.72;Baixa;baixa;no suporte;alta;0.972;1.492;42.84;37.35;42.14;43.15;44.64;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
-BBDC4;2026-11-09;2026-11-09 19:52;14.68;Baixa forte;baixa;no meio do caminho;alta;0.972;0.805;16.58;13.44;13.44;15.68;15.68;;;Baixa forte;;Vol alta: venda do lado da tendência, longe do preço.
-AXIA3;2026-11-09;2026-11-09 19:52;49.04;Baixa forte;baixa;no suporte;alta;0.893;1.879;52.02;47.43;47.43;48.64;49.76;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
-PRIO3;2026-11-09;2026-11-09 19:52;59.39;Alta;alta;na resistência;alta;0.905;2.852;66.16;55.28;56.05;58.92;66.25;;;Baixa forte;;Esperar o rompimento confirmado (fechamento acima com volume).
+PETR4;2026-11-06;2026-11-10 00:39;45.3;Alta;alta;perdendo suporte;alta;0.964;2.026;51.93;43.49;44.87;47.3;47.3;;;Baixa forte;Perda de suporte;"Rever calls compradas e puts vendidas próximas; não abrir nova posição de alta agora."
+VALE3;2026-11-06;2026-11-10 00:39;64.04;Baixa;baixa;na resistência;alta;0.877;2.09;64.5;59.42;59.42;64.13;64.13;;;Baixa forte;;Venda de call com strike acima de R$ 64,13 (vol alta paga bem).
+BPAC11;2026-11-06;2026-11-10 00:39;55.52;Baixa forte;baixa;na resistência;alta;0.972;3.963;63.17;46.14;46.14;48.73;62.99;;;Baixa forte;Topo duplo confirmado;Venda de call com strike acima de R$ 62,99 (vol alta paga bem).
+BBAS3;2026-11-06;2026-11-10 00:39;17.13;Baixa forte;baixa;na resistência;alta;0.972;1.028;19.68;16.08;16.08;17.79;17.79;;;Baixa forte;;Venda de call com strike acima de R$ 17,79 (vol alta paga bem).
+BBSE3;2026-11-06;2026-11-10 00:39;38.24;Alta;alta;no suporte;alta;0.913;1.319;40.65;37.33;37.33;38.24;40.22;;;Baixa forte;;Venda de put com strike abaixo de R$ 37,33 (vol alta paga bem).
+B3SA3;2026-11-06;2026-11-10 00:39;14.39;Baixa forte;baixa;na resistência;alta;0.972;1.228;17.4;;;11.83;18.63;;;Baixa forte;Topo duplo confirmado;Venda de call com strike acima de R$ 18,63 (vol alta paga bem).
+KLBN11;2026-11-06;2026-11-10 00:39;17.6;Baixa;baixa;na resistência;alta;0.996;0.566;18.01;16.52;16.61;17.13;19.81;;;Baixa forte;Repique na tendência de baixa | Topo duplo em formação;Venda de call com strike acima de R$ 19,81 (vol alta paga bem).
+BRAP4;2026-11-06;2026-11-10 00:39;19.15;Baixa;baixa;na resistência;alta;0.75;0.649;19.26;17.89;17.89;19.33;19.33;;;Baixa forte;;Venda de call com strike acima de R$ 19,33 (vol alta paga bem).
+SUZB3;2026-11-06;2026-11-10 00:39;53.4;Alta forte;alta;no suporte;alta;0.889;1.671;47.65;46.36;53.54;59.65;59.65;;;Baixa forte;Pullback na tendência de alta;Venda de put com strike abaixo de R$ 46,36 (vol alta paga bem).
+PSSA3;2026-11-06;2026-11-10 00:39;44.35;Baixa forte;baixa;na resistência;alta;0.96;1.576;47.87;42.36;42.36;45.09;47.84;;;Baixa forte;;Venda de call com strike acima de R$ 47,84 (vol alta paga bem).
+ITUB4;2026-11-06;2026-11-10 00:39;40.53;Baixa;baixa;no suporte;alta;0.968;1.51;42.95;37.35;42.14;43.15;44.64;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
+BBDC4;2026-11-06;2026-11-10 00:39;14.2;Baixa forte;baixa;no suporte;alta;0.968;0.83;16.77;13.44;13.44;15.68;15.68;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
+AXIA3;2026-11-06;2026-11-10 00:39;48.29;Baixa forte;baixa;no suporte;alta;0.893;1.96;52.32;47.43;47.43;48.64;49.76;;;Baixa forte;;Esperar a perda do suporte ou um sinal de reversão.
+PRIO3;2026-11-06;2026-11-10 00:39;60.48;Alta;alta;na resistência;alta;0.913;2.796;66.84;55.28;56.05;58.92;66.25;;;Baixa forte;;Esperar o rompimento confirmado (fechamento acima com volume).
